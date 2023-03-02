@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">Sequence_DCwithSB.doc</Object>
+    <Object Type="Program" Language="IEC" Description="*Discharger to work with Static Bag">x_dc</Object>
+    <Object Type="Program" Language="IEC" Description="*Static bag -- Pushbutton controls">x_sb</Object>
+  </Objects>
+</Package>

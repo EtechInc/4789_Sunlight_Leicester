@@ -1,0 +1,256 @@
+FUNCTION_BLOCK CAN2Init
+;********************************************************************************************************
+;* Implementation of CAN2Init
+;********************************************************************************************************
+; * version 		3.0.2
+; * last change		sep, 19th, 2005
+; * by				H.O.
+;********************************************************************************************************
+; * History:
+;***********
+; * 3.0.2 	###HO - 190905
+; 	* IN doMemType anstatt doUSRRAM
+; * V2.1.2	###HO - 070205
+;	* V2.1.1 auch für m68k
+; * V2.1.1
+; 	* Korrektur Bezeichner szCAN2Write/ReadDO für DatObjCreate() - sonst status '20601'
+;	* Speicher für DOs nach Warmstart wurde nicht wieder freigegeben
+;		-> Instanzenabhängige Generierung von DOs anhand UniqueCAN2Init-Handle
+; * V2.1.0
+;		* DO "AdrIC2Prot" replaced by pCAN2Init_ident
+;		* enable added
+;		* instance individual DOs generated
+; 			-> mandatory for support of same CANIDs on different CANIFs..
+; * V 1.0.0		-> 1st version for AS..
+; * V 2.0.0
+;		* manually passed size of CANQueue removed - Queuesize always is four now..
+; 		* DO "AdrIC2Prot" added to replace OutPara 'p_InitCAN2Protocol'
+;********************************************************************************************************
+;********************************************************************************************************
+
+if (enable = 0) then
+	goto ENDE
+endif
+
+; initiate return status of CAN2Init()
+uiStatus = 0;  105 ;
+
+; generate identifier for InitDO ...
+strcpy(ADR(szInitDO),"CAN2Ini") ; ###HO - 170205 - verkürzt - sonst '20613'
+usInitDOInstanceNumber = usUniqueIDCAN2Init
+itoa(DINT(usInitDOInstanceNumber), adr(szInitDOInstanceNumber))
+; ###HO300904 - "CAN2Init1"
+strcat(ADR(szInitDO), adr(szInitDOInstanceNumber))
+
+; create DO with R/W info..
+DatObjCreate_InitDO.enable	= 1
+DatObjCreate_InitDO.grp		= 0
+DatObjCreate_InitDO.pName	= ADR(szInitDO) ; "CAN2Init1"
+DatObjCreate_InitDO.len		= uiNumberOfCAN2COBs * sizeof(Local_InitCAN2PV) ; size of DO depends on number of COBs..
+DatObjCreate_InitDO.MemType	= doMemType ; doUSRRAM 	; = usrram ist warmstartsicher(!)
+DatObjCreate_InitDO.Option	= 1 		; 1-> no crc check..
+DatObjCreate_InitDO.pCpyData = adr(pStartAdrDO)	; not in use..
+DatObjCreate_InitDO FUB DatObjCreate()
+if((uiStatus = 0) and (DatObjCreate_InitDO.status <> 20601))  then
+	uiStatus = DatObjCreate_InitDO.status
+endif
+
+DatObjInfo(1, ADR(szInitDO), DO_StatInfo, DO_ID, DO_StartAdr, DO_Len, DO_Memtype, DO_Option, DO_ChangeDat )
+;***************************************************************************************
+; generate identifier for InitDO ...
+strcpy(ADR(szCAN2WriteDO),"CAN2Wrt") ; ###HO - 170205 - verkürzt - sonst '20613'
+itoa(DINT(usInitDOInstanceNumber), adr(szInitDOInstanceNumber))
+;###HO 300904 - strcat('szInitDO',,)
+strcat(ADR(szCAN2WriteDO), adr(szInitDOInstanceNumber)) ; addInstNumber to szCAN2WriteDO
+
+DatObjCreate_WriteDO.enable		= 1
+DatObjCreate_WriteDO.grp		= 0
+DatObjCreate_WriteDO.pName		= adr(szCAN2WriteDO) ; "CAN2Write"
+DatObjCreate_WriteDO.len		= uiNumberOfCAN2COBs * sizeof(CAN2Write)
+DatObjCreate_WriteDO.MemType	= doMemType ; doUSRRAM
+DatObjCreate_WriteDO.Option		= 1
+DatObjCreate_WriteDO.pCpyData	= adr(pStartAdrDOCAN2Write)
+DatObjCreate_WriteDO FUB DatObjCreate()
+if((uiStatus = 0) and (DatObjCreate_WriteDO.status <> 20601))  then
+	uiStatus = DatObjCreate_WriteDO.status
+endif
+DatObjInfo(1, ADR(szCAN2WriteDO), DO_StatInfo, DO_IDCAN2Write, DO_StartAdr, DO_Len, DO_Memtype, DO_Option, DO_ChangeDat )
+;***************************************************************************************
+
+; generate identifier for InitDO ...
+strcpy(ADR(szCAN2ReadDO),"CAN2Rd") ; ###HO - 170205 - verkürzt - sonst '20613'
+itoa(DINT(usInitDOInstanceNumber), adr(szInitDOInstanceNumber))
+;###HO 300904 - strcat('szInitDO',,)
+strcat(ADR(szCAN2ReadDO), adr(szInitDOInstanceNumber)) ; addInstNumber to szCAN2ReadDO
+
+DatObjCreate_ReadDO.enable		= 1
+DatObjCreate_ReadDO.grp			= 0
+DatObjCreate_ReadDO.pName		= ADR(szCAN2ReadDO)
+DatObjCreate_ReadDO.len			= uiNumberOfCAN2COBs * sizeof(CAN2Read)
+DatObjCreate_ReadDO.MemType		= doMemType ; doUSRRAM
+DatObjCreate_ReadDO.Option		= 1
+DatObjCreate_ReadDO.pCpyData	= adr(pStartAdrDOCAN2Read)
+DatObjCreate_ReadDO FUB DatObjCreate()
+if((uiStatus = 0) and (DatObjCreate_ReadDO.status <> 20601))  then
+	uiStatus = DatObjCreate_ReadDO.status
+endif
+DatObjInfo(1, adr(szCAN2ReadDO), DO_StatInfo, DO_IDCAN2Read, DO_StartAdr, DO_Len, DO_Memtype, DO_Option, DO_ChangeDat )
+
+;********************************************
+; prepare writing to DO
+DatObjWrite_InitDO.enable	= 1							; wanna write to DO..
+DatObjWrite_InitDO.ident	= DO_ID						; from DOInfo..
+DatObjWrite_InitDO.len		= sizeof(Local_InitCAN2PV) 	; size of single DO - former LocalCAN2InitData
+;********************************************
+DatObjWrite_WriteDO.enable	= 1
+DatObjWrite_WriteDO.ident	= DO_IDCAN2Write
+DatObjWrite_WriteDO.len		= sizeof(CAN2Write)
+;********************************************
+DatObjWrite_ReadDO.enable	= 1
+DatObjWrite_ReadDO.ident	= DO_IDCAN2Read
+DatObjWrite_ReadDO.len		= sizeof(CAN2Read)
+;********************************************
+
+; CANOpen() sufficent for CANrd() + CANqwrite()
+CANopen_0.enable	= 1
+CANopen_0.baud_rate	= 25
+CANopen_0.cob_anz	= uiNumberOfCAN2COBs *2
+CANopen_0.error_adr	= ADR(ErrAdrNotInUse)
+CANopen_0.device	= ADR(szCANInterface)
+CANopen_0.info		= 0 ; don't use extd mode of CANCtrl ..
+CANopen_0 FUB CANopen()
+if(uiStatus = 0) then
+	uiStatus = CANopen_0.status
+endif
+;********************************************
+
+; now -fill DOs with necessarily data
+loop iLoopIdx = 0 to (uiNumberOfCAN2COBs -1) do
+	memcpy(adr(LocalInitCAN2PV), (pInitCAN2PV + sizeof(LocalInitCAN2PV)*iLoopIdx), sizeof(LocalInitCAN2PV))
+
+	; pass 'InitData' -> '_InitData' ..
+	Local_InitCAN2PV.pPVData			= LocalInitCAN2PV.pPVData
+	Local_InitCAN2PV.uiObjNr			= LocalInitCAN2PV.uiCANID
+	Local_InitCAN2PV.usCommDirection	= LocalInitCAN2PV.usCommDirection
+	Local_InitCAN2PV.pEvVar				= LocalInitCAN2PV.pEvVar
+	Local_InitCAN2PV.uiCOB_ident		= UINT(iLoopIdx + 900) 	; internal identifier - not in use
+	Local_InitCAN2PV.bRunning			= FALSE 				; not in use
+	; from V1.1.0 -> COB-individual selection of mode..
+	Local_InitCAN2PV.iMode				= LocalInitCAN2PV.iMode
+
+	; check CommDirection to decide whether to initiate a CANqueue() ..
+	; initiate for all read operations single CANqueue  - establishing CANQueue only in read direction necessary..
+	if (LocalInitCAN2PV.usCommDirection = 0) then		; read to COB..
+
+		; initiate CANqueue for read operation..
+		CANqueue_0.enable	= 1
+		CANqueue_0.us_ident	= CANopen_0.us_ident
+		CANqueue_0.can_id	= LocalInitCAN2PV.uiCANID
+		; uiCANqueueSize from V1.0.0 removed -> set to max count of single tels..
+		CANqueue_0.size		= 5 ; telegram capacity of queue..
+		CANqueue_0 FUB CANqueue()
+		if(uiStatus = 0) then
+			uiStatus = CANqueue_0.status
+			exitif (CANqueue_0.status <> 0)
+		endif
+
+		_GetNumberOfCan1Tels_0.pPV		= Local_InitCAN2PV.pPVData
+		_GetNumberOfCan1Tels_0.uiObjNr	= Local_InitCAN2PV.uiObjNr
+		_GetNumberOfCan1Tels_0 FUB _GetNumberOfCan1Tels()
+
+		; uiCAN_q_ident isn't passed in by user -> created by CANqueue ..
+		Local_InitCAN2PV.udCAN_q_ident	= CANqueue_0.q_ident ;
+
+		; write uiObjNr to DO..
+		CAN2Read.uiObjNr				= Local_InitCAN2PV.uiObjNr
+		CAN2Read.iNumberOfTels			= _GetNumberOfCan1Tels_0.iNumberOfCan1Tels
+		CAN2Read.iNumberReceivedTels	= 0
+
+		; reset data of WriteDO
+		CAN2Write.bBusy 			= FALSE
+		CAN2Write.iNumberOfTels 	= 0
+		CAN2Write.iTelsSent			= 0
+		CAN2Write.tTimeLastTelSent 	= TIME(0)
+		CAN2Write.uiCOB_ident		= iLoopIdx + 900
+
+	else if (LocalInitCAN2PV.usCommDirection = 1) then	; COB is defined as to 'write'
+		Local_InitCAN2PV.udCAN_q_ident	= 0	; object to write - no queue established
+
+		; establish DO with CAN2Data of COBs to write..
+		_GetNumberOfCan1Tels_0.pPV		= Local_InitCAN2PV.pPVData
+		_GetNumberOfCan1Tels_0.uiObjNr	= Local_InitCAN2PV.uiObjNr
+		_GetNumberOfCan1Tels_0 FUB _GetNumberOfCan1Tels()
+
+		_SetCAN2COBTypeToCAN2Type_0.p_InitCAN2PV = adr(Local_InitCAN2PV)
+		_SetCAN2COBTypeToCAN2Type_0 FUB _SetCAN2COBTypeToCAN2Type()
+		; don't read PVs now- actualize process images at runtime..
+		; memcpy(adr(CAN2Write.CAN2), _SetCAN2COBTypeToCAN2Type_0.pCAN2DtaUni, sizeof(CAN2Write.CAN2))
+
+		CAN2Write.bBusy 			= FALSE
+		CAN2Write.iNumberOfTels 	= _GetNumberOfCan1Tels_0.iNumberOfCan1Tels
+		CAN2Write.iTelsSent			= 0
+		CAN2Write.tTimeLastTelSent 	= TIME(0)
+		CAN2Write.uiCOB_ident		= iLoopIdx + 900
+
+			; reset content of DORead
+			CAN2Read.uiObjNr = 0
+			loop iLoopIdxTemp = 0 to 49 do  ; ###HO -020905
+				CAN2Read.ab_ByteArray[iLoopIdxTemp] = 0
+			endloop
+	else ; neither read nor write..
+		uiStatus = 520
+		memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatus),sizeof(uiStatus))
+	endif
+
+	DatObjWrite_ReadDO.Offset	= sizeof(CAN2Read) * iLoopIdx
+	DatObjWrite_ReadDO.pSource	= adr(CAN2Read)
+	DatObjWrite_ReadDO FUB DatObjWrite()
+	if(uiStatus = 0) then
+		uiStatus = DatObjWrite_ReadDO.status
+		exitif (DatObjWrite_ReadDO.status <> 0)
+	endif
+
+	; write data to DO..
+	DatObjWrite_WriteDO.Offset	= sizeof(CAN2Write) * iLoopIdx
+	DatObjWrite_WriteDO.pSource	= adr(CAN2Write)
+	DatObjWrite_WriteDO FUB DatObjWrite()
+	if(uiStatus = 0) then
+		uiStatus = DatObjWrite_WriteDO.status
+		exitif (DatObjWrite_WriteDO.status <> 0)
+	endif
+
+	; .. and write to InitDO..
+	DatObjWrite_InitDO.pSource	= ADR(Local_InitCAN2PV)
+	DatObjWrite_InitDO.Offset 	= sizeof(Local_InitCAN2PV) * iLoopIdx
+	DatObjWrite_InitDO FUB DatObjWrite()
+	if(uiStatus = 0) then
+		uiStatus = DatObjWrite_InitDO.status
+		exitif (DatObjWrite_InitDO.status <> 0)
+	endif
+endloop
+
+; now verify protocol data..
+if( (uiNumberOfCAN2COBs < 0) or (uiNumberOfCAN2COBs = 0) ) then
+	uiStatus = 530
+endif
+
+; pass access data to output..
+Local_InitCAN2Protocol.AccessInitDO.DO_us_ident  		= DO_ID
+Local_InitCAN2Protocol.DoAccessCAN2Write.DO_us_ident 	= DO_IDCAN2Write
+Local_InitCAN2Protocol.DOAccessCAN2Read.DO_us_ident 	= DO_IDCAN2Read
+Local_InitCAN2Protocol.CAN2DObCount						= uiNumberOfCAN2COBs
+Local_InitCAN2Protocol.CANAccess.CANopen_us_ident		= CANopen_0.us_ident
+; from V1.1.0 -> param iMode not in use any longer..
+Local_InitCAN2Protocol.iMode 							= 111
+
+; assign local data to pointer passed to output.. -> removed from > V1.1.0
+; reactivated in V2.1.0
+p_InitCAN2Protocol = ADR(Local_InitCAN2Protocol)
+
+; assign handle for CAN2RW()..
+pCAN2Init_ident = p_InitCAN2Protocol
+
+;********************************************************************************************************
+
+ENDE:
+END_FUNCTION_BLOCK

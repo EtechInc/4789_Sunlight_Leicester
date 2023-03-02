@@ -1,0 +1,583 @@
+FUNCTION_BLOCK _ConvertDataToi386
+;********************************************************************************************************
+; * Implementation of _ConvertDataToi386
+; 	*** Only ReadOperation for IntelTarget***
+;********************************************************************************************************
+; * version 		3.6.0
+; * last change		120210
+; * by				H.O.
+;********************************************************************************************************
+; History:
+; --------
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191  
+; * V3.4.0
+;	* COB ID 110 + 111 
+; * V3.2.1
+;	* COB130,140 wie 120 und..
+;	* COB 131,141 wie 121
+; * V3.2.0 HO 040907
+;	* _ConvertDataToi386.COB251.bStartBeladung
+;	* COBs 261,262 added
+; 	* COBs302,303,304,312,313,314,253,255,254,256,352,353,354  neu
+; * V3.1.0 HO 141206
+;	* COBs 126,127,128,129 hinzugefügt
+; * V3.0.0 HO 070905
+;		cob251
+; * V2.1.0 HO 150404
+;		* Redundancy support done for COBs: 480,481
+; * V 2.0.0 (by HO) -> COBs 251,252,480,481 added
+; 					-> COBs 120,121,123 modified
+; 					-> COB 122 replaced
+; * V 1.0.0  		-> Original
+;********************************************************************************************************
+; this function transforms an incoming ByteArray in motorola order to intel format:
+;  -> performs address adaption to intel format
+; 		(intel requires swapping of WORDs and modification of startadresses by DWORDs (dividable by four))
+;  -> swapping of single WORDS of LONG
+;  -> swapping of single WORDS (= uints) is not necessary
+;  -> swapping of neighboring characters of STRING
+;********************************************************************************************************
+; supported CANIDs: 120, 121,122,123,130,140,131,141,201,209,211,219,221,231,251,252
+; 					301,306,311,316,351,361..369,371..379,401..419,421..439,480,481
+;********************************************************************************************************
+
+; always assign InData to OutData -> overwrite changes..
+ByteArrayi386 = ByteArrayMotorola
+
+case uiObjNr of
+	action 120:
+	action 126:
+	action 128:
+	action 130:
+	action 140:
+	action 150:
+	action 160:
+	action 170:
+	action 180:
+	action 190:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; szAuftragskennzeichen
+		usTempByte 			= ByteArrayMotorola[14]
+		ByteArrayi386[14] 	= ByteArrayMotorola[15]
+		ByteArrayi386[15] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[16]
+		ByteArrayi386[16] 	= ByteArrayMotorola[17]
+		ByteArrayi386[17] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[18]
+		ByteArrayi386[18] 	= ByteArrayMotorola[19]
+		ByteArrayi386[19] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[20]
+		ByteArrayi386[20] 	= ByteArrayMotorola[21]
+		ByteArrayi386[21] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[22]
+		ByteArrayi386[22] 	= ByteArrayMotorola[23]
+		ByteArrayi386[23] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[24]
+		ByteArrayi386[24] 	= ByteArrayMotorola[25]
+		ByteArrayi386[25] 	= usTempByte
+		; + EOS +  Alignment
+
+		; ud Kundennummer
+		ByteArrayi386[28] 	= ByteArrayMotorola[30]
+		ByteArrayi386[29] 	= ByteArrayMotorola[31]
+		ByteArrayi386[30] 	= ByteArrayMotorola[28]
+		ByteArrayi386[31] 	= ByteArrayMotorola[29]
+
+	endaction ; 120
+
+	action 121:
+	action 127:
+	action 129:
+	action 131:
+	action 141:
+	action 151:
+	action 161:
+	action 171:
+	action 181:
+	action 191:
+		; nothing to do..
+	endaction ; 121
+
+	; replaced from V2.0.0
+	action 122:
+		; udKundennummer
+		ByteArrayi386[4] 	= ByteArrayMotorola[6]
+		ByteArrayi386[5] 	= ByteArrayMotorola[7]
+		ByteArrayi386[6] 	= ByteArrayMotorola[4]
+		ByteArrayi386[7] 	= ByteArrayMotorola[5]
+
+		; udPostennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+
+		; szAuftragskennzeichen
+		usTempByte 			= ByteArrayMotorola[17]
+		ByteArrayi386[17] 	= ByteArrayMotorola[18]
+		ByteArrayi386[18] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[19]
+		ByteArrayi386[19] 	= ByteArrayMotorola[20]
+		ByteArrayi386[20] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[21]
+		ByteArrayi386[21] 	= ByteArrayMotorola[22]
+		ByteArrayi386[22] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[23]
+		ByteArrayi386[23] 	= ByteArrayMotorola[24]
+		ByteArrayi386[24] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[25]
+		ByteArrayi386[25] 	= ByteArrayMotorola[26]
+		ByteArrayi386[26] 	= usTempByte
+		usTempByte 			= ByteArrayMotorola[27]
+		ByteArrayi386[27] 	= ByteArrayMotorola[28]
+		ByteArrayi386[28] 	= usTempByte
+	endaction ; 122
+
+	action 123:
+		; nothing to do..
+	endaction ; 123
+(*
+	action 1130: 			; 08.10.2007 - (hcs) DEAKTIVIERT
+		; udPostennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[12]
+		ByteArrayi386[13] 	= ByteArrayMotorola[13]
+		ByteArrayi386[14] 	= ByteArrayMotorola[10]
+		ByteArrayi386[15] 	= ByteArrayMotorola[11]
+
+		; usFehlernummer
+		ByteArrayi386[16] 	= ByteArrayMotorola[14]
+
+		; bAuftragskennzeichen
+		ByteArrayi386[17] 	= ByteArrayMotorola[15]
+
+		; szAuftragskennzeichen
+			ByteArrayi386[18] 	= ByteArrayMotorola[17]
+		ByteArrayi386[19] 	= ByteArrayMotorola[16]
+			ByteArrayi386[20] 	= ByteArrayMotorola[19]
+		ByteArrayi386[21] 	= ByteArrayMotorola[18]
+			ByteArrayi386[22] 	= ByteArrayMotorola[21]
+		ByteArrayi386[23] 	= ByteArrayMotorola[20]
+			ByteArrayi386[24] 	= ByteArrayMotorola[23]
+		ByteArrayi386[25] 	= ByteArrayMotorola[22]
+			ByteArrayi386[26] 	= ByteArrayMotorola[25]
+		ByteArrayi386[27] 	= ByteArrayMotorola[24]
+			ByteArrayi386[28] 	= ByteArrayMotorola[27]
+		ByteArrayi386[29] 	= ByteArrayMotorola[26]
+
+		; udKundennummer
+		ByteArrayi386[32] 	= ByteArrayMotorola[32]
+		ByteArrayi386[33] 	= ByteArrayMotorola[33]
+		ByteArrayi386[34] 	= ByteArrayMotorola[30]
+		ByteArrayi386[35] 	= ByteArrayMotorola[31]
+
+		; uiGewicht
+		ByteArrayi386[36] 	= ByteArrayMotorola[34]
+		ByteArrayi386[37] 	= ByteArrayMotorola[35]
+
+		; bNotAusEnts
+		ByteArrayi386[38] 	= ByteArrayMotorola[36]
+	endaction ; 130
+
+	action 140:
+		; udPostennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[12]
+		ByteArrayi386[13] 	= ByteArrayMotorola[13]
+		ByteArrayi386[14] 	= ByteArrayMotorola[10]
+		ByteArrayi386[15] 	= ByteArrayMotorola[11]
+
+		; usFehlernummer
+		ByteArrayi386[16] 	= ByteArrayMotorola[14]
+
+		; bAuftragskennzeichen
+		ByteArrayi386[17] 	= ByteArrayMotorola[15]
+
+		; szAuftragskennzeichen
+			ByteArrayi386[18] 	= ByteArrayMotorola[17]
+		ByteArrayi386[19] 	= ByteArrayMotorola[16]
+			ByteArrayi386[20] 	= ByteArrayMotorola[19]
+		ByteArrayi386[21] 	= ByteArrayMotorola[18]
+			ByteArrayi386[22] 	= ByteArrayMotorola[21]
+		ByteArrayi386[23] 	= ByteArrayMotorola[20]
+			ByteArrayi386[24] 	= ByteArrayMotorola[23]
+		ByteArrayi386[25] 	= ByteArrayMotorola[22]
+			ByteArrayi386[26] 	= ByteArrayMotorola[25]
+		ByteArrayi386[27] 	= ByteArrayMotorola[24]
+			ByteArrayi386[28] 	= ByteArrayMotorola[27]
+		ByteArrayi386[29] 	= ByteArrayMotorola[26]
+
+		; udKundennummer
+		ByteArrayi386[32] 	= ByteArrayMotorola[32]
+		ByteArrayi386[33] 	= ByteArrayMotorola[33]
+		ByteArrayi386[34] 	= ByteArrayMotorola[30]
+		ByteArrayi386[35] 	= ByteArrayMotorola[31]
+
+		; uiGewicht
+		ByteArrayi386[36] 	= ByteArrayMotorola[34]
+		ByteArrayi386[37] 	= ByteArrayMotorola[35]
+
+		; bNotAusEnts
+		ByteArrayi386[38] 	= ByteArrayMotorola[36]
+	endaction ; 140
+
+	action 1131: 	; 08.10.2007 - (hcs) DEAKTIVIERT
+		; nothing to do
+	endaction ; 131..141
+
+	action 141:
+		; nothing to do
+	endaction ; 131..141
+*)
+	action 201:
+	; nur swappen - kein Alignment
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+	endaction ; 201
+
+	action 209:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+	endaction ; 209
+
+	action 211:
+		; nothing to do
+	endaction ; 211
+
+	action 219:
+		; nothing to do
+		ByteArrayi386[6] 	= ByteArrayMotorola[7]
+		ByteArrayi386[7] 	= ByteArrayMotorola[6]
+	endaction ; 219
+
+	action 221:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[8]
+		ByteArrayi386[9] 	= ByteArrayMotorola[9]
+		ByteArrayi386[10] 	= ByteArrayMotorola[6]
+		ByteArrayi386[11] 	= ByteArrayMotorola[7]
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[12]
+		ByteArrayi386[13] 	= ByteArrayMotorola[13]
+		ByteArrayi386[14] 	= ByteArrayMotorola[10]
+		ByteArrayi386[15] 	= ByteArrayMotorola[11]
+		; uiGewicht
+		ByteArrayi386[16] 	= ByteArrayMotorola[14]
+		ByteArrayi386[17] 	= ByteArrayMotorola[15]
+		; bNotAusWM
+		ByteArrayi386[18] 	= ByteArrayMotorola[16]
+		; Res
+		ByteArrayi386[19] 	= ByteArrayMotorola[17]
+		ByteArrayi386[20] 	= ByteArrayMotorola[18]
+		; a_usCustomize
+		ByteArrayi386[21] 	= ByteArrayMotorola[19]
+		ByteArrayi386[22] 	= ByteArrayMotorola[20]
+		ByteArrayi386[23] 	= ByteArrayMotorola[21]
+		ByteArrayi386[24] 	= ByteArrayMotorola[22]
+		ByteArrayi386[25] 	= ByteArrayMotorola[23]
+		ByteArrayi386[26] 	= ByteArrayMotorola[24]
+		ByteArrayi386[27] 	= ByteArrayMotorola[25]
+	endaction ; 221
+
+	action 231:
+		; nothing to do
+	endaction ; 231
+	action 251:
+	action 253:
+	action 255:
+	action 257:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[8]
+		ByteArrayi386[9] 	= ByteArrayMotorola[9]
+		ByteArrayi386[10] 	= ByteArrayMotorola[6]
+		ByteArrayi386[11] 	= ByteArrayMotorola[7]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[12]
+		ByteArrayi386[13] 	= ByteArrayMotorola[13]
+		ByteArrayi386[14] 	= ByteArrayMotorola[10]
+		ByteArrayi386[15] 	= ByteArrayMotorola[11]
+
+		; uiGewicht
+		ByteArrayi386[16] 	= ByteArrayMotorola[14]
+		ByteArrayi386[17] 	= ByteArrayMotorola[15]
+
+		; usZiel
+		ByteArrayi386[18] 	= ByteArrayMotorola[16]
+
+		; bBeladeende
+		ByteArrayi386[19] 	= ByteArrayMotorola[17]
+
+		; usReserve
+		ByteArrayi386[20] 	= ByteArrayMotorola[18]
+
+		; bSperreBereich
+		ByteArrayi386[21] 	= ByteArrayMotorola[19]
+
+		; a_usCustomize
+		ByteArrayi386[22] 	= ByteArrayMotorola[20]
+		ByteArrayi386[23] 	= ByteArrayMotorola[21]
+		ByteArrayi386[24] 	= ByteArrayMotorola[22]
+		ByteArrayi386[25] 	= ByteArrayMotorola[23]
+		ByteArrayi386[26] 	= ByteArrayMotorola[24]
+		ByteArrayi386[27] 	= ByteArrayMotorola[25]
+		ByteArrayi386[28] 	= ByteArrayMotorola[26]
+
+		; bStartBeladung	###HO - 040907
+		ByteArrayi386[29] 	= ByteArrayMotorola[27]
+
+	endaction ; 251
+
+	action 252:
+	action 254:
+	action 256:
+	action 258:
+		; nothing to do..
+	endaction ; 252
+
+	action 261:
+		; nothing to do..
+	endaction ; 261
+	action 262:
+		; nothing to do..
+	endaction ; 262
+
+	action 301:
+	action 302:
+	action 303:
+	action 304:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+	endaction ; 301
+
+;	action 110: 
+	action 306:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+	endaction ; 306
+
+	action 307:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[16] 	= ByteArrayMotorola[18]
+		ByteArrayi386[17] 	= ByteArrayMotorola[19]
+		ByteArrayi386[18] 	= ByteArrayMotorola[16]
+		ByteArrayi386[19] 	= ByteArrayMotorola[17]
+	endaction ; 307
+
+	action 311:
+	action 312:
+	action 313:
+	action 314:
+		; nothing to do
+	endaction ; 311
+	
+	action 111:
+	action 316:
+		; nothing to do
+	endaction ; 316
+
+	action 351:
+	action 352:
+	action 353:
+	action 354:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+	endaction ; 351
+
+	action 361..369:
+		; udPostennummer
+		ByteArrayi386[4] 	= ByteArrayMotorola[6]
+		ByteArrayi386[5] 	= ByteArrayMotorola[7]
+		ByteArrayi386[6] 	= ByteArrayMotorola[4]
+		ByteArrayi386[7] 	= ByteArrayMotorola[5]
+
+		; udKundennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+	endaction ; 361..369
+
+	action 371..379:
+		; nothing to do
+	endaction ; 371..379
+
+	action 401..419:
+		; udPostennummer
+		ByteArrayi386[8] 	= ByteArrayMotorola[10]
+		ByteArrayi386[9] 	= ByteArrayMotorola[11]
+		ByteArrayi386[10] 	= ByteArrayMotorola[8]
+		ByteArrayi386[11] 	= ByteArrayMotorola[9]
+
+		; udKundennummer
+		ByteArrayi386[12] 	= ByteArrayMotorola[14]
+		ByteArrayi386[13] 	= ByteArrayMotorola[15]
+		ByteArrayi386[14] 	= ByteArrayMotorola[12]
+		ByteArrayi386[15] 	= ByteArrayMotorola[13]
+	endaction ; 401..419
+
+	action 421..439:
+		; uszuluftTemp + usAbluftIRTemp
+		ByteArrayi386[12] 	= ByteArrayMotorola[13]
+		ByteArrayi386[13] 	= ByteArrayMotorola[12]
+		; udPostennummer
+		ByteArrayi386[24] 	= ByteArrayMotorola[24]
+		ByteArrayi386[25] 	= ByteArrayMotorola[25]
+		ByteArrayi386[26] 	= ByteArrayMotorola[22]
+		ByteArrayi386[27] 	= ByteArrayMotorola[23]
+		; udKundennummer
+		ByteArrayi386[28] 	= ByteArrayMotorola[28]
+		ByteArrayi386[29] 	= ByteArrayMotorola[29]
+		ByteArrayi386[30] 	= ByteArrayMotorola[26]
+		ByteArrayi386[31] 	= ByteArrayMotorola[27]
+		; uiGewicht
+		ByteArrayi386[32] 	= ByteArrayMotorola[30]
+		ByteArrayi386[33] 	= ByteArrayMotorola[31]
+		; bNotAusTrockner
+		ByteArrayi386[34] 	= ByteArrayMotorola[32]
+		; bHand
+		ByteArrayi386[35] 	= ByteArrayMotorola[33]
+		; uiIRTemp
+		ByteArrayi386[37] 	= ByteArrayMotorola[34]
+		ByteArrayi386[36] 	= ByteArrayMotorola[35]
+		; usReserve
+		ByteArrayi386[38] 	= ByteArrayMotorola[36]
+		; a_usCustomize
+		ByteArrayi386[39] 	= ByteArrayMotorola[37]
+		ByteArrayi386[40] 	= ByteArrayMotorola[38]
+		ByteArrayi386[41] 	= ByteArrayMotorola[39]
+		ByteArrayi386[42] 	= ByteArrayMotorola[40]
+		ByteArrayi386[43] 	= ByteArrayMotorola[41]
+		ByteArrayi386[44] 	= ByteArrayMotorola[42]
+		ByteArrayi386[45] 	= ByteArrayMotorola[43]
+	endaction ; 421..439
+
+	action 480:
+		; udPostennummer
+		ByteArrayi386[16] 	= ByteArrayMotorola[16]
+		ByteArrayi386[17] 	= ByteArrayMotorola[17]
+		ByteArrayi386[18] 	= ByteArrayMotorola[14]
+		ByteArrayi386[19] 	= ByteArrayMotorola[15]
+		; udKundennummer
+		ByteArrayi386[20] 	= ByteArrayMotorola[20]
+		ByteArrayi386[21] 	= ByteArrayMotorola[21]
+		ByteArrayi386[22] 	= ByteArrayMotorola[18]
+		ByteArrayi386[23] 	= ByteArrayMotorola[19]
+		; uiGewicht
+		ByteArrayi386[24] 	= ByteArrayMotorola[22]
+		ByteArrayi386[25] 	= ByteArrayMotorola[23]
+		; usReserve1
+		ByteArrayi386[26] 	= ByteArrayMotorola[24]
+		;bReserve1-bReserve9
+		ByteArrayi386[27] 	= ByteArrayMotorola[25]
+		ByteArrayi386[28] 	= ByteArrayMotorola[26]
+		ByteArrayi386[29] 	= ByteArrayMotorola[27]
+		ByteArrayi386[30] 	= ByteArrayMotorola[28]
+		ByteArrayi386[31] 	= ByteArrayMotorola[29]
+		ByteArrayi386[32] 	= ByteArrayMotorola[30]
+		ByteArrayi386[33] 	= ByteArrayMotorola[31]
+		ByteArrayi386[34] 	= ByteArrayMotorola[32]
+		ByteArrayi386[35] 	= ByteArrayMotorola[33]
+		; a_usCustomize
+		ByteArrayi386[36] 	= ByteArrayMotorola[34]
+		ByteArrayi386[37] 	= ByteArrayMotorola[35]
+		ByteArrayi386[38] 	= ByteArrayMotorola[36]
+		ByteArrayi386[39] 	= ByteArrayMotorola[37]
+		ByteArrayi386[40] 	= ByteArrayMotorola[38]
+		ByteArrayi386[41] 	= ByteArrayMotorola[39]
+		ByteArrayi386[42] 	= ByteArrayMotorola[40]
+	endaction ; 480
+
+	action 481:
+		; udKundennummer
+		ByteArrayi386[16] 	= ByteArrayMotorola[16]
+		ByteArrayi386[17] 	= ByteArrayMotorola[17]
+		ByteArrayi386[18] 	= ByteArrayMotorola[14]
+		ByteArrayi386[19] 	= ByteArrayMotorola[15]
+		; udPostennummer
+		ByteArrayi386[20] 	= ByteArrayMotorola[20]
+		ByteArrayi386[21] 	= ByteArrayMotorola[21]
+		ByteArrayi386[22] 	= ByteArrayMotorola[18]
+		ByteArrayi386[23] 	= ByteArrayMotorola[19]
+		; usReserve1
+		ByteArrayi386[24] 	= ByteArrayMotorola[22]
+		;bReserve1-bReserve10
+		ByteArrayi386[25] 	= ByteArrayMotorola[23]
+		ByteArrayi386[26] 	= ByteArrayMotorola[24]
+		ByteArrayi386[27] 	= ByteArrayMotorola[25]
+		ByteArrayi386[28] 	= ByteArrayMotorola[26]
+		ByteArrayi386[29] 	= ByteArrayMotorola[27]
+		ByteArrayi386[30] 	= ByteArrayMotorola[28]
+		ByteArrayi386[31] 	= ByteArrayMotorola[29]
+		ByteArrayi386[32] 	= ByteArrayMotorola[30]
+		ByteArrayi386[33] 	= ByteArrayMotorola[31]
+		ByteArrayi386[34] 	= ByteArrayMotorola[32]
+		; a_usCustomize
+		ByteArrayi386[35] 	= ByteArrayMotorola[33]
+		ByteArrayi386[36] 	= ByteArrayMotorola[34]
+		ByteArrayi386[37] 	= ByteArrayMotorola[35]
+		ByteArrayi386[38] 	= ByteArrayMotorola[36]
+		ByteArrayi386[39] 	= ByteArrayMotorola[37]
+		ByteArrayi386[40] 	= ByteArrayMotorola[38]
+		ByteArrayi386[41] 	= ByteArrayMotorola[39]
+	endaction ; 481
+endcase
+
+;******************************************************************
+END_FUNCTION_BLOCK

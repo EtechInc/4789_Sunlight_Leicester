@@ -1,0 +1,139 @@
+#content_Dialog_mpbYes {
+  width: 100px;
+}
+
+#content_Dialog_mpbYes {
+  height: 30px;
+}
+
+#content_Dialog_mpbYes {
+  top: 99px;
+  position: absolute;
+}
+
+#content_Dialog_mpbYes {
+  left: 75px;
+  position: absolute;
+}
+
+#content_Dialog_mpbYes {
+  z-index: 1;
+}
+
+#content_Dialog_mpbNo {
+  width: 100px;
+}
+
+#content_Dialog_mpbNo {
+  height: 30px;
+}
+
+#content_Dialog_mpbNo {
+  top: 99px;
+  position: absolute;
+}
+
+#content_Dialog_mpbNo {
+  left: 325px;
+  position: absolute;
+}
+
+#content_Dialog_mpbNo {
+  z-index: 2;
+}
+
+#content_Dialog_tpRemoteStatus {
+  top: 5px;
+  position: absolute;
+}
+
+#content_Dialog_tpRemoteStatus {
+  left: 10px;
+  position: absolute;
+}
+
+#content_Dialog_tpRemoteStatus {
+  width: 480px;
+}
+
+#content_Dialog_tpRemoteStatus {
+  height: 79px;
+}
+
+#content_Dialog_tpRemoteStatus {
+  z-index: 3;
+}
+
+#content_Dialog_tpRemoteStatus {
+  border-style: none;
+}
+
+#content_Dialog_tpRemoteStatus #textWheel div.itemFragment div span {
+  font-size: 14px;
+}
+
+#content_Dialog_tpRemoteStatus #textWheel div.itemFragment div span {
+  font-weight: bold;
+}
+
+#content_Dialog_tpRemoteStatus:not(.disabled) #textWheel div.itemFragment div:not(.selected) span {
+  color: black;
+}
+
+#content_Dialog_tpRemoteStatus.disabled #textWheel div.itemFragment div.selected span {
+  color: black;
+}
+
+#content_Dialog_tpRemoteStatus #textWheel div.itemFragment div:not(.selected) {
+  border-width: 0px;
+}
+
+#content_Dialog_tpRemoteStatus #textWheel div.itemFragment div.selected {
+  border-width: 0px;
+}
+
+#content_Dialog_tpRemoteStatus.disabled #textWheel div.itemFragment div.selected {
+  background-color: white;
+}
+
+#content_Dialog_Rectangle1 {
+  top: 90px;
+  position: absolute;
+}
+
+#content_Dialog_Rectangle1 {
+  left: 0px;
+  position: absolute;
+}
+
+#content_Dialog_Rectangle1 {
+  width: 500px;
+}
+
+#content_Dialog_Rectangle1 {
+  height: 48px;
+}
+
+#content_Dialog_Rectangle1 {
+  z-index: 0;
+}
+
+#content_Dialog_Rectangle1 {
+  border-style: none;
+}
+
+#content_Dialog_Rectangle1 {
+  border-radius: 0px 0px 8px 8px;
+}
+
+#content_Dialog_Rectangle1 {
+  border-color: gray;
+}
+
+#content_Dialog_Rectangle1 {
+  background-color: #077cc5;
+}
+
+#content_Dialog_Rectangle1 {
+  background-image: linear-gradient(to top, #c5deea 0%,#8abbd7 31%,#67a6e4 100%);
+}

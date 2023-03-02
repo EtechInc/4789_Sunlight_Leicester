@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingsSet id="CalibrationPageBinding" xmlns="http://www.br-automation.com/iat2015/binding/engineering/v2" xmlns:bt="http://www.br-automation.com/iat2015/bindingListTypes/engineering/v2" xmlns:be="http://www.br-automation.com/iat2015/bindingListEmbedded/engineering/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+  <Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Status.di_1744ModuleOK" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentControl_2" widgetRefId="NavigationCalibration" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::Calibratio:WGHscale_0.std_value" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="NumericOutputStandadizedValue" attribute="node" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::Calibratio:WGHscale_0.raw_value" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="NumericOutputRawValue" attribute="value" />
+</Binding>
+
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::Calibratio:CalibrationTime" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="NumericInputSetCalibrationTime" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::Calibratio:Standardize1" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="ToggleButtonStandardize1" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::Calibratio:Standardize2" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="ToggleButtonStandardize2" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::Calibratio:Taring" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="ToggleButtonTaring" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::Calibratio:WGHscalePara.ref1_std" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="NumericInputSetCalibrationWeight1" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::Calibratio:WGHscalePara.ref2_std" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentCalibration" widgetRefId="NumericInputSetCalibrationWeight2" attribute="node" />
+</Binding>
+</Bindings>
+</BindingsSet>

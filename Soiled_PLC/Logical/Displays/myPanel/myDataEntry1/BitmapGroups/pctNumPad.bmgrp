@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?AutomationStudio Version="3.0.81.18"?>
+<BitmapGroup xmlns="http://br-automation.co.at/AS/VC/Project" Name="pctNumPad">
+  <Property Name="Description" Value=""/>
+  <Property Name="Index" Value="10"/>
+  <Property Name="Translate" Value="False"/>
+  <BitmapLayer LanguageId="neutral">
+    <BitmapRef ID="836" Value="Source[local].Bitmap[pctNumPad]"/>
+    <BitmapRef ID="837" Value="Source[local].Bitmap[pctNumPad_pressed]"/>
+  </BitmapLayer>
+  <IndexMap>
+    <Index ID="836" Value="0"/>
+    <Index ID="837" Value="1"/>
+  </IndexMap>
+</BitmapGroup>

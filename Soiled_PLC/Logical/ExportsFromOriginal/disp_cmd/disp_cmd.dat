@@ -1,0 +1,63 @@
+;-----------------
+;CAN Command Table
+;-----------------
+
+;         1234567890123456789012345678901   1234567890123456789012345678901
+;CAN Node 11
+00001215,"DisplayRXFrame1                ","DisplayRead1                   ",$00000000
+00001214,"DisplayTXFrame1                ","DisplayWrite1                  ",$00000001
+;CAN Node 12
+;00001231,"DisplayRXFrame2                ","DisplayRead2                   ",$00000000
+;00001230,"DisplayTXFrame2                ","DisplayWrite2                  ",$00000001
+;CAN Node 13
+00001247,"DisplayRXFrame3                ","DisplayRead3                   ",$00000000
+00001246,"DisplayTXFrame3                ","DisplayWrite3                  ",$00000001
+;CAN Node 14
+;00001263,"DisplayRXFrame4                ","DisplayRead4                   ",$00000000
+;00001262,"DisplayTXFrame4                ","DisplayWrite4                  ",$00000001
+;CAN Node 15
+00001279,"DisplayRXFrame5                ","DisplayRead5                   ",$00000000
+00001278,"DisplayTXFrame5                ","DisplayWrite5                  ",$00000001
+;CAN Node 16
+;00001295,"DisplayRXFrame6                ","DisplayRead6                   ",$00000000
+;00001294,"DisplayTXFrame6                ","DisplayWrite6                  ",$00000001
+;CAN Node 17
+00001311,"DisplayRXFrame7                ","DisplayRead7                   ",$00000000
+00001310,"DisplayTXFrame7                ","DisplayWrite7                  ",$00000001
+;CAN Node 18
+;00001327,"DisplayRXFrame8                ","DisplayRead8                   ",$00000000
+;00001326,"DisplayTXFrame8                ","DisplayWrite8                  ",$00000001
+;CAN Node 19
+;00001343,"DisplayRXFrame9                ","DisplayRead9                   ",$00000000
+;00001342,"DisplayTXFrame9                ","DisplayWrite9                  ",$00000001
+;CAN Node 20
+;00001359,"DisplayRXFrame10               ","DisplayRead10                  ",$00000000
+;00001358,"DisplayTXFrame10               ","DisplayWrite10                 ",$00000001
+;CAN Node 21
+;00001375,"DisplayRXFrame11               ","DisplayRead11                  ",$00000000
+;00001374,"DisplayTXFrame11               ","DisplayWrite11                 ",$00000001
+;CAN Node 22
+;00001391,"DisplayRXFrame12               ","DisplayRead12                  ",$00000000
+;00001390,"DisplayTXFrame12               ","DisplayWrite12                 ",$00000001
+;CAN Node 23
+;00001407,"DisplayRXFrame13               ","DisplayRead13                  ",$00000000
+;00001406,"DisplayTXFrame13               ","DisplayWrite13                 ",$00000001
+;CAN Node 24
+;00001423,"DisplayRXFrame14               ","DisplayRead14                  ",$00000000
+;00001422,"DisplayTXFrame14               ","DisplayWrite14                 ",$00000001
+;CAN Node 25
+;00001439,"DisplayRXFrame15               ","DisplayRead15                  ",$00000000
+;00001438,"DisplayTXFrame15               ","DisplayWrite15                 ",$00000001
+;CAN Node 26
+;00001455,"DisplayRXFrame16               ","DisplayRead16                  ",$00000000
+;00001454,"DisplayTXFrame16               ","DisplayWrite16                 ",$00000001
+
+
+
+
+
+
+
+;   |          |                                 |                               |
+; CAN ADR  Variable Name 31 Chrs             Event Variable 31 Chrs           Read = 0 Write = 1
+

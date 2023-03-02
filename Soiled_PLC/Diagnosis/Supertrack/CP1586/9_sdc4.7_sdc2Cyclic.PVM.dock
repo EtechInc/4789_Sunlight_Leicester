@@ -1,0 +1,13 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=9_sdc4 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=114 Type=42 Scope=46 Force=45 Index=7 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                   D[14]                                     UINT    0 "                                                               1"    1    6    1   10    0    0         
+                                  D[909]                                     UINT    0 "                                                               1"    1    6    1   10    0    0         
+                                       X                       CardInputs[0..399]    0 "                                                               *"    0   24  400    0    0    1         
+                                    X[7]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X02                                     BOOL    2 "                                                            TRUE"    2    1    1    2    0    0         
+                                     X04                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                     X03                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                        DischargerEnable                                     BOOL    0 "                                                            TRUE"    0    1    1    2    1    0         
+                              O_BagReady                                     BOOL    0 "                                                           FALSE"    0    1    1    2    1    0         

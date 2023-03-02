@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Element ID="admin" Type="User">
+    <Property ID="UserID" Value="2" />
+    <Property ID="Password" Value="bk68fBE02VdnNJSILd5Lz/k4STbE3cTxNIDINqnwULroSFJ7pDw=" />
+    <Group ID="Roles">
+      <Property ID="Role[1]" Value="Administrators" />
+      <Property ID="Role[2]" Value="Everyone" />
+    </Group>
+  </Element>
+  <Element ID="DM" Type="User">
+    <Property ID="UserID" Value="3" />
+    <Property ID="Password" Value="aTdcN29kri7c4OSe8DZVrgPACK6zTl77KmtPd0lW/W+A4Qv2i84=" />
+    <Group ID="Roles">
+      <Property ID="Role[1]" Value="Administrators" />
+    </Group>
+  </Element>
+  <Element ID="UA_Expert" Type="User">
+    <Property ID="UserID" Value="4" />
+    <Property ID="Password" Value="Nufr7dL8thR5aeAqwtXUT3NS2+pberbf0736zEmNWESCiyh6Im4=" />
+    <Group ID="Roles">
+      <Property ID="Role[1]" Value="Administrators" />
+    </Group>
+  </Element>
+  <Element ID="Supertrack" Type="User">
+    <Property ID="UserID" Value="5" />
+    <Property ID="Password" Value="0+LJhhoSwBoQmbuMSwzatZJ+lEl+yQq+OMP12WGx5fTzIEoA78I=" />
+    <Group ID="Roles">
+      <Property ID="Role[1]" Value="Administrators" />
+    </Group>
+  </Element>
+  <Element ID="mappView" Type="User">
+    <Property ID="UserID" Value="6" />
+    <Property ID="Password" Value="R+EmdXBJYjn6Xsu+zUy3QMGU9EAErercMoi8O729ki83hrU1n2k=" Description="admin1234!" />
+    <Group ID="Roles">
+      <Property ID="Role[1]" Value="Administrators" />
+    </Group>
+  </Element>
+  <Element ID="Anonymous" Type="User">
+    <Property ID="UserID" Value="1" />
+    <Group ID="Roles">
+      <Property ID="Role[1]" Value="Everyone" />
+    </Group>
+  </Element>
+</Configuration>

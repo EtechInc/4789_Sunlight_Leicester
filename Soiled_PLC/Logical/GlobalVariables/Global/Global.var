@@ -1,0 +1,5 @@
+VAR
+	SVC1RequestEmpty : BOOL;
+	EnableSDC2Empty : BOOL;
+	SVC1Status : UINT;
+END_VAR

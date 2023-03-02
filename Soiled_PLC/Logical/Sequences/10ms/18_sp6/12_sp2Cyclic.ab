@@ -1,0 +1,90 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 8 - SP8 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagatBuffer			= X[8].X11
+I_BagAtSVC1BufferStop   = X[3].X06
+I_BagAtSVC2BufferStop   = X[3].X14
+
+O_SVC1BufferStop        = Y[3].Y06
+O_SVC2BufferStop        = Y[3].Y14
+
+O_OpenBuffer			= FALSE ;YB12
+O_SelectSVC1            = FALSE ;YB11
+O_SelectSVC2            = FALSE ;YB10
+
+Alarm[18].Name 			= 0
+Alarm[18].Bag			= 10006
+Alarm[18].Beacon		= TRUE
+Alarm[18].Extra			= 0
+Alarm[18].Time			= 3000
+
+;Setup Sequence
+STEP = D[918]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - decide where to take bag from
+TON_10ms(I_BagatBuffer,300,BagAtBuffer,BagAtBufferET)
+IF (STEP = 1) THEN
+	
+	IF BagAtBuffer THEN
+	IF (Alernate > 2) THEN
+		Alernate = 0
+	ENDIF
+	Alernate = Alernate + 1
+			IF ((Alernate = 1)AND Line[28].Clear AND NOT I_BagAtSVC1BufferStop AND NOT O_SVC1BufferStop) THEN  
+				C[28]  = 0
+				D[918] = 2
+			ELSE IF ((Alernate = 2)AND Line[29].Clear AND NOT I_BagAtSVC2BufferStop AND NOT O_SVC2BufferStop) THEN
+				C[29]  = 0
+				D[918] = 3
+			ENDIF				
+	ENDIF		
+ENDIF
+
+;Step 2 - Bag from svc1
+IF (STEP = 2) THEN
+	O_OpenBuffer = TRUE
+	O_SelectSVC1 = TRUE
+	IF Line[28].Trip THEN
+		D[918] = 1
+	ENDIF
+	Alarm[18].Name = almBagNotArrived
+ENDIF
+
+;Step 2 - Bag from svc1
+IF (STEP = 3) THEN
+	O_OpenBuffer = TRUE
+	O_SelectSVC2 = TRUE
+	IF Line[29].Trip THEN
+		D[918] = 1
+	ENDIF
+	Alarm[8].Name = almBagNotArrived
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[18].Name > 0)
+TimerAlarm.PT 	= Alarm[18].Time
+TimerAlarm FUB TON_10ms()
+Alarm[18].On 	= TimerAlarm.Q
+Alarm[18].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[8].Y11 = O_OpenBuffer
+Y[8].Y12 = O_SelectSVC1
+Y[8].Y13 = O_SelectSVC2
+END_PROGRAM
+

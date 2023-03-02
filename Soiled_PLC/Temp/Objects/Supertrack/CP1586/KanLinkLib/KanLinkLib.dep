@@ -1,0 +1,17 @@
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_hlKanLink/KanLinkLib/KanLinkLib.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_hlKanLink/KanLinkLib/KLInterface.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/AsUDP/AsUDP.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_hlKanLink/KanLinkLib/KanLinkLib.typ
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFrameworkShare/Pkg_hlKanLinkUser/KL_UserLib/KL_UserLib.var
+$(AS_PROJECT_PATH)/Logical/Libraries/AsIODiag/AsIODiag.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_KGStandard/KGstdLib/KGstdLib.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsARCfg/AsARCfg.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/brsystem/brsystem.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/sys_lib/sys_lib.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsBrStr/AsBrStr.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsETH/AsETH.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_hlKanLink/KanLinkLib/KanLinkLib.var
+$(AS_PROJECT_PATH)/Logical/Libraries/runtime/runtime.var
+$(AS_PROJECT_PATH)/Logical/Libraries/AsUDP/AsUDP.var

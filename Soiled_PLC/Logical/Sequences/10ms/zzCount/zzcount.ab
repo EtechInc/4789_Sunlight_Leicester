@@ -1,0 +1,80 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;Sorting station counting
+
+CountMode 	= D[994]
+CountOn		= (CountMode <> 0)
+CountPiece 	= (CountMode = 1)
+CountBoth	= (CountMode = 2)
+CountCount	= (CountMode = 3)
+
+Stn[1].CntInput 	= X[31].X01
+Stn[2].CntInput 	= X[31].X02
+Stn[3].CntInput 	= X[31].X03
+Stn[4].CntInput 	= X[31].X04
+Stn[5].CntInput 	= X[32].X01
+Stn[6].CntInput 	= X[32].X02
+Stn[7].CntInput 	= X[32].X03
+Stn[8].CntInput 	= X[32].X04
+Stn[9].CntInput 	= X[33].X01
+Stn[10].CntInput 	= X[33].X02
+
+LOOP n = 1 TO Std.MaxWeighstations DO
+
+	;Get the category for the station
+	StnCat = Bag[200 + n].Cat
+	IF ((StnCat < 0) OR (StnCat > Std.MaxCats)) THEN
+		StnCat = 0
+	ENDIF
+
+	;Read the Category database setting
+	StnUsePiece		= (D[2900 + StnCat] > 0)
+	StnPieceWgt		= (D[2800 + StnCat])
+	;Set mode depending on loading program selection
+	StnCountPiece 	= (CountPiece OR (CountBoth AND StnUsePiece))
+
+	IF CountOn THEN
+		;Count by input
+		CountPLS[n].CLK = (Stn[n].CntInput AND NOT StnCountPiece)
+		CountPLS[n] FUB R_TRIG()
+
+		IF CountPLS[n].Q THEN
+			Stn[n].Count = (Stn[n].Count + 1)
+		ENDIF
+
+		;Count by piece weight
+		IF StnCountPiece THEN
+			;Calculate the current count by piece weight
+			StnGram = (Bag[200 + n].Wgt * 1000)
+			IF (StnGram > 0) THEN
+				IF (StnPieceWgt > 0) THEN
+					;Calc Here
+					Items = (StnGram / StnPieceWgt)
+					;round up items
+					Remainder = SINT(Items MOD 10)
+					IF (Remainder > 4) THEN
+						ItemsRound = (Items + 10)
+					ELSE
+						ItemsRound = Items
+					ENDIF
+					IF ((ItemsRound / 10) < 32767) THEN
+						Stn[n].Count = UINT(ItemsRound / 10)
+					ELSE
+						Stn[n].Count = 32767
+					ENDIF
+				ELSE
+					Stn[n].Count = 0
+				ENDIF
+			ELSE
+				Stn[n].Count = 0
+			ENDIF
+		ENDIF
+	ELSE
+		Stn[n].Count = 0
+	ENDIF
+
+ENDLOOP
+
+END_PROGRAM
+

@@ -1,0 +1,12 @@
+VAR RETAIN
+	OngoingCus : UDINT;
+	EditCus : UDINT;
+	n : UDINT;
+	x : UINT;
+END_VAR
+VAR
+	myBag : UINT;
+	InsDel : DINT;
+	InsPos : UDINT;
+	DelPos : UDINT;
+END_VAR

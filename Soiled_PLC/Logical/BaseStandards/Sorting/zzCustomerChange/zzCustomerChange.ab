@@ -1,0 +1,366 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzCustomerChange
+ * File: zzCustomerChange.ab
+ * Author: treamsbottom
+ * Created: November 18, 2014
+ ********************************************************************
+ * Implementation of program zzCustomerChange
+ ********************************************************************)
+
+PROGRAM _INIT
+
+	
+END_PROGRAM
+
+
+ PROGRAM _CYCLIC
+; Multiple Bank Customer change,UINT
+; Use D32[80 + Bank] to send new customer
+; Use D32[90 + Bank] for reply
+
+myZone 			= 0	
+mySeq			= 83	
+;I_PxStart_Belt[3] = X[3].X04;belt blocked	
+I_PxEnd_Belt[3] = NOT X[350].X01	
+I_PxEnd_Belt[4] = NOT X[351].X01
+I_PxEnd_Belt[5] = NOT X[351].X02
+I_PxEnd_Belt[7] = NOT X[350].X03
+I_PxEnd_Belt[8] = NOT X[351].X03	
+I_PxEnd_Belt[9] = NOT X[351].X04	
+I_PxEnd_Belt[11] = NOT X[350].X04	
+I_PxEnd_Belt[12] = NOT X[350].X02	
+	
+I_InvStatus[2]	= X[360].X06 OR DebugMode	
+I_InvStatus[3]	= X[360].X07 OR DebugMode	
+I_InvStatus[4]	= X[360].X08 OR DebugMode	
+I_InvStatus[5]	= X[361].X01 OR DebugMode		
+I_InvStatus[7]	= X[361].X02 OR DebugMode		
+I_InvStatus[8]	= X[361].X03 OR DebugMode		
+I_InvStatus[9]	= X[361].X04 OR DebugMode		
+I_InvStatus[11]	= X[361].X05 OR DebugMode		
+I_InvStatus[12]	= X[361].X06 OR DebugMode	
+	
+I_MultipleCustomers = (D[900 +  mySeq] = 1)
+	
+I_AcceptNewCustomer[1] = X[3].X07
+I_AcceptNewCustomer[2] = X[3].X08	
+
+myCustBag[1] = 471
+myNewCustBag[1] = 472	
+myCustBag[2] = 473
+myNewCustBag[2] = 474
+
+	
+	
+Alarm[mySeq].Name 				= 0
+Alarm[mySeq].Bag				= 10083
+Alarm[mySeq].Beacon				= TRUE
+Alarm[mySeq].Extra				= 0
+Alarm[mySeq].Time			  	= 500	
+	
+	
+LOOP n = 1 TO MAX_BANKS DO
+	Bag[myCustBag[n]].Prg = 1
+	Bag[myCustBag[n]].Cat = 1 ; Force Cat to stop bag being deleted
+	Bag[myCustBag[n]].Bid = n 	
+	Bag[myNewCustBag[n]].Prg = 1
+	Bag[myNewCustBag[n]].Cat = 1		
+	Bag[myNewCustBag[n]].Bid = n+10
+	O_CustChange_Lamp[n] = FALSE
+	O_CustChange_Piezo[n] = FALSE	
+	RunBelts[n]	= FALSE
+ENDLOOP	
+	
+	
+LOOP n = 1 TO MAX_BELTS DO
+	O_RunBelt[n] = FALSE
+	O_SlowBelt[n] = FALSE	
+ENDLOOP	
+	
+O_Extend[1] = FALSE	
+O_Extend[2] = FALSE
+	
+O_Retract[1] = FALSE	
+O_Retract[2] = FALSE	
+	
+SortingEnable = (D[3] > 0) AND NOT Std.HaltSysZone[myZone]
+	
+	;Local Vars for each bank End of first set of sorting belts..	
+I_End_1st_Belt[1] 		= I_PxEnd_Belt[3]   
+I_End_1st_Belt[2] 		= I_PxEnd_Belt[7]	
+;LOOP t = 1 TO 6 DO
+;	TON_BeltBlocked[t].IN = I_PxStart_Belt[t]
+;	TON_BeltBlocked[t].PT = 150
+;	TON_BeltBlocked[t] FUB TON_10ms()
+;ENDLOOP	
+;LOOP t = 1 TO MAX_BANKS DO; IF both px are made and belt is running for more than 6 secs then pulse belt
+;		
+;	TON_RestartBelts[t].IN = (O_RunBelt[t * 3] AND NOT TON_BeltBlocked[t * 3].Q)
+;	TON_RestartBelts[t].PT = 300
+;	TON_RestartBelts[t] FUB TON_10ms()
+;	
+;	TON_PulseBelt[t].IN = (O_RunBelt[t * 3] AND I_End_1st_Belt[t] AND TON_BeltBlocked[t * 3].Q)
+;	TON_PulseBelt[t].PT = 600
+;	TON_PulseBelt[t] FUB TON_10ms() 			
+;ENDLOOP
+;TON_10ms(NOT PulseOff,500,PulseOn,PulseOnET)	
+;TON_10ms(PulseOn,200,PulseOff,PulseOffET)	
+	
+;	
+;myNextBeltRunning[1]	= ((SortingEnable AND NOT I_End_1st_Belt[1]) OR TON_RestartBelts[1].Q OR (TON_PulseBelt[1].Q AND PulseOn))
+;myNextBeltRunning[2]	= ((SortingEnable AND NOT I_End_1st_Belt[2]) OR TON_RestartBelts[2].Q OR (TON_PulseBelt[2].Q AND PulseOn))	
+;	
+	
+IF NOT I_MultipleCustomers THEN	
+	Bag[myNewCustBag[2]].Cus =  Bag[myNewCustBag[1]].Cus	
+	;CustomerChangeDisplay[2].InputLock = 1	 ;**Is overwritten at end of cyclic code.	
+ENDIF	
+	
+	
+	
+	
+	
+LOOP n = 1 TO MAX_BANKS DO	
+	;Default Display Values
+	strcpy(ADR(CustomerChangeDisplay[n].Message),ADR(""))
+	CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgBlack	
+	CustomerChangeDisplay[n].InputLock = 0	
+	CustomerChangeDisplay[n].InputText_Colour = BgWhite + FgBlack	
+	CustomerChangeDisplay[n].New_CustomerNo = Bag[myNewCustBag[n]].Cus	
+		
+	TON_PiezoDelay[n].IN = (CustomerChange[n] = 1)	
+	TON_PiezoDelay[n].PT = 300
+	TON_PiezoDelay[n] FUB TON_10ms()
+		
+		
+		
+	IF ((Bag[myNewCustBag[n]].Cus = 0) OR (Bag[myCustBag[n]].Cus = Bag[myNewCustBag[n]].Cus)) THEN
+ 		CustomerChange[n] = 0	
+	ENDIF	
+		
+	CASE CustomerChange[n] OF
+		ACTION 0: ; Normal Run Belts as normal
+;			strcpy(ADR(CustomerChangeDisplay[n].Message),ADR(""))
+;			CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgBlack	
+;			CustomerChangeDisplay[n].InputLock = 0	
+;			CustomerChangeDisplay[n].InputText_Colour = BgWhite + FgBlack	
+			D32[80 + n] = 0
+			D32[90 + n] = 0	
+			RunBelts[n] = SortingEnable
+        	IF ((Bag[myCustBag[n]].Cus <> Bag[myNewCustBag[n]].Cus) AND (Bag[myNewCustBag[n]].Cus > 0)) THEN
+				CustomerChange[n] = 1
+			ENDIF		
+		ENDACTION
+    
+		ACTION 1: ; Stop belt at photocell	and wait for customer change accept.
+;			strcpy(ADR(CustomerChangeDisplay[n].Message),ADR("Wait for accept pushbutton"))
+;			CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgBlack
+;			CustomerChangeDisplay[n].InputLock = 2	
+				
+			RunBelts[n] = SortingEnable	AND NOT I_End_1st_Belt[n]
+			O_CustChange_Lamp[n] = Std.Clock1s
+			O_CustChange_Piezo[n] = NOT TON_PiezoDelay[n].Q
+			IF I_AcceptNewCustomer[n] THEN	
+				CustomerChange[n] = 2
+			ENDIF		
+		ENDACTION
+		
+		ACTION 2: ;Send new customer request to trackview	
+			RunBelts[n] = SortingEnable//myNextBeltRunning[n]	
+			//CustomerChangeDisplay[n].InputLock = 2
+			D32[80 + n] = Bag[myNewCustBag[n]].Cus ; Send new customer to trackview
+				
+			AutoChangeState = D32[90 + n]
+			CASE AutoChangeState OF
+				ACTION 0: ;Busy
+					//CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgBlack
+					//strcpy(ADR(CustomerChangeDisplay[n].Message),ADR("Loading Program - Please Wait"))
+					O_CustChange_Lamp[n] = TRUE
+					myCustChangeMessageStatus[n] = 99
+				ENDACTION	
+		
+				ACTION 1: ; Ok
+					//CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgBlack
+					//strcpy(ADR(CustomerChangeDisplay[n].Message),ADR("Program Loaded"))
+					Bag[myCustBag[n]].Cus = Bag[myNewCustBag[n]].Cus
+					CustomerChange[n] = 0
+				ENDACTION
+  			
+				ACTION 2..3: ; 2 = no program, 3 = invalid
+;					IF (AutoChangeState = 2) THEN
+;						strcpy(ADR(CustomerChangeDisplay[n].Message),ADR("No Program! Press accept pushbutton"))
+;					ELSE
+;						strcpy(ADR(CustomerChangeDisplay[n].Message),ADR("Invalid Program! Press accept pushbutton"))
+;					ENDIF		
+;					CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgRed
+					O_CustChange_Lamp[n] = Std.Clock500ms
+//					myCustChangeMessageStatus[n] = UINT(AutoChangeState)
+					IF I_AcceptNewCustomer[n] THEN
+						Bag[myCustBag[n]].Cus = Bag[myNewCustBag[n]].Cus
+						CustomerChange[n] = 0
+					ENDIF		
+				ENDACTION		
+		
+				ELSEACTION: ; ERROR!!	
+				//	strcpy(ADR(CustomerChangeDisplay[n].Message),ADR("ERROR! Press accept pushbutton"))
+				//	CustomerChangeDisplay[n].MessageText_Colour = BgLtGrey + FgRed
+					O_CustChange_Lamp[n] = Std.Clock500ms
+				//	myCustChangeMessageStatus[n] = 4
+					IF I_AcceptNewCustomer[n] THEN
+						Bag[myCustBag[n]].Cus = Bag[myNewCustBag[n]].Cus
+						CustomerChange[n] = 0
+					ENDIF	
+				ENDACTION
+			ENDCASE		
+		ENDACTION		
+		
+	ENDCASE	
+ENDLOOP
+
+//**************Belt controls...	
+	CASE D[983] OF
+		ACTION 0://Carousel mode.
+			O_Extend[1] = TRUE	 		
+			O_Extend[2] = TRUE
+        	LOOP n = 1 TO MAX_BELTS DO
+				O_RunBelt[n] = SortingEnable AND I_InvStatus[n]
+			ENDLOOP
+		ENDACTION
+		ACTION 1://Retract Both belts
+			O_Retract[1] = TRUE	 		
+			O_Retract[2] = TRUE
+			O_RunBelt[5] =  (SortingEnable AND I_InvStatus[5] AND NOT Stn[41].SP3 AND NOT Stn[41].CloseFlap AND ((Stn[41].QTime = 0) OR NOT I_PxEnd_Belt[5]))
+			O_SlowBelt[5] = Stn[41].SP1 AND I_PxEnd_Belt[5]
+			O_RunBelt[4] = SortingEnable AND I_InvStatus[4] AND (O_RunBelt[5] OR NOT I_PxEnd_Belt[4]) 
+			
+			O_RunBelt[12] =  (SortingEnable AND I_InvStatus[12] AND NOT Stn[42].SP3 AND NOT Stn[42].CloseFlap AND ((Stn[42].QTime = 0) OR NOT I_PxEnd_Belt[12]))
+			O_SlowBelt[12] = Stn[42].SP1 AND I_PxEnd_Belt[12]
+			O_RunBelt[11] = SortingEnable AND I_InvStatus[11] AND (O_RunBelt[12] OR NOT I_PxEnd_Belt[11]) 
+			O_RunBelt[9] = SortingEnable AND I_InvStatus[9] AND (O_RunBelt[11] OR NOT I_PxEnd_Belt[9]) 
+			O_RunBelt[8] = SortingEnable AND I_InvStatus[8] AND (O_RunBelt[9] OR NOT I_PxEnd_Belt[8]) 	
+		ENDACTION
+		
+		ACTION 2://Retract Only SB12
+			O_Extend[1] = TRUE	 		
+			O_Retract[2] = TRUE
+			O_RunBelt[12] =  (SortingEnable AND I_InvStatus[12] AND NOT Stn[42].SP3 AND NOT Stn[42].CloseFlap AND ((Stn[42].QTime = 0) OR NOT I_PxEnd_Belt[12]))
+			O_RunBelt[11] = SortingEnable AND I_InvStatus[11] AND (O_RunBelt[12] OR NOT I_PxEnd_Belt[11]) 
+			O_RunBelt[9] = SortingEnable AND I_InvStatus[9] AND (O_RunBelt[11] OR NOT I_PxEnd_Belt[9]) 
+			O_RunBelt[8] = SortingEnable AND I_InvStatus[8] AND (O_RunBelt[9] OR NOT I_PxEnd_Belt[8]) 	 
+			
+			O_RunBelt[5] = SortingEnable AND I_InvStatus[5] AND (O_RunBelt[10] OR NOT I_PxEnd_Belt[5]) 
+			O_RunBelt[4] = SortingEnable AND I_InvStatus[4] AND (O_RunBelt[5] OR NOT I_PxEnd_Belt[4]) 
+		ENDACTION
+		
+		ACTION 3://Retract Only SB5
+			O_Retract[1] = TRUE
+			O_Extend[2] = TRUE	 		
+
+			O_RunBelt[5] =  (SortingEnable AND I_InvStatus[5] AND NOT Stn[41].SP3 AND NOT Stn[41].CloseFlap AND ((Stn[41].QTime = 0) OR NOT I_PxEnd_Belt[5]))
+			O_RunBelt[4] = SortingEnable AND I_InvStatus[4] AND (O_RunBelt[5] OR NOT I_PxEnd_Belt[4]) 
+			
+			O_RunBelt[12] = SortingEnable AND I_InvStatus[12] AND (O_RunBelt[4] OR NOT I_PxEnd_Belt[12]) 
+			O_RunBelt[11] = SortingEnable AND I_InvStatus[11] AND (O_RunBelt[12] OR NOT I_PxEnd_Belt[11]) 
+			O_RunBelt[9] = SortingEnable AND I_InvStatus[9] AND (O_RunBelt[11] OR NOT I_PxEnd_Belt[9]) 
+			O_RunBelt[8] = SortingEnable AND I_InvStatus[8] AND (O_RunBelt[9] OR NOT I_PxEnd_Belt[8]) 	 
+			
+		ENDACTION
+		
+		ACTION 4: //Load only SS42 Split Mode - Retract belt  and stop other on PX
+			O_Extend[1] = TRUE	 		
+			O_Retract[2] = TRUE
+			O_RunBelt[12] =  (SortingEnable AND I_InvStatus[12] AND NOT Stn[42].SP3 AND NOT Stn[42].CloseFlap AND ((Stn[42].QTime = 0) OR NOT I_PxEnd_Belt[12]))
+			O_RunBelt[11] = SortingEnable AND I_InvStatus[11] AND (O_RunBelt[12] OR NOT I_PxEnd_Belt[11]) 
+			O_RunBelt[9] = SortingEnable AND I_InvStatus[9] AND (O_RunBelt[11] OR NOT I_PxEnd_Belt[9]) 
+			O_RunBelt[8] = SortingEnable AND I_InvStatus[8] AND (O_RunBelt[9] OR NOT I_PxEnd_Belt[8]) 	 
+		
+			O_RunBelt[5] = FALSE
+			O_RunBelt[4] = SortingEnable AND I_InvStatus[4] AND  NOT I_PxEnd_Belt[4] 
+		ENDACTION
+		ACTION 5:////Load only SS41 Split Mode - Retract belt  and stop other on PX
+			O_Retract[1] = TRUE
+			O_Extend[2] = TRUE	 		
+
+			O_RunBelt[5] =  (SortingEnable AND I_InvStatus[5] AND NOT Stn[41].SP3 AND NOT Stn[41].CloseFlap AND ((Stn[41].QTime = 0) OR NOT I_PxEnd_Belt[5]))
+			O_RunBelt[4] = SortingEnable AND I_InvStatus[4] AND (O_RunBelt[5] OR NOT I_PxEnd_Belt[4]) 
+			
+			O_RunBelt[12] = FALSE//SortingEnable AND I_InvStatus[12] AND (O_RunBelt[4] OR NOT I_PxEnd_Belt[12]) 
+			O_RunBelt[11] = SortingEnable AND I_InvStatus[11] AND  NOT I_PxEnd_Belt[11]
+			O_RunBelt[9] = SortingEnable AND I_InvStatus[9] AND (O_RunBelt[11] OR NOT I_PxEnd_Belt[9]) 
+			O_RunBelt[8] = SortingEnable AND I_InvStatus[8] AND (O_RunBelt[9] OR NOT I_PxEnd_Belt[8]) 	 
+		ENDACTION
+		ACTION 6:////Split mode = NO belts retracted.
+			O_Extend[1] = TRUE
+			O_Extend[2] = TRUE	 		
+
+			O_RunBelt[5] = FALSE
+			O_RunBelt[4] = SortingEnable AND I_InvStatus[4] AND  NOT I_PxEnd_Belt[4] 
+			
+			O_RunBelt[12] = FALSE//SortingEnable AND I_InvStatus[12] AND (O_RunBelt[4] OR NOT I_PxEnd_Belt[12]) 
+			O_RunBelt[11] = SortingEnable AND I_InvStatus[11] AND  NOT I_PxEnd_Belt[11]
+			O_RunBelt[9] = SortingEnable AND I_InvStatus[9] AND (O_RunBelt[11] OR NOT I_PxEnd_Belt[9]) 
+			O_RunBelt[8] = SortingEnable AND I_InvStatus[8] AND (O_RunBelt[9] OR NOT I_PxEnd_Belt[8]) 	 
+		ENDACTION
+	
+	
+	
+	
+	
+	
+	
+	ENDCASE
+		
+	
+	
+//First sorting belts before platform...	
+O_RunBelt[3] := SortingEnable AND I_InvStatus[3] AND RunBelts[1] AND (O_RunBelt[4] OR NOT I_PxEnd_Belt[3])
+O_RunBelt[2] := O_RunBelt[3] AND I_InvStatus[2]
+O_RunBelt[7] := SortingEnable AND I_InvStatus[7] AND RunBelts[2] AND (O_RunBelt[8] OR NOT I_PxEnd_Belt[7])	
+
+I_InvStatus[1] = TRUE 	
+I_InvStatus[6] = TRUE 	
+I_InvStatus[10] = TRUE
+	
+LOOP n = 1 TO MAX_BELTS DO	
+	IF NOT I_InvStatus[n] THEN	
+		Alarm[mySeq].Name = almMotorOverload
+		Alarm[mySeq].Time = 0	
+	ENDIF
+EXITIF 	(Alarm[mySeq].Name > 0)
+ENDLOOP		
+
+	
+TimerAlarm.IN = (Alarm[mySeq].Name > 0)
+TimerAlarm.PT = Alarm[mySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[mySeq].On = TimerAlarm.Q
+Alarm[mySeq].ET = TimerAlarm.ET	
+	
+	
+Y[362].Y02 	= O_RunBelt[2]	//1 ,2
+Y[362].Y04	= O_RunBelt[3]  //3
+Y[362].Y05	= O_RunBelt[4]  //4
+Y[362].Y07	= O_RunBelt[5]  //5
+Y[363].Y02	= O_RunBelt[7]  //7
+Y[363].Y04	= O_RunBelt[8]  //8
+Y[363].Y05	= O_RunBelt[9]  //9
+Y[363].Y07	= O_RunBelt[11] //10,11
+Y[364].Y01	= O_RunBelt[12] //12
+
+Y[362].Y08 = O_SlowBelt[5]
+Y[364].Y02 = O_SlowBelt[12]	
+	
+	
+Y[3].Y01	= O_CustChange_Lamp[1] 
+Y[3].Y02	= O_CustChange_Piezo[1]// AND Std.Clock500ms	
+Y[3].Y03	= O_CustChange_Lamp[2]
+Y[3].Y04 	= O_CustChange_Piezo[2]// AND Std.Clock500ms 
+
+Y[351].Y07	= O_Retract[1]
+Y[351].Y08	= O_Extend[1]
+Y[350].Y07	= O_Retract[2]
+Y[350].Y08	= O_Extend[2]	
+	
+END_PROGRAM

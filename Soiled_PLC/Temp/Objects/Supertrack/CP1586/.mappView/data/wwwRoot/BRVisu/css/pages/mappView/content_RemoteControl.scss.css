@@ -1,0 +1,751 @@
+#content_RemoteControl_imgInterface {
+  top: 270px;
+  position: absolute;
+}
+
+#content_RemoteControl_imgInterface {
+  left: 371px;
+  position: absolute;
+}
+
+#content_RemoteControl_imgInterface {
+  width: 227px;
+}
+
+#content_RemoteControl_imgInterface {
+  height: 300px;
+}
+
+#content_RemoteControl_imgInterface {
+  z-index: 1;
+}
+
+#content_RemoteControl_imgInterface {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+#content_RemoteControl_mpbSKFormat {
+  width: 100px;
+}
+
+#content_RemoteControl_mpbSKFormat {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbSKFormat {
+  top: 380px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbSKFormat {
+  left: 251px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbSKFormat {
+  z-index: 2;
+}
+
+#content_RemoteControl_mpbSKExchange {
+  width: 100px;
+}
+
+#content_RemoteControl_mpbSKExchange {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbSKExchange {
+  top: 425px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbSKExchange {
+  left: 249px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbSKExchange {
+  z-index: 3;
+}
+
+#content_RemoteControl_mpbScan {
+  width: 100px;
+}
+
+#content_RemoteControl_mpbScan {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbScan {
+  top: 470px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbScan {
+  left: 249px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbScan {
+  z-index: 4;
+}
+
+#content_RemoteControl_mpbTest {
+  width: 100px;
+}
+
+#content_RemoteControl_mpbTest {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbTest {
+  top: 425px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbTest {
+  left: 614px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbTest {
+  z-index: 5;
+}
+
+#content_RemoteControl_mpbFWAck {
+  width: 100px;
+}
+
+#content_RemoteControl_mpbFWAck {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbFWAck {
+  top: 380px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbFWAck {
+  left: 614px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbFWAck {
+  z-index: 6;
+}
+
+#content_RemoteControl_mpbClearData {
+  width: 100px;
+}
+
+#content_RemoteControl_mpbClearData {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbClearData {
+  top: 470px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbClearData {
+  left: 614px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbClearData {
+  z-index: 7;
+}
+
+#content_RemoteControl_mpbModEx1 {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbModEx1 {
+  top: 583px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx1 {
+  left: 332px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx1 {
+  width: 50px;
+}
+
+#content_RemoteControl_mpbModEx1 {
+  z-index: 8;
+}
+
+#content_RemoteControl_mpbModEx3 {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbModEx3 {
+  top: 583px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx3 {
+  left: 448px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx3 {
+  width: 50px;
+}
+
+#content_RemoteControl_mpbModEx3 {
+  z-index: 9;
+}
+
+#content_RemoteControl_mpbModEx2 {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbModEx2 {
+  top: 583px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx2 {
+  left: 390px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx2 {
+  width: 50px;
+}
+
+#content_RemoteControl_mpbModEx2 {
+  z-index: 10;
+}
+
+#content_RemoteControl_mpbModEx4 {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbModEx4 {
+  top: 583px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx4 {
+  left: 505px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModEx4 {
+  width: 50px;
+}
+
+#content_RemoteControl_mpbModEx4 {
+  z-index: 11;
+}
+
+#content_RemoteControl_mpbModExN {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbModExN {
+  top: 583px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModExN {
+  left: 563px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbModExN {
+  width: 50px;
+}
+
+#content_RemoteControl_mpbModExN {
+  z-index: 12;
+}
+
+#content_RemoteControl_mpbReset {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbReset {
+  top: 515px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbReset {
+  left: 614px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbReset {
+  width: 130px;
+}
+
+#content_RemoteControl_mpbReset {
+  z-index: 13;
+}
+
+#content_RemoteControl_tpMXCHG_Led {
+  top: 290px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpMXCHG_Led {
+  left: 613px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpMXCHG_Led {
+  width: 130px;
+}
+
+#content_RemoteControl_tpMXCHG_Led {
+  height: 20px;
+}
+
+#content_RemoteControl_tpMXCHG_Led {
+  z-index: 14;
+}
+
+#content_RemoteControl_tpRELed {
+  top: 270px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpRELed {
+  left: 613px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpRELed {
+  width: 130px;
+}
+
+#content_RemoteControl_tpRELed {
+  height: 20px;
+}
+
+#content_RemoteControl_tpRELed {
+  z-index: 15;
+}
+
+#content_RemoteControl_tpFWACKNLed {
+  top: 310px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpFWACKNLed {
+  left: 613px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpFWACKNLed {
+  width: 130px;
+}
+
+#content_RemoteControl_tpFWACKNLed {
+  height: 20px;
+}
+
+#content_RemoteControl_tpFWACKNLed {
+  z-index: 16;
+}
+
+#content_RemoteControl_tpFAILLed {
+  top: 330px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpFAILLed {
+  left: 613px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpFAILLed {
+  width: 130px;
+}
+
+#content_RemoteControl_tpFAILLed {
+  height: 20px;
+}
+
+#content_RemoteControl_tpFAILLed {
+  z-index: 17;
+}
+
+#content_RemoteControl_tpFAILLed #textWheel div.marker {
+  height: 0px;
+}
+
+#content_RemoteControl_tpFAILLed:not(.disabled) #textWheel div.marker {
+  background-color: white;
+}
+
+#content_RemoteControl_tpStatus {
+  top: 622px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpStatus {
+  left: 13px;
+  position: absolute;
+}
+
+#content_RemoteControl_tpStatus {
+  width: 740px;
+}
+
+#content_RemoteControl_tpStatus {
+  height: 20px;
+}
+
+#content_RemoteControl_tpStatus {
+  z-index: 18;
+}
+
+#content_RemoteControl_lblSafeLOGICID {
+  top: 270px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICID {
+  left: 12px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICID {
+  width: 120px;
+}
+
+#content_RemoteControl_lblSafeLOGICID {
+  height: 20px;
+}
+
+#content_RemoteControl_lblSafeLOGICID {
+  z-index: 19;
+}
+
+#content_RemoteControl_lblSafeLOGICID {
+  justify-content: flex-start;
+  text-align: left;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+  top: 310px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+  left: 12px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+  width: 120px;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+  height: 20px;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+  z-index: 20;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+  top: 330px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+  left: 12px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+  width: 120px;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+  height: 20px;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+  z-index: 21;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+  top: 290px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+  left: 12px;
+  position: absolute;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+  width: 120px;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+  height: 20px;
+}
+
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+  z-index: 22;
+}
+
+#content_RemoteControl_mpbDownloadApp {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbDownloadApp {
+  top: 380px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbDownloadApp {
+  left: 17px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbDownloadApp {
+  width: 211px;
+}
+
+#content_RemoteControl_mpbDownloadApp {
+  z-index: 23;
+}
+
+#content_RemoteControl_mpbUnlockApp {
+  height: 30px;
+}
+
+#content_RemoteControl_mpbUnlockApp {
+  top: 425px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbUnlockApp {
+  left: 17px;
+  position: absolute;
+}
+
+#content_RemoteControl_mpbUnlockApp {
+  width: 211px;
+}
+
+#content_RemoteControl_mpbUnlockApp {
+  z-index: 24;
+}
+
+#content_RemoteControl_mpbUnlockApp:not(.disabled):not(.active):not(.checked) {
+  background-color: #dbdbdb;
+}
+
+#content_RemoteControl_mpbUnlockApp:not(.disabled):not(.active):not(.checked) {
+  background-image: linear-gradient(to bottom,#F7F7F7 0%,#FF920A 100%);
+}
+
+#content_RemoteControl_mpbUnlockApp.disabled {
+  background-image: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+}
+
+#content_RemoteControl_mpbUnlockApp.disabled.active {
+  background-image: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+}
+
+#content_RemoteControl_mpbUnlockApp.disabled.checked {
+  background-image: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);
+}
+
+#content_RemoteControl_mpbUnlockApp.active:not(.disabled) {
+  background-image: linear-gradient(to bottom, #4A4A4A 0%,#7C7C7C 100%);
+}
+
+#content_RemoteControl_mpbUnlockApp.checked:not(.disabled) {
+  background-image: linear-gradient(to bottom, #4A4A4A 0%,#7C7C7C 100%);
+}
+
+#content_RemoteControl_noSafeLogicID {
+  width: 100px;
+}
+
+#content_RemoteControl_noSafeLogicID {
+  top: 270px;
+  position: absolute;
+}
+
+#content_RemoteControl_noSafeLogicID {
+  left: 132px;
+  position: absolute;
+}
+
+#content_RemoteControl_noSafeLogicID {
+  height: 20px;
+}
+
+#content_RemoteControl_noSafeLogicID {
+  z-index: 25;
+}
+
+#content_RemoteControl_noSafeLogicID input {
+  color: white;
+}
+
+#content_RemoteControl_noSafeLogicID span.breaseNumericOutput_unit {
+  color: white;
+}
+
+#content_RemoteControl_noSafeLogicID input {
+  font-weight: normal;
+}
+
+#content_RemoteControl_toAppCurrentCRC {
+  width: 100px;
+}
+
+#content_RemoteControl_toAppCurrentCRC {
+  top: 290px;
+  position: absolute;
+}
+
+#content_RemoteControl_toAppCurrentCRC {
+  left: 132px;
+  position: absolute;
+}
+
+#content_RemoteControl_toAppCurrentCRC {
+  height: 20px;
+}
+
+#content_RemoteControl_toAppCurrentCRC {
+  z-index: 26;
+}
+
+#content_RemoteControl_toAppCurrentCRC {
+  justify-content: center;
+  text-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+#content_RemoteControl_toUDIDHigh {
+  width: 100px;
+}
+
+#content_RemoteControl_toUDIDHigh {
+  top: 310px;
+  position: absolute;
+}
+
+#content_RemoteControl_toUDIDHigh {
+  left: 132px;
+  position: absolute;
+}
+
+#content_RemoteControl_toUDIDHigh {
+  height: 20px;
+}
+
+#content_RemoteControl_toUDIDHigh {
+  z-index: 27;
+}
+
+#content_RemoteControl_toUDIDHigh {
+  justify-content: center;
+  text-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+#content_RemoteControl_toUDIDLow {
+  width: 100px;
+}
+
+#content_RemoteControl_toUDIDLow {
+  top: 330px;
+  position: absolute;
+}
+
+#content_RemoteControl_toUDIDLow {
+  left: 132px;
+  position: absolute;
+}
+
+#content_RemoteControl_toUDIDLow {
+  height: 20px;
+}
+
+#content_RemoteControl_toUDIDLow {
+  z-index: 28;
+}
+
+#content_RemoteControl_toUDIDLow {
+  justify-content: center;
+  text-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+#content_RemoteControl_Rectangle35 {
+  top: 256px;
+  position: absolute;
+}
+
+#content_RemoteControl_Rectangle35 {
+  left: 8px;
+  position: absolute;
+}
+
+#content_RemoteControl_Rectangle35 {
+  width: 750px;
+}
+
+#content_RemoteControl_Rectangle35 {
+  height: 408px;
+}
+
+#content_RemoteControl_Rectangle35 {
+  z-index: 0;
+}
+
+#content_RemoteControl_Rectangle35 {
+  border-radius: 10px;
+}
+
+#content_RemoteControl_Rectangle35 {
+  border-color: white;
+}
+
+#content_RemoteControl_Rectangle35 {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+#content_RemoteControl_LanguageSelector1.DropDownBoxView {
+  width: 100px;
+}
+
+#content_RemoteControl_LanguageSelector1.DropDownBoxView {
+  height: 30px;
+}
+
+#content_RemoteControl_LanguageSelector1 {
+  top: 45px;
+  position: absolute;
+}
+
+#content_RemoteControl_LanguageSelector1 {
+  left: 806px;
+  position: absolute;
+}
+
+#content_RemoteControl_LanguageSelector1 {
+  z-index: 29;
+}

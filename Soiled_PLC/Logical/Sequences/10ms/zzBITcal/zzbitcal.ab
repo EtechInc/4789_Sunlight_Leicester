@@ -1,0 +1,93 @@
+PROGRAM _INIT
+
+BITBag 	= 2
+Error 	= 0
+;Transfer Belt Bags
+;LOOP n = 1 TO 2 DO
+	;BITDest[1] = 153
+	;BITDest[2] = 152
+	;BITDest[3] = 151
+	;BITDest[4] = 157
+;	BITDest[BITBag] = n
+;	BITBag = BITBag + 1
+;ENDLOOP
+
+;Bags in transit
+LOOP n = 110 TO 164 DO
+	
+	ArraySize = (SIZEOF(BITDest) / 2)
+	IF (BITBag <= ArraySize) THEN 
+		BITDest[BITBag] = n
+		BITBag = BITBag + 1
+	ELSE
+		Error = 1
+	ENDIF	
+ENDLOOP
+
+TotalTransitBags = (BITBag - 1)
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+	;-----------------------------------------------------------
+	;Revision 1.00 19/12/2005 D.J. First Issue - Using BAG array
+	;-----------------------------------------------------------
+
+	;Find the Space on each Storage line including the Ongoing and Offgoing Bags In Transit
+
+	;See Init Routine - Change settings for bags in transit bag numbers
+
+	;Clear local calculation
+	LOOP n = 1 TO Std.MaxLinesBuffers DO
+		SpaceBIT[n] = 0
+	ENDLOOP
+	
+	memset(ADR(DestCountArea1),0,SIZEOF(DestCountArea1))
+	
+	;Ensure the destination is less than the Array size of SpaceBIT	(normally 100)
+	LOOP n = 1 TO TotalTransitBags DO
+	;LOOP n = 3 TO 3 DO
+		Destination = Bag[BITDest[n]].Dst
+		
+		lineValid = ((Destination <= Line[Destination].FirstBag) OR (Destination > Line[Destination].LastBag));//Stop bit being counted twice if on own line.
+		IF lineValid AND (Destination > 0) AND (Destination < 15)  THEN
+			SpaceBIT[Destination] = SpaceBIT[Destination] + 1
+			DestCountSystem[Destination] = DestCountSystem[Destination] + 1
+		ENDIF
+	ENDLOOP
+	IF (Bag[153].Cat > 0) AND (Bag[153].Dst>0) THEN
+			SpaceBIT[Bag[153].Dst] = SpaceBIT[Bag[153].Dst] + 1
+			DestCountSystem[Bag[153].Dst] = DestCountSystem[Bag[153].Dst] + 1
+	ENDIF
+	IF (Bag[152].Cat > 0) AND (Bag[152].Dst>0) THEN
+			SpaceBIT[Bag[152].Dst] = SpaceBIT[Bag[152].Dst] + 1
+			DestCountSystem[Bag[152].Dst] = DestCountSystem[Bag[152].Dst] + 1
+	ENDIF
+	IF (Bag[166].Cat > 0) AND (Bag[166].Dst>0) THEN
+			SpaceBIT[Bag[166].Dst] = SpaceBIT[Bag[166].Dst] + 1
+			DestCountSystem[Bag[166].Dst] = DestCountSystem[Bag[166].Dst] + 1
+	ENDIF
+	IF (Bag[151].Cat > 0) AND (Bag[151].Dst>0) THEN
+			SpaceBIT[Bag[151].Dst] = SpaceBIT[Bag[151].Dst] + 1
+			DestCountSystem[Bag[151].Dst] = DestCountSystem[Bag[151].Dst] + 1
+	ENDIF
+	IF (Bag[157].Cat > 0) AND (Bag[157].Dst>0) THEN
+			SpaceBIT[Bag[157].Dst] = SpaceBIT[Bag[157].Dst] + 1
+			DestCountSystem[Bag[157].Dst] = DestCountSystem[Bag[157].Dst] + 1
+	ENDIF
+	;Once all calculated then update the global line space
+	LOOP n = 1 TO Std.MaxLinesBuffers DO
+	;LOOP n = 1 TO 1 DO		
+		Spaces = (INT(Line[n].Space) - INT(SpaceBIT[n]))
+		IF Spaces > 0 THEN
+			Line[n].SpaceBIT = UINT(Spaces)
+		ELSE
+			Line[n].SpaceBIT = 0
+		ENDIF
+	ENDLOOP
+	
+		
+
+END_PROGRAM
+

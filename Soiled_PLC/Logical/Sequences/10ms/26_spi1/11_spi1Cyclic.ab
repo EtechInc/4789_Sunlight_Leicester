@@ -1,0 +1,159 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;Sequence 11 - Pneumatic Incline 1 D[911]
+
+;Incline Conveyor
+
+;-----------------------------------------
+;Revision 1.00 17/01/2006 D.J. First Issue
+;-----------------------------------------
+
+I_BagAtBufferStop        = X[9].X02
+I_CarriageAtTop          = X[9].X05
+I_CarriageAtBottom       = X[9].X04
+I_BagAtBottom            = X[9].X03
+;I_BagReleased            = X[10].X14
+
+SIC4BufferOpen          = Y[11].Y15
+O_OpenBufferStop		= FALSE 
+O_SendCarriageDown      = FALSE
+
+;Request.CPI[1]          = FALSE
+
+;Setup Sequence
+STEP = D[926]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+
+
+Alarm[26].Name 			= 0
+Alarm[26].Bag			= 10002
+Alarm[26].Beacon		= TRUE
+Alarm[26].Extra			= 0
+Alarm[26].Time			= 3000
+
+
+;Sequence
+IF (STEP = 0) THEN
+	;disabled
+ENDIF
+
+;wait for carriage at top
+TON_10ms(I_CarriageAtTop,100,CarriageAtTop,CarriageAtTopET)
+IF (STEP = 1) THEN
+	
+	IF CarriageAtTop  THEN
+		D[926] = 2
+	ENDIF
+	Alarm[26].Name = almCarriageMoveFault
+ENDIF
+
+;request to CDC 1
+IF ((STEP = 2) OR (STEP = 3)) THEN
+	;Request.CPI[1] = TRUE
+ENDIF
+
+;check for bag at buffer 
+TON_10ms((I_BagAtBufferStop),200,BagAtBufferStop,BagAtBufferStopET)
+IF (STEP = 2) THEN
+	
+	IF BagAtBufferStop AND NOT SIC4BufferOpen AND NOT Std.HaltSys THEN
+			D[926] = 3
+	ENDIF
+	IF I_BagAtBottom OR I_CarriageAtBottom THEN
+		Alarm[26].Name = almSwitchFault
+	ENDIF	
+ENDIF	
+	
+;Open buffer stop
+IF (STEP = 3) THEN
+		O_OpenBufferStop = TRUE
+			
+		IF I_BagAtBottom THEN
+			D[926] = 4
+		ENDIF
+		Alarm[26].Name = almBagNotArrived	
+ENDIF		
+	
+	
+;wait for bag to settle
+TON_10ms((I_BagAtBottom),200,BagAtBottom,BagAtBottomET)
+IF (STEP = 4) THEN
+					
+		IF BagAtBottom THEN
+			D[926] = 5
+		ENDIF
+		Alarm[26].Name = almBagNotSettled	
+ENDIF	
+
+;Send carriage down
+TON_10ms((I_CarriageAtBottom),100,CarriageAtBottom,CarriageAtBottomET)
+IF (STEP = 5) THEN
+	O_SendCarriageDown = TRUE
+	IF CarriageAtBottom THEN
+		D[926] = 6
+	ENDIF
+	Alarm[26].Name = almCarriageMoveFault
+ENDIF
+
+;allow carriage to move up
+IF (STEP = 6) THEN
+	
+	IF CarriageAtTop  THEN
+		D[926] = 7
+	ENDIF
+	Alarm[26].Name = almCarriageMoveFault
+ENDIF
+
+;check buffer clear
+
+IF (STEP = 7) THEN
+	
+	IF  Line[35].Clear AND BagAtBottom  THEN
+		C[35]  = 0
+		D[926] = 8
+	ENDIF
+	;Alarm[26].Name = almBagNotAtProx
+ENDIF
+
+;send carriage down	
+IF (STEP = 8) THEN
+	O_SendCarriageDown = TRUE
+	IF CarriageAtBottom THEN
+		D[926] = 9
+	ENDIF
+	Alarm[26].Name = almCarriageMoveFault
+ENDIF	
+
+;send carriage up
+IF (STEP = 9) THEN
+	IF CarriageAtTop  THEN
+		D[926] = 1
+	ENDIF
+	Alarm[26].Name = almCarriageMoveFault
+ENDIF
+
+;wait for bag out
+IF (STEP = 10) THEN	
+	IF Line[26].Trip THEN
+		D[926] = 1
+	ENDIF
+	Alarm[26].Name = almBagNotArrived
+ENDIF
+	
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[26].Name > 0)
+TimerAlarm.PT 	= Alarm[26].Time
+TimerAlarm FUB TON_10ms()
+Alarm[26].On 	= TimerAlarm.Q
+Alarm[26].ET 	= TimerAlarm.ET
+
+;Outputs
+;Y[10].Y12 = O_OpenBufferStop
+Y[9].Y02 = O_SendCarriageDown
+Y[9].Y01 = O_OpenBufferStop
+END_PROGRAM
+

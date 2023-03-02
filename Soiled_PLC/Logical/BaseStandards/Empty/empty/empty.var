@@ -1,0 +1,39 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myRelLine : UINT;
+	myBag : UINT;
+	i_bagAtBuffer : BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	o_openBuffer : BOOL;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	bufferSettleTime : UDINT;
+	myOutBag : UINT;
+	myBuffBag : UINT;
+	myCan : UINT;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_buff : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	can : REFERENCE TO CAN_Vars;
+	line_release : REFERENCE TO Line_Typ;
+END_VAR

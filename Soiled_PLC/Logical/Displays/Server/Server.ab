@@ -1,0 +1,314 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: NewProgram
+ * File: NewProgram.ab
+ * Author: Dave
+ * Created: December 01, 2010
+ ********************************************************************
+ * Implementation of program NewProgram
+ ********************************************************************)
+ 
+;Version 1.00 12/12/2010 D.J. First Issue
+;Version 2.00 03/02/2010 D.J. Revised connection close code for each connection - added connection count for fault finding.
+ 
+PROGRAM _INIT
+	
+	ServerSize 		= (SIZEOF(Server) / SIZEOF(Server[0]))
+	myMaxConns		= (UINT(ServerSize) - 1)
+		
+	LOOP n = 0 TO myMaxConns DO
+		Server[n].Status = sckError
+	ENDLOOP
+	
+	ServerOpen.Status = sckClosed
+	
+	IF ((IdentRetain > 0) AND (ServerOpen.TcpOpen_0.ident = 0)) THEN
+		ServerOpen.TcpOpen_0.ident = IdentRetain
+	ENDIF
+	
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	
+	;Init Ethernet Socket - Pause after any close etc
+	TON_10ms_0.IN = (ServerOpen.Status = sckClosed)
+	TON_10ms_0.PT = 100
+	TON_10ms_0 FUB TON_10ms()
+		
+	IF TON_10ms_0.Q THEN
+		ServerOpen.Status = sckConnecting
+	ENDIF
+	
+	;Open Ethernet Socket
+	IF ServerOpen.Status = sckConnecting THEN
+		
+		ServerOpen.TcpOpen_0.enable  	= TRUE	
+		ServerOpen.TcpOpen_0.pIfAddr 	= 0					;  (* Listen on all TCP/IP Interfaces*)
+		ServerOpen.TcpOpen_0.port 		= 12000				;  (* Port to listen*)
+		ServerOpen.TcpOpen_0.options 	= tcpOPT_REUSEADDR	;	
+		ServerOpen.TcpOpen_0 FUB TcpOpen() 								;  (* Call the Function*)
+					
+		IF ServerOpen.TcpOpen_0.status = 0 THEN  (* TcpOpen successfull*)
+			ServerOpen.Status 	= sckSetLinger ;sckConnected
+			IdentRetain			= ServerOpen.TcpOpen_0.ident
+		ELSE IF ServerOpen.TcpOpen_0.status = ERR_FUB_BUSY THEN  (* TcpOpen not finished -> redo *)			
+		 	;Busy	
+		ELSE IF ServerOpen.TcpOpen_0.status = tcpERR_ALREADY_EXIST THEN
+			ServerOpen.Status = sckError
+		ELSE IF ServerOpen.TcpOpen_0.status = tcpERR_SOCKET_BIND THEN
+			ServerOpen.Status = sckError
+		ENDIF	
+	ENDIF
+	
+	;Set Open Linger Options
+	IF ServerOpen.Status = sckSetLinger THEN
+		
+		ServerOpen.linger_opt.lLinger 	= 0 ;Linger Time = 0
+		ServerOpen.linger_opt.lOnOff	= 1	;Linger Option On
+		
+		ServerOpen.TcpIoctl_0.enable 	= TRUE
+		ServerOpen.TcpIoctl_0.ident 	= ServerOpen.TcpOpen_0.ident
+		ServerOpen.TcpIoctl_0.ioctl		= tcpSO_LINGER_SET
+		ServerOpen.TcpIoctl_0.pData		= ADR(ServerOpen.linger_opt)
+		ServerOpen.TcpIoctl_0.datalen 	= SIZEOF(ServerOpen.linger_opt)
+		ServerOpen.TcpIoctl_0 FUB TcpIoctl()
+		
+		IF ServerOpen.TcpIoctl_0.status = 0 THEN
+			ServerOpen.Status = sckConnected
+		ELSE IF ServerOpen.TcpIoctl_0.status = ERR_FUB_BUSY THEN  (* TcpIoctl not finished -> redo *)			
+		 	;Busy
+		ENDIF	
+	
+	ENDIF
+	
+	;Close Ethernet Socket	
+	IF ServerOpen.Status = sckError THEN
+		
+		ServerOpen.TcpClose_0.enable 	= TRUE
+		ServerOpen.TcpClose_0.ident 	= ServerOpen.TcpOpen_0.ident
+		ServerOpen.TcpClose_0.how 		= 0;; // tcpSHUT_RD OR tcpSHUT_WR;
+		ServerOpen.TcpClose_0 FUB TcpClose()
+	
+		IF ServerOpen.TcpClose_0.status = 0 THEN
+			ServerOpen.Status = sckClosed
+			LOOP n = 0 TO myMaxConns DO
+				Server[n].Status = sckError 
+			ENDLOOP
+		ELSE IF ServerOpen.TcpClose_0.status = ERR_FUB_BUSY THEN  (* TcpClose not finished -> redo *)	
+		 	;Busy	
+		ELSE IF ServerOpen.TcpClose_0.status = tcpERR_INVALID_IDENT THEN
+			ServerOpen.Status = sckClosed	
+		ENDIF
+	
+	ENDIF
+	
+	;Get the IO control status
+	IF (ServerOpen.Status <> sckSetLinger) THEN
+		
+		IF IoctlStatus = ID_List_get THEN
+			;Get list of open idents
+			ServerOpen.TcpIoctl_0.enable 	= TRUE
+			ServerOpen.TcpIoctl_0.ident 	= tcpINVALID_IDENT
+			ServerOpen.TcpIoctl_0.ioctl		= tcpID_LIST_GET
+			ServerOpen.TcpIoctl_0.pData		= ADR(IoctlOpenIdents)
+			ServerOpen.TcpIoctl_0.datalen 	= SIZEOF(IoctlOpenIdents)
+			ServerOpen.TcpIoctl_0 FUB TcpIoctl()
+		
+			IF ServerOpen.TcpIoctl_0.status = 0 THEN
+				IoctlTotalOpenIdents 	= ServerOpen.TcpIoctl_0.outlen
+				IoctlStatus				= ID_Max_Get
+			ELSE IF ServerOpen.TcpIoctl_0.status = ERR_FUB_BUSY THEN  (* TcpIoctl not finished -> redo *)			
+			 	;Busy	
+			ENDIF
+		ELSE IF IoctlStatus = ID_Max_Get THEN
+			;Get list of open idents
+			ServerOpen.TcpIoctl_0.enable 	= TRUE
+			ServerOpen.TcpIoctl_0.ident 	= tcpINVALID_IDENT
+			ServerOpen.TcpIoctl_0.ioctl		= tcpID_MAX_GET
+			ServerOpen.TcpIoctl_0.pData		= ADR(IoctlMaxIdents)
+			ServerOpen.TcpIoctl_0.datalen 	= SIZEOF(IoctlMaxIdents)
+			ServerOpen.TcpIoctl_0 FUB TcpIoctl()
+		
+			IF ServerOpen.TcpIoctl_0.status = 0 THEN
+				IoctlStatus = ID_List_get	
+			ELSE IF ServerOpen.TcpIoctl_0.status = ERR_FUB_BUSY THEN  (* TcpIoctl not finished -> redo *)			
+				;Busy	
+			ENDIF
+		ENDIF
+	
+	ENDIF
+	
+	;Monitor
+	IF ServerOpen.Status = sckClosed THEN
+		strcpy(ADR(myMonitor.ServerState),"Closed")
+	ELSE IF ServerOpen.Status = sckConnecting THEN
+		strcpy(ADR(myMonitor.ServerState),"Connecting")
+	ELSE IF ServerOpen.Status = sckConnected THEN
+		strcpy(ADR(myMonitor.ServerState),"Connected")
+	ELSE IF ServerOpen.Status = sckError THEN
+		strcpy(ADR(myMonitor.ServerState),"Error")
+	ENDIF
+	myMonitor.ServerPort 	= ServerOpen.TcpOpen_0.port
+	myMonitor.Ident			= ServerOpen.TcpOpen_0.ident
+	
+	;Clear Client Connection Counts
+	IF ClearConnectCount THEN
+		memset(ADR(ClientConnectCount),0,SIZEOF(ClientConnectCount))
+		ClearConnectCount = FALSE
+	ENDIF
+	
+	;Close each connected client connection if open
+	LOOP n = 0 TO myMaxConns DO
+					
+		IF Server[n].Status = sckError THEN
+					
+			Server[n].TcpClose_0.enable 	= TRUE
+			Server[n].TcpClose_0.ident 		= Server[n].TcpServer_0.identclnt
+			Server[n].TcpClose_0.how 		= 0	; //tcpSHUT_RD OR tcpSHUT_WR;
+			Server[n].TcpClose_0 FUB TcpClose()
+	
+			IF Server[n].TcpClose_0.status = 0 THEN
+				Server[n].Status 				= sckListening
+				Server[n].TcpServer_0.identclnt = 0
+			ELSE IF Server[n].TcpClose_0.status = tcpERR_INVALID_IDENT THEN
+				Server[n].Status 				= sckListening
+				Server[n].TcpServer_0.identclnt = 0
+			ELSE IF Server[n].TcpClose_0.status = ERR_FUB_BUSY THEN  (* TcpClose not finished -> redo *)	
+			 	;Busy
+			ENDIF	
+						
+			;Clear the client IP address 
+			strcpy(ADR(Server[n].client_address),"")
+			Server[n].TcpServer_0.portclnt = 0
+															
+		ENDIF
+		
+			
+		
+		;Listen for a connection
+		IF ((Server[n].Status = sckListening) AND (ServerOpen.Status = sckConnected)) THEN
+		
+			Server[n].TcpServer_0.enable 	= TRUE							;
+			Server[n].TcpServer_0.ident 	= ServerOpen.TcpOpen_0.ident		;  (* Connection Ident from AsTCP.TCP_Open *)
+			Server[n].TcpServer_0.backlog 	= 1								;  (* Number of clients waiting simultaneously for a connection*)
+			Server[n].TcpServer_0.pIpAddr 	= ADR(Server[n].client_address)	;  (* Where to write the client IP-Address*)
+			Server[n].TcpServer_0 FUB TcpServer()											;  (* Call the Function*)
+		
+			IF Server[n].TcpServer_0.status = 0 THEN  (* Status = 0 if an client connects to server *)
+				Server[n].Status 		= sckSetLinger 	;sckReceive
+				
+				;Count then number of connections by any node
+				;Check if connected - Client IP address
+				Status 		= ethInetAton(ADR(Server[n].client_address),ADR(ClientIP))
+				ClientNode 	= 0
+				IF (Status = 0) THEN
+					;Get the connected node number from the IP address
+					Node 		= swapUDINT(ClientIP) ;Mask out the IP address
+					ClientNode 	= (Node AND $000000FF)
+				ENDIF
+				IF ((ClientNode > 0) AND (ClientNode <= 255)) THEN
+					ClientConnectCount[ClientNode] = ClientConnectCount[ClientNode] + 1 	
+					IF (ClientConnectCount[ClientNode] > 65000) THEN
+						ClearConnectCount = TRUE ;Clear all connections counts whenany connecting client above 65000 times
+					ENDIF
+				ENDIF
+				
+			ELSE IF Server[n].TcpServer_0.status = ERR_FUB_BUSY THEN  (* TcpServer not finished -> redo *)			
+			  	;Busy	
+			ENDIF
+	
+		ENDIF
+				
+		;Set Server Linger Options
+		IF Server[n].Status = sckSetLinger THEN
+		
+			Server[n].linger_opt.lLinger 	= 0 ;Linger Time = 0
+			Server[n].linger_opt.lOnOff		= 1	;Linger Option On
+		
+			Server[n].TcpIoctl_0.enable 	= TRUE
+			Server[n].TcpIoctl_0.ident 		= Server[n].TcpServer_0.identclnt
+			Server[n].TcpIoctl_0.ioctl		= tcpSO_LINGER_SET
+			Server[n].TcpIoctl_0.pData		= ADR(Server[n].linger_opt)
+			Server[n].TcpIoctl_0.datalen 	= SIZEOF(Server[n].linger_opt)
+			Server[n].TcpIoctl_0 FUB TcpIoctl()
+		
+			IF Server[n].TcpIoctl_0.status = 0 THEN
+				Server[n].Status = sckReceive
+			ELSE IF Server[n].TcpIoctl_0.status = ERR_FUB_BUSY THEN  (* TcpIoctl not finished -> redo *)			
+			 	;Busy
+			ENDIF	
+		ENDIF
+				
+		;Receive Data
+		IF Server[n].Status = sckReceive THEN
+			
+			IF (Server[n].TcpServer_0.identclnt > 0) THEN
+				Server[n].TcpRecv_0.enable 		= TRUE
+				Server[n].TcpRecv_0.ident 		= Server[n].TcpServer_0.identclnt;  (* Client Ident from AsTCP.TCP_Server *)	
+				Server[n].TcpRecv_0.pData		= ADR(DisplayData[n].ReceiveData);  (* Where to store the incoming data *)
+				Server[n].TcpRecv_0.datamax 	= SIZEOF(DisplayData[n].ReceiveData);  (* Lenght of data buffer *)
+				Server[n].TcpRecv_0.flags 		= 0;
+				Server[n].TcpRecv_0 FUB TcpRecv()
+	
+				IF Server[n].TcpRecv_0.status = 0 THEN  (* Data received *)
+					Server[n].Status = sckSend
+					Server[n].recv_timeout = 0
+				ELSE IF Server[n].TcpRecv_0.status = tcpERR_NO_DATA THEN  (* No data received - wait *)
+				   	Server[n].recv_timeout = Server[n].recv_timeout + 1;
+				  	IF Server[n].recv_timeout > 50 THEN
+		 		    	Server[n].Status 		= sckError
+						Server[n].recv_timeout 	= 0
+					ENDIF
+				ELSE IF Server[n].TcpRecv_0.status = ERR_FUB_BUSY THEN  (* TcpRecv not finished -> redo *)					
+				 	;Busy
+				ELSE IF Server[n].TcpRecv_0.status = tcpERR_NOT_CONNECTED THEN
+					Server[n].Status = sckError	
+				ENDIF
+			ELSE
+				Server[n].Status = sckError	
+			ENDIF
+		ENDIF
+		
+		IF Server[n].Status = sckSend THEN
+			IF (Server[n].TcpServer_0.identclnt > 0) THEN
+				Server[n].TcpSend_0.enable 		= TRUE				
+				Server[n].TcpSend_0.ident 		= Server[n].TcpServer_0.identclnt;  (* Client Ident from AsTCP.TCP_Server *)	
+				Server[n].TcpSend_0.pData 		= ADR(DisplayData[n].SendData);  (* Which data to send *)
+				Server[n].TcpSend_0.datalen 	= SIZEOF(DisplayData[n].SendData);  (* Lenght of data to send *)					
+				Server[n].TcpSend_0.flags 		= 0;
+				Server[n].TcpSend_0 FUB TcpSend()
+			
+				IF Server[n].TcpSend_0.status = 0 THEN  (* Data sent *)
+					Server[n].Status = sckReceive
+				ELSE IF Server[n].TcpSend_0.status = ERR_FUB_BUSY THEN  (* TcpSend not finished -> redo *)						
+				  	;Busy
+				ELSE IF (Server[n].TcpSend_0.status = tcpERR_NOT_CONNECTED) THEN
+					Server[n].Status = sckError	
+				ENDIF
+			ELSE
+				Server[n].Status = sckError	
+			ENDIF
+		ENDIF
+		
+		;Copy Client IP to Global Display Data
+		DisplayData[n].ClientIP = Server[n].client_address
+		
+		;Monitor
+		IF Server[n].Status = sckError THEN
+			strcpy(ADR(myMonitor.ClientInfo[n].State),"Error")
+		ELSE IF Server[n].Status = sckListening THEN
+			strcpy(ADR(myMonitor.ClientInfo[n].State),"Listening")
+		ELSE IF Server[n].Status = sckReceive THEN
+			strcpy(ADR(myMonitor.ClientInfo[n].State),"Receive")
+		ELSE IF Server[n].Status = sckSend THEN
+			strcpy(ADR(myMonitor.ClientInfo[n].State),"Send")
+		ENDIF
+		myMonitor.ClientInfo[n].IPAddress 	= Server[n].client_address
+		myMonitor.ClientInfo[n].Port 		= Server[n].TcpServer_0.portclnt
+		myMonitor.ClientInfo[n].Ident		= Server[n].TcpServer_0.identclnt
+		
+	ENDLOOP
+	
+
+END_PROGRAM

@@ -1,0 +1,36 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	EBagSettled	:BOOL;	
+	EBagSettledET	:TIME;	
+	O_OpenStop	:BOOL;	
+	O_SteadyCylinders	:BOOL;	
+	LoadingUnitClear	:BOOL;	
+	LoadingUnitClearET	:TIME;	
+END_VAR
+
+
+VAR
+	CompressCount	:UINT;	
+	O_MoveCompressorUp	:BOOL;	
+	SteadysUpET	:TIME;	
+	SteadysUp	:BOOL;	
+	SteadysDown	:BOOL;	
+	SteadysDownET	:TIME;	
+	I_BagAtBuffer	:BOOL;	
+	O_OpenBufferStop	:BOOL;	
+	I_BagInLoadingUnit	:BOOL;	
+	I_BagFrontPast	:BOOL;	
+	SwitchFault	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+	I_CompressorAtTop	:BOOL;	
+	I_CompressorAtBot	:BOOL;	
+	I_CompressorAtMid	:BOOL;	
+	O_MoveCompressorDn	:BOOL;	
+	BagSettledBuffer	:BOOL;	
+	BagSettledBufferET	:TIME;	
+	I_BagAtSVC1Buffer	:BOOL;	
+	O_SVC1BufferOpen	:BOOL;	
+	I_ChuteBlocked	:BOOL;	
+END_VAR

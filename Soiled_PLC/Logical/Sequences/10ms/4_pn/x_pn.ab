@@ -1,0 +1,337 @@
+PROGRAM _CYCLIC
+
+;--------------------------------------
+;Sequence 4 - Ongoing To Storage D[900 + mySeq]
+;--------------------------------------
+
+;--------------------------------------------------------------------------------
+;Revision 1.00 06/11/2009 D.J. First Issue - Automatic Line Allocation with Areas
+;--------------------------------------------------------------------------------
+mySeq 			= 4
+myZone 			= 0
+myTransitBag	= 121	
+myStartStop		= 100
+
+IF (myStartStop >= 100) THEN	
+	myStartStop = myStartStop + 7600		
+ENDIF	
+	
+;Inputs
+OnGoingEnable 		= ((D[mySeq] > 0) AND NOT Std.HaltSys)
+;I_BagatBuffer[1]	= X715
+;I_BagatBuffer[2]	= X716
+
+I_BagatBuffer[1]		= Request.VC[1]	
+I_BagatBuffer[2]		= X[7].X16	    
+I_BagatBuffer[3]		= FALSE    
+I_BagatBuffer[4]		= FALSE  
+
+
+O_Reset 		  		= FALSE
+O_OpenSelect[1]			= FALSE
+O_OpenSelect[2]			= FALSE
+O_OpenSelect[3]			= FALSE
+O_OpenSelect[4]			= FALSE
+
+O_OpenBuffer[1]			= FALSE	
+O_OpenBuffer[2]			= FALSE	
+O_OpenBuffer[3]			= FALSE	
+O_OpenBuffer[4]			= FALSE	
+
+Enable.VC[1]            = FALSE
+	
+
+MaxBuffers 			= 1	;Set Max Buffers to search
+MinLine				= 1 	;Set First Storage Line
+MaxLine				= 17		;Set Last Storage Line
+MaxDepth			= 7    ;Capacity of the longest line - used in search
+
+Alarm[mySeq].Name 		= 0
+Alarm[mySeq].Bag		= myTransitBag
+Alarm[mySeq].Beacon		= TRUE
+Alarm[mySeq].Extra	 	= 0
+Alarm[mySeq].Time		= 6000
+
+;Setup Sequence
+;--------------
+STEP = D[900 + mySeq]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+IF SettledBuffer[1] AND (Bag[226].Cat=0) THEN
+	Alarm[mySeq].Time		= 6
+	Alarm[mySeq].Name       = almBagNotShownOnScreen
+ENDIF
+IF SettledBuffer[2] AND (Bag[227].Cat=0) THEN
+	Alarm[mySeq].Time		= 6
+	Alarm[mySeq].Name       = almBagNotShownOnScreen
+ENDIF
+;Step 1 - Reset Ongoing Points
+TON_10ms((STEP = 1),300,ResetPoints,ResetPointsET)
+IF (STEP = 1) THEN
+	Dest  	= 0
+	Buff 	= 0
+	O_Reset = TRUE
+	IF (ResetPoints AND OnGoingEnable) THEN
+		D[900 + mySeq] = 2
+	ENDIF
+ENDIF
+
+;Bag Settles at each buffer
+TON_10ms(I_BagatBuffer[1],300,SettledBuffer[1],SettledBufferET[1])
+
+BufferBagNum[1]	= 120
+
+;BufferBagNum[3]	= myTransitBag
+
+;Step 2 - Search for a valid Bag at one of the buffers
+IF (STEP = 2) THEN
+
+	Buff 	= 0
+	Dest 	= 0
+	BufferDst = 0
+
+	IF OnGoingEnable THEN
+
+		Alarm[mySeq].Name 	= almNoAlarm
+		
+		;Search only 1 buffer bag per scan/task
+		Buffer = Buffer + 1
+		IF Buffer > MaxBuffers THEN
+			Buffer = 1
+		ENDIF
+		;Set Test Value for Monitoring
+		IF TestBuffer > 0 THEN
+			Buffer = TestBuffer
+		ENDIF
+
+		BufferBag		= BufferBagNum[Buffer]
+		BufferSettled 	= SettledBuffer[Buffer]
+		BufferPrg 		= Bag[BufferBag].Prg
+		BufferCat		= Bag[BufferBag].Cat
+		BufferCus		= Bag[BufferBag].Cus
+		BufferDst 		= Bag[BufferBag].Dst
+		
+		IF (BufferSettled AND (BufferCat > 0) AND (BufferPrg > 0) AND (BufferPrg <= Std.MaxProg) AND (OnGoingEnable)) THEN
+			IF( (BufferDst>6) OR (BufferDst = 0) )AND Line[23].Clear AND (Line[23].Space>0) THEN
+				Dest            = BufferDst
+				C[23]           = 0				
+				D[900 + mySeq] 	= 3
+			ENDIF 
+			
+			;Manual Destination has been set?
+			IF (BufferDst > 0) THEN
+			
+				n = BufferDst 
+				IF ((n >= MinLine) AND (n <= MaxLine) AND (Line[n].Space > 0) AND Line[n].Clear) THEN
+					Dest 	= n
+					Buff 	= Buffer
+					D[900 + mySeq] 	= 3
+				ELSE
+					Alarm[mySeq].Name 	= almDestinationNotValid
+					Alarm[mySeq].Bag	= BufferBag
+				ENDIF
+			
+			
+			ELSE IF Std.AutoLineAllocation THEN ;/BufferDst > 0
+			
+				;Search Each Storage Area
+				AreaChoice[1] = D[3000 + BufferPrg]  
+				AreaChoice[2] = D[3100 + BufferPrg]  
+				AreaChoice[3] = D[3200 + BufferPrg]  
+				AreaChoice[4] = D[3300 + BufferPrg]  
+			
+				LOOP Area = 1 TO 4 DO
+				
+					AreaStartLine 	= D[250 + AreaChoice[Area]]		
+					AreaEndLine 	= D[270 + AreaChoice[Area]]
+					AreaValid		= ((AreaStartLine > 0) AND (AreaEndLine > 0) AND (AreaEndLine >= AreaStartLine))
+					IF AreaValid THEN
+				 	
+						;Search for a line with the same program
+						;---------------------------------------
+						LOOP myLine = AreaStartLine TO AreaEndLine DO
+							myLineValid = ((myLine >= MinLine) AND (myLine <= MaxLine))
+							myLineUsed	= (D[myStartStop + myLine] > 0) ;Start / Stop On
+							IF myLineValid AND myLineUsed THEN
+								n 			= myLine
+								SearchBag 	= (Line[n].LastBag - Line[n].Space)
+								IF ((SearchBag >= Line[n].FirstBag) AND (Bag[SearchBag].Prg = BufferPrg) AND (Line[n].Space > 0) AND Line[n].Clear) THEN 
+									;Found line with a matching program
+									Dest 	= n
+								ENDIF ;/SearchBag
+							ENDIF ;/myLineValid
+							EXITIF (Dest <> 0)
+						ENDLOOP ;/myLine loop
+					
+						;Search for an empty line
+						;------------------------
+						IF (Dest = 0) THEN
+							LOOP myLine = AreaStartLine TO AreaEndLine DO
+								myLineValid = ((myLine >= MinLine) AND (myLine <= MaxLine))
+								myLineUsed	= (D[myStartStop + myLine] > 0) ;Start / Stop On
+								IF myLineValid AND myLineUsed THEN
+									n 			= myLine
+									SearchBag 	= (Line[n].FirstBag)
+									IF ((Bag[SearchBag].Prg = 0) AND (Line[n].Space > 0) AND Line[n].Clear) THEN 
+										;Found line with a matching program
+										Dest 	= n
+									ENDIF ;/SearchBag
+								ENDIF ;/myLineValid
+							EXITIF (Dest <> 0)
+							ENDLOOP ;/myLine loop
+						ENDIF ;/Dest = 0
+							
+						;Search for a line that already contains a bag with the same program starting at the back
+						;----------------------------------------------------------------------------------------
+						IF (Dest = 0) THEN
+							LOOP myDepth = (MaxDepth - 2) DOWNTO 0 DO ;Don't search the last bag as the line would already be full!!
+								LOOP myLine = AreaStartLine TO AreaEndLine DO
+									myLineValid = ((myLine >= MinLine) AND (myLine <= MaxLine))
+									myLineUsed	= (D[myStartStop + myLine] > 0) ;Start / Stop On
+									IF myLineValid AND myLineUsed THEN
+										n 			= myLine
+										SearchBag 	= (Line[n].FirstBag + myDepth)
+										IF ((Bag[SearchBag].Prg = BufferPrg) AND (Line[n].Space > 0) AND Line[n].Clear) THEN 
+											;Found line with a matching program
+											FoundDepth 	= myDepth
+											Dest 		= n
+										ENDIF ;/SearchBag
+									ENDIF ;/myLineValid
+									EXITIF (Dest <> 0)
+								ENDLOOP ;/myLine loop
+								EXITIF (Dest <> 0)
+							ENDLOOP ;/myDepgh
+						ENDIF ;/Dest = 0
+					
+						;Search for line with the most space
+						;-----------------------------------
+						IF (Dest = 0) THEN
+							mySpace = 0
+							myFound	= 0
+							LOOP myLine = AreaStartLine TO AreaEndLine DO
+								myLineValid = ((myLine >= MinLine) AND (myLine <= MaxLine))
+								myLineUsed	= (D[myStartStop + myLine] > 0) ;Start / Stop On
+								IF myLineValid AND myLineUsed THEN
+									n 			= myLine
+									SearchBag 	= (Line[n].LastBag)
+									IF ((Bag[SearchBag].Prg = 0) AND (Line[n].Space > mySpace) AND Line[n].Clear) THEN 
+										;Found line with a matching program
+										myFound	= n
+										mySpace = Line[n].Space
+									ENDIF ;/SearchBag
+								ENDIF ;/myLineValid
+							ENDLOOP ;/myLine loop
+						
+							IF (myFound > 0) THEN
+								Dest 	= myFound
+							ENDIF
+						
+						ENDIF ;/Dest = 0	
+					
+																	
+					ENDIF ;/Area Valid
+					EXITIF (Dest <> 0)				
+				ENDLOOP ;/Area Loop
+			
+			ENDIF ;/BufferDst > 0
+				
+			;Destination line found!!
+			IF (Dest <> 0) THEN
+				Buff = Buffer
+				IF (Bag[myTransitBag].Cat = 0) AND (Bag[BufferBagNum[Buff]].Cat > 0) THEN ;Bag in Transit
+					Bag[BufferBagNum[Buff]].Dst = USINT(Dest)
+					Bag[myTransitBag]	= Bag[BufferBagNum[Buff]]
+					Bag[BufferBagNum[Buff]]	 	= Bag[0]
+					IF(Dest < 7) THEN
+						C[Dest] = 0		
+					ENDIF
+					D[900 + mySeq] 	= 3 ; Open buffer 
+				ENDIF
+			ELSE
+				;Storage full!!
+				;Do Nothing? Alarm?
+				;Other Area?
+			ENDIF 
+			
+		ENDIF ;/BagSettled
+				
+		;Buffer Alarms
+		IF (BufferPrg > 0) AND NOT BufferSettled THEN
+		;	Alarm[mySeq].Name 	= almBagNotAtProx
+		;	Alarm[mySeq].Bag	= BufferBag
+		ELSE IF (BufferPrg = 0) AND BufferSettled THEN
+			Alarm[mySeq].Name 	= almBagNotShownOnScreen
+			Alarm[mySeq].Bag	= BufferBag
+		ENDIF
+	ENDIF 
+ENDIF 
+
+;Clear Line Selections
+LOOP n = 1 TO Std.MaxLines DO
+	LineSelect[n] = FALSE
+ENDLOOP
+
+;Step 3 - Select line / open buffer stop
+IF (STEP = 3) THEN
+	IF (Bag[myTransitBag].Cat = 0) AND (Bag[120].Cat > 0) THEN ;Bag in Transit
+			;Bag[BufferBagNum[Buff]].Dst = USINT(Dest)
+			Bag[myTransitBag]	= Bag[120]
+			Bag[120]	 	= Bag[0]
+			C[23] = 0		
+					
+	ENDIF
+	Enable.VC[1]       = TRUE
+	LineSelect[Dest]   = TRUE
+	O_OpenBuffer[Buff] = TRUE
+	IF ((Dest> 6) OR (Dest = 0)) AND Line[23].Trip THEN
+		IF (Bag[134].Cat = 0) AND (Bag[121].Cat > 0) THEN
+			Bag[134] = Bag[121]
+			Bag[121] = Bag[0]
+		ENDIF
+		D[900 + mySeq] 				= 1
+	ENDIF
+	;Bag arrived on selected line
+	IF Line[Dest].Trip THEN
+		D32[498] 					= Bag[myTransitBag].Cus	;Set Customer for Customer FIFO
+		Bag[myTransitBag].Dst 		= 0 		    ;Clear Destination
+		Bag[Line[Dest].LastBag] 	= Bag[myTransitBag]
+		Bag[myTransitBag] 			= Bag[0]
+		D[900 + mySeq] 				= 1
+	ENDIF
+	Alarm[mySeq].Time		= 6000
+	Alarm[mySeq].Name = almBagNotArrived
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[mySeq].Name > 0) AND (AlarmOld = Alarm[mySeq].Name)
+TimerAlarm.PT = Alarm[mySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[mySeq].On = TimerAlarm.Q
+Alarm[mySeq].ET = TimerAlarm.ET
+
+AlarmOld = Alarm[mySeq].Name ;Need to ensure alarm changes as may be multiple alarms on step 2
+
+	
+;Y[6].Y09 = O_OpenBuffer[1]
+	
+;Outputs
+Y[4].Y09 = O_Reset OR (Dest > 6)
+Y[4].Y01 = LineSelect[1]
+Y[4].Y02 = LineSelect[2]
+Y[4].Y03 = LineSelect[3]
+Y[4].Y04 = LineSelect[4]
+Y[4].Y05 = LineSelect[5]
+Y[4].Y06 = LineSelect[6]
+
+
+
+END_PROGRAM
+

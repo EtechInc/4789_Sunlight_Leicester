@@ -1,0 +1,23 @@
+VAR
+	xml : xml_typ;
+	state : REFERENCE TO USINT;
+	xmlWriter : xml_writer_typ;
+	testData : testData_typ;
+	status : UINT;
+	pStructName : UDINT;
+	index : UINT;
+	pvName : STRING[50];
+	structName : STRING[32];
+	taskName : STRING[55];
+	encodeXML : WriteXMLFromStructure;
+	pv_dataLen : UINT;
+	noOfElements : UINT;
+	pvStatus : UINT;
+	pv_dataType : UINT;
+	pvFullName : STRING[50];
+	subIndex : UINT;
+	pvValue : UDINT;
+	batch : test2;
+	enable : BOOL;
+	testTim : BOOL;
+END_VAR

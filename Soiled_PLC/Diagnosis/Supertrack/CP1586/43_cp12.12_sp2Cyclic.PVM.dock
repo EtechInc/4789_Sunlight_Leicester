@@ -1,0 +1,8 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=43_cp12 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=250 Type=0 Scope=0 Force=0 Index=1 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                  D[943]                                     UINT    0 "                                                               3"    1    6    1   10    0    0         
+                              RequestRel                              Enable_Vars    0 "                                                               *"    0   24    1    0    0    1         
+                                      IC                               BOOL[0..9]    0 "                                                               *"    1    1   10    0    0    1         
+                                   IC[5]                                     BOOL    0 "                                                           FALSE"    2    1    1    2    0    0         

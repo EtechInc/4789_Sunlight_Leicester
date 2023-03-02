@@ -1,0 +1,137 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: SQLSpeedTest
+ * File: SQLSpeedTestCyclic.ab
+ * Author: treamsbottom
+ * Created: October 03, 2013
+ ********************************************************************
+ * Implementation of program SQLSpeedTest
+ ********************************************************************)
+PROGRAM _INIT
+Sql = 0
+
+END_PROGRAM
+PROGRAM _CYCLIC
+
+pServer = ADR("10.8.4.210:1433")	
+pDatabaseName = ADR("SUPDB1")
+pUserName = ADR("SUP")	
+pPassword = ADR("1234")
+;	IF pServer <> TestVar THEN 
+;		INC Break
+;		strcpy(ADR(ErrorString),pServer)
+;	ENDIF	
+	
+CASE Sql OF
+
+	ACTION 50:	
+		SqlConnect.enable = TRUE	
+		SqlConnect.pServerName = ADR("10.8.4.210:1433")	
+		SqlConnect.pDatabaseName = ADR("SUPDB1")
+		SqlConnect.pUserName = ADR("SUP")
+		SqlConnect.pPassword = ADR("1234")
+		SqlConnect.databaseSystem = DB_SYSTEM_MS_SQL
+		SqlConnect FUB dbConnect()	
+			
+
+		IF SqlConnect.status = ERR_OK THEN	
+			
+			Ident = SqlConnect.connectionIdent
+			IF Ident > 0 THEN
+				Sql = 1
+				INC ConnectionCount	
+			ENDIF		
+		ELSE IF SqlConnect.status <> ERR_FUB_BUSY THEN
+			IF SqlConnect.connectionIdent <> 0 THEN	
+				Ident = SqlConnect.connectionIdent	
+				Sql = 99	
+			ENDIF					
+		ELSE IF Ident <> 0 THEN; Connection already made disconnect
+			Sql = 2 	
+		ENDIF
+	ENDACTION
+	
+	ACTION 1:			
+		SqlExecute.enable = TRUE			
+		SqlExecute.connectionIdent = Ident		
+		SqlExecute.pSqlStatement = ADR("EXEC Supertrack.uspBagMaintCountReplyState 2 ,PLCReadWriteTest")	
+		SqlExecute FUB dbExecuteSql()
+		IF SqlExecute.status = ERR_OK THEN		
+			ReadData = 1
+			Sql = 2			
+		ENDIF			
+	ENDACTION			
+	
+				
+		
+	ACTION 2:				
+		CASE ReadData OF	
+			ACTION 1: ; Fetch Data				
+				SqlGetRow.enable = TRUE
+				SqlGetRow.connectionIdent = Ident			
+				SqlGetRow FUB dbFetchNextRow()			  
+				IF SqlGetRow.status = ERR_OK THEN		
+					ReadData = 2			
+				ENDIF								
+			ENDACTION	
+							
+			ACTION 2: ; Get results				
+				SqlColumnCount.enable = TRUE			
+				SqlColumnCount.connectionIdent = Ident			
+				SqlColumnCount FUB dbGetColumnCount()			
+				IF SqlColumnCount.status = ERR_OK THEN		
+					ColumnCount = SqlColumnCount.columnCount				
+					Col = 1
+					Row = 0				
+					ReadData = 3			
+				ENDIF				
+			ENDACTION	
+			
+			ACTION 3:				
+				SqlGetData.enable = TRUE
+				SqlGetData.connectionIdent = Ident		
+				SqlGetData.dataType = DB_SQL_INTEGER ; Always read out as string				
+				SqlGetData.dataSize = SIZEOF(OutputDataRow[Row].Data[Col])
+				SqlGetData.pData = ADR(OutputDataRow[Row].Data[Col])				
+				SqlGetData.columnIdx = Col				
+				SqlGetData FUB dbGetData()				
+				IF SqlGetData.status = ERR_OK THEN			
+;					IF Col = ColumnCount THEN
+;						Col = 1
+;						ReadData = 0				
+;						INC Row	
+;					ELSE	
+;						INC Col						
+;					ENDIF
+					Sql = 78
+				ENDIF				
+			ENDACTION
+		ENDCASE					
+	ENDACTION
+					
+	ACTION 10:
+		SqlDisconnect.enable = TRUE	
+		SqlDisconnect.connectionIdent = Ident
+		SqlDisconnect FUB dbDisconnect()				  
+		IF SqlDisconnect.status =  ERR_OK THEN	
+			Ident = 0
+			Sql = 85
+		ENDIF
+	ENDACTION	
+
+	ACTION 99: 				
+		SqlError.enable = TRUE
+		SqlError.connectionIdent = Ident	
+		SqlError.pErrorMessage = ADR(ErrorString)			
+		SqlError.errorMessageSize = SIZEOF(ErrorString)			
+		SqlError FUB dbGetErrorMessage()			
+		IF SqlError.status = ERR_OK THEN					
+			Sql = 10			
+		ENDIF			
+	ENDACTION			
+ENDCASE	
+	
+
+
+END_PROGRAM

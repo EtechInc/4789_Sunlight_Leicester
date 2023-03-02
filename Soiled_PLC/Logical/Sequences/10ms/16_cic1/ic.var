@@ -1,0 +1,49 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: ic
+ * File: ic.var
+ * Author: treamsbottom
+ * Created: July 17, 2015
+ ********************************************************************
+ * Local variables of program ic
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myIC : UINT;
+	useRequest : BOOL;
+	bufferSettleTime : UDINT;
+	myBuffBag : UINT;
+	myBag : UINT;
+	myRelLine : UINT;
+	myOutBag : UINT;
+	myZone : UINT;
+	i_paddleInPosition : BOOL;
+	i_bagAtBuffer : BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	o_openBuffer : BOOL;
+	o_runMotor : BOOL;
+	step : UINT;
+	pls : BOOL;
+	ton_10ms_SettledBuffer : TON_10ms;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	laststep : UINT;
+END_VAR
+VAR
+	i_bagInIncline : BOOL;
+	moveUpInclineTime : UINT;
+	releaseValid : BOOL;
+	ton_10ms_SettledIncline : TON_10ms;
+	ctu_moveUpIncline : CTU;
+	i_BagReleased : BOOL;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_buff : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	line_release : REFERENCE TO Line_Typ;
+	CDC4Release : BOOL;
+END_VAR

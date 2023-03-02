@@ -1,0 +1,27 @@
+﻿FUNCTION_BLOCK Output
+{ VariableWorksheet := 'Variables' }
+﻿{GroupDefinition(0,'NewGroup')}
+
+VAR_INPUT {Group(0)}
+    {LINE(4)}
+    Zone_Dependancy : SAFEBOOL; (*Zone that enables output*)
+END_VAR
+
+VAR_OUTPUT {Group(0)}
+    {LINE(2)}
+    Output_Enable : SAFEBOOL; (*Physical output*)
+    {LINE(3)}
+    Output_Release : BOOL; (*Output release*)
+END_VAR
+
+VAR {Group(0)}
+    {LINE(1)}
+    TON_S_1 : TON_S; (*TON FB*)
+END_VAR
+
+{ CodeWorksheet := 'Output', Type := '.fbd' }
+﻿<?xml version="1.0" encoding="utf-16"?><FBD><comment localId="0" height="1" width="1"><position x="8" y="8" /><content><body><p style="color:#000000;font-family:Arial;font-weight:bold;font-style:normal;font-size:22pt;">An error occured while converting
+data to XML format.This worksheet
+will be empty.
+11/06/2020 16:11:21</p></body></content></comment></FBD>
+END_FUNCTION_BLOCK

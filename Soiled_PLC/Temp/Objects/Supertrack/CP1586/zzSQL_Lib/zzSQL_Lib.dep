@@ -1,0 +1,7 @@
+$(AS_PROJECT_PATH)/Logical/SQL/zzSQL_Lib/zzSQL_Lib.fun
+$(AS_PROJECT_PATH)/Logical/SQL/zzSQL_Lib/zzSQL_Lib.typ
+$(AS_PROJECT_PATH)/Logical/SQL/zzSQL_Lib/zzSQL_Lib.var
+$(AS_PROJECT_PATH)/Logical/Libraries/AsDb/AsDb.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsDb/AsDb.var
+$(AS_PROJECT_PATH)/Logical/Libraries/runtime/runtime.var

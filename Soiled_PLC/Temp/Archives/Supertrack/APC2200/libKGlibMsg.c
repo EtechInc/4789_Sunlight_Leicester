@@ -1,0 +1,12 @@
+void msgBinSearchCfgList(void) {};
+void _msgBinSearchCfgList(void) {};
+void msgInsertMsgLine(void) {};
+void _msgInsertMsgLine(void) {};
+void msgBinSearchTxtLine(void) {};
+void _msgBinSearchTxtLine(void) {};
+void msgBinSearchHelpTxtLine(void) {};
+void _msgBinSearchHelpTxtLine(void) {};
+void msgReplSubStr(void) {};
+void _msgReplSubStr(void) {};
+void msgNextChrPos(void) {};
+void _msgNextChrPos(void) {};

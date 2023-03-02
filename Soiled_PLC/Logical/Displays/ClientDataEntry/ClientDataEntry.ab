@@ -1,0 +1,22 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: ClientDataEntry
+ * File: ClientDataEntry.ab
+ * Author: Dave
+ * Created: October 17, 2011
+ ********************************************************************
+ * Implementation of program ClientDataEntry
+ ********************************************************************)
+
+PROGRAM _CYCLIC
+	
+	IF (ClientDataLocal[0].Start > 0) THEN
+		ClientSend[0].Command = 1 ;Start Button Pressed
+	;ELSE IF (ClientDataLocal[0].Start > 0) THEN
+	;	ClientSend[0].Command = 2 ;Add more buttons if required
+	ELSE
+		ClientSend[0].Command = 0
+	ENDIF
+	
+END_PROGRAM

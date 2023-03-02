@@ -1,0 +1,6 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/SupLib4/SupLib4.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Sequences/10ms/zzOk/zzok.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/IO/IO.var
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var

@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingsSet id="StatusPageBinding" xmlns="http://www.br-automation.com/iat2015/binding/engineering/v2" xmlns:bt="http://www.br-automation.com/iat2015/bindingListTypes/engineering/v2" xmlns:be="http://www.br-automation.com/iat2015/bindingListEmbedded/engineering/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.MpAxisBasic.Position" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActPosition" attribute="node" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.PositionNo" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActPosNumber" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.MpAxisBasic.Velocity" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActSpeed" attribute="node" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.Read.TargetPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputSetPosition" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.MpAxisBasic.Info.CyclicRead.MotorTemperature.Value" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActTempMotor" attribute="node" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AutoCtrl:VCCpuTemperature" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActTempPlc" attribute="node" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Auto.Param.BagsReceived" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputBagsReceived" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Auto.Param.BagsReleased" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputBagsReleased" attribute="value" />
+</Binding>		
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::VisCtrl:OilLevel" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputOilLevel" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.MpAxisBasic.PowerOn" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectanglePowerOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.MpAxisBasic.IsHomed" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleHomeOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::VisCtrl:VCPositionImage" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="ImageListHoist" attribute="selectedIndex" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.MpAxisBasic.Info.CyclicRead.Torque.Value" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActTorque" attribute="node" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.ImageCtrl.ShowWarningAuto_LocCtrlSecTr" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="ImageLocCtrl2TrWarning" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_UnloadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleUnloadOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_LoadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleLoadOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.Read.PermissionToMove" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectanglePermissionOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.VCType" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputActAccel" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.MachineStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="TextOutputActState" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_TrolleyInPlace" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleTrolleyInPlaceOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Outputs.do_SteadyArm" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleSteadyArmDownOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Outputs.do_LoadingChute" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleLoadChuteOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.HideCtrl.ShowLoadChuteStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleLoadChuteOff" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.HideCtrl.ShowLoadChuteStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="LabelLoadChute" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.HideCtrl.ShowLoadChuteStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleLoadChute" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.Read.LoadBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleLoadBagOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.Read.ReleaseBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleReleaseBagOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.Read.ReceiveBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleReceiveBagOn" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.HideCtrl.ShowLoadChuteStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleSteadyArmDownOff" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.HideCtrl.ShowLoadChuteStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="RectangleSteadyArmDown" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.HideCtrl.ShowLoadChuteStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="LabelSteadyArmDown" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gRunningMeters" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatus" widgetRefId="NumericOutputRunningMeters" attribute="value" />
+</Binding>
+</Bindings>
+</BindingsSet>

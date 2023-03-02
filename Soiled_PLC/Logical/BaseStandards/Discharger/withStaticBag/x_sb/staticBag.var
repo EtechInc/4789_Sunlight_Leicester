@@ -1,0 +1,44 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myZone : UINT;
+	myBag : UINT;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	myDC : UINT;
+	myIO : UINT;
+	myDischargerBag : UINT;
+	bag_disch : REFERENCE TO Bag_typ;
+	i_pushbutton : BOOL;
+	o_bagReady : BOOL;
+	o_openCatch : BOOL;
+	o_openBag : BOOL;
+	pushbutton : F_TRIG;
+	staticBagEnable : BOOL;
+	ton_10ms_MinDischOpen : TON_10ms;
+	laststep : UINT;
+	loadDropped : BOOL;
+	ton_10ms_minOpen : TON_10ms;
+	ton_10ms_closerDown : TON_10ms;
+	ton_10ms_closerUp : TON_10ms;
+	myCan : UINT;
+	can : REFERENCE TO CAN_Vars;
+	codeStep : BOOL;
+END_VAR

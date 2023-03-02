@@ -1,0 +1,237 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------------------
+;Sequence 8 - SVC1 Vertical conveyor 1 D[908]
+;--------------------------------------------
+
+;Inputs
+I_CarrAtTop				= X[11].X02
+I_CarrAtBottom			= X[11].X01
+I_CarrAtEBagIn			= X[11].X03
+I_CarrAtSafety			= X[11].X04
+I_BagOnCarr				= X[11].X09
+I_BagAtBuffer			= X[11].X11
+I_UpPushButton			= X[11].X05
+I_DownPushButton		= X[11].X06
+I_LoadingSequence		= X[11].X07
+I_UnLoadingSequence		= X[11].X08
+
+
+
+O_OpenBufferStop		= FALSE ; YB02
+
+;-----SAFETY CARD---------------
+O_MoveCarrUp			= FALSE ; YD15
+O_MoveCarrDown			= FALSE ; YD16
+O_MoveCarrDown2			= FALSE ; YE01
+O_OpenCarrStop			= FALSE ; YE02
+O_FVCSetpoint           = FALSE 
+
+Alarm[30].Name 			= 0
+Alarm[30].Bag			= 315
+Alarm[30].Beacon		= TRUE
+Alarm[30].Extra			= 0
+Alarm[30].Time			= 3000
+
+;Setup Sequence
+STEP = D[930]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;show bag on screen
+IF (STEP >= 1) AND (STEP <= 4) THEN
+	Bag[315] = Bag[321]
+;	E[1571] = E[1601]
+ENDIF
+
+;Move Carriage down to loading position
+IF (STEP = 1) THEN
+O_MoveCarrDown = ((I_CarrAtBottom = FALSE) AND (I_DownPushButton = TRUE))
+	IF (I_CarrAtBottom = TRUE) THEN
+		D[930] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[16].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Bag loading 
+;Move Carriage up to safety level
+IF (STEP = 2) THEN
+	O_MoveCarrDown = ((I_CarrAtBottom = FALSE) AND (I_DownPushButton = TRUE) AND (I_UpPushButton = FALSE))
+	O_MoveCarrUp = ((I_CarrAtSafety = FALSE) AND (I_DownPushButton = FALSE) AND (I_UpPushButton = TRUE))
+	IF (I_CarrAtSafety = TRUE) THEN
+		D[930] = 3
+	ENDIF
+ENDIF
+
+;Check neither push button is pressed
+IF (STEP = 3) THEN
+	IF ((I_UpPushButton = FALSE) AND (I_DownPushButton = FALSE)) THEN
+		D[930] = 4
+	ENDIF
+ENDIF
+
+;Check Destination Clear and up push button pressed
+TON_10ms(((STEP = 4) AND (I_UpPushButton = TRUE)),50,PButton,PButtonET)
+IF (STEP = 4) THEN
+	 Bag[315].Cat = Bag[310].Cat 
+	Bag[315].Cus = Bag[310].Cus
+	Bag[315].Prg = usint(Bag[310].Cat)
+	
+    IF ((I_BagOnCarr = TRUE) AND (PButton = TRUE) AND (Bag[315].Cat > 0)) THEN
+		;Update Bag ID if cleared or zero
+		IF ((BidStn > 0) AND (Bag[315].Bid = 0) AND (Bag[315].Cat > 0)) THEN
+			Bag[315].Bid = UINT(BidStn)
+			BidStn			= 0
+		ENDIF	
+		D[930] = 5
+	ENDIF
+ENDIF
+
+
+;Reset sequence if Down push button pressed
+IF ((STEP = 4) AND (I_DownPushButton = TRUE)) THEN
+	D[930] = 1
+ENDIF
+
+;Select Unloading sequence 
+IF ((STEP = 4) AND (I_BagOnCarr = FALSE) AND (I_UnLoadingSequence = TRUE)) THEN
+	IF (PButton = TRUE) THEN
+		D[930] = 13
+	ENDIF
+ENDIF
+
+;Move Carriage up to top position
+IF (STEP = 5) THEN
+	O_MoveCarrUp = (I_CarrAtTop = FALSE)
+	IF (I_CarrAtTop = TRUE) THEN
+		D[930] = 6
+	ENDIF
+ENDIF
+
+
+;Wait for Release bag signal
+TON_10ms((STEP = 6),200,SignalTime,SignalTimeET)
+IF (STEP = 6) THEN  
+    IF ((Line[41].Clear = TRUE) AND (Bag[308].Cat = 0)) THEN 
+		D[930] = 7
+		C[41]  = 0
+	ENDIF
+ENDIF
+
+;Releasing onto storage
+IF (STEP = 7) THEN
+	O_OpenCarrStop = (I_CarrAtTop = TRUE)
+	D[58]     = 1	
+	
+	;Bag at destination
+	IF (Line[41].Trip = TRUE) THEN
+		IF (Bag[315].Cat >0) AND (Bag[308].Cat =0) THEN
+			Bag[308] = Bag[315]
+			Bag[315] = Bag[0]
+		ENDIF
+		D[930] = 8
+	ENDIF
+
+	Alarm[30].Name = almBagNotReleased
+ENDIF
+
+;Move Carriage down to empty position
+IF (STEP = 8) THEN
+	O_MoveCarrDown2 = ((I_CarrAtEBagIn = FALSE) AND (I_CarrAtBottom = FALSE))
+	IF (I_CarrAtEBagIn = TRUE) THEN
+		D[930] = 9
+	ENDIF
+	Alarm[30].Name = almCarriageMoveFault
+ENDIF
+
+;Wait for empty bag to settle
+;Or Loading program selected
+TON_10ms(((I_BagAtBuffer = TRUE) AND (I_BagOnCarr = FALSE) AND (STEP = 9)),100,EBagReady,EBagReadyET)
+IF (STEP = 9) THEN
+	IF (EBagReady = TRUE) AND (I_BagAtBuffer = TRUE) THEN
+		D[930] = 10
+	ENDIF
+	IF (I_LoadingSequence = TRUE) THEN
+		D[930] = 12
+	ENDIF
+ENDIF
+
+;Bag at buffer stop
+IF (STEP = 10) THEN
+	O_OpenBufferStop = (I_CarrAtEBagIn = TRUE)
+	D[58]     = 2
+	IF (I_BagOnCarr = TRUE) THEN
+		D[930] = 11
+	ENDIF
+	Alarm[30].Name = almBagNotReleased
+	ELSE
+	O_OpenBufferStop = FALSE
+ENDIF
+
+;bag settles on carriage
+TON_10ms((I_BagOnCarr = TRUE),300,BagSetteled,BagSetteledET)
+IF (STEP = 11) THEN
+	IF (BagSetteled = TRUE) THEN
+		D[930] = 12
+	ENDIF
+ENDIF
+
+;Move Carriage down to safety position
+IF (STEP = 12) THEN
+	O_MoveCarrDown = ((I_CarrAtSafety = FALSE) AND (I_CarrAtBottom = FALSE))
+	IF (I_CarrAtSafety = TRUE) THEN
+		D[930] = 1
+	ENDIF
+ENDIF
+
+;-------------------------------
+;-----UNLOADING PROGRAM---------
+;-------------------------------
+IF (STEP = 13) THEN
+	O_MoveCarrUp = (I_CarrAtTop = FALSE)
+	IF (I_CarrAtTop = TRUE) THEN
+		D[930] = 8
+	ENDIF
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[30].Name > 0)
+TimerAlarm.PT 	= Alarm[30].Time
+TimerAlarm FUB TON_10ms()
+Alarm[30].On 	= TimerAlarm.Q
+Alarm[30].ET 	= TimerAlarm.ET
+
+
+
+;PLC Outputs
+;-----------
+
+Y[11].Y02 = (O_OpenBufferStop AND (I_CarrAtEBagIn = TRUE ))
+
+;-------SAFETY CARD-------------
+Y[13].Y15 = ((O_MoveCarrUp = TRUE) AND (I_CarrAtTop = FALSE))
+Y[13].Y16 = ((O_MoveCarrDown = TRUE) AND (I_CarrAtBottom = FALSE))
+Y[14].Y01 = ((O_MoveCarrDown2 = TRUE) AND (I_CarrAtBottom = FALSE) AND (I_CarrAtEBagIn = FALSE))
+Y[14].Y02 = ((O_OpenCarrStop = TRUE) AND (I_CarrAtTop = TRUE))
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[13].Y15 = TRUE
+YForceDisable[13].Y16 = TRUE
+YForceDisable[14].Y01 = TRUE
+YForceDisable[14].Y02 = TRUE
+
+
+
+
+
+END_PROGRAM
+

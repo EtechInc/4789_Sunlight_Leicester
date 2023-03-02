@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.1.214?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">PSU.var</Object>
+    <Object Type="File">PSU.typ</Object>
+    <Object Type="Program" Language="IEC">zzBlockPSU</Object>
+    <Object Type="File">Block_Comms.pdf</Object>
+    <Object Type="File">Notes.txt</Object>
+  </Objects>
+</Package>

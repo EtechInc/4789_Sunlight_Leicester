@@ -1,0 +1,7 @@
+{
+  global:
+    SQL_Write;
+    SQL_Read_Write;
+  local:
+    *;
+ };

@@ -1,0 +1,49 @@
+VAR RETAIN
+	STEP : UINT;
+	LASTSTEP : UINT;
+	PLS : BOOL;
+	BagSettledTime : ARRAY[0..99] OF UINT;
+	Destination : UINT;
+	SettleTime : UINT;
+	BestTime : UINT;
+	LineSelect : ARRAY[0..49] OF BOOL;
+	ResetPointsET : TIME;
+	ResetPoints : BOOL;
+	n : UINT;
+	IncSettle : BOOL;
+	LineSettle : ARRAY[0..99] OF BOOL;
+	I_BagAtStop : ARRAY[0..49] OF BOOL;
+	OffGoingEnable : BOOL;
+	AlarmBagNotProx : BOOL;
+	SearchDest : UINT;
+END_VAR
+VAR
+	TimerAlarm : TON_10ms;
+	MaxBuffers : UINT;
+	ResetBrush : BOOL;
+	FoundLine : UINT;
+	O_Reset : BOOL;
+	O_SDCBufferOpen : ARRAY[0..4] OF BOOL;
+	I_SDCBagAtBuffer : ARRAY[0..4] OF BOOL;
+	ResetBrushET : TIME;
+	SVC2BufferClear : BOOL;
+	CloseBrush : BOOL;
+	SDC4_Valid : BOOL;
+	I_BagPassedSVC2 : BOOL;
+	EnableSDC3Search : BOOL;
+	EnableSDC1Search : BOOL;
+	Alternator : UINT;
+	LastDest : UINT;
+	I_ApproachBrush : BOOL;
+	O_CloseBrush : BOOL;
+	SDC1_Valid : BOOL;
+	SDC2_Valid : BOOL;
+	SDC3_Valid : BOOL;
+	EmptyInTransit : BOOL;
+	CloseStop : BOOL;
+	I_BagReleased : BOOL;
+	BufferBag : ARRAY[0..4] OF UINT;
+	BufferClear : ARRAY[0..4] OF BOOL;
+	testAtStop : BOOL;
+	PairingLoop : BOOL;
+END_VAR

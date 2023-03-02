@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.3.5.113 SP?>
+<Hardware xmlns="http://br-automation.co.at/AS/Hardware">
+  <Module Name="FEPL-02_and_ACS380__1" Type="FBE.ACS380_v2.04.0.3_FEPL-02_1.0_filerev1.0" OrderNumber="FEPL-02 and ACS380 (2)">
+    <Parameter ID="Supervision" Value="off" />
+    <Parameter ID="p2201_direction" Value="ro" />
+    <Parameter ID="p2203_direction" Value="ro" />
+    <Parameter ID="p6040_direction" Value="wo" />
+    <Parameter ID="p6041_direction" Value="ro" />
+    <Parameter ID="p6044_direction" Value="ro" />
+    <Parameter ID="p6046s01_value" Value="" />
+    <Parameter ID="p6060_value" Value="" />
+    <Parameter ID="p60FD_direction" Value="ro" />
+    <Parameter ID="p4001s07_direction" Value="ro" />
+    <Parameter ID="p4001s0A_direction" Value="ro" />
+    <Parameter ID="p400As02_direction" Value="ro" />
+    <Parameter ID="p400As18_direction" Value="wo" />
+    <Parameter ID="p400As18_value" Value="" />
+    <Parameter ID="p4014s01_direction" Value="wo" />
+    <Parameter ID="p401Cs16_value" Value="1" />
+    <Parameter ID="p401Cs1A_direction" Value="wo" />
+    <Parameter ID="p401Cs47_direction" Value="wo" />
+    <Parameter ID="p401Cs48_direction" Value="wo" />
+    <Parameter ID="p401Cs49_direction" Value="wo" />
+    <Parameter ID="p401Es0E_value" Value="6000" />
+    <Parameter ID="p401Fs01_value" Value="" />
+    <Parameter ID="p401Fs02_value" Value="" />
+    <Parameter ID="p401Fs0B_value" Value="" />
+    <Parameter ID="p401Fs0C_value" Value="" />
+    <Parameter ID="p401Fs16_direction" Value="wo" />
+    <Parameter ID="p402Cs06_direction" Value="wo" />
+    <Parameter ID="p402Cs06_value" Value="" />
+    <Parameter ID="p4032s04_value" Value="" />
+    <Parameter ID="p4032s07_value" Value="" />
+    <Parameter ID="p4060s04_value" Value="" />
+    <Parameter ID="p4060s10_direction" Value="wo" />
+    <Parameter ID="p4063s04_direction" Value="wo" />
+    <Parameter ID="p4063s06_direction" Value="wo" />
+    <Parameter ID="p4063s07_direction" Value="wo" />
+    <Parameter ID="p4063s08_direction" Value="wo" />
+    <Parameter ID="p4063s09_direction" Value="wo" />
+    <Parameter ID="p4063s0A_direction" Value="wo" />
+  </Module>
+</Hardware>

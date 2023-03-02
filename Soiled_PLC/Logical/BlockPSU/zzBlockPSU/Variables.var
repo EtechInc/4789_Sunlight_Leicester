@@ -1,0 +1,16 @@
+VAR
+	step : ARRAY[0..MAX_PSU] OF UINT;
+	i_readBit : ARRAY[0..MAX_PSU] OF BOOL;
+	o_sendBit : ARRAY[0..MAX_PSU] OF BOOL;
+	scanCount : ARRAY[0..MAX_PSU] OF UINT;
+	reset : {REDUND_UNREPLICABLE} ARRAY[0..MAX_PSU] OF BOOL;
+	useExtendedComms : BOOL;
+	o_pulse : ARRAY[0..MAX_PSU] OF BOOL;
+	ton_reset : ARRAY[0..MAX_PSU] OF TON_10ms;
+	ton_refresh : ARRAY[0..MAX_PSU] OF TON_10ms;
+	refreshTime : UDINT;
+	n : USINT;
+	init : ARRAY[0..MAX_PSU] OF BOOL;
+	ton_TimeOut : ARRAY[0..MAX_PSU] OF TON_10ms;
+	x : UINT;
+END_VAR

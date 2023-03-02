@@ -1,0 +1,304 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;Honeycombe Sorting Station Control
+;----------------------------------------------------
+;Revision 1.00 10/01/2002 D.J. First Issue
+;Revision 2.00 07/02/2005 D.J. Removed Stn Mix
+;Revision 3.00 22/08/2006 D.J. Changed to timer array
+;----------------------------------------------------
+
+mySeq = 50
+Bank = 1
+
+;Timers
+OpenTime  = 700
+CloseTime = 500
+
+ContinuousSort = FALSE;(D[994] = 0)	
+			
+;Lamp Test from TrackView
+IF (BIT_TST(D[998],0) = 1) THEN 
+	LampTest = TRUE
+
+ELSE
+	LampTest = FALSE
+ENDIF
+	
+
+	
+	LOOP x = 1 TO Ldg[Bank].NoStations DO		
+		n = Ldg[Bank].Stations[x]	
+		
+		;Parts Loads	
+		TimerPartLoad[n].IN		= I_PartLoad[n]		 
+		TimerPartLoad[n].PT		= 100
+		TimerPartLoad[n] FUB TON_10ms()
+		
+		IF TimerPartLoad[n].Q THEN	
+			D[800 + n] = 1		
+		ENDIF	
+				
+		;Bag open timers
+		TimerOpen[n].IN 		= OpenBag[n]
+		TimerOpen[n].PT			= OpenTime
+		TimerOpen[n] FUB TON_10ms()
+	
+		BagOpened[n] 			= TimerOpen[n].Q
+		BagOpenedET[n]			= TimerOpen[n].ET
+	
+		;Bag closed timers
+		TimerClosed[n].IN 		= NOT OpenBag[n]
+		TimerClosed[n].PT		= CloseTime
+		TimerClosed[n] FUB TON_10ms()
+	
+		BagClosed[n] 			= TimerClosed[n].Q
+		BagClosedET[n]			= TimerClosed[n].ET
+	
+	
+	
+		;Update bag weight
+		StnBag = LDG_GetBagFromStation(Std.StationBagsStart,n)
+		Bag[StnBag].Wgt 		= Stn[n].Weight
+		Bag[StnBag].Cnt 		= Stn[n].Count
+	
+		;Update Bag ID if cleared or zero
+		IF ((BidStn > 0) AND (Bag[StnBag].Bid = 0) AND (Bag[StnBag].Cat > 0)) THEN
+			Bag[StnBag].Bid = UINT(BidStn)
+			BidStn			= 0
+		ENDIF	
+		
+		;Move bags from Display buffer position into Search array,,
+		myDisplayBag = LDG_GetBagFromStation(Std.StationBagDisplay,n)
+		
+		;Keep Weight Live on Display
+		Bag[myDisplayBag].Wgt = Stn[n].Weight	
+		Update = FALSE	
+		IF (Bag[StnBag].Cat <> Bag[myDisplayBag].Cat) THEN	
+			Update = TRUE
+		ELSE IF (Bag[StnBag].Cus <> Bag[myDisplayBag].Cus) THEN	
+			Update = TRUE
+		ELSE IF (Bag[StnBag].Prg <> Bag[myDisplayBag].Prg) THEN		
+			Update = TRUE
+		ENDIF		
+		IF (Bag[myDisplayBag].Cat = Std.MaxCats) THEN
+			Update = FALSE ; Do not update bag if Empty Bag is assigned.	
+			CloseFlap[n] = TRUE
+		ELSE
+			CloseFlap[n] = FALSE
+		ENDIF	
+		
+		;Flap close after above SP2 for 1 second
+		TimerFlapClose[n].IN 	= Stn[n].SP2 AND (Bag[myDisplayBag].Cat <> Std.MaxCats)
+		TimerFlapClose[n].PT	= 200 ;4 sec
+		TimerFlapClose[n] FUB TON_10ms()	
+			
+		IF ContinuousSort THEN	
+			AutoPurgeTrig[n].CLK = Update
+			AutoPurgeTrig[n] FUB R_TRIG()
+			IF AutoPurgeTrig[n].Q THEN
+				newBag[n] = TRUE	
+			ENDIF
+		
+			IF (newBag[n] AND Std.AutoPurge AND NOT Stn[n].CloseFlap AND NOT Stn[n].ManualRelease AND NOT Stn[n].Purge AND NOT Stn[n].PurgeReverse)THEN 
+				D[800 + n] = 2 ; Bag change detected automatically purge the station... Weight is check in ZZstn
+				newBag[n] = FALSE
+			ENDIF
+	
+			
+			IF ((NOT Stn[n].CloseFlap AND NOT Stn[n].ManualRelease AND NOT Stn[n].Purge AND NOT Stn[n].PurgeReverse AND (D[800 + n] = 0)) OR  (Bag[StnBag].Cat = 0)) THEN ;AND NOT Stn[n].SP2 THEN	
+				IF Update THEN;(Update AND (n <> 12)) THEN
+					myBid = Bag[StnBag].Bid
+					Bag[StnBag] = Bag[myDisplayBag] 		
+					Bag[StnBag].Bid = myBid		
+				ENDIF				
+			ENDIF	
+		ELSE		
+			IF Update THEN
+				myBid = Bag[StnBag].Bid
+				Bag[StnBag] = Bag[myDisplayBag] 		
+				Bag[StnBag].Bid = myBid		
+			ENDIF
+		ENDIF		
+		
+		;Ensure Display Bag has a  Bag ID
+		IF ((BidStn > 0) AND (Bag[myDisplayBag].Bid = 0) AND  (Bag[myDisplayBag].Cat > 0)) THEN
+			Bag[myDisplayBag].Bid = UINT(BidStn)
+			BidStn			= 0
+		ENDIF		
+			
+			
+			
+		Alarm[mySeq + n].Name 		= 0
+		Alarm[mySeq + n].Bag		= StnBag
+		Alarm[mySeq + n].Beacon	= FALSE
+		Alarm[mySeq + n].Extra		= 0
+		Alarm[mySeq + n].Time		= 4000
+	
+		Stn[n].LampOn 		= FALSE
+		Stn[n].GreenLamp	= FALSE
+	
+			
+		STEP = D[900 + mySeq + n]
+		;Setup Pulse contact
+		PLS[n] = (STEP <> LASTSTEP[n])
+		LASTSTEP[n] = STEP
+	
+		;Step 0 - Disabled
+		IF (STEP = 0) THEN
+			Stn[n].LampOn = TRUE
+			Stn[n].CloseFlap = ((Bag[StnBag].Cat <> Bag[myDisplayBag].Cat)) 
+			Stn[n].QTime = 0
+			Stn[n].ManualRelease = 0
+			Stn[n].Purge = 0	
+			;Disabled
+		ENDIF
+	
+	    
+		IF (STEP = 1) THEN
+			Stn[n].LampOn = TRUE
+			Stn[n].GreenLamp = FALSE	
+			Stn[n].CloseFlap = TRUE
+			myStnReg = (n > 32)
+			IF (myStnReg = 0)THEN
+				myStnBit =	n - 1
+			ELSE IF (myStnReg = 1)THEN 
+				myStnBit = 	n - 33
+			ELSE
+				myStnBit = 0
+			ENDIF			
+			Std.PurgeBank[Bank].StationsStatus[myStnReg] = BIT_CLR(Std.PurgeBank[Bank].StationsStatus[myStnReg],myStnBit)
+				
+	;		Stn[n].Purge = FALSE
+	;		Stn[n].PurgeReverse = FALSE	
+			IF D[900 + 1] = n THEN
+				D[900 + 1] = 0
+			ENDIF
+			IF BagClosed[n] THEN
+				D[900 + mySeq + n] = 2
+			ENDIF
+			Alarm[mySeq + n].Name = almStationNotClosed
+		ENDIF
+	
+		IF (STEP = 2) THEN
+			Stn[n].LampOn = ((Stn[n].SP1 AND Std.Clock2s) OR Stn[n].SP2 OR (Stn[n].SP3 AND Std.Clock200ms))
+			Stn[n].GreenLamp = ((NOT Stn[n].SP2 AND NOT Stn[n].SP3) OR TimerFlapClose[n].Q)
+			;Close the flaps when the bag is above SP2
+			IF TimerFlapClose[n].Q OR Stn[n].ManualRelease OR Stn[n].Purge OR Stn[n].PurgeReverse THEN
+				Stn[n].CloseFlap 	= ContinuousSort
+			ENDIF
+			;Stop flap closing / re-open is bag below 3kg
+			IF (Stn[n].Weight < 30) THEN
+				Stn[n].CloseFlap 	= FALSE
+			ENDIF
+			IF ((D[900 + Std.StationBankReg + Bank] = n) AND Ldg[Bank].EnableStnRelease) THEN
+				D[900 + mySeq + n] = 3
+			ENDIF
+			IF ((Bag[StnBag].Prg > 0) AND Stn[n].SP3) THEN
+				Alarm[mySeq + n].Name = almBagOverWeight
+			ENDIF
+		ENDIF
+	
+		IF (STEP = 3) THEN
+			Stn[n].LampOn = TRUE
+			Stn[n].CloseFlap = ContinuousSort
+			Stn[n].GreenLamp = TimerFlapClose[n].Q 
+		
+			AllowRelease[n]  = TRUE	
+		
+			IF (BagOpened[n] AND ((Stn[n].Weight < 30) OR Test.Stations) AND Ldg[Bank].BeltHasRun) THEN
+				Stn[n].QTime 	= 0
+				D[900 + mySeq + n] = 1
+			ENDIF
+			IF (Stn[n].Weight >= 30) THEN
+				Alarm[mySeq + n].Name = almStationNotEmpty
+			ENDIF
+		ELSE
+			AllowRelease[n]= FALSE	
+		ENDIF
+	
+		OpenBag[n] = AllowRelease[n];(STEP = 3)
+	   
+		;Lamp Test
+		IF LampTest THEN
+			Stn[n].LampOn = TRUE	
+		ENDIF
+	
+		;Alarm timer
+		TimerAlarm[n].IN 	= NOT PLS[n] AND (Alarm[mySeq + n].Name > 0)
+		TimerAlarm[n].PT	= Alarm[mySeq + n].Time
+		TimerAlarm[n] FUB TON_10ms()
+	
+		Alarm[mySeq + n].ET	= TimerAlarm[n].ET
+		Alarm[mySeq + n].On 	= TimerAlarm[n].Q
+
+
+;	Y[300 + n].Y07 = Stn[n].LampOn
+;	Y[300 + n].Y05 = Stn[n].CloseFlap OR testClose
+;	Y[300 + n].Y06 = Stn[n].GreenLamp
+;	Y[300 + n].Y04 = OpenBag[n]	
+	
+ENDLOOP
+
+;Outputs
+;-------
+;	YG05 = OpenBag[1]
+;	YG06 = OpenBag[2]
+;	YG07 = OpenBag[3]
+;	YG08 = OpenBag[4]
+;	YH05 = OpenBag[5]
+;	YH06 = OpenBag[6]
+;	YH07 = OpenBag[7]
+;	YH08 = OpenBag[8]
+;	YJ05 = OpenBag[9]
+;	YJ06 = OpenBag[10]
+;	YJ07 = OpenBag[11]
+;	YJ08 = OpenBag[12]
+;	YK05 = OpenBag[13]
+;	YK06 = OpenBag[14]
+;	YK07 = OpenBag[15]
+;	YK08 = OpenBag[16]	
+
+	Y[12].Y05 = OpenBag[1] ;ok
+	Y[12].Y06 = OpenBag[2]
+	Y[12].Y07 = OpenBag[3]
+	Y[12].Y08 = OpenBag[4]
+
+	Y[13].Y05 = OpenBag[5];ok
+	Y[13].Y06 = OpenBag[6]
+	Y[13].Y07 = OpenBag[7]
+;	Y[32].Y08 = OpenBag[8]
+
+;	Y[33].Y05 = OpenBag[9]
+;	Y[33].Y06 = OpenBag[10]
+;	Y[33].Y07 = OpenBag[11]
+;	Y[33].Y08 = OpenBag[12]
+
+;	Y[34].Y05 = OpenBag[13]
+;	Y[34].Y06 = OpenBag[14]
+;	Y[34].Y07 = OpenBag[15]
+;	Y[34].Y08 = OpenBag[16]
+
+	Y[12].Y01 = Stn[1].LampOn ;ok
+	Y[12].Y02 = Stn[2].LampOn
+	Y[12].Y03 = Stn[3].LampOn 
+	Y[12].Y04 = Stn[4].LampOn 
+
+	Y[13].Y01 = Stn[5].LampOn ;ok
+	Y[13].Y02 = Stn[6].LampOn 
+	Y[13].Y03 = Stn[7].LampOn 
+;	Y[32].Y04 = Stn[8].LampOn
+
+
+;	Y[33].Y01 = Stn[9].LampOn
+;	Y[33].Y02 = Stn[10].LampOn
+;	Y[33].Y03 = Stn[11].LampOn 
+;	Y[33].Y04 = Stn[12].LampOn 
+
+;	Y[34].Y01 = Stn[13].LampOn 
+;	Y[34].Y02 = Stn[14].LampOn 
+;	Y[34].Y03 = Stn[15].LampOn 
+;	Y[34].Y04 = Stn[16].LampOn	
+	
+END_PROGRAM
+

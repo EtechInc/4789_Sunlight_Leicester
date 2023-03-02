@@ -1,0 +1,129 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: Test_bagMaint
+ * File: Test_bagMaint.ab
+ * Author: treamsbottom
+ * Created: May 05, 2015
+ ********************************************************************
+ * Implementation of program Test_bagMaint
+ ********************************************************************)
+
+PROGRAM _INIT
+
+
+(* TODO : Add your code here *)
+
+
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	
+	strcpy(ADR(myBagNumber),"1")
+	mySql = 88
+	
+	CASE TEST_STATE OF
+		ACTION 0:
+		 
+        
+		ENDACTION
+    
+		ACTION 1: ; TEST WRITE COUNT	
+			SqlRequest[mySql].Request = TRUE		
+			IF SqlRequest[mySql].Complete THEN 
+				TEST_STATE = 0	
+			
+			ENDIF		
+			IF SqlRequest[mySql].Request AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+				SqlWriteActive = TRUE				
+				SqlRequest[mySql].SQLType = cSQLType_WriteOnly
+				SqlRequest[mySql].SQL_usp = cSQLReq_BagMaintCount
+				SqlRequest[mySql].NoOfParams = 2
+
+				SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input ;PLC Stn
+				strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(Std.PLCStnString))
+				SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input ;BatchID;
+				strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(myBagNumber))
+			ENDIF				
+		ENDACTION	
+			
+		ACTION 2: ; TEST READ State	
+			SqlRequest[mySql].Request = TRUE		
+			IF SqlRequest[mySql].Complete THEN 
+				myBagState = UINT(atoi(ADR(SqlRequest[mySql].OutputData[1])))
+				TEST_STATE = 0	
+			ELSE
+				myBagState = 99
+			ENDIF		
+			IF SqlRequest[mySql].Request AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+				SqlWriteActive = TRUE				
+				SqlRequest[mySql].SQLType = cSQLType_ReadWrite
+				SqlRequest[mySql].SQL_usp = cSQLReq_BagMaintGetState
+				SqlRequest[mySql].NoOfParams = 2
+
+				SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input ;PLC Stn
+				strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(Std.PLCStnString))
+				SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input ;BatchID;
+				strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(myBagNumber))
+			ENDIF				
+		ENDACTION	
+		
+		ACTION 3: ; TEST READ State	
+			SqlRequest[mySql].Request = TRUE		
+			IF SqlRequest[mySql].Complete THEN 
+				myBagState = UINT(atoi(ADR(SqlRequest[mySql].OutputData[1])))
+				TEST_STATE = 0	
+			ELSE
+				myBagState = 99
+			ENDIF		
+			IF SqlRequest[mySql].Request AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+				SqlWriteActive = TRUE				
+				SqlRequest[mySql].SQLType = cSQLType_ReadWrite
+				SqlRequest[mySql].SQL_usp = cSQLReq_BagMaintCount_R_State
+				SqlRequest[mySql].NoOfParams = 2
+
+				SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input ;PLC Stn
+				strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(Std.PLCStnString))
+				SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input ;BatchID;
+				strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(myBagNumber))
+			ENDIF				
+		ENDACTION
+		
+		
+	ENDCASE	
+	
+	
+	
+	
+;**********************************************************************************	
+; Normally Code sits at bottom of task and we only pass SqlRequest[mySql].Request
+;************************************************************************************	
+	
+	
+;IF SqlRequest[mySql].Request AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+;	SqlWriteActive = TRUE				
+;	SqlRequest[mySql].SQLType = cSQLType_ReadWrite
+;	SqlRequest[mySql].SQL_usp = cSQLReq_BagMaintCount
+;	SqlRequest[mySql].NoOfParams = 3
+;
+;	SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input ;PLC Stn
+;	strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(Std.PLCStnString))
+;	SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input ;BatchID;
+;	strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(myBagNumber))
+;ENDIF	
+
+IF SqlRequest[mySql].Complete THEN ; ClearRequest
+	;Copy Out Reply Done in step.!
+	SqlRequest[mySql] = cEmptySQlReq	
+	SqlWriteActive = FALSE	
+ELSE IF SqlRequest[mySql].Fail THEN
+	WaitReply = FALSE ; Move to next and try and again
+	SqlWriteActive = FALSE ; Reload Parameters	
+	SqlRequest[mySql].Fail = FALSE		
+ENDIF	
+
+	
+	
+	
+END_PROGRAM

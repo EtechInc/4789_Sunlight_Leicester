@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.4.6.71 SP?>
+<Library xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>ABB_EPL.typ</File>
+    <File>Config.var</File>
+    <File Description="Exported constants">Constants.var</File>
+    <File Description="Exported functions and function blocks">ABB_EPL.fun</File>
+    <File>ABB_PackData.st</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="AsEPL" />
+  </Dependencies>
+</Library>

@@ -1,0 +1,7 @@
+VAR
+	n : UINT;
+	Module : UINT;
+	ModuleEncode : BIT_ENCODE;
+	StnModuleEncode : BIT_ENCODE;
+	StnModule : UINT;
+END_VAR

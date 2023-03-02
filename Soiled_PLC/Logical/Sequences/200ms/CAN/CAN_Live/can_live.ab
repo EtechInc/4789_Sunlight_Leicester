@@ -1,0 +1,60 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;------------------------------------------
+;CAN Live / Status indication to TrackView
+;------------------------------------------
+
+;-----------------------------------------
+;Revision 1.00 24/11/2005 D.J. First Issue
+;-----------------------------------------
+
+
+
+;Move CAN Status to Registers
+
+;1-16
+CANLive_1.Input[0] = CAN[1].Live
+CANLive_1.Input[1] = CAN[2].Live
+CANLive_1.Input[2] = CAN[3].Live
+CANLive_1.Input[3] = CAN[4].Live
+CANLive_1.Input[4] = CAN[5].Live
+CANLive_1.Input[5] = CAN[6].Live
+CANLive_1.Input[6] = CAN[7].Live
+CANLive_1.Input[7] = CAN[8].Live
+CANLive_1.Input[8] = CAN[9].Live
+CANLive_1.Input[9] = CAN[10].Live
+CANLive_1.Input[10] = FALSE ;Box[1].Live
+CANLive_1.Input[11] = FALSE ;Box[2].Live
+CANLive_1.Input[12] = FALSE ;Box[3].Live
+CANLive_1.Input[13] = FALSE ;Box[4].Live
+CANLive_1.Input[14] = FALSE ;Box[5].Live
+CANLive_1.Input[15] = FALSE ;Box[6].Live
+
+CANLive_1 FUB BIT_ENCODE()
+
+D[76] = CANLive_1.Output
+
+;17-32
+CANLive_2.Input[0] = FALSE ;Box[7].Live
+CANLive_2.Input[1] = FALSE ;Box[8].Live
+CANLive_2.Input[2] = FALSE ;Box[9].Live
+CANLive_2.Input[3] = CAN[20].Live
+CANLive_2.Input[4] = CAN[21].Live
+CANLive_2.Input[5] = CAN[22].Live
+CANLive_2.Input[6] = CAN[23].Live
+CANLive_2.Input[7] = CAN[24].Live
+CANLive_2.Input[8] = CAN[25].Live
+CANLive_2.Input[9] = CAN[26].Live
+CANLive_2.Input[10] = CAN[27].Live
+CANLive_2.Input[11] = CAN[28].Live
+CANLive_2.Input[12] = CAN[29].Live
+CANLive_2.Input[13] = CAN[30].Live
+CANLive_2.Input[14] = CAN[31].Live
+CANLive_2.Input[15] = CAN[32].Live
+
+CANLive_2 FUB BIT_ENCODE()
+
+D[77] = CANLive_2.Output
+END_PROGRAM
+

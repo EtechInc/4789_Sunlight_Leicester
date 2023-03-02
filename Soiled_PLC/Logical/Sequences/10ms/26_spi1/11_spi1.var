@@ -1,0 +1,34 @@
+VAR RETAIN
+	STEP : UINT;
+	PLS : BOOL;
+	LASTSTEP : UINT;
+	BagSettled : BOOL;
+	BagSettledET : TIME;
+	O_OpenBufferStop : BOOL;
+	BagSettledBuffer : BOOL;
+	I_BaginIncline : BOOL;
+	BagSettledBufferET : TIME;
+	I_BagAtBuffer : BOOL;
+	I_CarrAtBottom : BOOL;
+	I_CarrAtTop : BOOL;
+	O_MoveDown : BOOL;
+END_VAR
+VAR
+	TempDownTime : BOOL;
+	TempDownTimeET : TIME;
+	I_BagAtBufferStop : BOOL;
+	I_CarriageAtTop : BOOL;
+	I_CarriageAtBottom : BOOL;
+	I_BagAtBottom : BOOL;
+	SIC4BufferOpen : BOOL;
+	O_SendCarriageDown : BOOL;
+	CarriageAtTop : BOOL;
+	CarriageAtTopET : UDINT;
+	BagAtBufferStop : BOOL;
+	BagAtBufferStopET : UDINT;
+	BagAtBottom : BOOL;
+	BagAtBottomET : UDINT;
+	CarriageAtBottom : BOOL;
+	CarriageAtBottomET : UDINT;
+	TimerAlarm : TON_10ms;
+END_VAR

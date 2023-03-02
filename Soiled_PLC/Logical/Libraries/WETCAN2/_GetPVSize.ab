@@ -1,0 +1,184 @@
+FUNCTION_BLOCK _GetPVSize
+;********************************************************************************************************
+; * Implementation of _GetPVSize
+;********************************************************************************************************
+; * version 		3.6.0
+; * last change		120210
+; * by				H.O.
+;********************************************************************************************************
+; History:
+;*********
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191  
+; * V3.4.0
+;	* COB ID 110 + 111
+; * V3.2.1
+;	* COB130,140 wie 120 und..
+;	* COB 131,141 wie 121
+; * V3.2.0
+; 	* COBs 261,262 hinzugefügt
+; 	* COBs302,303,304,312,313,314,253,255,254,256,352,353,354  neu
+; 	* gleiche Objekte durch MehrfachAction zusammengefasst
+; * V3.1.0
+; 	* COBs 126,127,128,129,130 hinzugefügt
+; * V3.0.0
+; 	* COBs 253..258 -> gleiche Strukturen mit anderen IDs (hcs)
+; * V 1.0.0 	-> Original
+; * V 2.0.0 HO 	* COBs 251,252,480,481 added
+;				* COB 123 added
+; * V2.1.0	HO	* COB441..459 added
+
+;********************************************************************************************************
+; supported CANIDs: 120,121,122,123,130,140,131,141,201,209,211,219,221,231,251,252
+; 					301,306,311,316,351,361..369,371..379,401..419,421..439,441bis459,480,481
+;********************************************************************************************************
+
+iStatus = 0
+case uiObjNr of
+action 110:
+	iCobLength = sizeof (COB_Typ_110)
+endaction
+action 111:
+	iCobLength = sizeof (COB_Typ_111)
+endaction
+action 120:
+action 126:
+action 128:
+action 130:
+action 140:
+action 150:
+action 160:
+action 170:
+action 180:
+action 190:
+	iCobLength = sizeof (COBTyp_120)
+endaction
+action 121:
+action 127:
+action 129:
+action 131:
+action 141:
+action 151:	
+action 161:
+action 171:
+action 181:
+action 191:
+	iCobLength = sizeof (COBTyp_121)
+endaction
+action 122:
+	iCobLength = sizeof (COBTyp_122)
+endaction
+action 123:
+	iCobLength = sizeof (COBTyp_123)
+endaction
+(*
+action 1130:	; 08.10.2007 - (hcs) DEAKTIVIERT
+	iCobLength = sizeof (COB_Typ_130_140)
+endaction
+action 1131:	; 08.10.2007 - (hcs) DEAKTIVIERT
+  	iCobLength = sizeof (COB_Typ_131_141)
+endaction
+action 140:
+	iCobLength = sizeof (COB_Typ_130_140)
+endaction
+action 141:
+  	iCobLength = sizeof (COB_Typ_131_141)
+endaction
+*)
+action 201:
+   	iCobLength = sizeof (COB_Typ_201)
+endaction
+action 209:
+   	iCobLength = sizeof (COB_Typ_209)
+endaction
+action 211:
+   	iCobLength = sizeof (COB_Typ_211)
+endaction
+action 219:
+   	iCobLength = sizeof (COB_Typ_219)
+endaction
+action 221:
+	iCobLength = sizeof (COB_Typ_221)
+endaction
+action 231:
+	iCobLength = sizeof (COB_Typ_231)
+endaction
+action 251:
+action 253:
+action 255:
+action 257:
+	iCobLength = sizeof (COBTyp_251)
+endaction
+action 252:
+action 254:
+action 256:
+action 258:
+	iCobLength = sizeof (COBTyp_252)
+endaction
+action 261:
+	iCobLength = sizeof (COB_Typ_261)
+endaction
+action 262:
+	iCobLength = sizeof (COB_Typ_262)
+endaction
+action 301:
+action 302:
+action 303:
+action 304:
+	iCobLength = sizeof (COB_Typ_301)
+endaction
+action 306:
+	iCobLength = sizeof (COB_Typ_306)
+endaction
+action 307:
+	iCobLength = sizeof (COB_Typ_307)
+endaction
+action 311:
+action 312:
+action 313:
+action 314:
+	iCobLength = sizeof (COB_Typ_311)
+endaction
+action 316:
+	iCobLength = sizeof (COB_Typ_316)
+endaction
+action 317:
+	iCobLength = sizeof (COB_Typ_317)
+endaction
+action 351:
+action 352:
+action 353:
+action 354:
+	iCobLength = sizeof (COB_Typ_351)
+endaction
+action 361..369:
+	iCobLength = sizeof (COB_Typ_361bis369)
+endaction
+action 371..379:
+	iCobLength = sizeof (COB_Typ_371bis379)
+endaction
+action 401..419:
+	iCobLength = sizeof (COB_Typ_401bis419)
+endaction
+action 421..439:
+	iCobLength = sizeof (COB_Typ_421bis439)
+endaction
+action 441..459:
+	iCobLength = sizeof (COB_Typ_441bis459)
+endaction
+action 480:
+	iCobLength = sizeof (COBTyp_480)
+endaction
+action 481:
+	iCobLength = sizeof (COBTyp_481)
+endaction
+
+; all other ObjNrs..
+elseaction:
+	iStatus = 110
+endaction
+
+endcase
+;********************************************************************************************************
+END_FUNCTION_BLOCK

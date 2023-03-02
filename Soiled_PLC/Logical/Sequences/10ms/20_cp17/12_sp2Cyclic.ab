@@ -1,0 +1,116 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 8 - SP8 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBuffer[1]		= Request.LU[1]
+I_BagAtBuffer[2]		= Request.LU[2]
+
+MySeq                   = 20
+
+
+Alarm[MySeq].Name 			= 0
+Alarm[MySeq].Bag			= 164
+Alarm[MySeq].Beacon		= TRUE
+Alarm[MySeq].Extra			= 0
+Alarm[MySeq].Time			= 1500
+
+O_SelectCLU1                = FALSE
+O_SelectCLU2                = FALSE
+Enable.LU[1]                = FALSE
+Enable.LU[2]                = FALSE
+
+;Setup Sequence
+STEP = D[900 + MySeq]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;reset points
+TON_10ms((STEP = 1),200,Reset,ResetET)
+IF (STEP = 1) THEN
+	
+	IF (Line[9].Clear)  THEN
+		D[900 + MySeq] = 2
+	ENDIF
+	ELSE
+	
+ENDIF
+
+;check which bag is ready
+TON_10ms(I_BagAtBuffer[1],200,SettledBuffer[1],BagSettledBufferET[1])
+TON_10ms(I_BagAtBuffer[2],200,SettledBuffer[2],BagSettledBufferET[2])
+IF (STEP = 2) THEN
+	IF (Line[9].Clear) THEN
+		Alt = Alt + 1
+		IF (Alt > 2) THEN
+			Alt = 0
+		ENDIF
+		IF SettledBuffer[1] AND (Alt = 1) THEN
+			C[9]          = 0
+		    D[900 + MySeq] = 3
+		ELSE IF SettledBuffer[2] AND (Alt = 2) THEN
+			C[9]          = 0
+			D[900 + MySeq] = 4
+		ENDIF
+	ENDIF
+ENDIF	
+
+
+;Bag at line
+IF (STEP = 3) THEN
+	O_SelectCLU1  = TRUE
+	Enable.LU[1]  = TRUE
+	IF (Line[9].Trip = TRUE) THEN
+		IF (Bag[164].Cat > 0) AND (Bag[118].Cat = 0) THEN
+			IF (Bag[164].Dst >6) AND (Bag[164].Dst <>14) THEN
+				Bag[164].Dst = 0
+			ENDIF
+			Bag[118] = Bag[164]
+			Bag[164] = Bag[0]
+		ENDIF
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+;Bag at line
+IF (STEP = 4) THEN
+	O_SelectCLU2 = TRUE
+	Enable.LU[2]  = TRUE
+	IF (Line[9].Trip = TRUE) THEN
+		IF (Bag[164].Cat > 0) AND (Bag[118].Cat = 0) THEN
+		     IF (Bag[164].Dst >6) AND (Bag[164].Dst <>14) THEN
+				Bag[164].Dst = 0
+			ENDIF
+			Bag[118] = Bag[164]
+			Bag[164] = Bag[0]
+		ENDIF
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[MySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[MySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[MySeq].On 	= TimerAlarm.Q
+Alarm[MySeq].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[3].Y11 = O_SelectCLU2
+Y[3].Y10 = O_SelectCLU1
+END_PROGRAM
+

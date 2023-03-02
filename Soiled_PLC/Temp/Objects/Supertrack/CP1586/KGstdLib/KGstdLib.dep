@@ -1,0 +1,17 @@
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_KGStandard/KGstdLib/KGstdLib.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/DataObj/DataObj.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_KGStandard/KGstdLib/kgMachinetyp.typ
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_KGStandard/KGstdLib/KGstdLib.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/AsArLog/AsArLog.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTime/astime.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsIODiag/AsIODiag.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/Ethernet/Ethernet.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTime/astime.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsBrStr/AsBrStr.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_KGStandard/KGstdLib/KGstdLib.var
+$(AS_PROJECT_PATH)/Logical/Libraries/AsIODiag/AsIODiag.var
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_KGStandard/KGstdLib/kgMachineState.var
+$(AS_PROJECT_PATH)/Logical/Libraries/DataObj/DataObj.var
+$(AS_PROJECT_PATH)/Logical/Libraries/runtime/runtime.var

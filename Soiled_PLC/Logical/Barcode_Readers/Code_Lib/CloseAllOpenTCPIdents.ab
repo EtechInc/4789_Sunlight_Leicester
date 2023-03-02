@@ -1,0 +1,77 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Library: TelNet
+ * File: CloseAllOpenTCPIdents.ab
+ * Author: treamsbottom
+ * Created: February 23, 2015
+ ********************************************************************
+ * Implementation of library TelNet
+ ********************************************************************) 
+
+(* Close all open TCP idents made with TcpOpen *)
+FUNCTION_BLOCK CloseAllOpenTCPIdents
+cNothing = 0
+IF Enable THEN 
+	Status = ERR_FUB_BUSY		
+	IF e_State = e_DoNothing THEN	
+		e_State = e_GetOpenIdents
+	ENDIF	
+	CASE e_State OF
+		ACTION e_GetOpenIdents:
+			TCP_Ioctl.enable = TRUE
+			TCP_Ioctl.ident = tcpINVALID_IDENT
+			TCP_Ioctl.datalen = SIZEOF(Open_TCP_Idents)      			       			
+			TCP_Ioctl.pData = ADR(Open_TCP_Idents[0])	
+			TCP_Ioctl.ioctl = tcpID_LIST_GET	
+			TCP_Ioctl FUB TcpIoctl()
+			IF TCP_Ioctl.status = 0 THEN 
+				IF TCP_Ioctl.outlen > 0 THEN ; Set up for zero based index
+					No_OpenIdents = TCP_Ioctl.outlen - 1
+					e_State = e_CloseAllOpenIdents
+					SelIdent = 0	
+				ELSE;****** HANDLE NO OPEN IDENTS***********
+					e_State = e_DoNothing
+					Status = ERR_OK	
+				ENDIF		
+			ELSE IF	TCP_Ioctl.status <> ERR_FUB_BUSY THEN	
+				Status = TCP_Ioctl.status	
+			ENDIF		
+		ENDACTION
+   
+		ACTION e_CloseAllOpenIdents:
+		
+			TCP_Close.enable = (Open_TCP_Idents[SelIdent] > 0)
+			TCP_Close.how = 0
+			TCP_Close.ident = Open_TCP_Idents[SelIdent]	
+			TCP_Close FUB TcpClose()
+			IF TCP_Close.status = ERR_OK THEN			  	
+				IF SelIdent < No_OpenIdents THEN
+					INC SelIdent	
+				ELSE IF (SelIdent >= No_OpenIdents) THEN
+					e_State = e_DoNothing
+					Status = ERR_OK
+				ENDIF
+			ELSE IF TCP_Close.status <> ERR_FUB_BUSY THEN			
+				Status = TCP_Close.status
+				IF SelIdent < No_OpenIdents THEN
+					IF (Open_TCP_Idents[SelIdent] = 0) THEN
+						INC SelIdent	
+					ENDIF
+				ENDIF		
+			ENDIF		
+		ENDACTION				
+		ACTION e_DoNothing:	
+			Enable = FALSE
+		ENDACTION
+	
+	
+	ENDCASE
+
+		
+ELSE		
+	e_State = e_DoNothing	
+	memcpy(ADR(Open_TCP_Idents[0]),ADR(cNothing),SIZEOF(Open_TCP_Idents))	
+ENDIF			
+
+END_FUNCTION_BLOCK

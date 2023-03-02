@@ -1,0 +1,539 @@
+﻿@import "mixins.scss";
+#content_RemoteControl_imgInterface {
+	@include elemTop(270);
+}
+#content_RemoteControl_imgInterface {
+	@include elemLeft(371);
+}
+#content_RemoteControl_imgInterface {
+	@include elemAutoWidth(227);
+}
+#content_RemoteControl_imgInterface {
+	@include elemAutoHeight(300);
+}
+#content_RemoteControl_imgInterface {
+		z-index: 1;
+}
+#content_RemoteControl_imgInterface {
+		background-color: rgba(255, 255, 255, 0);
+}
+#content_RemoteControl_mpbSKFormat {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_mpbSKFormat {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbSKFormat {
+	@include elemTop(380);
+}
+#content_RemoteControl_mpbSKFormat {
+	@include elemLeft(251);
+}
+#content_RemoteControl_mpbSKFormat {
+		z-index: 2;
+}
+#content_RemoteControl_mpbSKExchange {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_mpbSKExchange {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbSKExchange {
+	@include elemTop(425);
+}
+#content_RemoteControl_mpbSKExchange {
+	@include elemLeft(249);
+}
+#content_RemoteControl_mpbSKExchange {
+		z-index: 3;
+}
+#content_RemoteControl_mpbScan {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_mpbScan {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbScan {
+	@include elemTop(470);
+}
+#content_RemoteControl_mpbScan {
+	@include elemLeft(249);
+}
+#content_RemoteControl_mpbScan {
+		z-index: 4;
+}
+#content_RemoteControl_mpbTest {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_mpbTest {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbTest {
+	@include elemTop(425);
+}
+#content_RemoteControl_mpbTest {
+	@include elemLeft(614);
+}
+#content_RemoteControl_mpbTest {
+		z-index: 5;
+}
+#content_RemoteControl_mpbFWAck {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_mpbFWAck {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbFWAck {
+	@include elemTop(380);
+}
+#content_RemoteControl_mpbFWAck {
+	@include elemLeft(614);
+}
+#content_RemoteControl_mpbFWAck {
+		z-index: 6;
+}
+#content_RemoteControl_mpbClearData {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_mpbClearData {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbClearData {
+	@include elemTop(470);
+}
+#content_RemoteControl_mpbClearData {
+	@include elemLeft(614);
+}
+#content_RemoteControl_mpbClearData {
+		z-index: 7;
+}
+#content_RemoteControl_mpbModEx1 {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbModEx1 {
+	@include elemTop(583);
+}
+#content_RemoteControl_mpbModEx1 {
+	@include elemLeft(332);
+}
+#content_RemoteControl_mpbModEx1 {
+	@include elemAutoWidth(50);
+}
+#content_RemoteControl_mpbModEx1 {
+		z-index: 8;
+}
+#content_RemoteControl_mpbModEx3 {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbModEx3 {
+	@include elemTop(583);
+}
+#content_RemoteControl_mpbModEx3 {
+	@include elemLeft(448);
+}
+#content_RemoteControl_mpbModEx3 {
+	@include elemAutoWidth(50);
+}
+#content_RemoteControl_mpbModEx3 {
+		z-index: 9;
+}
+#content_RemoteControl_mpbModEx2 {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbModEx2 {
+	@include elemTop(583);
+}
+#content_RemoteControl_mpbModEx2 {
+	@include elemLeft(390);
+}
+#content_RemoteControl_mpbModEx2 {
+	@include elemAutoWidth(50);
+}
+#content_RemoteControl_mpbModEx2 {
+		z-index: 10;
+}
+#content_RemoteControl_mpbModEx4 {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbModEx4 {
+	@include elemTop(583);
+}
+#content_RemoteControl_mpbModEx4 {
+	@include elemLeft(505);
+}
+#content_RemoteControl_mpbModEx4 {
+	@include elemAutoWidth(50);
+}
+#content_RemoteControl_mpbModEx4 {
+		z-index: 11;
+}
+#content_RemoteControl_mpbModExN {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbModExN {
+	@include elemTop(583);
+}
+#content_RemoteControl_mpbModExN {
+	@include elemLeft(563);
+}
+#content_RemoteControl_mpbModExN {
+	@include elemAutoWidth(50);
+}
+#content_RemoteControl_mpbModExN {
+		z-index: 12;
+}
+#content_RemoteControl_mpbReset {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbReset {
+	@include elemTop(515);
+}
+#content_RemoteControl_mpbReset {
+	@include elemLeft(614);
+}
+#content_RemoteControl_mpbReset {
+	@include elemAutoWidth(130);
+}
+#content_RemoteControl_mpbReset {
+		z-index: 13;
+}
+#content_RemoteControl_tpMXCHG_Led {
+	@include elemTop(290);
+}
+#content_RemoteControl_tpMXCHG_Led {
+	@include elemLeft(613);
+}
+#content_RemoteControl_tpMXCHG_Led {
+	@include elemWidth(130);
+}
+#content_RemoteControl_tpMXCHG_Led {
+	@include elemHeight(20);
+}
+#content_RemoteControl_tpMXCHG_Led {
+		z-index: 14;
+}
+#content_RemoteControl_tpRELed {
+	@include elemTop(270);
+}
+#content_RemoteControl_tpRELed {
+	@include elemLeft(613);
+}
+#content_RemoteControl_tpRELed {
+	@include elemWidth(130);
+}
+#content_RemoteControl_tpRELed {
+	@include elemHeight(20);
+}
+#content_RemoteControl_tpRELed {
+		z-index: 15;
+}
+#content_RemoteControl_tpFWACKNLed {
+	@include elemTop(310);
+}
+#content_RemoteControl_tpFWACKNLed {
+	@include elemLeft(613);
+}
+#content_RemoteControl_tpFWACKNLed {
+	@include elemWidth(130);
+}
+#content_RemoteControl_tpFWACKNLed {
+	@include elemHeight(20);
+}
+#content_RemoteControl_tpFWACKNLed {
+		z-index: 16;
+}
+#content_RemoteControl_tpFAILLed {
+	@include elemTop(330);
+}
+#content_RemoteControl_tpFAILLed {
+	@include elemLeft(613);
+}
+#content_RemoteControl_tpFAILLed {
+	@include elemWidth(130);
+}
+#content_RemoteControl_tpFAILLed {
+	@include elemHeight(20);
+}
+#content_RemoteControl_tpFAILLed {
+		z-index: 17;
+}
+#content_RemoteControl_tpFAILLed {
+	#textWheel div.marker{
+		height: 0px;
+	}
+}
+#content_RemoteControl_tpFAILLed {
+	&:not(.disabled) #textWheel div.marker{
+		background-color: rgba(255, 255, 255, 1);
+	}
+}
+#content_RemoteControl_tpStatus {
+	@include elemTop(622);
+}
+#content_RemoteControl_tpStatus {
+	@include elemLeft(13);
+}
+#content_RemoteControl_tpStatus {
+	@include elemWidth(740);
+}
+#content_RemoteControl_tpStatus {
+	@include elemHeight(20);
+}
+#content_RemoteControl_tpStatus {
+		z-index: 18;
+}
+#content_RemoteControl_lblSafeLOGICID {
+	@include elemTop(270);
+}
+#content_RemoteControl_lblSafeLOGICID {
+	@include elemLeft(12);
+}
+#content_RemoteControl_lblSafeLOGICID {
+	@include elemAutoWidth(120);
+}
+#content_RemoteControl_lblSafeLOGICID {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_lblSafeLOGICID {
+		z-index: 19;
+}
+#content_RemoteControl_lblSafeLOGICID {
+	@include text-alignment-all('left');
+}
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+	@include elemTop(310);
+}
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+	@include elemLeft(12);
+}
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+	@include elemAutoWidth(120);
+}
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_lblSafeLOGICXUsed4 {
+		z-index: 20;
+}
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+	@include elemTop(330);
+}
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+	@include elemLeft(12);
+}
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+	@include elemAutoWidth(120);
+}
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_lblSafeLOGICXUsed5 {
+		z-index: 21;
+}
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+	@include elemTop(290);
+}
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+	@include elemLeft(12);
+}
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+	@include elemAutoWidth(120);
+}
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_lblSafeLOGICXUsed6 {
+		z-index: 22;
+}
+#content_RemoteControl_mpbDownloadApp {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbDownloadApp {
+	@include elemTop(380);
+}
+#content_RemoteControl_mpbDownloadApp {
+	@include elemLeft(17);
+}
+#content_RemoteControl_mpbDownloadApp {
+	@include elemAutoWidth(211);
+}
+#content_RemoteControl_mpbDownloadApp {
+		z-index: 23;
+}
+#content_RemoteControl_mpbUnlockApp {
+	@include elemAutoHeight(30);
+}
+#content_RemoteControl_mpbUnlockApp {
+	@include elemTop(425);
+}
+#content_RemoteControl_mpbUnlockApp {
+	@include elemLeft(17);
+}
+#content_RemoteControl_mpbUnlockApp {
+	@include elemAutoWidth(211);
+}
+#content_RemoteControl_mpbUnlockApp {
+		z-index: 24;
+}
+#content_RemoteControl_mpbUnlockApp {
+	&:not(.disabled):not(.active):not(.checked){
+		background-color: rgba(219, 219, 219, 1);
+	}
+}
+#content_RemoteControl_mpbUnlockApp {
+	&:not(.disabled):not(.active):not(.checked){
+	@include backGroundGradient('linear-gradient(to bottom,#F7F7F7 0%,#FF920A 100%)');
+	}
+}
+#content_RemoteControl_mpbUnlockApp {
+	&.disabled{
+	@include backGroundGradient('linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%)');
+	}
+}
+#content_RemoteControl_mpbUnlockApp {
+	&.disabled.active{
+	@include backGroundGradient('linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%)');
+	}
+}
+#content_RemoteControl_mpbUnlockApp {
+	&.disabled.checked{
+	@include backGroundGradient('linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%)');
+	}
+}
+#content_RemoteControl_mpbUnlockApp {
+	&.active:not(.disabled){
+	@include backGroundGradient('linear-gradient(to bottom, #4A4A4A 0%,#7C7C7C 100%)');
+	}
+}
+#content_RemoteControl_mpbUnlockApp {
+	&.checked:not(.disabled){
+	@include backGroundGradient('linear-gradient(to bottom, #4A4A4A 0%,#7C7C7C 100%)');
+	}
+}
+#content_RemoteControl_noSafeLogicID {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_noSafeLogicID {
+	@include elemTop(270);
+}
+#content_RemoteControl_noSafeLogicID {
+	@include elemLeft(132);
+}
+#content_RemoteControl_noSafeLogicID {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_noSafeLogicID {
+		z-index: 25;
+}
+#content_RemoteControl_noSafeLogicID {
+	input{
+		color: rgba(255, 255, 255, 1);
+	}
+}
+#content_RemoteControl_noSafeLogicID {
+	span.breaseNumericOutput_unit{
+		color: rgba(255, 255, 255, 1);
+	}
+}
+#content_RemoteControl_noSafeLogicID {
+	input{
+	@include font-weight-bold(false);
+	}
+}
+#content_RemoteControl_toAppCurrentCRC {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_toAppCurrentCRC {
+	@include elemTop(290);
+}
+#content_RemoteControl_toAppCurrentCRC {
+	@include elemLeft(132);
+}
+#content_RemoteControl_toAppCurrentCRC {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_toAppCurrentCRC {
+		z-index: 26;
+}
+#content_RemoteControl_toAppCurrentCRC {
+	@include text-alignment-all('center');
+}
+#content_RemoteControl_toUDIDHigh {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_toUDIDHigh {
+	@include elemTop(310);
+}
+#content_RemoteControl_toUDIDHigh {
+	@include elemLeft(132);
+}
+#content_RemoteControl_toUDIDHigh {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_toUDIDHigh {
+		z-index: 27;
+}
+#content_RemoteControl_toUDIDHigh {
+	@include text-alignment-all('center');
+}
+#content_RemoteControl_toUDIDLow {
+	@include elemAutoWidth(100);
+}
+#content_RemoteControl_toUDIDLow {
+	@include elemTop(330);
+}
+#content_RemoteControl_toUDIDLow {
+	@include elemLeft(132);
+}
+#content_RemoteControl_toUDIDLow {
+	@include elemAutoHeight(20);
+}
+#content_RemoteControl_toUDIDLow {
+		z-index: 28;
+}
+#content_RemoteControl_toUDIDLow {
+	@include text-alignment-all('center');
+}
+#content_RemoteControl_Rectangle35 {
+	@include elemTop(256);
+}
+#content_RemoteControl_Rectangle35 {
+	@include elemLeft(8);
+}
+#content_RemoteControl_Rectangle35 {
+	@include elemWidth(750);
+}
+#content_RemoteControl_Rectangle35 {
+	@include elemHeight(408);
+}
+#content_RemoteControl_Rectangle35 {
+		z-index: 0;
+}
+#content_RemoteControl_Rectangle35 {
+	@include border-radius(10px);
+}
+#content_RemoteControl_Rectangle35 {
+		border-color: rgba(255, 255, 255, 1);
+}
+#content_RemoteControl_Rectangle35 {
+		background-color: rgba(255, 255, 255, 0);
+}
+#content_RemoteControl_LanguageSelector1 {
+	&.DropDownBoxView{
+	@include elemWidth(100);
+	}
+}
+#content_RemoteControl_LanguageSelector1 {
+	&.DropDownBoxView{
+	@include elemHeight(30);
+	}
+}
+#content_RemoteControl_LanguageSelector1 {
+	@include elemTop(45);
+}
+#content_RemoteControl_LanguageSelector1 {
+	@include elemLeft(806);
+}
+#content_RemoteControl_LanguageSelector1 {
+		z-index: 29;
+}

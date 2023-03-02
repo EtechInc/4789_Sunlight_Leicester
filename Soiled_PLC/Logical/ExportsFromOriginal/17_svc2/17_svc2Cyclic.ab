@@ -1,0 +1,219 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------------------
+;Sequence 13 - SIC2 Soiled Incline Conveyor 2 D[913]
+;---------------------------------------------------
+
+;Inputs
+I_CarriageAtTop         = X[5].X02
+I_CarriageAtBottom      = X[5].X03
+I_BagOutAtTopSVC2       = X[7].X07
+I_BagOutAtBottom		= X[4].X16
+I_BagOnCarriageSVC2 	= X[5].X04
+I_BagAtSVCBuffer        = X[6].X01
+
+
+
+O_OpenCarriageStop		= FALSE
+O_MoveUp 				= FALSE
+O_MoveDown              = FALSE
+O_BufferStop            = FALSE
+
+
+
+Request.SVC[2] 			= FALSE
+
+Alarm[17].Name 			= 0
+Alarm[17].Bag			= 250
+Alarm[17].Beacon		= TRUE
+Alarm[17].Extra			= 0
+Alarm[17].Time			= 3000
+
+;Setup Sequence
+STEP = D[917]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Move carriage up
+IF (STEP = 1) THEN
+	O_MoveUp = TRUE
+	IF I_CarriageAtTop THEN
+		D[917] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[17].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+
+;check carriage
+
+IF (STEP = 2) THEN
+	IF (NOT I_BagOnCarriageSVC2 AND NOT I_BagOutAtTopSVC2 AND  (Bag[250].Cat = 0) AND NOT Std.HaltSys) THEN
+
+		D[917] = 3
+	ENDIF
+	IF (Bag[250].Cat > 0)  THEN
+		Alarm[17].Name 	= almBagDataError
+		Alarm[17].Bag	= 250
+	ELSE IF  I_BagOnCarriage THEN
+		Alarm[17].Name 	= almSwitchFault
+		Alarm[17].Bag	= 250
+	ENDIF
+ENDIF
+
+
+;request a bag
+IF (STEP = 3) THEN
+	;Request.SVC[2]  	= (I_CarriageAtTop AND NOT I_BagOnCarriageSVC2)
+ENDIF
+
+;Request a bag
+TON_10ms(I_BagAtSVCBuffer AND (Bag[230].Cat > 0),200,BagAtBuffer,BagAtBufferET)
+IF (STEP = 3) THEN
+
+	IF (BagAtBuffer AND (Bag[230].Dst = 23) and (Bag[252].Cat = 0) and (Bag[263].Cat = 0) AND (D[916] = 2)) THEN
+		D[917] = 4
+	ELSE IF BagAtBuffer AND (Bag[230].Dst < 23) THEN
+		D[917] = 4
+	ENDIF
+
+ENDIF
+
+
+;wait for bag to arrive
+
+IF (STEP = 4) THEN
+	O_BufferStop  = TRUE
+
+	IF (Bag[230].Dst = 23) AND I_CarriageAtTop   THEN
+		O_OpenCarriageStop = TRUE
+	ENDIF
+
+
+
+
+	IF I_BagOutAtTopSVC2 AND O_OpenCarriageStop THEN
+		IF((Bag[230].Cat > 0 ) AND (Bag[252].Cat = 0)) THEN
+			Bag[252] = Bag[230]
+			Bag[230] = Bag[0]
+		ENDIF
+		D[917] = 1
+	ELSE IF ((Bag[230].Dst < 23) AND (Bag[230].Cat > 0)) THEN
+		IF I_BagOnCarriageSVC2 THEN
+			IF((Bag[230].Cat > 0 ) AND (Bag[250].Cat = 0)) THEN
+				Bag[250] = Bag[230]
+				Bag[230] = Bag[0]
+			ENDIF
+			D[917] = 5
+		ENDIF
+
+	ENDIF
+ENDIF
+
+;Allow bag to settle
+TON_10ms(((STEP = 5) AND I_BagOnCarriageSVC2),300,BagSettled,BagSettledET)
+IF (STEP = 5) THEN
+
+	IF BagSettled THEN
+		D[917] = 6
+	ENDIF
+	Alarm[17].Name = almBagNotSettled
+ENDIF
+
+;check bottom roller switch
+IF (STEP = 6) THEN
+	IF NOT I_CarriageAtBottom THEN
+		D[917] = 7
+	ENDIF
+ENDIF
+
+;move carriage down
+IF (STEP = 7) THEN
+	O_MoveDown 		= TRUE
+	IF I_CarriageAtBottom THEN
+		D[917] = 8
+	ENDIF
+ENDIF
+
+
+
+
+;Check buffer has space
+IF (STEP = 8) THEN
+	IF Line[25].Clear AND (Bag[251].Cat = 0) AND (Bag[258].Cat = 0) AND NOT I_BagOutAtBottom THEN
+		C[16] = 0
+		C[25] = 0
+		D[917] = 9
+	ENDIF
+	IF (Bag[258].Cat = 0) AND NOT Line[25].Clear THEN
+		Alarm[17].Name = almBagNotSettled
+		Alarm[17].Bag  = 258
+	ENDIF
+ENDIF
+
+;Release bag low level
+
+IF (STEP = 9) THEN
+	O_OpenCarriageStop		= TRUE
+	IF PLS THEN
+		C[16] = 0
+	ENDIF
+	IF Line[16].Clear AND NOT PLS AND Carrstoptimer THEN
+		IF ((Bag[250].Cat > 0) AND (Bag[251].Cat = 0)) THEN
+			Bag[251] = Bag[250]
+			Bag[250] = Bag[0]
+		ENDIF
+		D[917] = 10
+	ENDIF
+	Alarm[17].Name = almBagNotReleased
+	Alarm[17].Bag  = 250
+ENDIF
+TON_10ms(((STEP = 9) AND O_OpenCarriageStop),750,Carrstoptimer,CarrstoptimerET)
+
+;Bag at buffer stop high level
+IF (STEP = 10) THEN
+	IF BagAtBuffer THEN
+		D[917] = 1
+	ENDIF
+ENDIF
+
+
+
+
+
+
+
+
+;move trans bag to buffer
+IF Line[25].Trip THEN
+	IF ((Bag[251].Cat > 0) AND (Bag[258].Cat = 0)) THEN
+		Bag[258] = Bag[251]
+		Bag[251] = Bag[0]
+	ENDIF
+ENDIF
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[17].Name > 0)
+TimerAlarm.PT 	= Alarm[17].Time
+TimerAlarm FUB TON_10ms()
+Alarm[17].On 	= TimerAlarm.Q
+Alarm[17].ET 	= TimerAlarm.ET
+
+;Outputs
+
+Y[9].Y03 =  (O_OpenCarriageStop	AND (I_CarriageAtTop OR I_CarriageAtBottom))
+Y[9].Y01 =  (O_MoveUp AND NOT I_CarriageAtTop)
+Y[9].Y02 =  (O_MoveDown AND NOT I_CarriageAtBottom)
+Y[6].Y01 =  (O_BufferStop AND I_CarriageAtTop)
+END_PROGRAM
+

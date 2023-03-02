@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=3.0?>
+<Transfer xmlns="http://br-automation.co.at/AS/Transfer">
+  <OperatingSystem Version="C4.90"/>
+  <Hardware Target="SG4"/>
+  <Operation Delete="zzModuleLo.br"/>
+  <Operation Delete="CAN_Live.br"/>
+  <Operation Delete="zzTime.br"/>
+  <Operation Delete="zzStn_Q.br"/>
+  <Operation Delete="zzReport.br"/>
+  <Operation Delete="zzAlarms.br"/>
+  <Operation Delete="zzWeigh.br"/>
+  <Operation Delete="can_drv2.br"/>
+  <Operation Delete="can_drv1.br"/>
+  <Operation Delete="AccessCont.br"/>
+  <Operation Delete="HoistServe.br"/>
+  <Operation Delete="zzTC2end.br"/>
+  <Operation Delete="Server.br"/>
+  <Operation Delete="ServerPane.br"/>
+  <Operation Delete="zzTvText.br"/>
+  <Operation Delete="zzDataStor.br"/>
+  <Operation Delete="zzOk.br"/>
+  <Operation Delete="zzIO.br"/>
+  <Operation Delete="zzTCPIP.br"/>
+  <Operation Delete="zzForceO.br"/>
+  <Operation Delete="zzUld_4.br"/>
+  <Operation Delete="ssr.br"/>
+  <Operation Delete="48_cp6.br"/>
+  <Operation Delete="47_cpr1.br"/>
+  <Operation Delete="46_cpr4.br"/>
+  <Operation Delete="45_cpr3.br"/>
+  <Operation Delete="44_cpr2.br"/>
+  <Operation Delete="43_cp12.br"/>
+  <Operation Delete="42_cp9.br"/>
+  <Operation Delete="41_cp8.br"/>
+  <Operation Delete="40_cp4.br"/>
+  <Operation Delete="39_cpc1.br"/>
+  <Operation Delete="38_cp10.br"/>
+  <Operation Delete="37_cpi6.br"/>
+  <Operation Delete="36_cic6.br"/>
+  <Operation Delete="35_cic5.br"/>
+  <Operation Delete="34_cpi5.br"/>
+  <Operation Delete="33_stb2_A.br"/>
+  <Operation Delete="32_clu_2.br"/>
+  <Operation Delete="31_cp2.br"/>
+  <Operation Delete="30_cp14.br"/>
+  <Operation Delete="29_cp15.br"/>
+  <Operation Delete="28_cp16.br"/>
+  <Operation Delete="27_cp17.br"/>
+  <Operation Delete="26_cp3.br"/>
+  <Operation Delete="25_cvc1.br"/>
+  <Operation Delete="24_cpi4.br"/>
+  <Operation Delete="23_cpi3.br"/>
+  <Operation Delete="22_cpi2.br"/>
+  <Operation Delete="21_cpi1.br"/>
+  <Operation Delete="20_cp1.br"/>
+  <Operation Delete="19_cic4.br"/>
+  <Operation Delete="18_cic3.br"/>
+  <Operation Delete="17_cic2.br"/>
+  <Operation Delete="16_cic1.br"/>
+  <Operation Delete="15_cbc1.br"/>
+  <Operation Delete="14_sdc9.br"/>
+  <Operation Delete="13_sdc8.br"/>
+  <Operation Delete="12_sdc7.br"/>
+  <Operation Delete="11_sdc6.br"/>
+  <Operation Delete="10_sdc5.br"/>
+  <Operation Delete="9_sdc4.br"/>
+  <Operation Delete="8_sdc3.br"/>
+  <Operation Delete="7_sdc2.br"/>
+  <Operation Delete="6_sdc1.br"/>
+  <Operation Delete="5_pf.br"/>
+  <Operation Delete="4_pn.br"/>
+  <Operation Delete="3_clu_1.br"/>
+  <Operation Delete="2_stb1B.br"/>
+  <Operation Delete="50_stn8_14.br"/>
+  <Operation Delete="50_stns1_7.br"/>
+  <Operation Delete="zzCusFIFO.br"/>
+  <Operation Delete="zzStatus.br"/>
+  <Operation Delete="zzcp10ser.br"/>
+  <Operation Delete="zzStnSer.br"/>
+  <Operation Delete="zzBITcal.br"/>
+  <Operation Delete="zzBagShuff.br"/>
+  <Operation Delete="zzStnMix.br"/>
+  <Operation Delete="zzTrip.br"/>
+  <Operation Delete="zzBagID.br"/>
+  <Operation Delete="zzConst.br"/>
+  <Operation Delete="zzForceI.br"/>
+  <Operation Delete="zzEditBag.br"/>
+  <Operation Delete="zzStd.br"/>
+  <Operation Delete="zzGetTime.br"/>
+  <Operation Delete="zzTC2str.br"/>
+  <Operation Delete="SUP.br"/>
+  <Operation Delete="mnParamLib.br"/>
+  <Operation Delete="zzSQL_Lib.br"/>
+  <Operation Delete="DispLib.br"/>
+  <Operation Delete="AsMem.br"/>
+  <Operation Delete="AsUSB.br"/>
+  <Operation Delete="KGstring.br"/>
+  <Operation Delete="dvframe.br"/>
+  <Operation Delete="FC302.br"/>
+  <Operation Delete="OPCuA.br"/>
+  <Operation Delete="KanLinkLib.br"/>
+  <Operation Delete="FileMgr.br"/>
+  <Operation Delete="AsSafety.br"/>
+  <Operation Delete="AsIOAcc.br"/>
+  <Operation Delete="ABB_EPL.br"/>
+  <Operation Delete="mvLoader.br"/>
+  <Operation Delete="CAN_Lib.br"/>
+  <Operation Delete="MTBasics.br"/>
+  <Operation Delete="AsTCP.br"/>
+  <Operation Delete="DataBackUp.br"/>
+  <Operation Delete="SupLib4.br"/>
+  <Operation Delete="Ldg_Funct.br"/>
+  <Operation Delete="AsDb.br"/>
+  <Operation Delete="ascanopen.br"/>
+  <Operation Delete="AsARCfg.br"/>
+  <Operation Delete="AsETH.br"/>
+  <Operation Delete="AsUDP.br"/>
+  <Operation Delete="KGstdLib.br"/>
+  <Operation Delete="AsArLog.br"/>
+  <Operation Delete="AsIODiag.br"/>
+  <Operation Delete="KL_UserLib.br"/>
+  <Operation Delete="AsHttp.br"/>
+  <Operation Delete="brsystem.br"/>
+  <Operation Delete="IecCheck.br"/>
+  <Operation Delete="sys_lib.br"/>
+  <Operation Delete="AsIecCon.br"/>
+  <Operation Delete="AsTime.br"/>
+  <Operation Delete="DataObj.br"/>
+  <Operation Delete="AsEPL.br"/>
+  <Operation Delete="FileIO.br"/>
+  <Operation Delete="arssl.br"/>
+  <Operation Download="ashwd.br" Memory="SystemROM"/>
+  <Operation Download="asfw.br" Memory="SystemROM"/>
+  <Operation Download="arconfig.br" Memory="SystemROM"/>
+  <Operation Download="sysconf.br" Memory="SystemROM"/>
+  <Operation Restart="warm"/>
+  <Operation Download="TCData.br" Memory="SystemROM"/>
+  <Operation Download="udbdef.br" Memory="UserROM"/>
+  <Operation Download="FWRules.br" Memory="UserROM"/>
+  <Operation Download="TCLang.br" Memory="UserROM"/>
+  <Operation Download="iomap.br" Memory="UserROM"/>
+  <Operation Download="Role.br" Memory="UserROM"/>
+  <Operation Download="User.br" Memory="UserROM"/>
+  <Operation Download="ashwac.br" Memory="UserROM"/>
+  <Operation Download="TC.br" Memory="UserROM"/>
+  <Operation Download="AsBrMath.br" Memory="UserROM"/>
+  <Operation Download="MTTypes.br" Memory="UserROM"/>
+  <Operation Download="standard.br" Memory="UserROM"/>
+  <Operation Download="runtime.br" Memory="UserROM"/>
+  <Operation Download="Ethernet.br" Memory="UserROM"/>
+  <Operation Download="OPERATOR.br" Memory="UserROM"/>
+  <Operation Download="AsString.br" Memory="UserROM"/>
+  <Operation Download="AsBrStr.br" Memory="UserROM"/>
+  <Operation Download="AsBrWStr.br" Memory="UserROM"/>
+  <Operation Download="AsPciStr.br" Memory="UserROM"/>
+  <Operation Download="asxml.br" Memory="UserROM"/>
+  <Operation Download="arssl.br" Memory="UserROM"/>
+  <Operation Download="FileIO.br" Memory="UserROM"/>
+  <Operation Download="AsEPL.br" Memory="UserROM"/>
+  <Operation Download="DataObj.br" Memory="UserROM"/>
+  <Operation Download="AsTime.br" Memory="UserROM"/>
+  <Operation Download="AsIecCon.br" Memory="UserROM"/>
+  <Operation Download="sys_lib.br" Memory="UserROM"/>
+  <Operation Download="IecCheck.br" Memory="UserROM"/>
+  <Operation Download="brsystem.br" Memory="UserROM"/>
+  <Operation Download="AsHttp.br" Memory="UserROM"/>
+  <Operation Download="KL_UserLib.br" Memory="UserROM"/>
+  <Operation Download="AsIODiag.br" Memory="UserROM"/>
+  <Operation Download="AsArLog.br" Memory="UserROM"/>
+  <Operation Download="KGstdLib.br" Memory="UserROM"/>
+  <Operation Download="AsUDP.br" Memory="UserROM"/>
+  <Operation Download="AsETH.br" Memory="UserROM"/>
+  <Operation Download="AsARCfg.br" Memory="UserROM"/>
+  <Operation Download="ascanopen.br" Memory="UserROM"/>
+  <Operation Download="AsDb.br" Memory="UserROM"/>
+  <Operation Download="Ldg_Funct.br" Memory="UserROM"/>
+  <Operation Download="SupLib4.br" Memory="UserROM"/>
+  <Operation Download="DataBackUp.br" Memory="UserROM"/>
+  <Operation Download="AsTCP.br" Memory="UserROM"/>
+  <Operation Download="MTBasics.br" Memory="UserROM"/>
+  <Operation Download="CAN_Lib.br" Memory="UserROM"/>
+  <Operation Download="mvLoader.br" Memory="UserROM"/>
+  <Operation Download="ABB_EPL.br" Memory="UserROM"/>
+  <Operation Download="AsIOAcc.br" Memory="UserROM"/>
+  <Operation Download="AsSafety.br" Memory="UserROM"/>
+  <Operation Download="FileMgr.br" Memory="UserROM"/>
+  <Operation Download="KanLinkLib.br" Memory="UserROM"/>
+  <Operation Download="OPCuA.br" Memory="UserROM"/>
+  <Operation Download="FC302.br" Memory="UserROM"/>
+  <Operation Download="dvframe.br" Memory="UserROM"/>
+  <Operation Download="KGstring.br" Memory="UserROM"/>
+  <Operation Download="AsUSB.br" Memory="UserROM"/>
+  <Operation Download="AsMem.br" Memory="UserROM"/>
+  <Operation Download="DispLib.br" Memory="UserROM"/>
+  <Operation Download="zzSQL_Lib.br" Memory="UserROM"/>
+  <Operation Download="mnParamLib.br" Memory="UserROM"/>
+  <Operation Download="SUP.br" Memory="UserROM"/>
+  <Operation Download="can2_cmd.br" Memory="UserROM"/>
+  <Operation Download="can1_cmd.br" Memory="UserROM"/>
+  <Operation Download="zzTC2str.br" Memory="UserROM"/>
+  <Operation Download="zzGetTime.br" Memory="UserROM"/>
+  <Operation Download="zzStd.br" Memory="UserROM"/>
+  <Operation Download="zzEditBag.br" Memory="UserROM"/>
+  <Operation Download="zzForceI.br" Memory="UserROM"/>
+  <Operation Download="zzConst.br" Memory="UserROM"/>
+  <Operation Download="zzBagID.br" Memory="UserROM"/>
+  <Operation Download="zzTrip.br" Memory="UserROM"/>
+  <Operation Download="zzStnMix.br" Memory="UserROM"/>
+  <Operation Download="zzBagShuff.br" Memory="UserROM"/>
+  <Operation Download="zzBITcal.br" Memory="UserROM"/>
+  <Operation Download="zzStnSer.br" Memory="UserROM"/>
+  <Operation Download="zzcp10ser.br" Memory="UserROM"/>
+  <Operation Download="zzStatus.br" Memory="UserROM"/>
+  <Operation Download="zzCusFIFO.br" Memory="UserROM"/>
+  <Operation Download="50_stns1_7.br" Memory="UserROM"/>
+  <Operation Download="50_stn8_14.br" Memory="UserROM"/>
+  <Operation Download="2_stb1B.br" Memory="UserROM"/>
+  <Operation Download="3_clu_1.br" Memory="UserROM"/>
+  <Operation Download="4_pn.br" Memory="UserROM"/>
+  <Operation Download="5_pf.br" Memory="UserROM"/>
+  <Operation Download="6_sdc1.br" Memory="UserROM"/>
+  <Operation Download="7_sdc2.br" Memory="UserROM"/>
+  <Operation Download="8_sdc3.br" Memory="UserROM"/>
+  <Operation Download="9_sdc4.br" Memory="UserROM"/>
+  <Operation Download="10_sdc5.br" Memory="UserROM"/>
+  <Operation Download="11_sdc6.br" Memory="UserROM"/>
+  <Operation Download="12_sdc7.br" Memory="UserROM"/>
+  <Operation Download="13_sdc8.br" Memory="UserROM"/>
+  <Operation Download="14_sdc9.br" Memory="UserROM"/>
+  <Operation Download="15_cbc1.br" Memory="UserROM"/>
+  <Operation Download="16_cic1.br" Memory="UserROM"/>
+  <Operation Download="17_cic2.br" Memory="UserROM"/>
+  <Operation Download="18_cic3.br" Memory="UserROM"/>
+  <Operation Download="19_cic4.br" Memory="UserROM"/>
+  <Operation Download="20_cp1.br" Memory="UserROM"/>
+  <Operation Download="21_cpi1.br" Memory="UserROM"/>
+  <Operation Download="22_cpi2.br" Memory="UserROM"/>
+  <Operation Download="23_cpi3.br" Memory="UserROM"/>
+  <Operation Download="24_cpi4.br" Memory="UserROM"/>
+  <Operation Download="25_cvc1.br" Memory="UserROM"/>
+  <Operation Download="26_cp3.br" Memory="UserROM"/>
+  <Operation Download="27_cp17.br" Memory="UserROM"/>
+  <Operation Download="28_cp16.br" Memory="UserROM"/>
+  <Operation Download="29_cp15.br" Memory="UserROM"/>
+  <Operation Download="30_cp14.br" Memory="UserROM"/>
+  <Operation Download="31_cp2.br" Memory="UserROM"/>
+  <Operation Download="32_clu_2.br" Memory="UserROM"/>
+  <Operation Download="33_stb2_A.br" Memory="UserROM"/>
+  <Operation Download="34_cpi5.br" Memory="UserROM"/>
+  <Operation Download="35_cic5.br" Memory="UserROM"/>
+  <Operation Download="36_cic6.br" Memory="UserROM"/>
+  <Operation Download="37_cpi6.br" Memory="UserROM"/>
+  <Operation Download="38_cp10.br" Memory="UserROM"/>
+  <Operation Download="39_cpc1.br" Memory="UserROM"/>
+  <Operation Download="40_cp4.br" Memory="UserROM"/>
+  <Operation Download="41_cp8.br" Memory="UserROM"/>
+  <Operation Download="42_cp9.br" Memory="UserROM"/>
+  <Operation Download="43_cp12.br" Memory="UserROM"/>
+  <Operation Download="44_cpr2.br" Memory="UserROM"/>
+  <Operation Download="45_cpr3.br" Memory="UserROM"/>
+  <Operation Download="46_cpr4.br" Memory="UserROM"/>
+  <Operation Download="47_cpr1.br" Memory="UserROM"/>
+  <Operation Download="48_cp6.br" Memory="UserROM"/>
+  <Operation Download="ssr.br" Memory="UserROM"/>
+  <Operation Download="zzUld_4.br" Memory="UserROM"/>
+  <Operation Download="zzForceO.br" Memory="UserROM"/>
+  <Operation Download="zzTCPIP.br" Memory="UserROM"/>
+  <Operation Download="zzIO.br" Memory="UserROM"/>
+  <Operation Download="zzOk.br" Memory="UserROM"/>
+  <Operation Download="zzDataStor.br" Memory="UserROM"/>
+  <Operation Download="zzTvText.br" Memory="UserROM"/>
+  <Operation Download="ServerPane.br" Memory="UserROM"/>
+  <Operation Download="Server.br" Memory="UserROM"/>
+  <Operation Download="zzTC2end.br" Memory="UserROM"/>
+  <Operation Download="HoistServe.br" Memory="UserROM"/>
+  <Operation Download="AccessCont.br" Memory="UserROM"/>
+  <Operation Download="can_drv1.br" Memory="UserROM"/>
+  <Operation Download="can_drv2.br" Memory="UserROM"/>
+  <Operation Download="zzWeigh.br" Memory="UserROM"/>
+  <Operation Download="zzAlarms.br" Memory="UserROM"/>
+  <Operation Download="zzReport.br" Memory="UserROM"/>
+  <Operation Download="zzStn_Q.br" Memory="UserROM"/>
+  <Operation Download="zzTime.br" Memory="UserROM"/>
+  <Operation Download="CAN_Live.br" Memory="UserROM"/>
+  <Operation Download="zzModuleLo.br" Memory="UserROM"/>
+</Transfer>

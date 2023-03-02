@@ -1,0 +1,166 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBuffer[1]		= X[4].X14
+I_BagAtBuffer[2]		= X[9].X14
+
+MySeq                   = 38
+
+
+Alarm[MySeq].Name 			= 0
+Alarm[MySeq].Bag			= 10001
+Alarm[MySeq].Beacon		= TRUE
+Alarm[MySeq].Extra			= 0
+Alarm[MySeq].Time			= 3000
+
+O_SelectCIC5                = FALSE
+O_SelectCDC6                = FALSE
+O_SelectCDC5                = FALSE
+EnableRel.IC[2]             = FALSE
+O_Reset                     = FALSE
+
+;Setup Sequence
+STEP = D[900 + MySeq]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;reset points
+TON_10ms((STEP = 1),200,Reset,ResetET)
+IF (STEP = 1) THEN
+	O_Reset = TRUE
+	IF Reset  THEN
+		D[900 + MySeq] = 2
+	ENDIF
+	ELSE
+	
+ENDIF
+
+;check which bag is ready
+
+IF (STEP = 2) THEN
+	IF (Bag[154].Dst<15) THEN
+		Bag[154].Dst = 0
+	ENDIF
+	IF (Bag[154].Cat>0) AND (Bag[154].Dst>14) THEN
+		IF (Bag[154].Dst = 15) AND Line[15].Clear AND (Bag[82].Cat = 0) THEN
+			C[15] = 0
+			D[938] = 3
+		ELSE IF (Bag[154].Dst = 16) AND Line[16].Clear AND (Bag[87].Cat = 0) THEN
+				C[16] = 0
+				D[938] = 4
+		ELSE IF (Bag[154].Dst = 17) AND Line[25].Clear AND (Bag[153].Cat = 0)AND (Line[17].SpaceBIT>0) THEN
+			C[25] = 0
+			D[938] = 5
+		ELSE IF (Bag[154].Dst = 18) AND Line[25].Clear AND (Bag[153].Cat = 0)AND (Line[18].SpaceBIT>0) THEN
+			C[25] = 0
+			D[938] = 5
+		ELSE IF (Bag[154].Dst = 19) AND Line[25].Clear AND (Bag[153].Cat = 0) AND (Line[19].SpaceBIT>0) THEN
+			C[25] = 0
+			D[938] = 5
+		ENDIF
+	ENDIF
+	IF (Ldg[3].Search = 0) AND RequestRel.IC[2]  AND (Bag[154].Dst=0) THEN
+		Ldg[3].Search = 1
+	ENDIF
+	IF (Ldg[3].Search = 2) THEN
+		IF (Ldg[3].Found = 15) AND Line[15].Clear AND (Bag[82].Cat = 0) THEN
+			Bag[154].Dst = USINT(Ldg[3].Found)
+			C[15] = 0
+			D[938] = 3
+		ELSE IF (Ldg[3].Found = 16) AND Line[16].Clear AND (Bag[87].Cat = 0) THEN
+			Bag[154].Dst = USINT(Ldg[3].Found)
+			C[16] = 0
+			D[938] = 4
+		ELSE IF (Ldg[3].Found = 17) AND Line[25].Clear AND (Bag[153].Cat = 0)AND (Line[17].SpaceBIT>0) THEN
+			Bag[154].Dst = USINT(Ldg[3].Found)
+			C[25] = 0
+			D[938] = 5
+		ELSE IF (Ldg[3].Found = 18) AND Line[25].Clear AND (Bag[153].Cat = 0)AND (Line[18].SpaceBIT>0) THEN
+			Bag[154].Dst = USINT(Ldg[3].Found)
+			C[25] = 0
+			D[938] = 5
+		ELSE IF (Ldg[3].Found = 19) AND Line[25].Clear AND (Bag[153].Cat = 0) AND (Line[19].SpaceBIT>0) THEN
+			Bag[154].Dst = USINT(Ldg[3].Found)
+			C[25] = 0
+			D[938] = 5
+		ENDIF
+	ENDIF
+	ELSE
+	Ldg[3].Found  = 0
+	Ldg[3].Search = 0
+
+ENDIF	
+
+
+;Bag at line
+IF (STEP = 3) THEN
+	O_SelectCDC5 = TRUE
+	EnableRel.IC[2] = TRUE
+	IF Line[15].Trip AND (Bag[82].Cat = 0) AND (Bag[154].Cat > 0) THEN
+		Bag[82] = Bag[154]
+		Bag[154] = Bag[0]
+		D[938]  = 1
+	ENDIF
+	Alarm[MySeq].Bag        = 82
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+;Bag at line
+IF (STEP = 4) THEN
+	O_SelectCDC6 = TRUE 
+	EnableRel.IC[2] = TRUE
+	IF (Line[16].Trip = TRUE) THEN
+		IF (Bag[154].Cat > 0) AND (Bag[87].Cat = 0) THEN
+			Bag[87] = Bag[154]
+			Bag[154]= Bag[0]	
+			D[900 + MySeq] = 1
+		ENDIF
+	ENDIF
+	Alarm[MySeq].Bag        = 87
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+IF (STEP = 5) THEN
+	O_SelectCIC5 = TRUE 
+	EnableRel.IC[2] = TRUE
+	IF (Line[25].Trip = TRUE) THEN
+		IF (Bag[154].Cat > 0) AND (Bag[153].Cat = 0) THEN
+			Bag[153] = Bag[154]
+			Bag[154]= Bag[0]	
+			D[900 + MySeq] = 1
+		ENDIF
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Bag        = 153
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[MySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[MySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[MySeq].On 	= TimerAlarm.Q
+Alarm[MySeq].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[1].Y01 = O_SelectCDC5
+Y[1].Y07 = O_SelectCDC6
+Y[10].Y01 = O_Reset or O_SelectCIC5
+Y[10].Y02 = O_Reset or O_SelectCIC5
+END_PROGRAM
+

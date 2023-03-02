@@ -1,0 +1,82 @@
+PROGRAM _CYCLIC
+
+;---------------------------
+;Input forcing from Graphics
+;---------------------------
+
+;Version 1.00 14/09/2006 D.J. First Issue
+;Version 2.00 20/11/2009 D.J. Changed to 8 I/O inputs per card  - added upto 4 force cards
+
+LOOP Force = 1 TO 4 DO
+	
+	n = ((Force - 1) * 5)
+	
+	myForceCard 	= D[380 + n]
+	myForceState 	= D[381 + n]
+	myForceValue 	= D[382 + n]
+	
+	IF (myForceCard > Std.MaxIO) THEN
+		myForceCard = 0
+	ENDIF
+
+	XForce.X01 		= BIT_TST(myForceState,0)
+	XForce.X02 		= BIT_TST(myForceState,1)
+	XForce.X03 		= BIT_TST(myForceState,2)
+	XForce.X04 		= BIT_TST(myForceState,3)
+	XForce.X05 		= BIT_TST(myForceState,4)
+	XForce.X06 		= BIT_TST(myForceState,5)
+	XForce.X07 		= BIT_TST(myForceState,6)
+	XForce.X08 		= BIT_TST(myForceState,7)
+	XForce.X09 		= BIT_TST(myForceState,8)
+	XForce.X10 		= BIT_TST(myForceState,9)
+	XForce.X11 		= BIT_TST(myForceState,10)
+	XForce.X12 		= BIT_TST(myForceState,11)
+	XForce.X13 		= BIT_TST(myForceState,12)
+	XForce.X14 		= BIT_TST(myForceState,13)
+	XForce.X15 		= BIT_TST(myForceState,14)
+	XForce.X16 		= BIT_TST(myForceState,15)
+
+	XForceVal.X01 	= BIT_TST(myForceValue,0)
+	XForceVal.X02 	= BIT_TST(myForceValue,1)
+	XForceVal.X03 	= BIT_TST(myForceValue,2)
+	XForceVal.X04 	= BIT_TST(myForceValue,3)
+	XForceVal.X05 	= BIT_TST(myForceValue,4)
+	XForceVal.X06 	= BIT_TST(myForceValue,5)
+	XForceVal.X07 	= BIT_TST(myForceValue,6)
+	XForceVal.X08 	= BIT_TST(myForceValue,7)
+	XForceVal.X09 	= BIT_TST(myForceValue,8)
+	XForceVal.X10 	= BIT_TST(myForceValue,9)
+	XForceVal.X11 	= BIT_TST(myForceValue,10)
+	XForceVal.X12 	= BIT_TST(myForceValue,11)
+	XForceVal.X13 	= BIT_TST(myForceValue,12)
+	XForceVal.X14 	= BIT_TST(myForceValue,13)
+	XForceVal.X15 	= BIT_TST(myForceValue,14)
+	XForceVal.X16 	= BIT_TST(myForceValue,15)	
+		
+	X[myForceCard].X01 = (X[myForceCard].X01 AND NOT XForce.X01) OR (XForce.X01 AND XForceVal.X01)
+	X[myForceCard].X02 = (X[myForceCard].X02 AND NOT XForce.X02) OR (XForce.X02 AND XForceVal.X02)
+	X[myForceCard].X03 = (X[myForceCard].X03 AND NOT XForce.X03) OR (XForce.X03 AND XForceVal.X03)
+	X[myForceCard].X04 = (X[myForceCard].X04 AND NOT XForce.X04) OR (XForce.X04 AND XForceVal.X04)
+	X[myForceCard].X05 = (X[myForceCard].X05 AND NOT XForce.X05) OR (XForce.X05 AND XForceVal.X05)
+	X[myForceCard].X06 = (X[myForceCard].X06 AND NOT XForce.X06) OR (XForce.X06 AND XForceVal.X06)
+	X[myForceCard].X07 = (X[myForceCard].X07 AND NOT XForce.X07) OR (XForce.X07 AND XForceVal.X07)
+	X[myForceCard].X08 = (X[myForceCard].X08 AND NOT XForce.X08) OR (XForce.X08 AND XForceVal.X08)
+	X[myForceCard].X09 = (X[myForceCard].X09 AND NOT XForce.X09) OR (XForce.X09 AND XForceVal.X09)
+	X[myForceCard].X10 = (X[myForceCard].X10 AND NOT XForce.X10) OR (XForce.X10 AND XForceVal.X10)
+	X[myForceCard].X11 = (X[myForceCard].X11 AND NOT XForce.X11) OR (XForce.X11 AND XForceVal.X11)
+	X[myForceCard].X12 = (X[myForceCard].X12 AND NOT XForce.X12) OR (XForce.X12 AND XForceVal.X12)
+	X[myForceCard].X13 = (X[myForceCard].X13 AND NOT XForce.X13) OR (XForce.X13 AND XForceVal.X13)
+	X[myForceCard].X14 = (X[myForceCard].X14 AND NOT XForce.X14) OR (XForce.X14 AND XForceVal.X14)
+	X[myForceCard].X15 = (X[myForceCard].X15 AND NOT XForce.X15) OR (XForce.X15 AND XForceVal.X15)
+	X[myForceCard].X16 = (X[myForceCard].X16 AND NOT XForce.X16) OR (XForce.X16 AND XForceVal.X16)
+		
+		
+		
+		
+		
+ENDLOOP
+
+
+
+END_PROGRAM
+

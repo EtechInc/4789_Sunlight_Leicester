@@ -1,0 +1,17 @@
+VAR
+	n : UINT;
+	ValidWeight : BOOL;
+	SP1Reached : BOOL;
+	SP2Reached : BOOL;
+	SP3Reached : BOOL;
+	TestWeight : UINT;
+	StnIntoQ : BOOL;
+	StnsInQ : BOOL;
+	PurgeStation : BOOL;
+	StnsToPurge : BOOL;
+	ManualRelease : BOOL;
+	TestStation : UINT;
+	z : UINT;
+	Calibration : BOOL;
+	ValidPurgeWeight : BOOL;
+END_VAR

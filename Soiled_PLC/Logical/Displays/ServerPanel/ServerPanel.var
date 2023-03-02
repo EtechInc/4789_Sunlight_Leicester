@@ -1,0 +1,120 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: DisplayBuild
+ * File: DisplayBuild.var
+ * Author: Dave
+ * Created: December 08, 2010
+ ********************************************************************
+ * Local variables of program DisplayBuild
+ ********************************************************************)
+VAR CONSTANT
+	TypeDisplay : UINT := 22;
+	TypeDataEntry : UINT := 1;
+END_VAR
+VAR
+	BacklightOff : BOOL;
+	BackLightOffET : UDINT;
+	BgBlack : UINT;
+	BgBlue : UINT;
+	BgLtBlue : UINT;
+	BgLtGray : UINT;
+	BgOrange : UINT;
+	BgRed : UINT;
+	BgWhite : UINT;
+	ClientIP : UDINT;
+	ClientNode : UDINT;
+	DisplayDataSize : UDINT;
+	DisplaySize : UDINT;
+	FgBlack : UINT;
+	FgBlue : UINT;
+	FgLtBlue : UINT;
+	FgLtGray : UINT;
+	FgOrange : UINT;
+	FgRed : UINT;
+	FgWhite : UINT;
+	length : UINT;
+	myBag : UINT;
+	myDisplay : UINT;
+	mySync : UINT;
+	mySyncTime : UINT;
+	myTextColour : ARRAY[0..6] OF UINT;
+	myWeight : REAL;
+	myWeightString : STRING[8];
+	n : UINT;
+	Node : UDINT;
+	NodeOffset : UINT;
+	nxt_adr : UDINT;
+	RestartComplete : BOOL;
+	RestartCompleteET : UDINT;
+	RestartDisplays : BOOL;
+	ScreenSave : BOOL;
+	Status : UINT;
+	x : UDINT;
+	myCustomerString : STRING[80];
+	myProgramString : STRING[80];
+	myCategoryString : STRING[80];
+	MyNewIP : STRING[16];
+	IP_Replace_0 : IP_Replace;
+	Dave : BOOL;
+	MyReplaceIP : STRING[16];
+	ReplaceIPAddress : STRING[16]; (*Actual the new required Gateway the IP and Server will take the first 3 parts and the 4 will be the same.*)
+	ReplaceIP : BOOL;
+	ReplaceIPComplete : BOOL;
+	ReplaceIPCompleteET : UDINT;
+	lenght : UINT;
+	myINTweight : INT;
+	NodeData : ARRAY[0..19] OF pnlNodeData_typ;
+	NodeDataSize : UINT;
+	ns : UINT;
+	myColour : UINT;
+	myNode : UDINT;
+	myQuad : UINT;
+	myGetIdx : UINT;
+	myConn : UINT;
+	next_adr : UDINT;
+	myGetIndexString : STRING[80];
+	BgGray : UINT;
+	FgGray : UINT;
+	pnlStatusString : ARRAY[0..19] OF STRING[25];
+	myMessageString : STRING[25];
+	myStatusColour : UINT;
+	Catlenght : UINT;
+	myLength : UINT;
+	myCatLength : ARRAY[0..20] OF UINT;
+END_VAR
+VAR CONSTANT
+	TypeDisplayPP65 : UINT := 2;
+END_VAR
+VAR
+	myCountString : STRING[8];
+	BgGreen : USINT;
+END_VAR
+VAR CONSTANT
+	TypeDisplayCTT104 : UINT := 3;
+	TypeDisplayPP65ES1 : UINT := 4;
+END_VAR
+VAR
+	myCount : UINT;
+	Disp : INT;
+	TypeMaintLine : UINT;
+	myWgt : UINT;
+	myBarrowCusString : STRING[80];
+	myCDC24CusString : STRING[80];
+	myCSB2CatString : STRING[80];
+	myCCD2CatString : STRING[80];
+	myBarrowCatString : STRING[80];
+	myCbs2CusPUString : STRING[80];
+	TypeBrolli : BOOL;
+	myPictureString : BOOL;
+	SP1 : UDINT;
+	SP2 : UDINT;
+	SP3 : UDINT;
+	zzMaintLine : BOOL;
+	StnNo : UINT;
+	stnIndex : UINT;
+	myStnString : STRING[5];
+	mySP : UDINT;
+	mySPString : STRING[25];
+	Connected : BOOL;
+END_VAR

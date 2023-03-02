@@ -1,0 +1,23 @@
+VAR RETAIN
+	MiliSeconds	:UINT;	
+	Seconds	:UINT;	
+END_VAR
+
+
+VAR
+	TEST	:BOOL;	
+	TimeLast	:TIME;	
+	TimeNow	:TIME;	
+	TimeDiff	:TIME;	
+	SysRunning	:BOOL;	
+	ActionPLS	:BOOL;	
+	NoActionET	:TIME;	
+	NoAction	:BOOL;	
+	NoActionPLS	:BOOL;	
+	PLCFirstScan	:BOOL;	
+	Seq	:UINT;	
+	Minutes	:INT;	
+	Hours	:UINT;	
+	SysIdleMinutes	:UINT;	
+	SystemAction	:BOOL;	
+END_VAR

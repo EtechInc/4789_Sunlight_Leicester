@@ -1,0 +1,56 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzCustomerChange
+ * File: zzCustomerChange.var
+ * Author: treamsbottom
+ * Created: November 18, 2014
+ ********************************************************************
+ * Local variables of program zzCustomerChange
+ ********************************************************************)
+VAR CONSTANT
+	MAX_BANKS : USINT := 2;
+	MAX_BELTS : USINT := 12;
+END_VAR
+VAR
+	I_PxEnd_Belt : ARRAY[0..MAX_BELTS] OF BOOL;
+	I_MultipleCustomers : BOOL;
+	O_RunBelt : ARRAY[0..MAX_BELTS] OF BOOL;
+	I_AcceptNewCustomer : ARRAY[0..MAX_BANKS] OF BOOL;
+	n : UINT;
+	O_CustChange_Piezo : ARRAY[0..MAX_BANKS] OF BOOL;
+	O_CustChange_Lamp : ARRAY[0..MAX_BANKS] OF BOOL;
+	myZone : UINT;
+	SortingEnable : BOOL;
+	I_End_1st_Belt : ARRAY[0..MAX_BANKS] OF BOOL;
+	CustomerChange : ARRAY[0..MAX_BANKS] OF UINT;
+	RunBelts : ARRAY[0..MAX_BELTS] OF BOOL;
+	TON_PiezoDelay : ARRAY[0..MAX_BANKS] OF TON_10ms;
+	AutoChangeState : UDINT;
+	myCustChangeMessageStatus : ARRAY[0..MAX_BANKS] OF UINT;
+	myCustBag : ARRAY[0..MAX_BANKS] OF UINT;
+	myNewCustBag : ARRAY[0..MAX_BANKS] OF UINT;
+	BgRed : UINT;
+	BgOrange : UINT;
+	BgGreen : UINT;
+	FgBlack : UINT;
+	BgLtGrey : UINT;
+	FgRed : UINT;
+	BgWhite : UINT;
+	myNextBeltRunning : ARRAY[0..MAX_BELTS] OF BOOL;
+	I_PxStart_Belt : ARRAY[0..MAX_BELTS] OF BOOL;
+	TON_BeltBlocked : ARRAY[0..MAX_BELTS] OF TON_10ms;
+	t : INT;
+	TON_PulseBelt : ARRAY[0..MAX_BELTS] OF TON_10ms;
+	TON_RestartBelts : ARRAY[0..MAX_BELTS] OF TON_10ms;
+	PulseOff : BOOL;
+	PulseOn : BOOL;
+	PulseOnET : UDINT;
+	PulseOffET : UDINT;
+	I_InvStatus : ARRAY[0..MAX_BELTS] OF BOOL;
+	O_Extend : ARRAY[0..2] OF BOOL;
+	O_Retract : ARRAY[0..2] OF BOOL;
+	mySeq : UINT;
+	TimerAlarm : TON_10ms;
+	O_SlowBelt : ARRAY[0..MAX_BELTS] OF BOOL;
+END_VAR

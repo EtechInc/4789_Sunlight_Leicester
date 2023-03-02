@@ -1,0 +1,42 @@
+(********************************************************************
+ * COPYRIGHT -- Kannegiesser UK Ltd
+ ********************************************************************
+ * Program: zzAI2744
+ * File: zzAI2744Cyclic.ab
+ * Author: zmclaren
+ * Created: May 25, 2012
+ ********************************************************************
+ * Implementation of program zzAI2744
+ ********************************************************************)
+
+PROGRAM _CYCLIC
+(* First we need to see if the last value is different to the previous one, *) 
+(* Then we will set the counters for each to zero *) 
+(* Also the Config Outputs will need setting to 0*) 
+IF (D[998] = 0) THEN
+	LOOP i = 1 TO Std.MaxWeighstations DO
+		myWeight = ((WeightRaw[i].Wgt_Channel_1 + WeightRaw[i].Wgt_Channel_2)/2) 
+			
+		IF (LastRawValue[i] = myWeight)THEN        (* We have no change between the  two values *) 
+			IF (NoChangeCounter[i] >= 21) THEN          (* We need to reset the output back to zero *)
+				WeightRaw[i].Config_Channel_1 = 0
+				WeightRaw[i].Config_Channel_2 = 0
+			ELSE
+				IF (NoChangeCounter[i] = 20) THEN  (* We have had 20 cycles with no change on the input *) 
+					NoChangeCounter[i] = NoChangeCounter[i] + 1
+					WeightRaw[i].Config_Channel_1  = %00110001  (* Make a change to both the Data Rate and the Range *) 
+					WeightRaw[i].Config_Channel_2  = %00110001
+				ELSE
+					NoChangeCounter[i] = NoChangeCounter[i] + 1  (* Increment the no change counter *) 
+				ENDIF
+			ENDIF
+		ELSE     (* There has been a change between the two  Values so store the old value and clear the counter *) 
+			LastRawValue[i] = myWeight (* Store the Last Value *)
+			NoChangeCounter[i] = 0         (* Reset the Counter *)
+			WeightRaw[i].Config_Channel_1 = 0      (* Leave the configuration as  0 *) 
+			WeightRaw[i].Config_Channel_2 = 0
+		ENDIF	
+	ENDLOOP
+ENDIF
+
+END_PROGRAM

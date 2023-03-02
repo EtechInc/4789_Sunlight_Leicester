@@ -1,0 +1,11 @@
+{
+  global:
+    msgBinSearchCfgList;
+    msgInsertMsgLine;
+    msgBinSearchTxtLine;
+    msgBinSearchHelpTxtLine;
+    msgReplSubStr;
+    msgNextChrPos;
+  local:
+    *;
+ };

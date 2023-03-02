@@ -1,0 +1,7 @@
+VAR
+	VCiLock : ARRAY[0..9] OF VCiLock_Posn_Typ;
+	EnableRel : Enable_Vars;
+	Enable : Enable_Vars;
+	RequestRel : Enable_Vars;
+	Request : Enable_Vars;
+END_VAR

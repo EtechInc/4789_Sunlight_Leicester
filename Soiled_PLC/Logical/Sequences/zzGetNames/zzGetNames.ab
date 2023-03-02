@@ -1,0 +1,133 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzGetNames
+ * File: zzGetNames.ab
+ * Author: Dave
+ * Created: November 19, 2010
+ ********************************************************************
+ * Implementation of program zzGetNames
+ ********************************************************************)
+
+;Get names from TrackView - Program, Category and Customer
+
+;Version 1.00 19/11/2010 D.J. First Issue
+;Version 2.00 12/12/2010 D.J. Added default values
+;Version 3.00 19/10/2011 D.J. Clear Name when number has changed - if no TrackView then name will remain clear.
+
+;Enter the required bag numbers for collection of names. Use the resulting names in transmisions to displays.
+
+PROGRAM _INIT
+	
+	zzGetNamesData[1].BagNumber = 101
+	zzGetNamesData[2].BagNumber = 102
+	zzGetNamesData[3].BagNumber = 103
+	zzGetNamesData[4].BagNumber = 104
+	zzGetNamesData[5].BagNumber = 0
+	zzGetNamesData[6].BagNumber = 0
+	zzGetNamesData[7].BagNumber = 0
+	zzGetNamesData[8].BagNumber = 0
+	zzGetNamesData[9].BagNumber = 0
+	zzGetNamesData[10].BagNumber = 0
+	zzGetNamesData[11].BagNumber = 0
+	zzGetNamesData[12].BagNumber = 0
+	zzGetNamesData[13].BagNumber = 0
+	zzGetNamesData[14].BagNumber = 0
+	zzGetNamesData[15].BagNumber = 0
+	zzGetNamesData[16].BagNumber = 0
+
+
+
+	MaxDisplays = 16
+	IF (MaxDisplays > SIZEOF(zzGetNamesData)) THEN
+		MaxDisplays = SIZEOF(zzGetNamesData)
+	ENDIF
+	
+	WaitReply = FALSE
+	
+	zzGetNamesData[0].BagNumber = 1
+	zzGetNamesData[0].Prg		= 1
+	strcpy(ADR(zzGetNamesData[0].PrgLong),"PRG")
+	strcpy(ADR(zzGetNamesData[0].PrgName),"ProgramName")
+	zzGetNamesData[0].Cat		= 1
+	strcpy(ADR(zzGetNamesData[0].CatLong),"CAT")
+	strcpy(ADR(zzGetNamesData[0].CatName),"CategoryName")
+	zzGetNamesData[0].Cus		= 1
+	strcpy(ADR(zzGetNamesData[0].CusLong),"CUS")
+	strcpy(ADR(zzGetNamesData[0].CusName),"CustomerName")
+	
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	
+	;Search for display data that needs updating
+	IF NOT WaitReply THEN
+		
+		OwnerID = OwnerID + 1
+		IF (OwnerID > MaxDisplays) THEN
+			OwnerID = 1
+		ENDIF	
+		
+		myBag = zzGetNamesData[OwnerID].BagNumber
+		
+		IF ((zzGetNamesData[OwnerID].Prg <> Bag[myBag].Prg) AND (Bag[myBag].Prg > 0)) THEN
+			memcpy(ADR(zzGetNamesData[OwnerID].PrgLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[OwnerID].PrgName),ADR(""),32)
+			WaitReply = TRUE
+		ENDIF
+		
+		IF ((zzGetNamesData[OwnerID].Cat <> Bag[myBag].Cat) AND (Bag[myBag].Cat > 0)) THEN
+			memcpy(ADR(zzGetNamesData[OwnerID].CatLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[OwnerID].CatName),ADR(""),32)
+			WaitReply = TRUE
+		ENDIF
+		
+		IF ((zzGetNamesData[OwnerID].Cus <> Bag[myBag].Cus) AND (Bag[myBag].Cus > 0)) THEN
+			memcpy(ADR(zzGetNamesData[OwnerID].CusLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[OwnerID].CusName),ADR(""),32)
+			WaitReply = TRUE
+		ENDIF
+		
+		;Set TrackView Registers
+		IF WaitReply THEN
+			CommsID = CommsID + 1
+			IF (CommsID > $7FFFFFFF) THEN
+				CommsID = 1
+			ENDIF
+			D32[201] = OwnerID
+			D32[202] = CommsID
+			D32[204] = UDINT(Bag[myBag].Prg)
+			D32[205] = Bag[myBag].Cat
+			D32[206] = Bag[myBag].Cus
+		ENDIF
+		
+	ENDIF
+	
+	TviewReplyOwnerID = D32[203]	
+		
+	;Set request to TrackView until reply
+	IF (WaitReply AND (CommsID = TviewReplyOwnerID)) THEN
+		
+		myBag = zzGetNamesData[OwnerID].BagNumber
+		
+		zzGetNamesData[OwnerID].Prg = Bag[myBag].Prg
+		memcpy(ADR(zzGetNamesData[OwnerID].PrgLong),ADR(D32[531]),8)
+		memcpy(ADR(zzGetNamesData[OwnerID].PrgName),ADR(D32[533]),32)
+		
+		zzGetNamesData[OwnerID].Cat = Bag[myBag].Cat
+		memcpy(ADR(zzGetNamesData[OwnerID].CatLong),ADR(D32[541]),8)
+		memcpy(ADR(zzGetNamesData[OwnerID].CatName),ADR(D32[543]),32)
+		
+		zzGetNamesData[OwnerID].Cus = Bag[myBag].Cus
+		memcpy(ADR(zzGetNamesData[OwnerID].CusLong),ADR(D32[551]),8)
+		memcpy(ADR(zzGetNamesData[OwnerID].CusName),ADR(D32[553]),32)
+	
+		WaitReply 	= FALSE
+							
+	ENDIF
+	
+	
+END_PROGRAM
+
+

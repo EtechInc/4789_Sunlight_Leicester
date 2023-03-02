@@ -1,0 +1,68 @@
+﻿{GroupDefinition(0,'NewGroup')}
+
+VAR_GLOBAL {Group(0)}
+    {LINE(1)}
+    SI_2_OK AT %IX24.0 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeModuleOk')};
+    {LINE(2)}
+    SO_3_OK AT %IX24.1 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeModuleOk')};
+    {LINE(3)}
+    Safety_Module_Fault AT %QX1.7 : BOOL {Custom('SL1.SM1.BOOL016')};
+    {LINE(4)}
+    SafetyZone_0_Zone_Status AT %QX0.0 : BOOL {Custom('SL1.SM1.BOOL001')};
+    {LINE(5)}
+    SafetyZone_0_ResetReady AT %QX1.0 : BOOL {Custom('SL1.SM1.BOOL009')};
+    {LINE(6)}
+    SafetyZone_0_Main_Reset AT %IX0.0 : BOOL {Custom('SL1.SM1.BOOL101')};
+    {LINE(7)}
+    Safety_Master_Reset AT %IX1.7 : BOOL {Custom('SL1.SM1.BOOL116')};
+    {LINE(8)}
+    SafetyZone_0_EDM AT %IX1.0 : BOOL {Custom('SL1.SM1.BOOL109')};
+    {LINE(9)}
+    ESTOPS AT %IX60.0 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput01')};
+    {LINE(10)}
+    SafetyZone_3_Main_Reset AT %IX0.3 : BOOL {Custom('SL1.SM1.BOOL104')};
+    {LINE(11)}
+    SafetyZone_3_EDM AT %IX1.3 : BOOL {Custom('SL1.SM1.BOOL112')};
+    {LINE(12)}
+    SafetyZone_3_Zone_Status AT %QX0.3 : BOOL {Custom('SL1.SM1.BOOL004')};
+    {LINE(13)}
+    SafetyZone_3_ResetReady AT %QX1.3 : BOOL {Custom('SL1.SM1.BOOL012')};
+    {LINE(14)}
+    SafetyZone_2_ResetReady AT %QX1.2 : BOOL {Custom('SL1.SM1.BOOL011')};
+    {LINE(15)}
+    SafetyZone_2_Zone_Status AT %QX0.2 : BOOL {Custom('SL1.SM1.BOOL003')};
+    {LINE(16)}
+    SafetyZone_2_EDM AT %IX1.2 : BOOL {Custom('SL1.SM1.BOOL111')};
+    {LINE(17)}
+    SafetyZone_1_Main_Reset AT %IX0.1 : BOOL {Custom('SL1.SM1.BOOL102')};
+    {LINE(18)}
+    SafetyZone_1_EDM AT %IX1.1 : BOOL {Custom('SL1.SM1.BOOL110')};
+    {LINE(19)}
+    SafetyZone_1_ResetReady AT %QX1.1 : BOOL {Custom('SL1.SM1.BOOL010')};
+    {LINE(20)}
+    SafetyZone_1_Zone_Status AT %QX0.1 : BOOL {Custom('SL1.SM1.BOOL002')};
+    {LINE(21)}
+    ZONE_1_INPUT AT %IX60.1 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput02')};
+    {LINE(22)}
+    ZONE_3_INPUT AT %IX60.3 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM2.SafeDigitalInput04')};
+    {LINE(23)}
+    ZONE_2_GS AT %IX65.0 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM4.SafeTwoChannelInput0102')};
+    {LINE(24)}
+    ZZone_2_Interlock_Reset AT %IX22.0 : BOOL {Custom('SL1.SM4.DigitalInput01')};
+    {LINE(25)}
+    SM3_SafeDigitalOutput01 AT %QX14.0 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput01')};
+    {LINE(26)}
+    SM3_ReleaseOutput01 AT %QX20.0 : BOOL {Custom('SL1.SM3.ReleaseOutput01')};
+    {LINE(27)}
+    SM3_SafeDigitalOutput02 AT %QX14.1 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput02')};
+    {LINE(28)}
+    SM3_ReleaseOutput02 AT %QX20.1 : BOOL {Custom('SL1.SM3.ReleaseOutput02')};
+    {LINE(29)}
+    SM3_SafeDigitalOutput03 AT %QX14.2 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput03')};
+    {LINE(30)}
+    SM3_ReleaseOutput03 AT %QX20.2 : BOOL {Custom('SL1.SM3.ReleaseOutput03')};
+    {LINE(31)}
+    SM3_SafeDigitalOutput04 AT %QX14.3 : SAFEBOOL {SafeAdr(true),Custom('SL1.SM3.SafeDigitalOutput04')};
+    {LINE(32)}
+    SM3_ReleaseOutput04 AT %QX20.3 : BOOL {Custom('SL1.SM3.ReleaseOutput04')};
+END_VAR

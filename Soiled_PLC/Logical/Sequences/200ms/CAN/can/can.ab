@@ -1,0 +1,113 @@
+;CAN Bus data exchange with CBW
+
+;--------------------------------------------------------
+;Version 1.00 02/11/2009 D.J. First Issue
+;Version 2.00 22/011/2011 D.J. Weight Calculation now here
+;--------------------------------------------------------
+
+PROGRAM _INIT
+
+CAN_enable = 1
+MAX_CAN_CONNS = 6
+	
+LOOP n = 1 TO MAX_CAN_CONNS DO
+	CAN_DRY_Send[n].EventRead = 0
+	CAN_DRY_Send[n].EventWrite = 0
+	CAN_DRY_Send[n].EventWrite1 = 0	
+ENDLOOP
+	
+CANopen_01.enable		= CAN_enable
+CANopen_01.baud_rate	= 25					;Define baud rate - 250 kbit/s
+CANopen_01.cob_anz		= 100      				;Define number of link objects
+CANopen_01.error_adr	= ADR(error_var)		;Define address for error output
+CANopen_01.device		= ADR("SS1.IF2")	    ;Define number of device
+CANopen_01.info			= 0
+
+CANopen_01 FUB CANopen()						;Initiate CANopen
+
+IF CANopen_01.status=0 THEN						;Check error level
+
+	DOInfo.enable = 1
+	DOInfo.pName  = "can_cmd"
+
+	DOInfo FUB DatObjInfo()
+
+	IF (DOInfo.status = 0) THEN
+
+		data_adr					= DOInfo.pDatObjMem
+		CANdftab_01.enable			= 1
+		CANdftab_01.us_ident 		= CANopen_01.us_ident	;Set us_id
+		CANdftab_01.table_adr		= data_adr				;Define address of data object
+		CANdftab_01.tab_num			= UINT(DOInfo.len / 72)	;Define number of values
+
+		CANdftab_01 FUB CANdftab()    						;Initiate CANdftab
+
+		IF CANdftab_01.status = 0 THEN
+			LOOP n = 1 TO MAX_CAN_CONNS DO
+				CAN_DRY_Send[n].WriteFrame.ControlSignals.0 = 1 // Set CAN Live
+			ENDLOOP		
+			CANOK = TRUE
+		ENDIF
+	ENDIF
+ENDIF
+
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+IF CANOK THEN
+
+	;----------------
+	;Set Write values
+	;---------------
+	LOOP n = 3 TO MAX_CAN_CONNS DO
+		CAN_DRY_Send[n].WriteFrame.ControlSignals.1 = CAN[n].BagReady
+		CAN_DRY_Send[n].WriteFrame.Category			= CAN[n].Category	
+		CAN_DRY_Send[n].WriteFrame.Weight			= CAN[n].Weight
+		CAN_DRY_Send[n].WriteFrame1.CustomerCode	= CAN[n].Customer
+		CAN_DRY_Send[n].WriteFrame1.BatchCode		= CAN[n].BatchID
+		CAN_DRY_Send[n].EventWrite = 1	
+		CAN_DRY_Send[n].EventWrite1 = 1	
+	ENDLOOP
+
+		
+	;-----------------
+	;Service CAN table
+	;-----------------
+	IF CANdftab_01.status=0 THEN						(*check error level*)
+		CANrwtab_01.enable		= 1
+		CANrwtab_01.tab_ident	= CANdftab_01.tab_ident (*define tab_id*)
+		CANrwtab_01 FUB CANrwtab()						(*initiate CANrwtab*)
+		LastError = CANrwtab_01.status
+	ENDIF
+
+;	;----------------------------------
+		;	;Check for incomming data from CBW1
+		;	;----------------------------------
+	LOOP n = 3 TO MAX_CAN_CONNS DO
+	
+		IF (CAN_DRY_Send[n].EventRead > 0)THEN
+			CAN_DRY_Send[n].EventRead = 0
+		
+			CAN[n].Live 		  = CAN_DRY_Send[n].ReadFrame.ControlSignals.0
+			CAN[n].DropLoad 	  = CAN_DRY_Send[n].ReadFrame.ControlSignals.1
+			CAN[n].LoadDropped    = CAN_DRY_Send[n].ReadFrame.ControlSignals.2
+			IF CAN[n].Live THEN		
+				CAN[n].LiveTime = 50	;5 seconds
+			ENDIF
+		ENDIF	
+		;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		;-------------------
+		;CAN Live / Presence
+		;-------------------
+		IF (CAN[n].LiveTime > 0) THEN
+			CAN[n].LiveTime = (CAN[n].LiveTime - 1)
+		ENDIF
+		CAN[n].Live = (CAN[n].LiveTime <> 0)	
+
+	ENDLOOP
+
+
+ENDIF
+END_PROGRAM
+

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">Supertrack Programming Standards V1.00.1.docx</Object>
+    <Object Type="File">Standard Sequence Template.docx</Object>
+    <Object Type="Package" Description="A package of related programs and data objects.">Alarms</Object>
+    <Object Type="Package" Description="Bag stacker On &amp; Off going">BagStacker</Object>
+    <Object Type="Package" Description="Discharger with Batching options">Discharger</Object>
+    <Object Type="Package" Description="*Empty Base Sequence">Empty</Object>
+    <Object Type="Package" Description="*Incline conveyor">Incline</Object>
+    <Object Type="Package" Description="*Loading Unit">LoadingUnit</Object>
+    <Object Type="Package" Description="*Old style on and offgoing points">On_Offgoing</Object>
+    <Object Type="Package" Description="Standard Points">Points</Object>
+    <Object Type="Package" Description="Pneumatic VC,Incline">Pneumatic</Object>
+    <Object Type="Package" Description="Misc - Speed Reducer,Pressure relief">Misc</Object>
+    <Object Type="Package" Description="*All sorting equipment">Sorting</Object>
+    <Object Type="Package">Belts</Object>
+    <Object Type="Package">RotaSort</Object>
+    <Object Type="Package">TwinRailLoadingUnit</Object>
+    <Object Type="Program" Language="IEC" Description="* SPI1 Pneumatic Incline Up 1">11_spi1</Object>
+    <Object Type="Program" Language="IEC" Description="*Sorting Stations--">41_stnsa1</Object>
+    <Object Type="Program" Language="IEC" Description="* SDC2 Machine 2 CAN">15_cdc1</Object>
+    <Object Type="Program" Language="IEC" Description="*incline">36_cic6</Object>
+    <Object Type="Program" Language="IEC">zzcp10ser</Object>
+    <Object Type="Program" Language="IEC" Description="* SP2 Empty bags from SDC1/2">42_cp1</Object>
+  </Objects>
+</Package>

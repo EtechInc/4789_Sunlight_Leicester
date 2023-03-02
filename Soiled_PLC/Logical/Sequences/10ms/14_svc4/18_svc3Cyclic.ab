@@ -1,0 +1,323 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------------------
+;Sequence 13 - SIC2 Soiled Incline Conveyor 2 D[913]
+;---------------------------------------------------
+
+;Inputs
+I_CarrAtTop				= X[11].X01
+I_CarrAtBottom			= X[11].X02
+I_CarrAtFullBagInHigh   = X[11].X03
+I_BagOnCarr				= X[11].X04
+
+I_BagAtBufferStopHigh   = X[11].X05
+I_BagAtBufferStopLow    = X[11].X06
+
+
+
+O_OpenHighLevelBuffer	= FALSE 
+O_OpenLowLevelBuffer	= FALSE ;X[12].X15
+O_OpenLowLevelBufferStop = FALSE
+
+;I_BagAtLLBuff			= FALSE ;X[12].X01
+;O_LLBuffOpen			= FALSE ;Y[12].Y01
+
+O_OpenBuffer			= FALSE
+O_MoveCarrUp			= FALSE 
+O_MoveCarrDown			= FALSE 
+OpenCarriageStop		= FALSE 
+
+Request.SVC4ToSDP1		= FALSE
+
+Alarm[14].Name 			= 0
+Alarm[14].Bag			= 319
+Alarm[14].Beacon		= TRUE
+Alarm[14].Extra			= 0
+Alarm[14].Time			= 3000
+
+;Setup Sequence
+STEP = D[914]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Move carriage down from top position
+IF (STEP = 1) THEN
+	O_MoveCarrDown = NOT I_CarrAtFullBagInHigh
+	IF I_CarrAtFullBagInHigh THEN
+		D[914] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[14].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check Status
+IF (STEP = 2) THEN	
+	IF NOT I_BagOnCarr  THEN 
+		D[914] = 3
+	ENDIF
+	IF I_BagOnCarr THEN
+		Alarm[14].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;Wait for bag at buffer or bag in transit to High or Low buffer 
+TON_10ms((I_BagAtBufferStopHigh AND (Bag[320].Cat > 0)),300,SettledHighLevelBuffer,SettledHighLevelBufferET)
+TON_10ms((I_BagAtBufferStopLow AND (Bag[325].Cat > 0)),300,SettledLowLevelBuffer,SettledLowLevelBufferET)
+IF (STEP = 3) THEN
+	
+	IF SettledHighLevelBuffer  THEN
+		D[914] = 4
+	ELSE IF SettledLowLevelBuffer OR (Bag[324].Cat > 0) THEN
+		D[914] = 10 ;move carriage down to SDP1
+	ENDIF
+		
+ENDIF
+
+;Open Buffer stop - Enable
+IF (STEP = 4) THEN
+	O_OpenHighLevelBuffer 	= (NOT I_BagOnCarr AND I_CarrAtFullBagInHigh)
+	;Enable.SVC[2] 	= (NOT I_BagOnCarr AND I_CarrAtTop)
+	IF ((Bag[319].Cat = 0) AND (Bag[320].Cat > 0)) THEN
+		Bag[319] = Bag[320]
+		Bag[320] = Bag[0]
+	ENDIF
+	IF I_BagOnCarr THEN
+		D[914] = 5
+	ENDIF
+	Alarm[14].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle on carriage
+TON_10ms(I_BagOnCarr,300,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 5) THEN
+	IF ((Bag[319].Dst = 21) AND BagSettledOnCarr AND NOT I_CarrAtTop) THEN
+		D[914] = 6
+	ELSE IF ((Bag[319].Dst = 22) AND BagSettledOnCarr AND NOT I_CarrAtBottom) THEN
+		D[914] = 10
+	ENDIF
+	Alarm[14].Name = almBagNotSettled
+ENDIF
+
+;Move Carriage up to carriage at top
+IF (STEP = 6) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtTop THEN
+		D[914] = 7
+	ENDIF
+ENDIF
+
+;check buffer clear
+IF (STEP = 7) THEN	
+		
+	IF (Line[21].Clear AND (Bag[356].Cat = 0) AND(Bag[269].Cat = 0)) THEN
+		C[21]  = 0
+		C[31]  = 0
+		D[914] = 8
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[14].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;open carriage stop 
+IF (STEP = 8) THEN
+	IF PLS THEN
+		C[31] = 0
+	ENDIF
+	
+	;IF (Line[33].Clear AND NOT I_BagAtLLBuff AND NOT O_LLBuffOpen AND NOT Std.HaltSys) THEN
+	OpenCarriageStop = I_CarrAtTop
+	IF ((Bag[269].Cat = 0) AND (Bag[319].Cat > 0)) THEN
+		Bag[319].Dst = 0
+		Bag[269]     = Bag[319]
+		Bag[319]     = Bag[0]
+	ENDIF
+	
+	IF Line[31].Clear THEN
+		D[914] = 9
+	ENDIF
+	;IF NOT Std.HaltSysLoading THEN
+		;IF X[11].X07 OR  THEN
+	;		Alarm[14].Name = almBagNotReleased
+		;ENDIF
+;	ENDIF
+ENDIF
+
+;VC4 Bag in transit
+IF (Bag[269].Cat > 0) THEN 
+	IF (Line[21].Trip AND (Bag[356].Cat = 0)) THEN
+		Bag[356] = Bag[269]
+		Bag[269] = Bag[0]
+	ENDIF
+	Alarm[14].Bag	= 269
+	Alarm[14].Name 	= almBagNotArrived
+ENDIF
+
+;check status
+IF (STEP = 9) THEN
+	IF NOT I_CarrAtFullBagInHigh AND NOT I_BagOnCarr THEN
+		D[914] = 1
+	ENDIF
+			
+	IF NOT Std.EStop THEN
+		Alarm[14].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+
+;move down to low level
+IF (STEP = 10) THEN
+	O_MoveCarrDown = NOT I_CarrAtBottom
+	IF (I_CarrAtBottom AND (Bag[319].Cat > 0))THEN
+		D[914] = 11
+		ELSE IF (I_CarrAtBottom AND (Bag[319].Cat = 0))THEN
+		D[914] = 13
+	ENDIF
+	Alarm[14].Name = almCarriageMoveFault
+ENDIF
+
+;carriage at bottom
+;IF (STEP = 11) THEN
+;	IF I_CarrAtBottom THEN
+;		D[914] = 12
+;	ENDIF
+;ENDIF
+
+;Check SDP1 
+IF (STEP = 11) THEN 
+	Request.SVC4ToSDP1 = I_CarrAtBottom
+	IF Enable.SVC4ToSDP1 THEN
+		
+		
+		D[914] = 12
+	ENDIF
+ENDIF
+
+;Open carriage stop
+IF (STEP = 12) THEN
+	OpenCarriageStop  = I_CarrAtBottom
+	IF ((Bag[319].Cat > 0) AND (Bag[285].Cat > 0)) THEN
+		Bag[285] = Bag[319]
+		Bag[319] = Bag[0]
+	ENDIF
+	IF NOT Enable.SVC4ToSDP1 THEN
+		D[914] = 13
+	ENDIF
+ENDIF
+
+;check buffers
+IF (STEP = 13) THEN
+	IF SettledHighLevelBuffer  THEN
+		D[914] = 16
+	ELSE IF SettledLowLevelBuffer OR (Bag[324].Cat > 0) THEN
+		D[914] = 14 ;
+	ENDIF	
+ENDIF
+
+
+
+;open low level buffer stop
+IF (STEP = 14) THEN 
+	O_OpenLowLevelBufferStop = I_CarrAtBottom
+	
+	IF ((Bag[325].Cat > 0) AND (Bag[319].Cat = 0)) THEN
+		Bag[319] = Bag[325]
+		Bag[325] = Bag[0]
+	ENDIF
+	
+	IF I_BagOnCarr THEN
+		D[914] = 15
+	ENDIF
+	Alarm[14].Name = almBagNotArrived
+ENDIF
+
+;decide where bag is going
+IF (STEP = 15) THEN
+	IF BagSettledOnCarr THEN
+		IF Bag[319].Dst = 22 THEN
+			D[914] = 11
+		ELSE IF Bag[319].Dst = 21 THEN
+			D[914] = 6
+		ENDIF
+	ENDIF
+ENDIF
+
+;move up 
+IF (STEP = 16) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtFullBagInHigh THEN
+		D[914] = 17
+	ENDIF
+ENDIF
+
+;move carriage passed full bag in height 
+TON_10ms(NOT I_CarrAtFullBagInHigh,50,CarriagePassed,CarriagePassedET)
+IF (STEP = 17) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF CarriagePassed THEN
+		
+		D[914] = 1
+	ENDIF
+ENDIF	
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[14].Name > 0)
+TimerAlarm.PT 	= Alarm[13].Time
+TimerAlarm FUB TON_10ms()
+Alarm[14].On 	= TimerAlarm.Q
+Alarm[14].ET 	= TimerAlarm.ET
+
+;Inverter Speed Selections
+;-------------------------
+;High Speed Used For Up		= 50Hz
+;Medium Speed Used For Down	= 50Hz
+
+;TON_10ms(O_MoveCarrUp,500,HighSpeedUp,HighSpeedUpET)	
+;TON_10ms(O_MoveCarrDown,500,HighSpeedDn,HighSpeedDnET) 	
+;IF (STEP = 4) THEN
+;	Y[3].Y14 = (NOT HighSpeedUp) 							;High Speed 
+;	Y[3].Y15 = FALSE										;Medium Speed 
+;ELSE IF (STEP = 7) THEN
+;;	Y[3].Y14 = FALSE										;High Speed
+;	Y[3].Y15 = (NOT HighSpeedDn)							;Medium Speed
+;ELSE
+;	Y[3].Y14 = FALSE
+;	Y[3].Y15 = FALSE
+;ENDIF
+
+;PLC Outputs
+;-----------
+Y[11].Y05 		= O_OpenHighLevelBuffer 
+Y[11].Y06       = O_OpenLowLevelBufferStop	
+Y[13].Y13 		= (O_MoveCarrUp 	AND NOT I_CarrAtTop) ;WASY1213
+;Y[12].Y14 		= (O_MoveCarrDown AND NOT I_CarrAtBottom)
+Y[13].Y15 		= O_MoveCarrDown ;WAS Y1215
+
+;ReleaseBrake 	= (Y[8].Y06 OR Y[8].Y07)
+;Y[8].Y09 		= ReleaseBrake
+Y[13].Y16 		= OpenCarriageStop ;WAS Y1216
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[12].Y13 = TRUE
+;YForceDisable[12].Y14 = TRUE
+YForceDisable[12].Y16 = TRUE
+YForceDisable[12].Y15 = TRUE
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[12].Y09 = TRUE
+YForceDisable[12].Y06 = TRUE
+YForceDisable[12].Y07 = TRUE
+YForceDisable[12].Y12 = TRUE
+
+
+END_PROGRAM
+

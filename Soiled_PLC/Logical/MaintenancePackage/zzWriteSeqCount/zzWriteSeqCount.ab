@@ -1,0 +1,64 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzWriteSeqCount
+ * File: zzWriteSeqCount.ab
+ * Author: treamsbottom
+ * Created: October 02, 2013
+ ********************************************************************
+ * Implementation of program zzWriteSeqCount
+ ********************************************************************)
+
+PROGRAM _INIT
+
+	
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	
+mySql = 99
+
+
+//Collect Data	
+LOOP n = 1  TO Std.MaxSeq DO
+	IF (D[900 + n] = 1) AND NOT Index[n] THEN
+		Index[n]= TRUE;
+		Count[n] = Count[n] + 1;	
+	ELSE IF (D[900 + n] > 1) THEN	
+		Index[n] = FALSE;
+	ENDIF;					
+ENDLOOP	
+	
+
+
+LOOP n = 1 TO Std.MaxSeq DO
+	IF (Count[n] > 0) AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+		SqlWriteActive = TRUE				
+		SqlWriteIndex = n
+		SqlRequest[mySql].Request = TRUE
+		itoa(SqlWriteIndex,ADR(mySeqNum))
+		itoa(Count[SqlWriteIndex],ADR(myCount))	
+		Count[SqlWriteIndex] = 0 ; Reset Count		
+		SqlRequest[mySql].SQLType = cSQLType_WriteOnly
+		SqlRequest[mySql].SQL_usp = cSQLReq_WriteSeqCount
+		SqlRequest[mySql].NoOfParams = 3
+
+		SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input
+		strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(Std.PLCStnString)) 
+		SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input
+		strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(mySeqNum)) 
+		SqlRequest[mySql].Parameters[2].Type = cSQLParam_Input
+		strcpy(ADR(SqlRequest[mySql].Parameters[2].Param_String),ADR(myCount)) 
+	ENDIF	
+EXITIF SqlWriteActive AND (SqlWriteIndex > 0)			
+ENDLOOP			
+	
+		
+IF SqlRequest[mySql].Complete THEN ; ClearRequest
+	SqlRequest[mySql] = cEmptySQlReq	
+	SqlWriteActive = FALSE
+ENDIF	
+
+		
+END_PROGRAM

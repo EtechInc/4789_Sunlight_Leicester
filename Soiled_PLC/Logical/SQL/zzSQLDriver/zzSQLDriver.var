@@ -1,0 +1,28 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzSQLDriver
+ * File: zzSQLDriver.var
+ * Author: treamsbottom
+ * Created: October 01, 2013
+ ********************************************************************
+ * Local variables of program zzSQLDriver
+ ********************************************************************)
+VAR
+	LoginReq : BOOL;
+	LoginTimer : BOOL;
+	LoginTimerET : UDINT;
+	x : UINT;
+	SqlRequestLogin : BOOL;
+	WriteToSql : SQL_Write;
+	StringBuilt : BOOL;
+	SqlCommandString : STRING[200];
+END_VAR
+VAR CONSTANT
+	MaxBuffer : USINT := 10;
+END_VAR
+VAR
+	ReadWriteSql : SQL_Read_Write;
+	n : UINT;
+	StartPosition : UINT;
+END_VAR

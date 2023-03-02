@@ -1,0 +1,7 @@
+VAR CONSTANT
+	HTTP_MAX_COMM : UINT := 20; (**Max number of interfaces to talk to http.*)
+END_VAR
+VAR
+	HTTP_Comm : ARRAY[0..HTTP_MAX_COMM] OF http_comm_typ;
+	HTTP_Config : httpConfig_typ;
+END_VAR

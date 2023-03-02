@@ -1,0 +1,327 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------------------
+;Sequence 13 - SIC2 Soiled Incline Conveyor 2 D[913]
+;---------------------------------------------------
+
+;Inputs
+I_CarrAtTop				= X[10].X08
+I_CarrAtBottom			= X[10].X09
+I_CarrAtFullBagIn       = X[10].X10
+I_BagOnCarr				= X[10].X11
+
+I_BagReleased			= X[10].X13
+I_BagAtBuffer			= X[10].X12
+
+O_SP1Bend   			= FALSE ;Y301
+O_SP3Straight			= FALSE ;Y311
+O_SP8Bend               = FALSE ;Y314
+
+O_OpenBuffer			= FALSE
+O_MoveCarrUp			= FALSE 
+O_MoveCarrDown			= FALSE 
+O_OpenCarrStop			= FALSE 
+O_SP3Bend               = FALSE
+
+Request.SVC1LowLevel    = FALSE
+Request.SVC3LowLevel    = FALSE
+
+
+Alarm[10].Name 			= 0
+Alarm[10].Bag			= 310
+Alarm[10].Beacon		= TRUE
+Alarm[10].Extra			= 0
+Alarm[10].Time			= 3000
+;Setup Sequence
+STEP = D[910]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Move carriage down to top full bag in
+IF (STEP = 1) THEN
+	O_MoveCarrDown = NOT I_CarrAtFullBagIn
+	IF I_CarrAtFullBagIn THEN
+		D[910] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[10].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;check status
+IF (STEP = 2) THEN	
+	IF (NOT I_BagOnCarr AND NOT I_CarrAtBottom AND NOT I_CarrAtTop) THEN 
+		D[910] = 3
+	ENDIF
+	IF I_BagOnCarr OR I_CarrAtBottom OR I_CarrAtTop THEN
+		Alarm[10].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+
+;Bag at Pairing loop buffer stop
+TON_10ms(I_BagAtBuffer,300,SettledBuffer,SettledBufferET)
+IF (STEP = 3) THEN
+	IF SettledBuffer AND NOT Std.HaltSys AND ParingLoopEnabled THEN
+		D[910] = 4
+	ENDIF
+ENDIF
+
+
+;Open Buffer stop - Enable
+IF (STEP = 4) THEN
+	O_OpenBuffer 	= (NOT I_BagOnCarr AND I_CarrAtFullBagIn)
+	
+	IF I_BagOnCarr THEN
+		IF ((Bag[305].Cat > 0) AND (Bag[310].Cat = 0)) THEN
+			Bag[310] = Bag[305]
+			Bag[305] = Bag[0]
+		ENDIF
+		D[910] = 5
+	ENDIF
+	Alarm[10].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle on carriage and decide where bag is going
+TON_10ms(I_BagOnCarr,300,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 5) THEN
+
+	IF (BagSettledOnCarr AND (Bag[310].Cat > 0)	AND ParingLoopEnabled) THEN
+	
+		;IF ((LoopPair = 1) AND (LoopPairDest = Bag[310].Dst)) THEN
+		IF (PairOnLoop AND (Bag[310].Cnt = 1)) THEN
+			IF ((Bag[310].Dst >= 6) AND (Bag[310].Dst <= 12)) THEN  
+				D[910] = 6 ;check that loop pair is not being split up by single bag on loop with dest
+			ELSE IF ((Bag[310].Dst >= 0) AND (Bag[310].Dst <= 5)) THEN  
+				D[910] = 11
+			ENDIF
+			ELSE
+			D[910] = 6
+		ENDIF
+		
+		
+		IF ((Bag[310].Dst = 0) OR PairNotValidSVC3) THEN
+			D[910] = 6 	;Not correct bag then recirc
+		ELSE IF ((Bag[310].Dst >= 6) AND (Bag[310].Dst <= 12)AND NOT PairOnLoop)  THEN
+			D[910] = 6 	;Bag for high-level storage
+		ELSE IF ((Bag[310].Dst > 0) AND (Bag[310].Dst <=5) AND NOT PairOnLoop)  THEN
+			D[910] = 11 ;Bag for low-level storage
+		ENDIF
+	ENDIF
+	
+	IF NOT I_BagOnCarr THEN
+		Alarm[10].Name = almBagNotSettled
+	ENDIF
+ENDIF
+
+;Move Carriage Up to top position
+IF (STEP = 6) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtTop THEN
+		D[910] = 7
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[10].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Request to SPN 1 if bag has destination 
+;recirculate if bag has no dest and space on H/L buffer
+IF (STEP = 7) THEN
+	
+	IF (PairOnLoop AND (Bag[310].Cnt = 0) AND (Bag[304].Cat = 0)) THEN
+		IF Line[17].Clear THEN
+			D[910] = 8
+		ENDIF
+	ELSE
+		
+	
+	
+	IF ((Bag[310].Cat = Bag[296].Cat) AND (Bag[310].Dst = Bag[296].Dst)) THEN
+		HLBagMatch = TRUE ;SVC2 bag is the pair then set request release
+	ELSE IF NoPairForSVC3 THEN
+		HLBagMatch = TRUE ;SVC3 Bag has no pair in transit then set request release
+	ELSE
+		HLBagMatch = FALSE
+	ENDIF
+
+	;Sometimes the bag is paired whilst on SVC3 carriage and needs to be sent to the low-level
+	IF ((Bag[310].Cat > 0) AND (Bag[310].Dst > 0) AND (Bag[310].Dst <=5))  THEN
+			D[910] = 11 ;Bag for low-level storage
+	ELSE IF (HLBagMatch AND (Bag[310].Dst > 5) AND (Bag[310].Dst < 12))  THEN
+	 	Request.SVC3HighLevel = I_CarrAtTop
+	ENDIF
+	ENDIF
+	
+		
+	IF Enable.SVC3HighLevel THEN
+		D[910] = 9
+	ELSE IF (((Bag[310].Dst = 0) OR PairNotValidSVC3) AND (Bag[304].Cat = 0) AND Line[17].Clear) THEN
+		D[910] = 8
+	ENDIF
+	
+		
+ELSE
+	Request.SVC3HighLevel = FALSE	
+ENDIF
+
+
+;send bag back onto pairing loop
+IF (STEP = 8) THEN
+	O_OpenCarrStop = I_CarrAtTop
+	O_SP3Bend      = TRUE 
+	IF PLS THEN
+		C[17] = 0
+	ENDIF
+	IF Line[17].Trip THEN
+		IF((Bag[310].Cat > 0) AND (Bag[304].Cat = 0)) THEN
+			Bag[304] = Bag[310]
+			Bag[310] = Bag[0]
+		ENDIF
+		D[910] = 10
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[10].Name = almBagNotReleased
+	ENDIF
+ENDIF
+
+
+;Open carriage stop and move to ongoing 
+IF (STEP = 9) THEN
+	O_OpenCarrStop = I_CarrAtTop
+	O_SP3Straight  = TRUE 
+	O_SP1Bend      = TRUE
+	IF I_BagReleased THEN
+		D[910] = 10	
+	ENDIF
+	
+	IF NOT Std.EStop THEN
+		Alarm[10].Name = almBagNotReleased
+	ENDIF
+ENDIF
+
+;Check roller  switch
+IF (STEP = 10) THEN
+	IF NOT I_CarrAtFullBagIn AND NOT I_BagOnCarr THEN
+		D[910] = 1
+	ENDIF
+	Alarm[10].Name = almSwitchFault
+ENDIF
+
+;Check roller  switch
+IF (STEP = 11) THEN
+	IF NOT I_CarrAtBottom  THEN
+		D[910] = 12
+	ENDIF
+	Alarm[10].Name = almSwitchFault
+ENDIF
+
+
+;send bag down to low level
+IF (STEP = 12) THEN
+	O_MoveCarrDown = NOT I_CarrAtBottom
+	IF I_CarrAtBottom AND NOT Enable.SVC1LowLevel  THEN
+		D[910] = 13
+	ENDIF
+ENDIF	
+
+;request low level ongoing
+IF (STEP = 13) THEN
+		
+	IF ((Bag[310].Cat = Bag[296].Cat) AND (Bag[310].Dst = Bag[296].Dst)) THEN
+		LLBagMatch = TRUE ;SVC2 bag is the pair then set request release
+	ELSE IF NoPairForSVC3 THEN
+		LLBagMatch = TRUE ;SVC3 Bag has no pair in transit then set request release
+	ELSE
+		LLBagMatch = FALSE
+	ENDIF
+	
+	IF (LLBagMatch AND (Bag[310].Dst > 0) AND (Bag[310].Dst <= 5))  THEN
+	 	Request.SVC3LowLevel = I_CarrAtBottom
+	ENDIF
+		
+	IF Enable.SVC3LowLevel THEN
+		D[910] = 14
+	ENDIF
+ENDIF
+
+;open carriage stop
+IF (STEP = 14) THEN
+	O_OpenCarrStop = I_CarrAtBottom
+	O_SP8Bend      = TRUE
+	IF PLS THEN 
+		C[28] = 0
+	ENDIF
+	IF (C[28] > 1) THEN
+		D[910] = 15
+	ENDIF
+ENDIF
+
+;Check switches
+IF (STEP = 15) THEN
+	IF NOT I_CarrAtTop AND NOT I_CarrAtFullBagIn AND NOT I_BagOnCarr THEN
+		D[910] = 16
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[10].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;move up passed full bag in
+IF STEP = 16 THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtFullBagIn THEN
+		D[910] = 17
+	ENDIF
+ENDIF
+
+;carriage is pasted full bag in
+TON_10ms(NOT I_CarrAtFullBagIn,30,CarriagePasted,CarriagePastedET)
+IF (STEP = 17) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF CarriagePasted THEN
+		D[910] = 1
+	ENDIF
+ENDIF
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[10].Name > 0)
+TimerAlarm.PT 	= Alarm[10].Time
+TimerAlarm FUB TON_10ms()
+Alarm[10].On 	= TimerAlarm.Q
+Alarm[10].ET 	= TimerAlarm.ET
+
+
+
+;PLC Outputs
+;-----------
+Y[3].Y11        = O_SP3Straight
+Y[3].Y10        = O_SP3Bend
+Y[3].Y01        = O_SP1Bend
+Y[3].Y14        = O_SP8Bend
+Y[10].Y12 		= O_OpenBuffer
+Y[12].Y09 		= (O_MoveCarrUp 	AND NOT I_CarrAtTop)
+Y[12].Y10 		= O_MoveCarrDown 
+
+
+Y[12].Y12 		= O_OpenCarrStop
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[12].Y09 = TRUE
+YForceDisable[12].Y06 = TRUE
+YForceDisable[12].Y07 = TRUE
+YForceDisable[12].Y12 = TRUE
+
+
+END_PROGRAM
+

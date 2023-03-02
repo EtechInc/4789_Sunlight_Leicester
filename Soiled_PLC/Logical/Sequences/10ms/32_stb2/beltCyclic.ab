@@ -1,0 +1,431 @@
+
+PROGRAM _INIT
+	_setBeltTime
+	
+END_PROGRAM
+
+PROGRAM _CYCLIC
+ 	(* cyclic program *)
+
+;Sequence 2 - Transfer Belt 1 from Stations 1-8
+
+;-----------------------------------------
+;Revision 1.00 18/01/2006 D.J. First Issue
+;-----------------------------------------
+
+;Inputs and Outputs
+;-----------------	
+	
+myBank 			= 2
+myBelt			= 2	
+mySeq			= 33
+myBag			= 162
+myOutBag		= 160
+myZone			= 0
+
+	
+MixCats			= (D[369] > 0)	
+MixCusts		= (D[366] > 0)	;Allow mixing of customers? 
+MixProgs		= (D[367] > 0)	;Allow mixing of Programs?
+		
+;I_PhotoBottom		      	= X[3].X08
+I_PhotoTop   		      	= X[3].X02
+I_Manual_Stop               = X[15].X04
+I_PhotoReverse            	= FALSE
+I_InvStatus					= TRUE
+	
+;Belt add times in an array for each station as station number will not work..	
+;LOOP n = 20 DOWNTO 1 DO 
+;	BeltAddTimeArray[n]		= n
+;ENDLOOP
+
+
+	
+RequestRel.TransferBelt[myBelt]		  	= FALSE
+Request.TransferBelt[myBelt]		    = FALSE	
+	
+O_RunBelt 					= FALSE
+O_Reverse					= FALSE
+O_SlowBelt					= FALSE
+	
+	
+;Check all stations are closed.	
+StationOpen = FALSE
+LOOP n = 1 TO Ldg[myBank].NoStations DO
+	stnNo = Ldg[myBank].Stations[n]
+	IF (D[950 + stnNo] = 3) THEN 	
+		StationOpen = TRUE	
+	ENDIF	
+ENDLOOP		
+	
+Alarm[mySeq].Name 				= 0
+Alarm[mySeq].Bag				= myBag
+Alarm[mySeq].Beacon				= FALSE
+Alarm[mySeq].Extra				= 0
+Alarm[mySeq].Time			  	= 5000
+
+;n = D[900 + Std.StationBankReg + myBank] ;Selected Station
+n = D[900 + 50] 
+
+STEP = D[900 + mySeq]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+
+;Step 0 - Disabled
+IF STEP = 0 THEN
+	;Disabled
+ENDIF
+
+;Step 1 - Check no stations are releasing
+IF STEP = 1 THEN
+	;Don't allow stations to release
+	Ldg[myBank].EnableStnRelease = FALSE
+	Std.PurgeBank[myBank].PurgeOn = 0 ; Clear to display Purge	
+	Std.PurgeBank[myBank].StationsStatus[0] = 0 ;trackview TO display Purge		
+	Std.PurgeBank[myBank].StationsStatus[1] = 0
+	;No Station Releaseng and switched on
+	IF (NOT StationOpen AND (D[mySeq] > 0) AND NOT I_Manual_Stop) THEN
+		IF (Bag[myBag].Cat = 0) THEN
+			D[900 + mySeq] = 2 ;No Bag on belt
+		ELSE
+			D[900 + mySeq] = 4 ;Bag on belt
+		ENDIF
+	ENDIF
+	Alarm[mySeq].Name = almNoAlarm
+ENDIF
+
+;Step 2 - Enable Station search
+IF STEP = 2 THEN
+	IF (Bag[myBag].Cat > 0) THEN
+;		D[900 + mySeq] = 4
+	ENDIF 
+	;Check each station to see if a manual destination has been set
+	LOOP n = 1 to Ldg[myBank].NoStations DO
+
+		//StnBag = Std.StationBagsStart + Ldg[myBank].Stations[n] - 1 
+		StnBag = LDG_GetBagFromStation(Std.StationBagsStart,n)
+			
+		IF ((Bag[StnBag].Dst > 0) AND (Bag[StnBag].Dst < 99) AND (D[mySeq] > 0)) THEN ;Dest 99 = Empty Bag in station
+			Stn[n].DestManual = Bag[StnBag].Dst
+		ELSE
+			Stn[n].DestManual = 0
+		ENDIF
+		;For pairing set number of spaces to search for
+		Stn[n].SpacesRequired = 1 ;D[2000 + Bag[StnBag].Prg]
+
+	ENDLOOP
+
+	;Station Search
+
+	IF ((Ldg[myBank].Search = 0) AND (D[mySeq] > 0) AND NOT Std.HaltSysZone[myZone] AND EnableRel.TransferBelt[myBelt])  THEN			
+		Ldg[myBank].Search = 1
+		PurgeBagIndex = 0	
+	ELSE IF ((Ldg[myBank].Search = 2) AND (Ldg[myBank].Found > 0)) THEN ;
+		IF (Ldg[myBank].Found < 97) THEN
+			D[900 + 50] 	= Ldg[myBank].Found
+			n 	= D[900 + 50]	
+;		ELSE IF (Ldg[myBank].Found = 98) OR (Ldg[myBank].Found = 97) THEN ; Reverse belt	
+;			D[900 + mySeq] = 9
+;			GOTO ExitStep2 ; Ignore the rest of Step 2
+		ELSE
+;			IF (Ldg[myBank].Found = 98) OR (Ldg[myBank].Found = 97) THEN 
+;				Ldg[myBank].Line = 21 ; Set Destination to SDC1	
+;			ENDIF	
+		;	Purge = TRUE
+			
+			n = LDG_GetStationFromBag(Std.StationBagsStart,Std.PurgeBank[myBank].PurgeBatch[PurgeBagIndex])
+			IF (n = 0) OR (n > Ldg[myBank].Stations[Ldg[myBank].NoStations]) THEN
+				Ldg[myBank].Search = 0
+				GOTO ExitStep2
+			ENDIF		
+			D[900 + 50] = n
+			Std.PurgeBank[myBank].PurgeOn = 1 ; Send to trackview to display Purge	
+			myStnReg = (n > 32)
+			IF (myStnReg = 0)THEN
+				myStnBit =	n - 1
+			ELSE IF (myStnReg = 1)THEN 
+				myStnBit = 	n - 33
+				ELSE
+				myStnBit = 0
+			ENDIF			
+			Std.PurgeBank[myBank].StationsStatus[myStnReg] = BIT_SET(Std.PurgeBank[myBank].StationsStatus[myStnReg],myStnBit)			
+			;Get highest belt add time... Use array as station numbers are opposite to distanct
+			IF BeltAddTimeArray[n] > BeltAddTime THEN	
+				BeltAddTime = BeltAddTimeArray[n] 
+			ENDIF		
+		ENDIF		
+		StnBag = LDG_GetBagFromStation(Std.StationBagsStart,n) 	
+		;Clear the release button count if used
+		Stn[n].ManualRelease 	= FALSE
+		Stn[n].Purge 			= FALSE
+		Stn[n].PurgeReverse	 	= FALSE	
+		Stn[n].PBCount 			= 0
+		;------Write Report------
+	;	IF Std.StationReports AND (Ldg[myBank].Found <> 98) AND (Ldg[myBank].Found <> 97)THEN
+        IF Std.StationReports THEN
+			IF (ReportLoading[n].Cat = 0)  THEN
+				IF Purge THEN	
+					IF (PurgeBagIndex < Std.PurgeBank[myBank].PurgeBagQty) THEN		
+						PurgeBagIndex = PurgeBagIndex + 1
+					ENDIF
+				ENDIF
+				WeightValue = Stn[n].Weight - INT(StnPrev[n].Wgt)
+				WeightValid = (WeightValue > 0)
+						
+				;Check if anything has been added and current weight is not less than the previous
+				CountValue = Stn[n].Count - INT(StnPrev[n].Cnt)
+				CountValid = (CountValue > 0)
+				IF (WeightValid OR CountValid) THEN
+					;Ensure valid values as we report on either a weight or count change
+					IF (WeightValue < 0) THEN
+						WeightValue = 0
+					ENDIF
+
+					IF (CountValue < 0) THEN
+						CountValue = 0
+					ENDIF
+					myTimeStamp = CurrentTimestamp
+					ReportLoading[n].Prg = Bag[StnBag].Prg 			;Program
+					ReportLoading[n].Cat = Bag[StnBag].Cat			;Category
+					ReportLoading[n].Cus = Bag[StnBag].Cus			;Customer
+					ReportLoading[n].Wgt = UINT(WeightValue)		;Weight
+					ReportLoading[n].Cnt = UINT(CountValue)			;Count
+					ReportLoading[n].Stn = n         				;Station
+					ReportLoading[n].Mcn = 0						;Machine
+					ReportLoading[n].Bid = Bag[StnBag].Bid			;Batch ID
+					ReportLoading[n].TimeStamp = myTimeStamp  	
+					
+				ENDIF
+			ENDIF
+		ELSE
+			myTimeStamp = CurrentTimestamp
+			IF Purge THEN	
+				IF (PurgeBagIndex < Std.PurgeBank[myBank].PurgeBagQty) THEN		
+					PurgeBagIndex = PurgeBagIndex + 1
+				ENDIF
+			ENDIF	
+		ENDIF
+		
+		;Set Previous Cat and Cus to Current and Clear Weight and Count
+		StnPrev[n].Prg 	= Bag[StnBag].Prg
+		StnPrev[n].Cat 	= Bag[StnBag].Cat
+		StnPrev[n].Cus 	= Bag[StnBag].Cus
+		StnPrev[n].Wgt 	= 0
+		StnPrev[n].Cnt 	= 0
+		StnPrev[n].Bid 	= Bag[StnBag].Bid
+
+
+		Ldg[myBank].EnableStnRelease = TRUE		
+		;Clear Manual Release and Count
+		Stn[n].ManualRelease 	= FALSE
+		Stn[n].Count			= 0
+		BeltAddTime = BeltAddTimeArray[n]
+		;Keep A record of purged bags to attach the data for the biggest loads
+		IF Purge THEN	
+			//Set the category Number
+			IF Ldg[Bank].Found = 97 THEN // 97 is weight too small so always set to mixed so it doesn;t get sent to washer..
+				myCat = CAT_MIXED_LINEN //Std.MaxCats	- 1
+				myPrg = Std.MaxProg	- 1
+			ELSE IF (myCat > 0) AND (Bag[StnBag].Cat <> myCat) THEN 	
+				IF (MixCats OR MixProgs) THEN
+					//Take the Cat code of bag with most weight	
+					IF (Bag[StnBag].Wgt > myWgt) THEN  	
+						myCat = Bag[StnBag].Cat
+						myPrg = Bag[StnBag].Prg
+						myWgt = Bag[StnBag].Wgt	
+					ENDIF		
+				ELSE //Different Cats in 1 bag		
+					myCat = CAT_MIXED_LINEN//Std.MaxCats	- 1
+					myPrg = Std.MaxProg - 1
+				ENDIF		
+			ELSE		
+				myCat = Bag[StnBag].Cat
+				myPrg = Bag[StnBag].Prg
+				myWgt = Bag[StnBag].Wgt	
+			ENDIF		
+				
+			IF (myCus > 0) AND (Bag[StnBag].Cus <> myCus) THEN 	
+				myCus = Std.MaxCust - 1			
+			ELSE		
+				myCus = Bag[StnBag].Cus
+			ENDIF	
+		ENDIF
+		
+		IF Purge AND (PurgeBagIndex = Std.PurgeBank[myBank].PurgeBagQty) THEN ;Do not minus 1 from purge qty as the indexing is above so will always read 1 more..
+			Bag[myBag] 		= Bag[StnBag]
+			Bag[StnBag].Mis = 0
+			Bag[StnBag].Bid = 0 ; Reset BID
+			
+			Bag[myBag].Cat = myCat
+			Bag[myBag].Prg = myPrg
+			Bag[myBag].Ur2 = 99		
+			Bag[myBag].Cus	= myCus
+			Bag[myBag].Dst 	= USINT(Ldg[myBank].Line)	;Destination
+			Bag[myBag].Wgt 	= Std.PurgeBank[myBank].PurgeBatchWieght			
+			Bag[myBag].Cnt 	= Std.PurgeBank[myBank].PurgeBatchCount
+			
+			Bag[myBag].Timestamp = myTimeStamp
+			Bag[StnBag].Bid = 0 ; Reset BID
+			Bag[StnBag].Dst = 0 					;Reset Destination (Manual)
+			Bag[StnBag].Mis = 0
+			IF (Ldg[myBank].Found = 98) OR (Ldg[myBank].Found = 97) THEN 
+	;			D[900 + mySeq] = 3 ;Reverse belt not used.
+			ELSE		
+	;			D[900 + mySeq] = 3
+			ENDIF		
+		ELSE IF NOT Purge AND (Bag[StnBag].Cat <> 98) THEN		
+			;Copy Station Data to Belt Bag
+			Bag[myBag] 		= Bag[StnBag]
+			Bag[myBag].Dst 	= USINT(Ldg[myBank].Line)	;Destination		
+			Bag[myBag].Ur2 = StnBag	
+			Bag[StnBag].Bid = 0 ; Reset BID
+			Bag[StnBag].Dst = 0; USINT(Ldg[myBank].Line) 					;Reset Destination (Manual)
+			Bag[StnBag].Mis = 0
+			Bag[myBag].Timestamp = myTimeStamp
+        	D[900 + mySeq] = 3
+		ENDIF
+		Alarm[mySeq].Name = almNoAlarm
+	ENDIF
+ELSE
+	Purge = FALSE
+	PurgeBagIndex		= 0
+	Ldg[myBank].Search  	= 0 ;Clear Search if not on step 2
+	myCat = 0	
+	myPrg = 0
+	myCus = 0
+	myWgt = 0
+ENDIF
+ExitStep2:	
+
+;;Get batch ID from SQL Server
+;IF ((STEP >= 3) AND (STEP <= 4)) THEN	
+;	IF (Bag[myBag].Mis = 0) THEN
+;		_httpRequest;
+;	ENDIF		
+;ELSE
+;	HTTP_Comm[myHttp].Status = HTTP_COMM_STATUS_DISABLED
+;ENDIF	
+	
+;Step 3
+;Release to Belt Conveyor
+TON_10ms(I_PhotoTop,10,LinenDetected,LinenDetectedET)	
+IF (STEP = 3) THEN
+	O_RunBelt = TRUE
+	IF LinenDetected OR Test.TransferBelt THEN
+		D[900 + mySeq] = 4
+	ENDIF
+	Alarm[mySeq].Name = almPhotocellNotMade
+ENDIF
+
+TON_10ms((STEP = 4),10,RunBelt,Step6ET)
+IF (STEP = 4) THEN
+	
+	RequestRel.TransferBelt[myBelt] = (Bag[myBag].Cat > 0) 
+	n = D[900 + 50]	
+	IF EnableRel.TransferBelt[myBelt]  THEN; AND (Bag[myBag].Mis > 0)
+		;myTimeStamp = CurrentTimestamp
+;		ReportLoading[n].Prg = Bag[290].Prg 			;Program
+;		ReportLoading[n].Cat = Bag[290].Cat			;Category
+;		ReportLoading[n].Cus = Bag[290].Cus			;Customer
+;		ReportLoading[n].Wgt = UINT(WeightValue)		;Weight
+;		ReportLoading[n].Cnt = UINT(CountValue)			;Count
+;		ReportLoading[n].Stn = n         				;Station
+;		ReportLoading[n].Mcn = 0						;Machine
+;		ReportLoading[n].Bid = Bag[290].Bid			;Batch ID
+;		ReportLoading[n].Mis = Bag[290].Mis
+;		ReportLoading[n].TimeStamp = Bag[290].Timestamp  		
+		D[900 + mySeq] = 5 
+	ENDIF
+	IF (Bag[myBag].Cat = 0) THEN
+		Alarm[mySeq].Name = almBagDataError
+	ELSE IF (Bag[myBag].Mis = 0) THEN
+	;	Alarm[mySeq].Name = almBagDataError			
+	ENDIF		
+
+ENDIF
+
+;Step 5 - Run Belt until linen detected for 1 second and Station has emptied
+TON_10ms(((STEP = 5) AND I_PhotoTop AND I_InvStatus),50,LinenIsDetected,LinenIsDetectedET)
+IF (STEP = 5) THEN
+	O_RunBelt = TRUE
+	Ldg[myBank].EnableStnRelease = TRUE ;Enable Station to Open bags if they haven't been already
+	IF (LinenIsDetected OR Test.TransferBelt)   THEN
+		D[900 + mySeq] = 6
+	ENDIF
+	IF (Bag[myBag].Cat = 0) OR (Bag[myOutBag].Cat > 0) THEN
+		Alarm[mySeq].Name = almBagDataError
+	ELSE IF NOT Std.HaltSysZone[myZone] THEN			
+		Alarm[mySeq].Name = almPhotocellNotMade
+	ENDIF
+ENDIF
+
+;Step 6 - Run Belt until photocells clear for 12 seconds
+;TON_10ms((STEP = 6),200,MinimumRun,MinimumRunET)
+TON_10ms(((STEP = 6) AND I_InvStatus  AND NOT I_PhotoTop AND NOT Std.HaltSysZone[myZone]),500,BeltClear,BeltClearET)
+IF (STEP = 6) THEN
+	O_RunBelt = TRUE
+	IF (BeltClear AND MinBeltRun AND (Bag[myBag].Cat > 0) AND ((Bag[myOutBag].Cat = 0) OR (Bag[myOutBag].Cat = Std.MaxCats))) THEN
+		myBagNumber = Bag[myOutBag].Ur1
+		Bag[myOutBag] = Bag[myBag]
+		Bag[myOutBag].Ur1 = myBagNumber	
+		Bag[myBag] = Bag[0]		
+		D[900 + mySeq] = 7
+	ENDIF
+	IF NOT Std.HaltSysZone[myZone] THEN
+		IF I_PhotoBottom OR I_PhotoTop THEN
+			Alarm[mySeq].Name = almPhotocellBlocked
+		ELSE IF StationOpen THEN
+			Alarm[mySeq].Name = almStationNotClosed
+		ELSE IF NOT MinBeltRun THEN
+			Alarm[mySeq].Name = almClearingBeltPleaseWait
+		ENDIF
+	ENDIF
+ENDIF
+
+;Step  - Check Stations Are Closed
+IF (STEP = 7) THEN
+	IF NOT StationOpen AND (Bag[myBag].Cat = 0) THEN
+		D[900 + mySeq] = 1
+	ENDIF
+	Alarm[mySeq].Name = almStationNotClosed
+ENDIF
+
+	
+;Note - Unitl the Station has closed the min belt run time won't start
+BeltRunTime = (12 + BeltAddTime)
+;CTU((O_RunBelt AND Std.Clock1s AND (D[900 + Std.StationBankReg + myBank] = 0) AND NOT Std.EStop),(STEP = 1),BeltRunTime,MinBeltRun,MinBeltRunCV)
+BeltRunning = (O_RunBelt OR O_Reverse)	
+CTU((BeltRunning AND I_InvStatus AND Std.Clock1s AND NOT StationOpen  AND NOT Std.HaltSysZone[myZone]),(STEP = 1),BeltRunTime,MinBeltRun,MinBeltRunCV)	
+
+;Slow speed for large load on belt
+TON_10ms((NOT I_PhotoLarge AND NOT RunSlow),300,LargeLoadClear,LargeLoadClearET)
+IF ((STEP > 2) AND (STEP < 7)) THEN
+	IF I_PhotoLarge THEN
+		O_SlowBelt = TRUE
+	ENDIF
+ENDIF
+
+IF (STEP > 0) AND NOT I_InvStatus	THEN
+	Alarm[mySeq].Name = almMotorOverload
+	Alarm[mySeq].Time = 0	
+ENDIF		
+	
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[mySeq].Name > 0)
+TimerAlarm.PT = Alarm[mySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[mySeq].On = TimerAlarm.Q
+Alarm[mySeq].ET = TimerAlarm.ET
+
+;Outputs
+;Inform Station Sequences that the belt has been
+Ldg[myBank].BeltHasRun =  (((((D[900 + mySeq] > 3) AND (D[900 + mySeq] < 7)) OR (D[900 + mySeq] >= 10)) AND Ldg[myBank].EnableStnRelease)  OR (D[900 + mySeq] = 1))
+
+Y[11].Y13 = O_RunBelt
+//Y[8].Y03 = O_RunBelt AND (STEP < 7) ; Inclined belt... Do not run when reversing.
+//Y[8].Y02 = O_Reverse	
+
+END_PROGRAM
+

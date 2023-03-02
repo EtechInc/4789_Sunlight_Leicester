@@ -1,0 +1,9 @@
+VAR
+	YForce : CardOutputs;
+	YForceVal : CardOutputs;
+	Force : UINT := 0;
+	n : UINT;
+	myForceState : UINT;
+	myForceCard : UINT;
+	myForceValue : UINT;
+END_VAR

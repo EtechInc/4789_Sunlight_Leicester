@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Package" Description="CAN Communication Variables">CAN</Object>
+    <Object Type="Package" Description="Reports Variables">Reports</Object>
+    <Object Type="Package" Description="Sorting Station Displays">udp_CTT</Object>
+    <Object Type="Program" Language="IEC" Description="* Clear Permanent Memory">zzClearMem</Object>
+    <Object Type="Program" Language="IEC" Description="Alarms - Messages and History">zzAlarms</Object>
+    <Object Type="Program" Language="IEC" Description="* System running time">zzTime</Object>
+    <Object Type="Program" Language="IEC" Description="* USB - Backup and Restore data">USB_Pmem</Object>
+    <Object Type="Program" Language="IEC">zzStn_Q</Object>
+    <Object Type="Program" Language="IEC" Description="* Station Weight Calculation and Calibration">zzWeigh</Object>
+  </Objects>
+</Package>

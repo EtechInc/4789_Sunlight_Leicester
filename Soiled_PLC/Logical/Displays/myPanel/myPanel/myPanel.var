@@ -1,0 +1,15 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: myPanel
+ * File: myPanel.var
+ * Author: Administrator
+ * Created: February 23, 2009
+ ********************************************************************
+ * Local variables of program myPanel
+ ********************************************************************)
+VAR
+	myDINT : DINT;
+	myString : ARRAY[0..9] OF USINT;
+	Length : UINT;
+END_VAR

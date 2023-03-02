@@ -1,0 +1,32 @@
+VAR RETAIN
+	n	:UINT;	
+	STEP	:UINT;	
+	ResetPointsET	:TIME;	
+	ResetPoints	:BOOL;	
+	LASTSTEP	:UINT;	
+	PLS	:BOOL;	
+	LineSelect	:ARRAY [0..19] OF BOOL;	
+	OnGoingEnable	:BOOL;	
+	O_Reset	:BOOL;	
+	I_BagatBuffer	:ARRAY [0..4] OF BOOL;	
+END_VAR
+
+
+VAR
+	SettledBuffer	:ARRAY [0..4] OF BOOL;	
+	Buffer	:UINT;	
+	AlarmOld	:UINT;	
+	BufferBag	:UINT;	
+	DestValid	:BOOL;	
+	Dest	:UINT;	
+	BufferDst	:UINT;	
+	BufferBagNum	:ARRAY [0..4] OF UINT;	
+	TestBuffer	:UINT;	
+	TimerAlarm	:TON_10ms;	
+	Bfr	:UINT;	
+	BufferSettled	:BOOL;	
+	BufferCat	:UINT;	
+	MaxBuffers	:UINT;	
+	Buff	:UINT;	
+	O_OpenSelect	:ARRAY [0..4] OF BOOL;	
+END_VAR

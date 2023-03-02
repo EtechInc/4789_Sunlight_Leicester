@@ -1,0 +1,33 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myBag : UINT;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	myOutBag : UINT;
+	myBelt : UINT;
+	drive : REFERENCE TO ABB_EPL_cmd_typ;
+	O_RunBelt : BOOL;
+	O_RunSlow : BOOL;
+	speedFast : INT;
+	speedSlow : INT;
+	status : REFERENCE TO ABB_EPL_status_typ;
+	I_BeltPhotocell : BOOL;
+END_VAR

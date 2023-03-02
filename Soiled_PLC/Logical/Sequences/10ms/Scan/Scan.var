@@ -1,0 +1,3 @@
+VAR
+	TCScan : ARRAY[0..8] OF ScanTime;
+END_VAR

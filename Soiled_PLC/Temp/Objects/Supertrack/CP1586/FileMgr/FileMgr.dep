@@ -1,0 +1,13 @@
+$(AS_PROJECT_PATH)/Logical/File_System/FileMgr/FileMgr.fun
+$(AS_PROJECT_PATH)/Logical/File_System/FileMgr/Types.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/AsXml/AsXml.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/FileIO/FileIO.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/DataObj/DataObj.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/sys_lib/sys_lib.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsBrStr/AsBrStr.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/FileIO/FileIO.var
+$(AS_PROJECT_PATH)/Logical/Libraries/runtime/runtime.var
+$(AS_PROJECT_PATH)/Logical/File_System/FileMgr/Constants.var
+$(AS_PROJECT_PATH)/Logical/Libraries/DataObj/DataObj.var

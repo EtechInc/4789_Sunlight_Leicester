@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OpcUaSource FileVersion="7" ArVersion="C4.72">
+  <Aliases>
+    <ACLAliases />
+    <EURangeViolationAliases />
+    <EURangesAliases />
+    <EngineeringUnitAliases />
+  </Aliases>
+  <DefaultView>
+    <Module Name="&lt;Default&gt;">
+      <GlobalVariables Name="Global Variables">
+        <Variable Name="OpcUa">
+          <Variable Name="VC" EnableArrayElements="True" />
+        </Variable>
+      </GlobalVariables>
+      <Task Name="SafetyUI">
+        <Variable Name="visuUsedSLIDRemote" />
+        <Variable Name="remotecmd" AutomaticEnable="True" />
+        <Variable Name="executeRemoteCmd" />
+        <Variable Name="safeRemoteControl_0" AutomaticEnable="True" />
+        <Variable Name="dialogRemoteCmd" />
+        <Variable Name="statusButtonActiv" EnableArrayElements="True" />
+        <Variable Name="statusButtonInactiv" EnableArrayElements="True" />
+        <Variable Name="appcmd1" AutomaticEnable="True">
+          <Variable Name="Password" />
+        </Variable>
+        <Variable Name="executeapp1" />
+        <Variable Name="dialogApplication" />
+        <Variable Name="slxused" />
+        <Variable Name="Station" />
+        <Variable Name="Interface" />
+        <Variable Name="Node" />
+        <Variable Name="visuUDID_High" />
+        <Variable Name="visuUDID_Low" />
+        <Variable Name="visuApplicationCRC" />
+        <Variable Name="executedata1" />
+        <Variable Name="visuEnableMachineOptions" />
+        <Variable Name="visuEnableModuleFlags" />
+        <Variable Name="visuMachineOptionsBitInput" EnableArrayElements="True" />
+        <Variable Name="visuMachineOptionsBitOutput" EnableArrayElements="True" />
+        <Variable Name="visuModuleFlagsOptionalInput" EnableArrayElements="True" />
+        <Variable Name="visuModuleFlagsStartupInput" EnableArrayElements="True" />
+        <Variable Name="visuModuleFlagsNotPresentInput" EnableArrayElements="True" />
+        <Variable Name="visuUsedSLIDData" />
+        <Variable Name="safeDownloadData_0" AutomaticEnable="True" />
+        <Variable Name="visuModuleFlagsOptionalOutput" EnableArrayElements="True" />
+        <Variable Name="visuModuleFlagsNotPresentOutput" EnableArrayElements="True" />
+        <Variable Name="visuModuleFlagsStartupOutput" EnableArrayElements="True" />
+        <Variable Name="visuAcknMachineOptions" EnableArrayElements="True" />
+        <Variable Name="indexCompareTextData" />
+        <Variable Name="dialogData" />
+        <Variable Name="statusButtonUnlockData" />
+        <Variable Name="visuAcknExtData" AutomaticEnable="True">
+          <Variable Name="AcknIntOptions" EnableArrayElements="True" />
+          <Variable Name="AcknUintOptions" EnableArrayElements="True" />
+          <Variable Name="AcknDintOptions" EnableArrayElements="True" />
+          <Variable Name="AcknUdintOptions" EnableArrayElements="True" />
+        </Variable>
+        <Variable Name="statusAcknInfoExtData" />
+        <Variable Name="visuUdintOutput" AutomaticEnable="True" />
+        <Variable Name="visuDintOutput" AutomaticEnable="True" />
+        <Variable Name="visuUintOutput" AutomaticEnable="True" />
+        <Variable Name="visuIntOutput" AutomaticEnable="True" />
+        <Variable Name="datacmd2" AutomaticEnable="True" />
+        <Variable Name="visuEnableINTOptions" />
+        <Variable Name="visuEnableUINTOptions" />
+        <Variable Name="visuEnableUDINTOptions" />
+        <Variable Name="visuEnableDINTOptions" />
+        <Variable Name="strFWACKN_Led" />
+        <Variable Name="strMXCHG_Led" />
+        <Variable Name="strStatusID" />
+        <Variable Name="strStatus" />
+        <Variable Name="strRE_Led" />
+        <Variable Name="strFAIL_Led" />
+        <Variable Name="strMessageTest" />
+        <Variable Name="dialogButtonLeft" />
+        <Variable Name="dialogButtonRight" />
+        <Variable Name="statusDialog" />
+        <Variable Name="bVisAppButtons" />
+        <Variable Name="bVisStation" />
+        <Variable Name="bVisInterfaceNode" />
+        <Variable Name="safeDownloadApplication_0" AutomaticEnable="True" />
+        <Variable Name="strDownloadStatus" />
+        <Variable Name="strDataStatus" />
+        <Variable Name="strAck1Style" />
+        <Variable Name="strAck2Style" />
+        <Variable Name="strAck3Style" />
+        <Variable Name="strAck4Style" />
+        <Variable Name="strAckNStyle" />
+        <Variable Name="strScanStyle" />
+        <Variable Name="strSKFormatStyle" />
+        <Variable Name="strSKXCHGtStyle" />
+        <Variable Name="strFWACKNStyle" />
+        <Variable Name="strTestStyle" />
+        <Variable Name="strClearStyle" />
+        <Variable Name="visuEnableButtons" />
+      </Task>
+    </Module>
+  </DefaultView>
+</OpcUaSource>

@@ -1,0 +1,173 @@
+
+
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------------------------------------------------------------
+;Revision 1.00 01/05/2001 D.J. First Issu
+;Revision 2.00 23/10/2002 D.J. WeightUnits changed to DINT (problem when raw values over 32767
+;Revision 3.00 22/08/2006 D.J. Changed for AI261
+;Revision 4.00 10/12/2009 D.J. Changed Calibration Storage Registers to D4400 etc.. AND AI2744
+;Revision 5.00 09/08/2012 D.J. Changed Raw value to WeightRaw
+;Revision 6.00 28/11/2012 D.J. Added Value Calibration values send to TrackView
+;---------------------------------------------------------------------------------------------
+
+;---------------------------------------------------------------------
+;WeighStation Calibration and Weight Calculation - With AI261 & AI2744
+;---------------------------------------------------------------------
+
+UseAI2744 = FALSE ;Set PLC module type
+IF Auto_ForceCalib THEN
+	IF (Calib_Stn = 0) THEN	
+		Calib_Stn = 1
+	ELSE IF Calib_Stn > Std.MaxWeighstations THEN
+		Calib_Stn = 0
+		Auto_ForceCalib = FALSE
+	ENDIF
+	D[940 + Calib_Stn] = 1
+	CASE Auto_Calib OF
+		ACTION Calib_Low:
+			D[995] = Calib_Stn
+			D[996] = 11
+			AI261Raw[Calib_Stn] = 0
+			Auto_Calib = Calib_High	
+		ENDACTION
+		
+		ACTION Calib_High:	
+			D[995] = Calib_Stn
+			D[996] = 12
+			D[997] = 200
+			AI261Raw[Calib_Stn] = 20000
+			Auto_Calib = Calib_Low		
+			INC Calib_Stn
+		ENDACTION		
+	ENDCASE	
+ENDIF		
+
+;divide by 1000 (AI261) or 100 (AI2744) should give around 50 parts per kg and keep raw value within UINT
+;Add 32000 to value to ensure always positive
+LOOP n = 1 TO (Std.MaxWeighstations) DO
+	;To view a particular stn then set tstRaw to the required stn
+
+	IF tstRaw > 0 THEN
+		myRaw = tstRaw ;WeightRaw[tstRaw]
+	ELSE
+;			IF (WeightRaw[n].Wgt_Channel_2 = 0) OR (WeightRaw[n].Wgt_Channel_2 = $007F_FFFF)THEN
+;				myRaw = ABS(WeightRaw[n].Wgt_Channel_1)	
+;			ELSE		
+;				myRaw = ABS(((WeightRaw[n].Wgt_Channel_1 + WeightRaw[n].Wgt_Channel_2)/2))	
+;			ENDIF
+		myRaw = AI261Raw[n]			
+	ENDIF		
+	
+	myRaw = (myRaw - myRaw - myRaw)
+		
+	;Ensure raw value is within + 24bit if out of range + 32bit
+	IF (myRaw = $7FFFFFFF) THEN
+		myRaw = $FFFFFF
+	ENDIF
+		
+	;Ensure raw value is within - 24bit if out of range - 32bit
+	IF (myRaw = $80000001) THEN
+		myRaw = $FF000001
+	ENDIF
+	;Convert raw to UINT the 3 least significant digits are removed
+	IF UseAI2744 THEN
+		myStnRaw = UINT((myRaw / 100) + 32000)
+	ELSE
+		myStnRaw = UINT((myRaw / 1000) + 32000)
+	ENDIF
+	StnRaw[n] = myStnRaw
+ENDLOOP
+StnRaw[1] = UINT(AI1223[1] + 32767)
+StnRaw[2] = UINT(AI1223[2] + 32767)
+StnRaw[3] = UINT(AI1223[3] + 32767)
+StnRaw[4] = UINT(AI1223[4] + 32767)
+StnRaw[5] = UINT(AI1223[5] + 32767)
+StnRaw[6] = UINT(AI1223[6] + 32767)
+StnRaw[7] = UINT(AI1223[7] + 32767)
+StnRaw[8] = UINT(AI1223[8] + 32767)
+StnRaw[9] = UINT(AI1223[9] + 32767)
+StnRaw[10] = UINT(AI1223[10] + 32767)
+StnRaw[11] = UINT(AI1223[11] + 32767)
+StnRaw[12] = UINT(AI1223[12] + 32767)
+StnRaw[13] = UINT(AI1223[13] + 32767)
+StnRaw[14] = UINT(AI1223[14] + 32767)
+StnRaw[15] = UINT(AI1223[15] + 32767)
+StnRaw[16] = UINT(AI1223[16] + 32767)
+
+
+
+LOOP n = 1 TO Std.MaxWeighstations DO
+
+	StnLow 		= D[4400 + n]
+	StnHigh 	= D[4500 + n]
+	StnTestWgt 	= D[4600 + n]
+
+	;Calibrate Low - From TrackView
+	IF (D[995] = n) AND (D[996] = 11) THEN
+		NewLow = StnRaw[n]
+		IF (NewLow > 0) AND (NewLow < $FFFF) THEN
+			D[4400 + n] = NewLow
+		ENDIF
+		D[996] = 0 ;Cancel the Cal-Low
+	ENDIF
+	;Calibrate High - From TrackView
+	IF (D[995] = n) AND (D[996] = 12) AND (D[997] > 0) THEN
+		NewHigh = StnRaw[n]
+		IF (NewHigh > 0) AND (NewHigh < $FFFF) AND (NewHigh > StnLow) THEN
+			D[4500 + n] = NewHigh
+			D[4600 + n] = D[997]		;Test-Weight
+		ENDIF
+		D[996] = 0 ;Cancel the Cal-High
+	ENDIF
+
+	;Weigh Calculation - Multiply up to give accurate results
+	HighLow = StnHigh - StnLow
+	HighLow = HighLow * 1000
+	;Avoid "Divide By Zero"
+	IF (StnTestWgt > 0) THEN
+		WeightUnits = DINT(HighLow / StnTestWgt)
+		RawLow = INT(StnRaw[n] - StnLow)
+		RawLow = RawLow * 1000
+		IF (WeightUnits > 0) THEN ;AND (RawLow > 0) THEN
+			Stn[n].Weight = INT(RawLow / WeightUnits)
+		ELSE
+			Stn[n].Weight = 0
+		ENDIF
+	ELSE
+		Stn[n].Weight = 999
+	ENDIF
+	
+	;Calibration Values to TrackView when requested equals current station
+	IF (D32[230] = n) THEN
+		D32[231] = UDINT(n)
+		D32[232] = UDINT(StnLow)
+		D32[233] = UDINT(StnHigh)
+		D32[234] = UDINT(StnTestWgt)
+		D32[235] = UDINT(StnRaw[n])
+		D32[236] = UDINT(Stn[n].Weight)
+	ENDIF	
+
+ENDLOOP
+
+IF weighttest THEN
+Stn[1].Weight = test1
+Stn[2].Weight = test2
+Stn[3].Weight = test3
+Stn[4].Weight = test4
+Stn[5].Weight = test4
+Stn[6].Weight = test4
+Stn[7].Weight = test4
+Stn[8].Weight = test4
+Stn[9].Weight = test4
+Stn[10].Weight = test4
+Stn[12].Weight = test1
+Stn[11].Weight = test2
+Stn[13].Weight = test3
+Stn[14].Weight = test4
+ENDIF
+;Bag[101].Wgt = Stn[1].Weight
+;Bag[102].Wgt = Stn[2].Weight
+END_PROGRAM
+

@@ -1,0 +1,5 @@
+VAR
+	n	:UINT;	
+	Encode	:ARRAY [0..4] OF BIT_ENCODE;	
+	Offset	:UINT;	
+END_VAR

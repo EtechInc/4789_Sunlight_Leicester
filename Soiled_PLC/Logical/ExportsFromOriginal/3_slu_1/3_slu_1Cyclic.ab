@@ -1,0 +1,209 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------
+;Sequence 3 - Loading Unit D[903]
+;--------------------------------
+
+;Inputs / Ouputs
+
+Enable.TransferBelt[1]	= FALSE
+
+I_BagAtBuffer			= FALSE ;X[12].X01
+I_BagFrontPast			= X[3].X06
+I_BagInLoadingUnit		= X[3].X05
+
+I_ChuteBlocked			= X[3].X07
+I_CompressorAtTop		= X[5].X13
+I_CompressorAtMid		= X[5].X15
+I_CompressorAtBot		= X[5].X14
+
+O_MoveCompressorUp		= FALSE
+O_MoveCompressorDn		= FALSE
+
+I_BagAtSVC1Buffer		= FALSE ;X[12].X11
+O_SVC1BufferOpen		= FALSE ;Y[12].Y11
+
+O_OpenBufferStop		= FALSE
+O_SteadyCylinders		= FALSE
+O_OpenStop	 			= FALSE
+
+Enable.SLU[1]			= FALSE
+
+Alarm[3].Name 			= 0
+Alarm[3].Bag			= 221
+Alarm[3].Beacon			= TRUE
+Alarm[3].Extra			= 0
+Alarm[3].Time			= 3000
+
+;Setup Sequence
+;--------------
+STEP = D[903]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Wait for Empty bag at buffer
+SwitchFault = ((STEP = 1) AND (I_BagFrontPast OR I_BagInLoadingUnit))
+TON_10ms(NOT SwitchFault,200,LoadingUnitClear,LoadingUnitClearET)
+TON_10ms(I_BagAtBuffer,300,BagSettledBuffer,BagSettledBufferET)
+IF (STEP = 1) THEN
+	;IF BagSettledBuffer AND LoadingUnitClear AND NOT Std.HaltSys THEN
+	IF LoadingUnitClear AND NOT Std.HaltSys THEN
+		D[903] = 2
+	ENDIF
+	IF SwitchFault THEN
+		Alarm[3].Name = almSwitchFault
+	ELSE
+		Alarm[3].Name = almNoAlarm
+	ENDIF
+ENDIF
+
+;Open stops let bag in Loading Unit
+IF (STEP = 2) THEN
+	O_OpenStop 			= TRUE
+	O_OpenBufferStop 	= TRUE
+	Enable.SLU[1]		= NOT I_BagFrontPast
+	IF I_BagFrontPast THEN
+		D[903] = 3
+	ENDIF
+	;Alarm[3].Name = almBagNotArrived
+ENDIF
+
+;Wait for bag to settle
+TON_10ms(I_BagInLoadingUnit,300,EBagSettled,EBagSettledET)
+IF (STEP = 3) THEN
+	IF EBagSettled THEN
+		D[903] = 4
+	ENDIF
+	Alarm[3].Name = almBagNotSettled
+	;Special for Banbury - SVC1 is also a loading hoist
+	IF SVC1RequestEmpty THEN
+		Bag[221].Cat 	= 99
+		D[903] 			= 9
+	ENDIF
+ENDIF
+
+;Steady cylinders on from steps 4 - 5
+O_SteadyCylinders = ((STEP = 4) OR (STEP = 5))
+
+;Move Steady Cylinders down
+TON_10ms((STEP = 4),300,SteadysDown,SteadysDownET)
+IF (STEP = 4) THEN
+	IF (SteadysDown AND (Bag[221].Cat = 0)) THEN
+		D[903] = 5
+	ENDIF
+	IF (Bag[221].Cat <> 0) THEN
+		Alarm[3].Name = almBagDataError
+	ELSE
+		Alarm[3].Name = almNoAlarm
+	ENDIF
+ENDIF
+
+
+;Wait for bag to be loaded
+IF (STEP = 5) THEN
+	Enable.TransferBelt[1] = TRUE
+	IF (Bag[221].Cat > 0) THEN
+		D[903] = 6
+	ENDIF
+	Alarm[3].Name = almNoAlarm ;Transfer belt should alarm
+ENDIF
+
+;Allow Steady Cylinders to move up
+TON_10ms((STEP = 6),300,SteadysUp,SteadysUpET)
+IF (STEP = 6) THEN
+	IF SteadysUp THEN
+		IF I_ChuteBlocked THEN
+			D[903] = 7
+		ELSE
+			D[903] = 9
+		ENDIF
+	ENDIF
+	Alarm[3].Name = almNoAlarm
+ENDIF
+
+;Move compressor down
+IF (STEP = 7) THEN
+	O_MoveCompressorDn = TRUE
+	IF I_CompressorAtBot THEN
+		CompressCount = CompressCount + 1
+		D[903] = 8
+	ENDIF
+	Alarm[3].Name = almSwitchFault
+ENDIF
+
+;Move compressor up
+IF (STEP = 8) THEN
+	IF (I_CompressorAtMid OR I_CompressorAtTop) THEN
+		IF (NOT I_ChuteBlocked OR (CompressCount >= 5)) THEN
+			D[903] = 9
+		ELSE IF (CompressCount < 5) THEN
+			D[903] = 7 ;ReTry
+		;ELSE
+		;	Alarm[3].Name = almPhotocellBlocked
+		;	Alarm[3].Time = 100
+		ENDIF
+	ELSE
+		Alarm[3].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;Reset Compression Counter
+IF ((STEP <> 7) AND (STEP <> 8)) THEN
+	CompressCount = 0
+ENDIF
+
+
+;Check for space at Buffer
+IF (STEP = 9) THEN
+	IF NOT Std.HaltSys THEN
+		;IF (Bag[222].Cat = 0) AND NOT I_BagAtSVC1Buffer AND NOT O_SVC1BufferOpen THEN
+		IF Enable.SVC[1] THEN
+			;IF Line[16].Clear THEN
+				D[903] 	= 10
+			;ELSE
+			;	Alarm[3].Name = almSwitchFault
+			;ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+;Open stop - Unitl bag out
+IF (STEP = 10) THEN
+	O_OpenStop = TRUE
+	;IF PLS THEN
+	;	C[16] = 0
+	;ENDIF
+	;IF Line[16].Trip THEN
+	IF NOT Enable.SVC[1] THEN
+		Bag[222] 	= Bag[221]
+		Bag[221] 	= Bag[0]
+		D[903] 		= 1
+	ENDIF
+	Alarm[3].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[3].Name > 0)
+TimerAlarm.PT = Alarm[3].Time
+TimerAlarm FUB TON_10ms()
+Alarm[3].On = TimerAlarm.Q
+Alarm[3].ET = TimerAlarm.ET
+
+;Outputs
+;-------
+
+;Y[12].Y01 	= O_OpenBufferStop
+Y[3].Y06 	= O_SteadyCylinders
+Y[3].Y05 	= O_OpenStop
+
+Y[3].Y07 	= O_MoveCompressorDn
+O_MoveCompressorUp = NOT O_MoveCompressorDn
+Y[3].Y08 = O_MoveCompressorUp
+END_PROGRAM
+

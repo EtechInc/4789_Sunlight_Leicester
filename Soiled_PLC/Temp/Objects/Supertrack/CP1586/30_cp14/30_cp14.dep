@@ -1,0 +1,11 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Sequences/10ms/30_cp14/12_sp2.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/IO/IO.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/IO/IO.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Alarm/Alarm.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Enable/Enable.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Enable/Enable.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Alarm/Alarm.typ
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var

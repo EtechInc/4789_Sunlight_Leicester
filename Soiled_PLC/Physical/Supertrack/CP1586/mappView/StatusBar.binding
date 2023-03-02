@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingsSet id="StatusBarBinding" xmlns="http://www.br-automation.com/iat2015/binding/engineering/v2" xmlns:bt="http://www.br-automation.com/iat2015/bindingListTypes/engineering/v2" xmlns:be="http://www.br-automation.com/iat2015/bindingListEmbedded/engineering/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.CPUIPAddress" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="TextOutputVCHoistIp" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.MainCPUIP" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="TextOutputMainPlcIp" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.ValidConnection" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="RectangleValidConnectionMainPlc" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Com.MainPlc.Reconnect" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="PushButtonReconnect" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.ServerIP" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="TextOutputWebServerIp" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Visu.ImageCtrl.WebserverStatus" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="ImageListWebserverStatus" attribute="selectedIndex" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:SoftwareVersion" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="TextOutputSoftwareVersion" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::MainPlc:HoistName" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentStatusBar" widgetRefId="TextOutputVCHoist_ID" attribute="value" />
+</Binding>
+</Bindings>
+</BindingsSet>

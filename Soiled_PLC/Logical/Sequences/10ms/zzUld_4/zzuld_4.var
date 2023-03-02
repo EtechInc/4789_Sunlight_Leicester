@@ -1,0 +1,96 @@
+VAR
+	AutoRecirculation : BOOL;
+END_VAR
+VAR RETAIN
+	AutoRepeat : BOOL;
+	BagsRemaining : INT;
+	BatchSize : UINT;
+	BufferLineNum : ARRAY[0..19] OF UINT;
+	PrgValid : BOOL;
+	CurrentBag : UINT;
+	CurrentDepth : UINT;
+	CurrentLine : UINT;
+	CustomerMode : UINT;
+	CusValid : BOOL;
+	DepthValid : BOOL;
+	DepthValid2 : BOOL;
+	Dest : UINT;
+	Discharger : UINT;
+	DischargerReady : BOOL;
+	DischargerSpaces : INT;
+	EndDischarger : UINT;
+	EndLineSearch : UINT;
+	ExpressBag : UINT;
+	ExpressLine : UINT;
+	FindBest : UINT;
+	FoundBag : ARRAY[0..4] OF UINT;
+	FoundLine : UINT;
+	LastDischarger : UINT;
+	LineDepthAllowed : ARRAY[0..49] OF USINT;
+	LinesSearched : UINT;
+	LineValid : BOOL;
+	ManualBags : UINT;
+	ManualBagsRecirc : UINT;
+	ManualLine : UINT;
+	ManualLineRecirc : UINT;
+	MatchPrg1 : BOOL;
+	MatchPrg2 : BOOL;
+	MatchPrg3 : BOOL;
+	MixCustomers : BOOL;
+	n : UINT;
+	NoBagAvailable : BOOL;
+	PLS : BOOL;
+	PriorityLine : UINT;
+	ProgQtyComplete : UINT;
+	ProgramFinished : BOOL;
+	ProgramReset : BOOL;
+	ProgramRunning : BOOL;
+	ProgramStep : UINT;
+	Quantity : UINT;
+	RecircDest : UINT;
+	RecircSpaces : INT;
+	RecircSpacesRemain : UINT;
+	RecirculationMaxDepth : UINT;
+	RegOffset : ARRAY[0..19] OF UINT;
+	ScanCount : UINT;
+	SearchPrg : ARRAY[0..3] OF UINT;
+	SearchCus : ARRAY[0..3] OF UDINT;
+	SearchLine : UINT;
+	SearchSpaces : UINT;
+	SkipIncompleteStep : BOOL;
+	SpacesUsed : UINT;
+	StartDischarger : UINT;
+	StartLine : UINT;
+	StartLineSearch : UINT;
+	StepsSearched : UINT;
+	TestDischarger : UINT;
+	UldStep : UINT;
+END_VAR
+VAR
+	UnloadingMaxDepth : UINT;
+END_VAR
+VAR RETAIN
+	UnusedStep : BOOL;
+	x : UINT;
+	MixPrograms : BOOL;
+END_VAR
+VAR
+	CatValid : BOOL;
+	BagsWithDest : UINT;
+	DstValid : BOOL;
+	RecircLimit : INT;
+	SkipLineStart : UINT;
+	SkipLineEnd : UINT;
+	LineValid2 : BOOL;
+	BagValid : BOOL;
+	DischLimit : UINT;
+	StartStopOffset : UINT;
+	LineValid3 : BOOL;
+	TimTest : UINT;
+	TestPLS : BOOL;
+	RecircBag : UINT;
+	kein : UINT;
+	kev : BOOL;
+	Line15Bags : ARRAY[0..8] OF UINT;
+	pairingloopBIT : USINT;
+END_VAR

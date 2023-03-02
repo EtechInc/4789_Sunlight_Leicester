@@ -1,0 +1,88 @@
+
+;------------------------------------------------------------------
+;zzBatchid - Get batch number from TrackView (Provided by MIS Server)
+;------------------------------------------------------------------
+
+;Version 1.00 02/11/2011 D.J. First Issue
+;Version 1.10 02/03/2012 D.J. Changed StateNotUsed	= (BatchIDStatus = 0)
+
+PROGRAM _CYCLIC
+	
+	MachID 			= 999001 ;Set Required Machine Number
+	BatchNumber		= D32[210]
+	ReplyID			= D32[211]
+		
+	;If not waiting for a reply from TrackView and BatchID has been cleared
+	IF NOT WaitReply THEN
+		
+		IF (BatchID[2] = 0) THEN
+			LocationNumber 	= 2 		;Location ie Sorting Stations = 1, Transfer Belt = 2, Loading VC = 3
+			ElementIndex 	= 0 		;Element Index 0 = First Index
+			WaitReply		= TRUE
+		ELSE IF (BatchID[3] = 0) THEN
+			LocationNumber 	= 3 		;Location ie Sorting Stations = 1, Transfer Belt = 2, Loading VC = 3
+			ElementIndex 	= 0 		;Element Index 0 = First Index
+			WaitReply		= TRUE
+		ENDIF		
+		
+		IF WaitReply THEN
+			PLCiD			= PLCiD + 1
+			IF (PLCiD > 32000) THEN
+				PLCiD = 1
+			ENDIF
+			D32[212] = PLCiD 	
+			D32[213] = MachID 		 
+			D32[214] = LocationNumber
+			D32[215] = ElementIndex  
+			D32[216] = 0 ;Time Stamp Not Used	
+		ENDIF
+		
+	ENDIF
+	
+	;Wait for TrackView to reply with a Batch ID (Number)
+	IF (WaitReply AND (ReplyID = PLCiD)) THEN			
+		IF (LocationNumber > 0) AND (LocationNumber <= SIZEOF(BatchID)) THEN
+			BatchID[LocationNumber]	= BatchNumber
+		ENDIF
+		WaitReply 	= FALSE
+		D32[212] 	= 0	
+		D32[213] 	= 0 		 
+		D32[214] 	= 0
+		D32[215] 	= 0  
+		D32[216] 	= 0 ;Time Stamp Not Used
+	ENDIF
+	
+	;Set Status for Mis server connection - allow running with no connection if option selected in TrackView
+		
+	;Online is only considered after 10 seconds delay as TrackView will set the status to online to re-try connection
+	TON_MISstatus.IN = (BatchIDStatus <> D32[217])
+	TON_MISstatus.PT = 500 
+	TON_MISstatus FUB TON_10ms()
+	
+	IF TON_MISstatus.Q THEN
+		BatchIDStatus 	= D32[217] ;Mis Server Status to/from TrackView
+	ENDIF	
+	
+	StateNotUsed	= (BatchIDStatus = 0)
+	StateOnline 	= BOOL(BatchIDStatus AND StatusOnline)
+	StateOffline 	= BOOL(BatchIDStatus AND StatusOffline)
+	StateRunWithout = BOOL(BatchIDStatus AND StatusRunIfNoConnection)
+	
+	TON_MISonline.IN = (StateOffline AND StateRunWithout)
+	TON_MISonline.PT = 6000
+	TON_MISonline FUB TON_10ms()
+	
+	RunningWithoutMISServer = (StateNotUsed OR TON_MISonline.Q) 
+		
+	;-------------------------------------------
+	;Sorting Station Batch ID allocation - Fixed
+	;-------------------------------------------
+	
+	LOOP n = 1 TO Std.MaxWeighstations DO
+		StnBag = n + (Std.StationBagsStart[1] - 1) ;Assumes all station bags will follow in order
+		Bag[StnBag].Mis = n
+	ENDLOOP
+	
+	
+		
+END_PROGRAM

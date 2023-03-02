@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BuildReasons>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\iat_media.job._markerfile">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\iat_media.job" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\.mappview\data\wwwroot\brvisu\css\themes\grunt.themescsso._markerfile">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\.mappview\data\wwwroot\brvisu\release\kannegiessertheme.min.css" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\6_sdc1cyclic.ab.o">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\logical\sequences\10ms\6_sdc1\6_sdc1cyclic.ab" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\_bur_pvdef.st.o">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\6_sdc1cyclic.ab.o" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\a.out">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\6_sdc1cyclic.ab.o" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\6_sdc1.ox">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\a.out" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1.br">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1\6_sdc1.ox" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\.mappview\data\wwwroot\grunt.breasecsso._markerfile">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\.mappview\data\wwwroot\brvisu\css\themes\grunt.themescsso._markerfile" differs.
+</BuildReason>
+  </Rule>
+  <Rule ID=".mappView_Build">
+    <BuildReason>Rule contains a phony target. </BuildReason>
+  </Rule>
+  <Rule ID=".mappView_IntegrationBuild">
+    <BuildReason>Rule contains a phony target. </BuildReason>
+  </Rule>
+  <Rule ID="#cpu_tp.mak">
+    <BuildReason>Rule is forced.</BuildReason>
+  </Rule>
+  <Rule ID="$(AS_PROJECT_PATH)\binaries\supertrack\cp1586\transfer.lst">
+    <BuildReason>Prerequiste "$(AS_PROJECT_PATH)\temp\objects\supertrack\cp1586\6_sdc1.br" differs.
+</BuildReason>
+  </Rule>
+</BuildReasons>

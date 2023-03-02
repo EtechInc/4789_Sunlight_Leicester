@@ -1,0 +1,8 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Std/Standard.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Std/Standard.typ
+$(AS_PROJECT_PATH)/Logical/Sequences/10ms/zzForceO/zzforceo.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/IO/IO.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/IO/IO.var
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var

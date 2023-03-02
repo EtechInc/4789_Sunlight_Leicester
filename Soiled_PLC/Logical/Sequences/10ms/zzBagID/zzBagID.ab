@@ -1,0 +1,46 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzBagID
+ * File: zzBagID.ab
+ * Author: Dave
+ * Created: September 26, 2010
+ ********************************************************************
+ * Implementation of program zzBagID
+ ********************************************************************)
+
+;Version 2.00 03/11/2011 D.J. Added Check if already allocated as now only between 1000 and 32000
+;Version 3.00 14/05/2012 D.J. Changed to UDINT - range now from 1000 to Hex FFFFFFFF
+
+PROGRAM _CYCLIC
+	
+	;Bag ID number allocation from 1000 to Hex FFFFFFFF if below then wait for TrackView to send the correct value
+	
+	;Allocate station bag ID next bag ID for use 
+	IF ((BidStn = 0) AND (D32[200] >= 1000)) THEN
+		
+		;Keep within range UDINT
+		;IF (D32[200] > $FFFFFFFF) THEN
+		IF (D32[200] > 32000) THEN
+			D32[200] = 1000
+		ENDIF
+		
+		BidStn 		= D32[200]
+		D32[200] 	= (D32[200] + 1)
+		
+		;Check if new allocated ID is still used if so then clear
+		
+		BagByteSize = SIZEOF(Bag[0])
+		NoOfBags = (SIZEOF(Bag)/BagByteSize) - 1 ; - 1 to set to 0 based index
+		LOOP n = 1 TO UINT(NoOfBags) DO
+			IF Bag[n].Bid = BidStn THEN
+				BidStn = 0
+			ENDIF
+		EXITIF BidStn = 0
+		ENDLOOP
+
+	ENDIF
+	
+	
+	
+END_PROGRAM

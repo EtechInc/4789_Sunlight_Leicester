@@ -1,0 +1,440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingsSet id="IOStatusPageBinding" xmlns="http://www.br-automation.com/iat2015/binding/engineering/v2" xmlns:bt="http://www.br-automation.com/iat2015/bindingListTypes/engineering/v2" xmlns:be="http://www.br-automation.com/iat2015/bindingListEmbedded/engineering/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_ElectronicFuse" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle21" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_PosEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle23" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle22" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_NegEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle24" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Raw.Outputs.do_ElectronicFuseReset" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle25" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Raw.Outputs.do_Lubrication" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle26" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Raw.Outputs.do_ConfigLight" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle30" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_SecTrolley" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle29" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_UnloadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle28" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_LoadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle27" attribute="visible" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_HomeSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle45" attribute="visible" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_TrolleyInPlace" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle46" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Raw.Outputs.do_SteadyArm" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle56" attribute="visible" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Raw.Outputs.do_ReleaseBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle55" attribute="visible" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Raw.Outputs.do_LoadingChute" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle57" attribute="visible" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_ThermalCutout" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle65" attribute="visible" />
+</Binding>
+
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_LubricationOK" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle66" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_SecTrolleyInPosition" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle71" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_ChuteBlocked" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle79" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_ElectronicFuse" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox1" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_LocRemControl" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox2" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_ThermalCutout" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox16" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_ElectronicFuseReset" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox5" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_ConfigLight" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox10" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_PosEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox3" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_NegEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox4" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_TrolleyInPlace" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox12" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_HomeSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox11" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_UnloadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox8" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_LoadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox7" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_SecTrolley" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox9" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_LubricationOK" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox17" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_Lubrication" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox6" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_ReleaseBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox13" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_SteadyArm" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox14" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_LoadingChute" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox15" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_SecTrolleyInPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox18" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_ChuteBlocked" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox19" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_RackBlockageBottom" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox21" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_RackBlockageTop" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox20" attribute="value" />
+</Binding>
+
+
+
+
+
+
+
+
+
+
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.IngressProtection" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="label_io_31" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.IngressProtection" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="label_io_32" attribute="visible" />
+</Binding>
+
+
+
+
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_ElectronicFuse" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse" attribute="visible" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_LocRemControl" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_loc_rem" attribute="visible" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_ThermalCutout" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Thermal" attribute="visible" />
+</Binding>
+
+
+
+
+
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_ConfigLight" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse4" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_ElectronicFuseReset" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_FuseReset" attribute="visible" />
+</Binding>
+
+
+
+
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Outputs.do_ElectronicFuseReset" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_FuseReset" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_ThermalCutout" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Thermal" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_LocRemControl" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_loc_rem" attribute="value" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Outputs.do_ConfigLight" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse4" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_PosEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse5" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_PosEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse5" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_NegEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse6" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_NegEndSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse6" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_HomeSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse7" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_HomeSwitch" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse7" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_TrolleyInPlace" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse8" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_TrolleyInPlace" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse8" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_UnloadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse9" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_UnloadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse9" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_LoadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse10" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_LoadPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse10" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_SecTrolley" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse11" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_SecTrolley" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse11" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_LubricationOK" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse12" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_LubricationOK" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse12" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Outputs.do_Lubrication" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse13" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_Lubrication" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse13" attribute="visible" />
+</Binding>
+
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Outputs.do_SteadyArm" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse15" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_SteadyArm" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse15" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Outputs.do_LoadingChute" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse16" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_LoadingChute" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse16" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_ChuteBlocked" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse18" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_ChuteBlocked" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse18" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Inputs.di_SecTrolleyInPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse17" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_SecTrolleyInPosition" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse17" attribute="value" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_RackBlockageBottom" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse20" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_RackBlockageTop" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse19" attribute="value" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Outputs.do_ReleaseBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse14" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_Force.Outputs.do_ReleaseBag" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse14" attribute="visible" />
+</Binding>
+
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO_ForceVal.Inputs.di_ElectronicFuse" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox10" attribute="enable" />
+</Binding>
+<Binding mode="twoWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse4" attribute="enable" />
+</Binding>
+<Binding mode="twoWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_FuseReset" attribute="enable" />
+</Binding>
+<Binding mode="twoWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox5" attribute="enable" />
+</Binding>		
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse15" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox15" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox13" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse14" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse16" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="ts_ForceValue_Fuse13" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox6" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Param.ControlMethod" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="CheckBox14" attribute="enable" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_RackBlockageTop" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle80" attribute="visible" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.IO.Inputs.di_RackBlockageBottom" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="Rectangle81" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.IngressProtection" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="LabeldoSteadyArm1" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.IngressProtection" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentIOStatus" widgetRefId="LabeldoLoadingChute1" attribute="visible" />
+</Binding>
+</Bindings>
+</BindingsSet>

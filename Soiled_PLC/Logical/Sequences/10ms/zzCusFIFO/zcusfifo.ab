@@ -1,0 +1,123 @@
+PROGRAM _CYCLIC
+;------------------------------------------------------
+;Revision 1.00 11/02/2002 D.J. First Issue
+;Revision 2.00 11/06/2002 D.J. Included Bags In Transit
+;------------------------------------------------------
+
+
+;Include any Bags In Transit if required
+
+
+
+;New Customers
+InsPos		= D32[496]
+DelPos		= D32[497]
+OngoingCus 	= D32[498]
+EditCus		= D32[499]
+
+IF Std.CustomerFIFO THEN
+
+	;The following are Set by the "Bag Shuffle"
+	;First customer not found clear from the FIFO
+	IF NOT Std.CustomerFound THEN
+		D32[401] = 0
+	ENDIF
+
+	;Shuffle the Table down
+	D32[400] = 0
+
+	LOOP n = 401 TO 494 DO
+
+		IF ((D32[n] = 0) AND (D32[n + 1] > 0)) THEN
+			D32[n] = D32[n + 1]
+			D32[n + 1] = 0
+		ENDIF
+
+		IF (D32[n] > 0) THEN
+			;Inc FIFO Header Count
+			D32[400] = (D32[400] + 1)
+		ENDIF
+
+		;Clear New Customer if found
+		IF ((OngoingCus > 0) AND (OngoingCus = D32[n])) THEN
+			OngoingCus = 0
+		ENDIF
+
+		;Clear Edited Customer if found
+		IF ((EditCus > 0) AND (EditCus = D32[n])) THEN
+			EditCus = 0
+		ENDIF
+
+
+	ENDLOOP
+	
+	;Insert From TrackView
+	IF ((InsPos > 0) AND (EditCus > 0)) THEN
+		LOOP n = 495 DOWNTO (400 + InsPos) DO
+			D32[n] = D32[n - 1]
+		ENDLOOP
+		D32[400 + InsPos] 	= EditCus
+		InsPos 				= 0
+		EditCus				= 0 
+	ENDIF
+	
+	;Delets From TrackView
+	IF (DelPos > 0) THEN
+		D32[400 + DelPos] 	= 0
+		DelPos 				= 0
+	ENDIF
+	
+	;D32[498] = Ongoing New Customer
+	IF ((OngoingCus > 0) AND (D32[401 + D32[400]] = 0)) THEN
+		D32[401 + D32[400]]	= OngoingCus
+		OngoingCus 			= 0
+		D32[400] 			= (D32[400] + 1)
+	ENDIF
+
+	;D32[499] = Edited New Customer
+	IF ((EditCus > 0) AND (D32[401 + D32[400]] = 0)) THEN
+		D32[401 + D32[400]]	= EditCus
+		EditCus 			= 0
+		D32[400] 			= (D32[400] + 1)
+	ENDIF
+
+	;Find the Current Customer for each Discharger and allocate the Next Customer
+
+	LOOP x = 1 TO Std.MaxDischargers DO
+
+		Uld[x].FIFONextCustomer = 0
+		Uld[x].FIFOCustomerFound = FALSE
+
+		;If No Customer then Allocate with the First
+		IF (Uld[x].FIFOCustomer = 0) THEN
+			Uld[x].FIFOCustomer = D32[401]
+		ENDIF
+
+		;If Next Customer available then allocate New Customer
+		IF (D32[400] > 0) THEN
+			LOOP n = 401 TO (D32[400] + 400) DO
+				IF ((Uld[x].FIFOCustomer = D32[n]) AND (D32[n] > 0)) THEN
+					Uld[x].FIFOCustomerFound = TRUE
+					IF (D32[n + 1] > 0) THEN
+						Uld[x].FIFONextCustomer = D32[n + 1]
+					ENDIF
+				ENDIF
+			ENDLOOP
+		ENDIF
+
+		;If the current customer has been removed then set the next as the first
+		IF ((Uld[x].FIFONextCustomer = 0) AND NOT Uld[x].FIFOCustomerFound) THEN
+			Uld[x].FIFONextCustomer = D32[401]
+		ENDIF
+
+	ENDLOOP
+
+
+ENDIF
+
+D32[496] = InsPos
+D32[497] = DelPos
+D32[498] = OngoingCus
+D32[499] = EditCus
+END_PROGRAM
+

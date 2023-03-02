@@ -1,0 +1,21 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	BagSettled	:BOOL;	
+	BagSettledET	:TIME;	
+	O_OpenBufferStop	:BOOL;	
+	BagSettledBuffer	:BOOL;	
+	I_BaginIncline	:BOOL;	
+	BagSettledBufferET	:TIME;	
+	I_BagAtBuffer	:BOOL;	
+	I_CarrAtBottom	:BOOL;	
+	I_CarrAtTop	:BOOL;	
+	O_MoveDown	:BOOL;	
+END_VAR
+
+
+VAR
+	TempDownTime	:BOOL;	
+	TempDownTimeET	:TIME;	
+END_VAR

@@ -1,0 +1,11 @@
+VAR
+	BatchID : ARRAY[0..9] OF UDINT;
+	BatchIDStatus : UDINT;
+	RunningWithoutMISServer : BOOL;
+END_VAR
+VAR CONSTANT
+	StatusNotUsed : UDINT := 0;
+	StatusOnline : UDINT := 1;
+	StatusOffline : UDINT := 2;
+	StatusRunIfNoConnection : UDINT := 4;
+END_VAR

@@ -1,0 +1,22 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzGetNames
+ * File: zzGetNames.var
+ * Author: Dave
+ * Created: November 19, 2010
+ ********************************************************************
+ * Local variables of program zzGetNames
+ ********************************************************************)
+VAR
+	MaxDisplays : UINT;
+	OwnerID : UDINT;
+	TviewReplyOwnerID : UDINT;
+	WaitReply : BOOL;
+	myBag : UINT;
+	CommsID : UDINT;
+	Timer2Q : BOOL;
+	Timer1Q : BOOL;
+	Timer1ET : UDINT;
+	Timer2ET : UDINT;
+END_VAR

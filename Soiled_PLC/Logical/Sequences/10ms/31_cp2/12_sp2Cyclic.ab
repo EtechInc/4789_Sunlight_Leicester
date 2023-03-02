@@ -1,0 +1,110 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBuffer[1]		= X[4].X10
+I_BagAtBuffer[2]		= X[9].X14
+
+MySeq                   = 31
+
+
+Alarm[MySeq].Name 			= 0
+Alarm[MySeq].Bag			= 136
+Alarm[MySeq].Beacon		= TRUE
+Alarm[MySeq].Extra			= 0
+Alarm[MySeq].Time			= 3000
+
+O_SelectCDC4                = FALSE
+O_SelectStraight            = FALSE
+
+;Setup Sequence
+STEP = D[900 + MySeq]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;reset points
+TON_10ms(I_BagAtBuffer[1],200,SettledBuffer[1],BagSettledBufferET[1])
+IF (STEP = 1) THEN
+	
+	IF (D[20]>0) AND SettledBuffer[1] AND (Bag[136].Cat >0)   THEN
+		D[900 + MySeq] = 2
+	ENDIF
+	ELSE
+	
+ENDIF
+
+;check which bag is ready
+
+IF (STEP = 2) THEN
+		IF (Bag[136].Cat > 0) THEN
+			IF (D[3000 + Bag[136].Cat] = 14) THEN
+				IF (Bag[136].Dst = 0) THEN
+					Bag[136].Dst = 14
+				ENDIF
+			ENDIF
+		ENDIF
+	IF (D[20]>0) AND SettledBuffer[1] THEN
+	
+		IF (Bag[136].Dst = 14) AND Line[14].Clear AND (Bag[79].Cat = 0) AND (Line[14].Space >0) THEN
+			C[14]          = 0
+		    D[900 + MySeq] = 3
+		ELSE IF  Line[24].Clear AND (Bag[149].Cat = 0)AND (Line[24].Space >0) AND  (Bag[136].Dst <> 14) THEN
+			C[24]          = 0
+			D[900 + MySeq] = 4
+		ENDIF
+	ENDIF
+ENDIF	
+
+
+;select CDC4
+IF (STEP = 3) THEN
+	O_SelectCDC4 = TRUE
+	IF (Line[14].Trip = TRUE) THEN
+		IF (Bag[136].Cat>0) AND (Bag[79].Cat=0) THEN
+			Bag[79] = Bag[136]
+			Bag[136] = Bag[0]
+		ENDIF
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+;Bag at line
+IF (STEP = 4) THEN
+	O_SelectStraight = TRUE
+	IF (Line[24].Trip = TRUE) THEN
+		IF (Bag[136].Cat>0) AND (Bag[149].Cat=0) THEN
+			Bag[149] = Bag[136]
+			Bag[136] = Bag[0]
+		ENDIF
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[MySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[MySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[MySeq].On 	= TimerAlarm.Q
+Alarm[MySeq].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[4].Y07 = O_SelectCDC4
+Y[4].Y08 = O_SelectStraight
+Y[4].Y12 = O_SelectCDC4 OR O_SelectStraight
+END_PROGRAM
+

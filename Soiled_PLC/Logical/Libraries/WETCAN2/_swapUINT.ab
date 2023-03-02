@@ -1,0 +1,12 @@
+FUNCTION _swapUINT
+;*************************************************************************************
+(* Implementation of _swapUINT *)
+;*************************************************************************************
+;  Identisch CONVERT::swapUINT -die macht aber Streit beim Wechsel zw. m68k und i386 !
+;*************************************************************************************
+usHIGHERBYTE = USINT(shr(uiIn,8))
+usLOWERBYTE  = USINT(uiIn)
+
+_swapUINT = usLOWERBYTE*256 + usHIGHERBYTE
+;*************************************************************************************
+END_FUNCTION

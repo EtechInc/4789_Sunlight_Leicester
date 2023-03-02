@@ -1,0 +1,158 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzSQLDriver
+ * File: zzSQLDriver.ab
+ * Author: treamsbottom
+ * Created: October 01, 2013
+ ********************************************************************
+ * Implementation of program zzSQLDriver
+ ********************************************************************)
+
+PROGRAM _INIT
+
+
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+//Allow PLC time to connect to SQL database or will continually request Log on Info
+SqlRequestLogin = (D32[570] > 0) AND (D32[570] < 5);		
+TON_10ms((LoginReq AND NOT SqlRequestLogin),600,LoginTimer,LoginTimerET)
+IF LoginTimer THEN		
+	D32[570] = 101	
+ENDIF
+
+;Put all requests to SQL into the que Assign a ID so we know where to reply...
+LOOP n = 0 TO dec_c_MaxSQL DO
+	IF n >= StartPosition THEN	
+		IF SqlRequest[n].Request THEN ;New Request Not in Que	
+			IF (SQLBuffer.RequestID = 0) AND (SQLBuffer.RequestID = 0) THEN	
+				;Give New Sql Request ID
+				SqlRequest[n].RequestID = n
+				SQLBuffer = SqlRequest[n]	
+				StartPosition = n + 1
+			ENDIF
+		ENDIF 
+	ENDIF		
+	IF (SQLBuffer.RequestID = 0) AND (n >= dec_c_MaxSQL) THEN
+		StartPosition = 0	
+	ENDIF		
+	EXITIF (SQLBuffer.RequestID > 0)
+ENDLOOP	
+;SQL commands..	
+IF (SQLBuffer.RequestID > 0) THEN	
+	CASE SQLBuffer.SQLType OF
+		
+		ACTION cSQLType_WriteOnly:
+			;Build SQL Request	
+			;IF NOT StringBuilt THEN
+			strcpy(ADR(SqlCommandString),"")
+			strcpy(ADR(SqlCommandString),ADR(cSqluspCommands[SQLBuffer.SQL_usp]))
+			strcat(ADR(SqlCommandString),ADR(cSQL_Space))	
+			LOOP n = 0 TO SQLBuffer.NoOfParams - 1 DO
+				strcat(ADR(SqlCommandString),ADR(SQLBuffer.Parameters[n].Param_String))	
+				IF n <> SQLBuffer.NoOfParams - 1 THEN
+					strcat(ADR(SqlCommandString),ADR(cSQL_Comma_Space))	
+				ENDIF
+				;No Output Strings allowed	
+			ENDLOOP
+			StringBuilt = TRUE
+			;ENDIF		
+					
+			;Write Request	
+			WriteToSql.enable = StringBuilt	
+			WriteToSql.pDatabaseName = ADR(SQL.Login.DBName)	
+			WriteToSql.pServerName = ADR(SQL.Login.Path)	
+			WriteToSql.pUserName = ADR(SQL.Login.User)
+			WriteToSql.pPassword = ADR(SQL.Login.Password)	
+			WriteToSql.pSQl_Cmd_String = ADR(SqlCommandString)	
+			WriteToSql FUB SQL_Write()	
+			IF WriteToSql.status = ERR_OK THEN
+				;Write Complete Reset Request	
+				SqlRequest[SQLBuffer.RequestID].Complete = TRUE	
+				SQLBuffer = cEmptySQlReq	
+				StringBuilt = FALSE
+				strcpy(ADR(SqlCommandString),"")
+			ELSE IF WriteToSql.status <> ERR_FUB_BUSY THEN ; Error
+				SqlRequest[SQLBuffer.RequestID].RequestID = 0
+				SqlRequest[SQLBuffer.RequestID].Fail = TRUE
+				SQLBuffer = cEmptySQlReq		
+			ENDIF		
+		ENDACTION	
+		
+		ACTION cSQLType_ReadWrite:
+			;Build SQL Request	
+			;IF NOT StringBuilt THEN
+			strcpy(ADR(SqlCommandString),"")
+			strcpy(ADR(SqlCommandString),ADR(cSqluspCommands[SQLBuffer.SQL_usp]))
+			strcat(ADR(SqlCommandString),ADR(cSQL_Space))	
+			LOOP n = 0 TO SQLBuffer.NoOfParams - 1 DO
+				strcat(ADR(SqlCommandString),ADR(SQLBuffer.Parameters[n].Param_String))	
+				IF n <> SQLBuffer.NoOfParams - 1 THEN
+					strcat(ADR(SqlCommandString),ADR(cSQL_Comma_Space))	
+				ENDIF
+				;No Output Strings allowed	
+			ENDLOOP
+			StringBuilt = TRUE
+			;ENDIF		
+				
+			;Write Request	
+			ReadWriteSql.enable = StringBuilt	
+			ReadWriteSql.pDatabaseName = ADR(SQL.Login.DBName)	
+			ReadWriteSql.pServerName = ADR(SQL.Login.Path)	
+			ReadWriteSql.pUserName = ADR(SQL.Login.User)
+			ReadWriteSql.pPassword = ADR(SQL.Login.Password)	
+			ReadWriteSql.pSQl_Cmd_String = ADR(SqlCommandString)	
+			ReadWriteSql.pData = ADR(SQLBuffer.OutputData[0])
+			ReadWriteSql FUB SQL_Read_Write()	
+			IF ReadWriteSql.status = ERR_OK THEN
+				;Write Complete Reset Request	
+				memcpy(ADR(SqlRequest[SQLBuffer.RequestID].OutputData[0]),ADR(SQLBuffer.OutputData[0]),SIZEOF(SQLBuffer.OutputData))
+				SqlRequest[SQLBuffer.RequestID].Complete = TRUE	
+				SQLBuffer = cEmptySQlReq	
+				StringBuilt = FALSE
+				strcpy(ADR(SqlCommandString),"")
+			ELSE IF ReadWriteSql.status <> ERR_FUB_BUSY THEN ; Error
+				SqlRequest[SQLBuffer.RequestID].RequestID = 0
+				SqlRequest[SQLBuffer.RequestID].Fail = TRUE	
+				SQLBuffer = cEmptySQlReq			
+			ENDIF	
+		ENDACTION
+			
+		ACTION cSQLType_ReadOnly:
+			;Build SQL Request	
+			;IF NOT StringBuilt THEN
+			strcpy(ADR(SqlCommandString),"")
+			strcpy(ADR(SqlCommandString),ADR(cSqluspCommands[SQLBuffer.SQL_usp]))
+			StringBuilt = TRUE	
+		
+			;Write Request	
+			ReadWriteSql.enable = StringBuilt	
+			ReadWriteSql.pDatabaseName = ADR(SQL.Login.DBName)	
+			ReadWriteSql.pServerName = ADR(SQL.Login.Path)	
+			ReadWriteSql.pUserName = ADR(SQL.Login.User)
+			ReadWriteSql.pPassword = ADR(SQL.Login.Password)	
+			ReadWriteSql.pSQl_Cmd_String = ADR(SqlCommandString)	
+			ReadWriteSql.pData = ADR(SQLBuffer.OutputData[0])
+			ReadWriteSql FUB SQL_Read_Write()	
+			IF ReadWriteSql.status = ERR_OK THEN
+				;Write Complete Reset Request	
+				memcpy(ADR(SqlRequest[SQLBuffer.RequestID].OutputData[0]),ADR(SQLBuffer.OutputData[0]),SIZEOF(SQLBuffer.OutputData))
+				SqlRequest[SQLBuffer.RequestID].Complete = TRUE	
+				SQLBuffer = cEmptySQlReq	
+				StringBuilt = FALSE
+				strcpy(ADR(SqlCommandString),"")
+			ELSE IF ReadWriteSql.status <> ERR_FUB_BUSY THEN ; Error
+				SqlRequest[SQLBuffer.RequestID].RequestID = 0
+				SqlRequest[SQLBuffer.RequestID].Fail = TRUE	
+				SQLBuffer = cEmptySQlReq			
+			ENDIF	
+		ENDACTION		
+	ENDCASE
+ENDIF	
+	
+
+	
+	
+END_PROGRAM

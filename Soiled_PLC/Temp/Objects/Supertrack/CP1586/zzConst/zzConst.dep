@@ -1,0 +1,13 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsString/asstring.fun
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Std/Standard.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Std/Standard.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Loading/Loading.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Loading/Loading.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Line/Line.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Line/Line.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.typ
+$(AS_PROJECT_PATH)/Logical/Sequences/10ms/zzConst/zzconst.var

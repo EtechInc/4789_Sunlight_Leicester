@@ -1,0 +1,23 @@
+VAR RETAIN
+	CAN_enable : BOOL;
+	ReadFrame1 : WET_CAN;
+	EventRead1 : BOOL;
+	EventWrite1 : BOOL;
+	LastError : UINT;
+	n : UINT;
+	CANOK : BOOL;
+	WriteFrame1 : WET_CAN;
+	EventWrite2 : BOOL;
+END_VAR
+VAR
+	ReadFrame2 : WET_CAN;
+	EventRead2 : BOOL;
+	WriteFrame2 : WET_CAN;
+	CANopen_01 : CANopen;
+	DOInfo : DatObjInfo;
+	CANdftab_01 : CANdftab;
+	error_var : UDINT;
+	data_adr : UDINT;
+	CANrwtab_01 : CANrwtab;
+	TEST : BOOL;
+END_VAR

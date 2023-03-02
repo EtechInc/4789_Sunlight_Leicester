@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Configuration>
+  <Element ID="Minimum calculated cycle time." Type="fbtc">
+    <Group ID="PLK[0]">
+      <Property ID="Address" Value="IF3" />
+      <Property ID="CycleTime" Value="84" />
+      <Property ID="WorstCaseCycleTime" Value="106" />
+      <Property ID="AdjustedCycleTime" Value="2000" />
+      <Group ID="MN_details">
+        <Property ID="Name" Value="CP1586.IF3" />
+        <Property ID="SoC" Value="7" />
+        <Property ID="Broadcast" Value="0" />
+        <Property ID="SoA" Value="7" />
+        <Property ID="ASend" Value="59" />
+        <Property ID="AsynchronTimeout" Value="4" />
+        <Property ID="MTUsize" Value="300" />
+        <Property ID="BroadcastSize" Value="0" />
+        <Property ID="MultiplexingPrescale" Value="8" />
+      </Group>
+      <Group ID="CN[0]">
+        <Property ID="HubLevel" Value="2" />
+        <Property ID="CableLength" Value="20" />
+        <Property ID="ResponseTimeout" Value="4" />
+        <Group ID="CN_details">
+          <Property ID="ModuleName" Value="X20BC0083a" />
+          <Property ID="NodeNumber" Value="2" />
+          <Property ID="ModeOfOperation" Value="Polling" />
+          <Property ID="InputDataSize" Value="53" />
+          <Property ID="OutputDataSize" Value="5" />
+          <Property ID="PollRequest" Value="9" />
+          <Property ID="PollResponse" Value="10" />
+          <Property ID="NodeTime" Value="40" />
+          <Property ID="Address" Value="IF3.ST2" />
+          <Property ID="MaxInputDataSize" Value="1490" />
+        </Group>
+        <Group ID="CN_X2X[0]">
+          <Property ID="NumberOfStations" Value="10" />
+          <Property ID="TotalCableLength" Value="0" />
+          <Property ID="InputDataSize" Value="54" />
+          <Property ID="OutputDataSize" Value="6" />
+          <Property ID="Address" Value="IF3.ST2.IF1" />
+          <Property ID="CycleTime" Value="266" />
+          <Property ID="AdjustedCycleTime" Value="2000" />
+        </Group>
+      </Group>
+    </Group>
+    <Group ID="X2X[0]">
+      <Property ID="NumberOfStations" Value="46" />
+      <Property ID="TotalCableLength" Value="0" />
+      <Property ID="InputDataSize" Value="114" />
+      <Property ID="OutputDataSize" Value="44" />
+      <Property ID="Address" Value="IF6" />
+      <Property ID="CycleTime" Value="382" />
+      <Property ID="AdjustedCycleTime" Value="2000" />
+    </Group>
+  </Element>
+</Configuration>

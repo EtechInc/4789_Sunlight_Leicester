@@ -1,0 +1,140 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_PaddleInPosition		= X[9].X08
+I_BagInIncline			= X[9].X07
+;I_BagOutAtTop           = X[7].X13
+
+
+
+O_OpenBufferStop		= FALSE 
+O_RunMotor 				= FALSE 
+
+I_BagAtOutgoingBuffer	= FALSE
+O_OutgoingBufferOpen	= FALSE
+
+Request.IC[1]			= FALSE
+Enable.BSF[1]          = FALSE
+
+Alarm[18].Name 			= 0
+Alarm[18].Bag			= 10005
+Alarm[18].Beacon		= TRUE
+Alarm[18].Extra			= 0
+Alarm[18].Time			= 3000
+
+;Setup Sequence
+STEP = D[918]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Run Incline until paddle in position
+IF (STEP = 1) THEN
+	O_RunMotor = NOT I_PaddleInPosition
+	IF I_PaddleInPosition THEN
+		D[918] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[18].Name = almSwitchFault 
+	ENDIF
+ENDIF
+
+;request a bag to SP6
+IF (STEP = 2) THEN
+	
+	IF (Request.BSF[1]  AND NOT Std.HaltSys) THEN
+		D[918] = 3
+	ENDIF
+	;IF (Bag[266].Cat > 0) AND NOT I_BagAtBuffer THEN
+		;Alarm[12].Name 	= almBagNotAtProx
+		;Alarm[12].Bag	= 266
+	;ELSE IF (Bag[266].Cat = 0) AND I_BagAtBuffer THEN
+		;Alarm[12].Name 	= almBagNotShownOnScreen
+		;Alarm[12].Bag	= 266
+	;ENDIF
+ENDIF
+
+;Wait for bag to arrive
+IF (STEP = 3) THEN
+	Enable.BSF[1] 	= TRUE
+	
+	IF I_BagInIncline THEN
+		D[918] = 4
+	ENDIF
+	Alarm[18].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle at base of incline
+TON_10ms((STEP = 4),300,BagSettled,BagSettledET)
+IF (STEP = 4) THEN
+	
+	
+	IF BagSettled THEN
+		D[918] = 5
+	ENDIF
+ENDIF
+
+;Move Bag up incline
+TON_10ms((STEP = 5),500,BagNearTop,BagNearTopET)
+TON_10ms(((STEP = 5) AND NOT I_BagInIncline),1000,CloseBufferStop,CloseBufferStopET)
+IF (STEP = 5) THEN	
+	;O_OpenBufferStop 	= NOT CloseBufferStop
+	O_RunMotor 			= NOT BagNearTop
+	IF BagNearTop  THEN
+		D[918] = 6
+	ENDIF
+	Alarm[18].Name = almSwitchFault
+ENDIF
+
+;Check for space at the ongoing buffer
+;Run motor for 0.5 seconds
+TON_10ms((STEP = 6),50,RunOn,RunOnET)
+IF (STEP = 6) THEN
+	O_RunMotor 		= NOT RunOn
+	IF NOT Std.HaltSys THEN
+		Request.IC[1] = TRUE
+			
+			IF Enable.IC[1] THEN
+				D[918] = 7
+			ENDIF
+		
+	ENDIF
+ENDIF
+
+
+;Run incline until bag released / arrive at buffer
+IF (STEP = 7) THEN
+	O_RunMotor 			= TRUE
+	;IF PLS THEN
+	;	C[13] = 0
+	;ENDIF
+	IF NOT Enable.IC[1] THEN
+		D[918] = 1
+	ENDIF
+	Alarm[18].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[18].Name > 0)
+TimerAlarm.PT 	= Alarm[18].Time
+TimerAlarm FUB TON_10ms()
+Alarm[18].On 	= TimerAlarm.Q
+Alarm[18].ET 	= TimerAlarm.ET
+
+;Outputs
+
+Y[13].Y04 = O_RunMotor
+END_PROGRAM
+

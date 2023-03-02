@@ -1,0 +1,53 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: 11_x_Bson
+ * File: 11_x_Bson.var
+ * Author: zmclaren
+ * Created: May 15, 2015
+ ********************************************************************
+ * Local variables of program 11_x_Bson
+ ********************************************************************)
+VAR
+	myIO : UINT;
+	mySeq : UINT;
+	myBS : UINT;
+	myBuffBag : UINT;
+	useRequest : BOOL;
+	myZone : UINT;
+	bsn_Enable : BOOL;
+	i_bagAtBuffer : BOOL;
+	i_onLineA : BOOL;
+	i_tiltA : BOOL;
+	i_tiltB : BOOL;
+	i_bagout : BOOL;
+	o_openBufferStop : BOOL;
+	o_selectLineA : BOOL;
+	o_selectLineB : BOOL;
+	o_openStops : BOOL;
+	o_tiltCylinder : BOOL;
+	o_operatePusher : BOOL;
+	step : UINT;
+	pls : BOOL;
+	lastStep : UINT;
+	ton_10ms_PointReset : TON_10ms;
+	ton_10ms_SettledBuffer : TON_10ms;
+	ton_10ms_BagAtTilt : TON_10ms;
+	ton_10ms_TiltDown : TON_10ms;
+	ton_10ms_TiltUp : TON_10ms;
+	ton_10ms_NotFull : TON_10ms;
+	ton_10ms_Pushed : TON_10ms;
+	ton_10ms_o_operatePusher : TON_10ms;
+	timerAlarm : TON_10ms;
+	myBag : UINT;
+	bufferSettleTime : UDINT;
+	releaseValid : BOOL;
+	useRotary : BOOL;
+	i_bagAtRotary : BOOL;
+	o_openRotaryStop : BOOL;
+	ton_10ms_SettledAtRotary : TON_10ms;
+	settledOnRotary : BOOL;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_buff : REFERENCE TO Bag_typ;
+END_VAR

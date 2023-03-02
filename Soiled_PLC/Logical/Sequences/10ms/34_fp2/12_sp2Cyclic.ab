@@ -1,0 +1,89 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+O_OpenBufferStop		 = FALSE ;Y714
+ResetPoint				        = FALSE ;Y711
+
+Enable.FDCEmpty[1]      = FALSE
+Enable.FDCEmpty[2]      = FALSE
+
+Alarm[34].Name 		    	= 0
+Alarm[34].Bag		    	= 10011
+Alarm[34].Beacon		= TRUE
+Alarm[34].Extra		    	= 0
+Alarm[34].Time			   = 3000
+
+;Setup Sequence
+STEP = D[934]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;reset data
+TON_10ms((STEP = 1),200,Reset,ResetET)
+IF (STEP = 1) THEN
+	
+	ResetPoint = TRUE
+	IF Reset THEN
+		D[934] = 2
+	ENDIF
+ENDIF
+
+;bag at discharger
+IF (STEP = 2) THEN
+	IF (Line[42].Clear = TRUE) THEN
+		IF (Request.FDCEmpty[1] = TRUE) THEN
+			C[42] = 0
+			D[934] = 3
+		ELSE IF (Request.FDCEmpty[2] = TRUE) THEN
+			C[42] = 0
+			D[934] = 4
+		
+		ENDIF
+	ENDIF
+ENDIF	
+
+
+;select FDC 1
+IF (STEP = 3) THEN
+		Enable.FDCEmpty[1] = TRUE
+		
+	IF (Line[42].Trip = TRUE)  THEN
+		D[934] = 1
+		
+	ENDIF
+ENDIF
+
+
+;select FDC 2
+IF (STEP = 4) THEN
+	 Enable.FDCEmpty[2] = TRUE 
+		
+	IF (Line[42].Trip = TRUE)  THEN
+		D[934] = 1
+			
+	ENDIF
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[34].Name > 0)
+TimerAlarm.PT 	= Alarm[34].Time
+TimerAlarm FUB TON_10ms()
+Alarm[34].On 	= TimerAlarm.Q
+Alarm[34].ET 	= TimerAlarm.ET
+
+
+END_PROGRAM
+

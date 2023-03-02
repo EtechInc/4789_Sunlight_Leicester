@@ -1,0 +1,44 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: NewPackage
+ * File: Constants.var
+ * Author: treamsbottom
+ * Created: October 01, 2013
+ ********************************************************************
+ * Variables of package NewPackage
+ ********************************************************************)
+VAR CONSTANT
+	dec_c_MaxSQL : USINT := 99;
+	cSQLType_WriteOnly : USINT := 0;
+	cSQLType_ReadWrite : USINT := 1;
+	cSQLType_ReadOnly : USINT := 2;
+	SQL_Port : STRING[5] := ':1433';
+	cSQL_Comma_Space : STRING[2] := ', ';
+	cSQL_Space : STRING[1] := ' ';
+	cEmptySQlReq : SQLRequest_typ := (0); (**Used to clear buffer - like bag[0]*)
+	cSQLParam_Input : USINT := 0;
+	cSQLParam_Output : USINT := 1;
+END_VAR
+(**Constants for Sql Commands*)
+VAR CONSTANT
+	cSqluspCommands : ARRAY[0..19] OF STRING[50] := ['EXEC Supertrack.uspWriteSequenceCount','','EXEC Supertrack.uspBatchCreate','EXEC Supertrack.uspBatchUpdate','EXEC Supertrack.uspBatchVerify','EXEC Supertrack.uspBatchVerifyWithDelete','','EXEC Supertrack.uspBatchVerifyDeleteRetState','EXEC Supertrack.uspPicDBGetFTPPathPLC','EXEC Supertrack.uspzzGetNames','EXEC Supertrack.uspMaintenanceBagCount','EXEC Supertrack.uspMaintenanceBagGetState','EXEC Supertrack.uspMaintenanceBagCountReplyState','EXEC Supertrack.uspzzGetMultiNames',6('')]; (**Array of all Stored Procedure Strings*)
+	cSQLReq_WriteSeqCount : USINT := 0;
+	cSQLReq_BatchCreate : USINT := 2;
+	cSQLReq_BatchUpdate : USINT := 3;
+	cSQLReq_BatchVerify : USINT := 4;
+	cSQLReq_BatchVerifyWithDelete : USINT := 5;
+	cSQLReq_BatchVerifyDeleteReState : USINT := 7;
+	cSQLReq_PicDBGetFTPPathPLC : USINT := 8;
+	cSQLReq_zzGetNames : USINT := 9;
+	cSQLReq_BagMaintCount : USINT := 10; (** Send count value to Maintenance DB PARAMS @PLC, @BAG*)
+	cSQLReq_BagMaintGetState : USINT := 11; (** Read bag maintenance state @PLC, @BAG, @STATE*)
+	cSQLReq_BagMaintCount_R_State : USINT := 12; (** Send count value and read bag maintenance state  @PLC, @BAG, @STATE*)
+	cSQLReq_zzGetMultiNames : USINT := 13;
+END_VAR
+(*-*Constant Return Values for Batch Verify*)
+VAR CONSTANT
+	cSQL_BatchVerfiy_Match : USINT := 1;
+	cSQL_BatchVerfiy_MisMatch : USINT := 2;
+	cSQL_BatchVerfiy_DoesntExist : USINT := 3;
+END_VAR

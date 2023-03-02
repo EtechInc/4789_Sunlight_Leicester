@@ -1,0 +1,25 @@
+VAR RETAIN
+	I_CarrAtTop	:BOOL;	
+	I_CarrAtBottom	:BOOL;	
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	O_MoveCarrUp	:BOOL;	
+	O_OpenCarrStop	:BOOL;	
+	O_MoveCarrDown	:BOOL;	
+	I_BagOnCarr	:BOOL;	
+END_VAR
+
+
+VAR
+	O_OpenBuffer	:BOOL;	
+	SettledBuffer	:BOOL;	
+	SettledBufferET	:TIME;	
+	I_BagAtBuffer	:BOOL;	
+	BagSettledOnCarr	:BOOL;	
+	BagSettledOnCarrET	:TIME;	
+	I_BagReleased	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+	I_BagAtLLBuff	:BOOL;	
+	O_LLBuffOpen	:BOOL;	
+END_VAR

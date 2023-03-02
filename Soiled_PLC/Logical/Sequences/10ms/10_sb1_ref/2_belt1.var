@@ -1,0 +1,35 @@
+VAR RETAIN
+	MinBeltRunCV : UINT;
+	MinBeltRun : BOOL;
+	BeltClearET : TIME;
+	BeltClear : BOOL;
+	LinenDetectedET : TIME;
+	LinenDetected : BOOL;
+	n : UINT;
+	STEP : UINT;
+	Step6ET : TIME;
+	LASTSTEP : UINT;
+	PLS : BOOL;
+	O_RunBelt : BOOL;
+	RunBelt : BOOL;
+END_VAR
+VAR
+	TimerAlarm : TON_10ms;
+	I_PhotoBottom : BOOL;
+	I_PhotoTop : BOOL;
+	Bank : UINT;
+	WeightValid : BOOL;
+	WeightValue : INT;
+	BeltRunTime : UINT;
+	BeltAddTime : UINT;
+	StnBag : UINT;
+	I_PhotoBottomSDC1LoadDropped : BOOL;
+	I_PhotoMiddleBelt : BOOL;
+	I_PhotocellAtEnd : BOOL;
+	CodeStep : BOOL;
+	BCD_BIN_CAT : BCD_BIN_OUTPUT;
+	BCD_BIN_WGT : BCD_BIN_OUTPUT;
+	I_OpenBag : BOOL;
+	I_LoadDropped : BOOL;
+	O_BagReady : BOOL;
+END_VAR

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.7.2.98?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">SequenceExample.doc</Object>
+    <Object Type="Program" Language="IEC" Description="*Ongoing Sequence">x_pn</Object>
+    <Object Type="Program" Language="IEC" Description="*Offgoing Sequence">x_pf</Object>
+    <Object Type="Program" Language="IEC" Description="*Ongoing Sequence">12_PN2</Object>
+    <Object Type="Program" Language="IEC" Description="* Soiled Offgoing Transfer Lines 1 - 14">13_spf2</Object>
+    <Object Type="Program" Language="IEC" Description="* SVC3 Vertical Conveyor">14_svc4</Object>
+  </Objects>
+</Package>

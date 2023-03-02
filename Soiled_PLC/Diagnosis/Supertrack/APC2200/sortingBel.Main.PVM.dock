@@ -1,0 +1,9 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=sortingBel 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=93 Type=22 Scope=29 Force=34 Index=5 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                  D[936]                                     UINT    0 "                                                               2"    1    6    1   10    0    0         
+                                    step                                      INT    0 "                                                               2"    0    3    1   10    1    0         
+                               Alternate                                    USINT    0 "                                                               1"    0    5    1   10    1    0         
+                         O_BeltReadyFDC1                                     BOOL    0 "                                                            TRUE"    0    1    1    2    1    0         
+                         O_BeltReadyFDC2                                     BOOL    0 "                                                           FALSE"    0    1    1    2    1    0         

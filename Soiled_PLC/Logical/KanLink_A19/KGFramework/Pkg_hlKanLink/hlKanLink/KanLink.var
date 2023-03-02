@@ -1,0 +1,82 @@
+(********************************************************************
+ * COPYRIGHT -- Herbert Kannegiesser GmbH
+ ********************************************************************
+ * Program: WetLink
+ * File: WetLink.var
+ * Author: stahlhut
+ * Created: December 23, 2011
+ ********************************************************************
+ * Local variables of program WetLink
+ ********************************************************************)
+VAR
+	_xIdxFound : BOOL;
+	_ptrIndex : REFERENCE TO KL_ServerListe_typ;
+	_i : UINT;
+	_iCltRespCnt : INT;
+	_xCltFound : BOOL;
+	_xInitOK : BOOL;
+	_kgArLogWrite : kgArLogWrite;
+	_AsArLogCreate : AsArLogCreate;
+	_AsArLogGetInfo : AsArLogGetInfo;
+	_wPtrRBwrite : UINT;
+	_wPtrRBread : UINT;
+	_wPtrRBstart : UINT;
+	_kgRBcreateKanLinklog : kgRBcreate;
+	_wPtrRBloc : UINT;
+	_xRBReady : BOOL;
+	_InsertRB : kgRBinsert;
+	_ReadRB : kgRBread;
+	_LogEntry : ErrLog_typ;
+	_LogEntryIn : ErrLog_typ;
+	_wLogStep : UINT;
+	_MemPartCreate : AsMemPartCreate;
+	_lTempMemIdent : UDINT;
+	_lMemIdent : UDINT;
+	_MemAlloc : AsMemPartAllocClear;
+END_VAR
+VAR RETAIN
+	_iLastCltIdx : UINT;
+END_VAR
+VAR
+	_dClient : REFERENCE TO KL_ClientListe_typ;
+	_xAdrErr : BOOL;
+	_iIdxFound : INT;
+	_xAdrOK : BOOL;
+	WL_ErrorNr : UINT;
+	KL_SaveConfDO_0 : KL_SaveConfDO;
+	_xSaveConfig : BOOL;
+	_iLastServerIdx : UINT;
+	_xServerFound : BOOL;
+	_dSrvIf : REFERENCE TO IF_Server_typ;
+	_dCltIf : REFERENCE TO IF_Client_typ;
+	_ifDummy : IF_Client_typ;
+	_xSendNow : BOOL;
+	Kanlink : KanLink_FB;
+	_sPkgName : STRING[11];
+	_VerStruc : MoVerStruc_typ;
+	_lAdr : UDINT;
+	_lLen : UDINT;
+	_wStatus : UINT;
+	_MemAllocTemp : AsMemPartAllocClear;
+END_VAR
+VAR CONSTANT
+	_HLKANLINK_IDX_STRUCDEF_RESP_0 : UINT := 1;
+END_VAR
+VAR
+	_lPtrStrucDef : ARRAY[0..5] OF UDINT;
+	_lPtrStrucLen : ARRAY[0..5] OF UDINT;
+	_MemFreeTemp : AsMemPartFree;
+	_wDebIdx : UINT;
+END_VAR
+VAR CONSTANT
+	_HLKANLINK_MAX_IDX_DEFSTRUC : UINT := 5;
+END_VAR
+VAR
+	_sDebString : REFERENCE TO STRING[31];
+	_wDebOffset : UINT;
+	_sName : STRING[80];
+	_state : USINT;
+	_tcnr : SINT;
+	_wClt : UINT;
+	_wSrv : UINT;
+END_VAR

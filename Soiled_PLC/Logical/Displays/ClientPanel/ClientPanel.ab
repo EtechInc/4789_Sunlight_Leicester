@@ -1,0 +1,351 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: ClientPanel
+ * File: ClientPanel.ab
+ * Author: Dave
+ * Created: December 09, 2010
+ ********************************************************************
+ * Implementation of program ClientPanel
+ ********************************************************************)
+
+;Version 1.00 12/12/2010 D.J. First Issue
+
+PROGRAM _INIT
+	
+	ColdStart	= FALSE
+	panelStatus = 0
+		
+	;Set IF port number for panel
+	strcpy(ADR(ClientGeneral.IFport),"IF1") 
+
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	
+	;Read system information
+	
+	IF (panelStatus = 0) THEN
+		
+		IF (ClientGeneral.ChangePage <> 0) THEN
+			ClientGeneral.ChangePage 	= 0 ;Set Init_Page
+			ClientGeneral.ButtonPressed = 0 ;Clear button pressed
+		ENDIF
+		
+		panelStatus = panelStatus + 1
+		
+	ENDIF
+	
+	
+	
+	;Read IP Address
+	IF (panelStatus = 1) THEN
+			
+		CfgGetIPAddr_0.enable 	= TRUE
+		CfgGetIPAddr_0.pDevice 	= ADR(ClientGeneral.IFport)
+		CfgGetIPAddr_0.pIPAddr 	= ADR(ClientGeneral.IPaddress)
+		CfgGetIPAddr_0.Len 		= SIZEOF(ClientGeneral.IPaddress)
+		CfgGetIPAddr_0 FUB CfgGetIPAddr()
+		
+		IF CfgGetIPAddr_0.status = 0 THEN
+			panelStatus = panelStatus + 1
+		ELSE IF CfgGetIPAddr_0.status = cfgERR_DEVICE_NOT_EXIST THEN
+			strcpy(ADR(ClientGeneral.IFport),"IF5") ;Try different port address IF1 = PCT03 and IF5 = CTT11	
+		ENDIF
+	
+	ENDIF
+	
+	;Read Subnet Mask 
+	IF (panelStatus = 2) THEN
+		
+		CfgGetSubnetMask_0.enable 		= TRUE
+		CfgGetSubnetMask_0.pDevice 		= ADR(ClientGeneral.IFport)
+		CfgGetSubnetMask_0.pSubnetMask 	= ADR(ClientGeneral.SubnetMask)
+		CfgGetSubnetMask_0.Len 			= SIZEOF(ClientGeneral.SubnetMask)
+		CfgGetSubnetMask_0 FUB CfgGetSubnetMask()
+			
+		IF CfgGetSubnetMask_0.status = 0 THEN
+			panelStatus = panelStatus + 1
+		ENDIF
+	
+	ENDIF
+	
+	;Read Gateway 
+	IF (panelStatus = 3) THEN
+		
+		CfgGetDefaultGateway_0.enable 	= TRUE
+		CfgGetDefaultGateway_0.pDevice 	= ADR(ClientGeneral.IFport)
+		CfgGetDefaultGateway_0.pGateway = ADR(ClientGeneral.Gateway)
+		CfgGetDefaultGateway_0.Len 		= SIZEOF(ClientGeneral.Gateway)
+		CfgGetDefaultGateway_0 FUB CfgGetDefaultGateway()
+			
+		IF CfgGetDefaultGateway_0.status = 0 THEN
+			panelStatus = panelStatus + 1
+		ENDIF
+	
+	ENDIF
+	
+	;Read Broadcast address 
+	IF (panelStatus = 4) THEN
+		
+		CfgGetBroadcastAddr_0.enable 			= TRUE
+		CfgGetBroadcastAddr_0.pDevice 			= ADR(ClientGeneral.IFport)
+		CfgGetBroadcastAddr_0.pBroadcastAddr 	= ADR(ClientGeneral.BroadcastAddress)
+		CfgGetBroadcastAddr_0.Len 				= SIZEOF(ClientGeneral.BroadcastAddress)
+		CfgGetBroadcastAddr_0 FUB CfgGetBroadcastAddr()
+					
+		IF CfgGetBroadcastAddr_0.status = 0 THEN
+			panelStatus = panelStatus + 1
+			ClientGeneral.ChangePage 	= 1	;Set Config Button Page
+		ENDIF
+	
+	ENDIF
+	
+	;Init_Page Time Out
+	TON_10ms_0.IN = (panelStatus = 5)
+	TON_10ms_0.PT = 1000
+	TON_10ms_0 FUB TON_10ms()
+	
+	TimedOut = TON_10ms_0.Q
+	
+	IF (panelStatus = 5) OR (panelStatus = 20) THEN
+		IF (ClientGeneral.ButtonPressed = 1) THEN 
+			panelStatus 				= 6
+			ClientGeneral.ChangePage 	= 2	;Set Password page
+			ClientGeneral.ButtonPressed = 0
+		ELSE IF TimedOut THEN
+			panelStatus 				= 20
+		ENDIF
+	ENDIF
+	
+	;Password Page
+	IF (panelStatus = 6)   THEN
+		IF (ClientGeneral.ButtonPressed = 2) THEN
+			panelStatus 				= 5
+			ClientGeneral.ChangePage 	= 1	;Set Config Button Page
+			ClientGeneral.ButtonPressed = 0
+		ENDIF
+		IF ClientGeneral.Password = 7701 THEN
+			ClientGeneral.ChangePage 	= 3	;Config Page
+			panelStatus 				= 7	
+		ENDIF
+	ENDIF
+	
+	;Config Page
+	IF (panelStatus = 7) THEN
+		IF (ClientGeneral.ButtonPressed = 3)  THEN
+			panelStatus 				= 11
+			ClientGeneral.ButtonPressed = 0
+		ENDIF
+	ENDIF
+	
+	;Store configuration
+	;-------------------
+	
+	;Store IP Address
+	IF (panelStatus = 11) THEN
+		
+		CfgSetIPAddr_0.enable 	= TRUE
+		CfgSetIPAddr_0.pDevice 	= ADR(ClientGeneral.IFport)
+		CfgSetIPAddr_0.pIPAddr 	= ADR(ClientGeneral.IPaddress)
+		CfgSetIPAddr_0.Option 	= cfgOPTION_NON_VOLATILE
+		CfgSetIPAddr_0 FUB CfgSetIPAddr()
+				
+		IF CfgSetIPAddr_0.status = 0 THEN
+			panelStatus = 12
+		ELSE IF CfgSetIPAddr_0.status = ERR_FUB_BUSY THEN
+			; Busy do Nothing
+		ELSE IF CfgSetIPAddr_0.status <> ERR_FUB_BUSY THEN
+			panelStatus = 12  	;Ignore Errors
+		ENDIF
+	
+	ENDIF
+	
+	;Write Subnet Mask
+	IF (panelStatus = 12) THEN
+		
+		CfgSetSubnetMask_0.enable 		= TRUE 
+		CfgSetSubnetMask_0.pDevice 		= ADR(ClientGeneral.IFport)
+		CfgSetSubnetMask_0.pSubnetMask 	= ADR(ClientGeneral.SubnetMask)
+		CfgSetSubnetMask_0.Option 		= cfgOPTION_NON_VOLATILE
+		CfgSetSubnetMask_0 FUB CfgSetSubnetMask()
+
+		IF CfgSetSubnetMask_0.status = 0 THEN
+			panelStatus = 13
+		ELSE IF CfgSetSubnetMask_0.status = ERR_FUB_BUSY THEN
+			; Busy do Nothing
+		ELSE IF CfgSetSubnetMask_0.status <> ERR_FUB_BUSY THEN
+			panelStatus = 13 	;Ignore Errors
+		ENDIF
+	
+	ENDIF
+	
+	;Write Gateway
+	IF (panelStatus = 13) THEN
+		
+		CfgSetDefaultGateway_0.enable 	= TRUE 
+		CfgSetDefaultGateway_0.pDevice 	= ADR(ClientGeneral.IFport)
+		CfgSetDefaultGateway_0.pGateway = ADR(ClientGeneral.Gateway)
+		CfgSetDefaultGateway_0.Option 	= cfgOPTION_NON_VOLATILE
+		CfgSetDefaultGateway_0 FUB CfgSetDefaultGateway()
+		
+		IF CfgSetDefaultGateway_0.status = 0 THEN
+			panelStatus = 14
+		ELSE IF CfgSetDefaultGateway_0.status = ERR_FUB_BUSY THEN
+			; Busy do Nothing
+		ELSE IF CfgSetDefaultGateway_0.status <> ERR_FUB_BUSY THEN
+			panelStatus = 14	 ;Ignore Errors
+		ENDIF
+	
+	ENDIF
+	
+	;Write Broadcast address
+	IF (panelStatus = 14) THEN
+		
+		CfgSetBroadcastAddr_0.enable 			= TRUE 
+		CfgSetBroadcastAddr_0.pDevice 			= ADR(ClientGeneral.IFport)
+		CfgSetBroadcastAddr_0.pBroadcastAddr 	= ADR(ClientGeneral.BroadcastAddress)
+		CfgSetBroadcastAddr_0.Option 			= cfgOPTION_NON_VOLATILE
+		CfgSetBroadcastAddr_0 FUB CfgSetBroadcastAddr()
+		
+		IF CfgSetBroadcastAddr_0.status = 0 THEN
+			IF ColdStart THEN
+				SysResetStatus = SYSreset(TRUE,2) ;Cold Start after changing IP address
+			ELSE
+				panelStatus = 20
+			ENDIF
+		ELSE IF CfgSetBroadcastAddr_0.status = ERR_FUB_BUSY THEN
+			; Busy do Nothing
+		ELSE IF CfgSetBroadcastAddr_0.status <> ERR_FUB_BUSY THEN
+			IF ColdStart THEN
+				SysResetStatus = SYSreset(TRUE,2) ;Cold Start after changing IP address
+			ELSE
+				panelStatus = 20 ;Ignore Errors
+			ENDIF
+		ENDIF		
+		
+	
+	ENDIF
+		
+	;Main Display Page
+	IF (panelStatus = 20) THEN
+		IF ClientReceive[0].MainDisplay = 0 THEN
+			IF ((ClientGeneral.ChangePage <> 20) AND (ClientGeneral.CurrentPage <> 20) AND (ClientGeneral.CurrentPage <> 5)) THEN
+				ClientGeneral.ChangePage = 20	;Set Default Main display page
+			ENDIF
+		ELSE IF ClientReceive[0].MainDisplay > 20 THEN
+			IF ((ClientGeneral.ChangePage <> ClientReceive[0].MainDisplay) AND (ClientGeneral.CurrentPage <> ClientReceive[0].MainDisplay)) THEN
+				ClientGeneral.ChangePage = ClientReceive[0].MainDisplay	;Set Main display page
+			ENDIF
+		ENDIF
+		
+		;Brightness Adjustment required?
+		myBrightness = UDINT(ClientReceive[0].Brightness)
+		IF (pnlBrightness <> myBrightness) THEN
+			panelStatus = 21
+		ENDIF	
+		
+		;New IP address received
+		length = strlen(ADR(ClientReceive[0].IP_Address))
+		IF (length > 0) THEN
+			;Copy new address before ClientReceive[0].IP_Address is cleared by the server
+			strcpy(ADR(NewIPAddress),ADR(ClientReceive[0].IP_Address))
+			;New IP Address is the actual Gateway
+			strcpy(ADR(ClientGeneral.Gateway),ADR(ClientReceive[0].IP_Address))
+			panelStatus = 31 ;Change IP Address
+		ENDIF
+		
+	ENDIF
+	
+	;Remote cold Start
+	IF (ClientReceive[0].SYSreset > 0) THEN
+		SysResetStatus = SYSreset(TRUE,2) ;Cold Start
+	ENDIF
+	
+	;Display Brightness
+	IF (panelStatus = 21) THEN
+			
+		IF myVC_Handle = 0 THEN
+			myVC_Handle = VA_Setup(TRUE, "Data1")
+		ENDIF	
+		IF (myVC_Handle > 0) THEN
+			IF VA_Saccess(TRUE,myVC_Handle) = 0 THEN
+				VA_SetBrightness(TRUE,myVC_Handle,myBrightness)
+				VA_SetBacklight(TRUE,myVC_Handle,(myBrightness > 0))
+				pnlBrightness = myBrightness
+				VA_Srelease(TRUE,myVC_Handle)
+			ENDIF
+		ENDIF
+		
+		panelStatus = 20
+	ELSE
+		myVC_Handle = 0		
+	ENDIF	
+	
+	;Change IP Address	
+	IF (panelStatus = 31) THEN
+		
+		IP_Replace_0.pIP_New = ADR(NewIPAddress)
+		IP_Replace_0.pIP_Now = ADR(ClientGeneral.IPaddress)
+		IP_Replace_0 FUB IP_Replace()
+	
+		IF IP_Replace_0.status = 0 THEN
+			ClientGeneral.IPaddress = IP_Replace_0.IP_Replace
+			panelStatus = 32
+		ELSE
+			panelStatus = 20 
+		ENDIF
+		
+	ENDIF
+	
+	;Change Gateway 
+	IF (panelStatus = 32) THEN
+				
+		;IP_Replace_0.pIP_New = ADR(NewIPAddress)
+		;IP_Replace_0.pIP_Now = ADR(ClientGeneral.Gateway)
+		;IP_Replace_0 FUB IP_Replace()
+	
+		;IF IP_Replace_0.status = 0 THEN
+		;	ClientGeneral.Gateway = IP_Replace_0.IP_Replace
+			panelStatus = 33
+		;ELSE
+		;	panelStatus = 20 
+		;ENDIF
+		
+	ENDIF
+	
+	;Change Broadcast Address 
+	IF (panelStatus = 33) THEN
+		
+		IP_Replace_0.pIP_New = ADR(NewIPAddress)
+		IP_Replace_0.pIP_Now = ADR(ClientGeneral.BroadcastAddress)
+		IP_Replace_0 FUB IP_Replace()
+	
+		IF IP_Replace_0.status = 0 THEN
+			ClientGeneral.BroadcastAddress = IP_Replace_0.IP_Replace
+			panelStatus = 34
+		ELSE
+			panelStatus = 20 
+		ENDIF
+		
+	ENDIF
+	
+	;Change Server IP
+	IF (panelStatus = 34) THEN
+		
+		IP_Replace_0.pIP_New = ADR(NewIPAddress)
+		IP_Replace_0.pIP_Now = ADR(ClientServerIP)
+		IP_Replace_0 FUB IP_Replace()
+	
+		IF IP_Replace_0.status = 0 THEN
+			ClientServerIP 	= IP_Replace_0.IP_Replace
+			ColdStart		= TRUE
+			panelStatus 	= 11 ;Store New Values
+		ELSE
+			panelStatus = 20 
+		ENDIF
+		
+	ENDIF
+	
+END_PROGRAM

@@ -1,0 +1,16 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+END_VAR
+
+
+VAR
+	TimerAlarm	:TON_10ms;	
+	I_BagAtBuffer	:ARRAY [0..2] OF BOOL;	
+	O_OpenBuffer	:ARRAY [0..2] OF BOOL;	
+	SDC2BufferFullET	:TIME;	
+	SDC2BufferFull	:BOOL;	
+	SettledBufferET	:ARRAY [0..2] OF TIME;	
+	SettledBuffer	:ARRAY [0..2] OF BOOL;	
+END_VAR

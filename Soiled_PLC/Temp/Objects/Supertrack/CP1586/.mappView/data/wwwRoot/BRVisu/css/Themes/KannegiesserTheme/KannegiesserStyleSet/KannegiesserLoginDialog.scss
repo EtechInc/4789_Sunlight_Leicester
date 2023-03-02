@@ -1,0 +1,19 @@
+﻿@import "mixins.scss";
+@import "../../../../widgets/brease/Label/meta/Label_base";
+.widgets_brease_Label_style_KgLoginLabel {
+@include widgets_brease_Label_base; 
+& span {
+	color: #ffffff;
+}
+	border-style: none;
+&:before {
+	border-style: none;
+}
+&:after {
+	border-style: none;
+}
+	font-size: 14px;
+@include font-weight-bold(true);
+	background-color: rgba(255, 255, 255, 0);
+
+}

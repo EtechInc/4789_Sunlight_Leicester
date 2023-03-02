@@ -1,0 +1,14 @@
+VAR
+	bOK	:BOOL;	
+	byErrorLevel	:USINT;	
+	CurrentFile	:UINT;	
+	STEP	:UINT;	
+	FOpen	:FileOpen;	
+	wStatus	:UINT;	
+	dwIdent	:UDINT;	
+	wError	:UINT;	
+	FCreate	:FileCreate;	
+	FWrite	:FileWrite;	
+	FRead	:FileRead;	
+	FClose	:FileClose;	
+END_VAR

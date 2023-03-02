@@ -1,0 +1,9 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsString/asstring.fun
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var
+$(AS_PROJECT_PATH)/Logical/SQL/zzTvText/zzTvText.var
+$(AS_PROJECT_PATH)/Logical/SQL/zzSQL_Lib/Constants.var
+$(AS_PROJECT_PATH)/Logical/SQL/SQL.var
+$(AS_PROJECT_PATH)/Logical/SQL/zzSQL_Lib/zzSQL_Lib.typ

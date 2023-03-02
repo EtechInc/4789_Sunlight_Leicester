@@ -1,0 +1,6 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+TCScan[2].Start = clock_ms()
+END_PROGRAM
+

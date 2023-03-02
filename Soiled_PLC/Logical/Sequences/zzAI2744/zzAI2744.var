@@ -1,0 +1,16 @@
+(********************************************************************
+ * COPYRIGHT -- Kannegiesser UK Ltd
+ ********************************************************************
+ * Program: zzAI2744
+ * File: zzAI2744.var
+ * Author: zmclaren
+ * Created: May 25, 2012
+ ********************************************************************
+ * Local variables of program zzAI2744
+ ********************************************************************)
+VAR
+	LastRawValue : ARRAY[0..199] OF DINT;
+	i : UINT;
+	NoChangeCounter : ARRAY[0..199] OF UINT;
+	myWeight : DINT;
+END_VAR

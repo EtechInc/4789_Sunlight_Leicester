@@ -1,0 +1,22 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;Clear All Data Registers
+
+
+IF ClearMem THEN
+
+	memset(pC, 						0, SIZEOF(C))
+	memset(pD, 						0, SIZEOF(D))
+	memset(pBag, 					0, SIZEOF(Bag))
+	memset(ADR(ReportBuffer), 		0, SIZEOF(ReportBuffer))
+	memset(ADR(ReportLoading), 		0, SIZEOF(ReportLoading))
+	memset(ADR(ReportUnloading), 	0, SIZEOF(ReportUnloading))
+
+	Dave = SIZEOF(ReportBuffer)
+
+	ClearMem = FALSE
+
+ENDIF
+END_PROGRAM
+

@@ -1,0 +1,4 @@
+VAR
+	CANLive_1	:BIT_ENCODE;	
+	CANLive_2	:BIT_ENCODE;	
+END_VAR

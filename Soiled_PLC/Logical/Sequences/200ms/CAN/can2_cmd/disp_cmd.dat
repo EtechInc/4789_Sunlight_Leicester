@@ -1,0 +1,17 @@
+;-----------------
+;CAN Command Table
+;-----------------
+
+;         1234567890123456789012345678901   1234567890123456789012345678901
+;CAN Node 11
+00000251,"can_drv2:ReadFrame2            ","can_drv2:EventRead2            ",$00000000
+00000241,"can_drv2:WriteFrame2           ","can_drv2:EventWrite2           ",$00000001
+
+
+
+
+
+
+;   |          |                                 |                               |
+; CAN ADR  Variable Name 31 Chrs             Event Variable 31 Chrs           Read = 0 Write = 1
+

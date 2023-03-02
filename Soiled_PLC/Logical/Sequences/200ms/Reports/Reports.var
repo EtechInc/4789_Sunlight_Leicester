@@ -1,0 +1,5 @@
+VAR RETAIN
+	ReportBuffer : ARRAY[0..199] OF Report;
+	ReportLoading : ARRAY[0..60] OF Report;
+	ReportUnloading : ARRAY[0..10] OF Report;
+END_VAR

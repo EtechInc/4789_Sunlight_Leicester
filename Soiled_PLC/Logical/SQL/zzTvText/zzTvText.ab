@@ -1,0 +1,106 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzTviewText
+ * File: zzTviewText.ab
+ * Author: Dave
+ * Created: January 30, 2013
+ ********************************************************************
+ * Implementation of program zzTviewText
+ ********************************************************************)
+
+PROGRAM _INIT
+
+StartSQLServerRead = TRUE
+myRequest = 1	
+
+
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	
+	;Requests from TrackView
+	;-----------------------
+	
+	;Read SQL Server connection values
+	IF (NOT StartSQLServerRead AND (D32[570] = StartSQLServerDataRead)) THEN
+		StartSQLServerRead 	= TRUE
+		myRequest			= 1
+	ENDIF
+	
+	IF StartSQLServerRead THEN
+			
+		IF myRequest = 1 THEN 
+			D32[220] = SendSUPDBServer
+		ELSE IF myRequest = 2 THEN
+			D32[220] = SendSUPDBName
+		ELSE IF myRequest = 3 THEN
+			D32[220] = SendSUPDBLogin
+		ELSE IF myRequest = 4 THEN
+			D32[220] = SendSUPDBPword
+		ENDIF
+		
+		IF (D32[570] = D32[220]) THEN
+			myRequest = myRequest + 1	
+		ENDIF
+		
+
+	
+	ENDIF
+	
+	;Read all Textwords - example
+	IF (NOT StartTextwords AND (D32[570] = StartReadTextwords)) THEN
+		StartTextwords 		= TRUE
+		myRequest			= 0
+	ENDIF	
+	
+	IF StartTextwords THEN
+			
+		D32[220] = (SendTextWord + myRequest)
+				
+		IF (D32[570] = D32[220]) THEN
+			myRequest = myRequest + 1	
+		ENDIF
+		
+		IF (myRequest > 999) THEN
+			StartTextwords 	= FALSE
+			myRequest			= 0
+			D32[220]			= 0
+			D32[570] 			= 0
+		ENDIF
+	
+	ENDIF	
+	
+	;TrackView has sent some new Data - Replace / Add myTviewString with required variable
+	IF (D32[570] > 0) AND (D32[570] = D32[220]) THEN
+		IF D32[570] = SendSUPDBServer THEN
+			memcpy(ADR(SQL.Login.Path),ADR(D32[571]),16)	
+			Login = RIGHT(SQL.Login.Path,5) ;Check if port number is set in trackview if not, Add port.
+			result = strcmp(ADR(Login),ADR(SQL_Port))
+			IF (result <> 0) THEN
+				SQL.Login.Path =	CONCAT(SQL.Login.Path,SQL_Port)	
+			ENDIF
+		ELSE IF D32[570] = SendSUPDBName THEN
+			memcpy(ADR(SQL.Login.DBName),ADR(D32[571]),16)
+		ELSE IF D32[570] = SendSUPDBLogin THEN
+			memcpy(ADR(SQL.Login.User),ADR(D32[571]),16)
+		ELSE IF D32[570] = SendSUPDBPword THEN
+			memcpy(ADR(SQL.Login.Password),ADR(D32[571]),16)
+		ELSE IF (D32[570] >= SendTextWord) AND (D32[570] <= SendTextWord + 999) THEN
+			memcpy(ADR(myTviewString),ADR(D32[571]),16)
+		ENDIF
+	ENDIF	
+	IF StartSQLServerRead AND (myRequest > 4) THEN
+		StartSQLServerRead 	= FALSE
+		myRequest			= 0
+		D32[220]			= 0
+	ELSE IF StartTextwords AND (myRequest > 999) THEN
+		StartTextwords 	= FALSE
+		myRequest			= 0
+		D32[220]			= 0
+		D32[570] 			= 0
+	ENDIF
+	
+	
+END_PROGRAM

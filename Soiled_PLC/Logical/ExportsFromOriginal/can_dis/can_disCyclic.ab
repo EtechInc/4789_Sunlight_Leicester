@@ -1,0 +1,229 @@
+PROGRAM _CYCLIC
+;-----------------------------------------
+;Revision 1.00 18/02/2002 D.J. First Issue
+;-----------------------------------------
+
+;2 * 20 or 2 * 40 chr VFD display
+
+;Set D register where text for display is set E register for weight
+DisplayChrs		= 80
+
+LOOP m = 1 TO 16 DO
+	DisplayCat[m] = (4000 + ((m - 1) * 80))
+	DisplayCus[m] = DisplayCat[m] + 40
+	DisplayWgt[m] = Bag[200 + m].Wgt
+ENDLOOP
+
+LOOP x = 1 to 16 DO
+
+
+	memcpy(ADR(Display[0]) ,ADR(D[DisplayCat[x]]),DisplayChrs)
+	memcpy(ADR(Display[44]),ADR(D[DisplayCus[x]]),DisplayChrs)
+
+	;As the weight value is a INT put into a UINT -0.1 = 65535
+	;Display only if less than 500kg
+	IF (DisplayWgt[x] < 5000) THEN
+		DIS4(DisplayWgt[x],TRUE,Dummy,Wgt1s,Wgt10s,Dummy)
+	ELSE
+		Wgt1s 	= 0
+		Wgt10s 	= 0
+	ENDIF
+
+	;Add Weight and goto next line
+	Display[35] = $20 ;Space
+	Display[36] = (48 + USINT(Wgt10s))
+	Display[37] = (48 + USINT(Wgt1s))
+	Display[38] = $6B 	;k
+	Display[39] = $67 	;g
+	Display[40] = $A	;Line Feed
+	Display[41] = $D	;Carriage Return
+	Display[42] = 0
+	Display[43] = 0
+
+	;Display[78] = $44	;D
+	;Display[79] = $55	;U
+	;Display[80] = $43	;C
+	;Display[81] = $4B	;K
+	;Display[82] = $45	;E
+	;Display[83] = $52	;R
+
+	;Cursor Off and Home
+	IF (STEP = 0) THEN
+		n = 0
+		Data.Data[0] = $9B
+		Data.Data[1] = $6C
+		Data.Data[2] = $9B
+		Data.Data[3] = $48
+		Data.Data[4] = 0
+		Data.Data[5] = 0
+		Data.Data[6] = 0
+		Data.Data[7] = 0
+	ENDIF
+
+	;Write text to the Display
+	IF (STEP > 0) THEN
+		Data.Data[0] = USINT(Display[0 + n])
+		Data.Data[1] = USINT(Display[1 + n])
+		Data.Data[2] = USINT(Display[2 + n])
+		Data.Data[3] = USINT(Display[3 + n])
+		Data.Data[4] = USINT(Display[4 + n])
+		Data.Data[5] = USINT(Display[5 + n])
+		Data.Data[6] = USINT(Display[6 + n])
+		Data.Data[7] = USINT(Display[7 + n])
+	ENDIF
+
+	;Write to the CAN Frame For the Current Display
+	IF (x = 1) THEN
+		DisplayTXFrame1 = Data
+	ELSE IF (x = 2) THEN
+		DisplayTXFrame2 = Data
+	ELSE IF (x = 3) THEN
+		DisplayTXFrame3 = Data
+	ELSE IF (x = 4) THEN
+		DisplayTXFrame4 = Data
+	ELSE IF (x = 5) THEN
+		DisplayTXFrame5 = Data
+	ELSE IF (x = 6) THEN
+		DisplayTXFrame6 = Data
+	ELSE IF (x = 7) THEN
+		DisplayTXFrame7 = Data
+	ELSE IF (x = 8) THEN
+		DisplayTXFrame8 = Data
+	ELSE IF (x = 9) THEN
+		DisplayTXFrame9 = Data
+	ELSE IF (x = 10) THEN
+		DisplayTXFrame10 = Data
+	ELSE IF (x = 11) THEN
+		DisplayTXFrame11 = Data
+	ELSE IF (x = 12) THEN
+		DisplayTXFrame12 = Data
+	ELSE IF (x = 13) THEN
+		DisplayTXFrame13 = Data
+	ELSE IF (x = 14) THEN
+		DisplayTXFrame14 = Data
+	ELSE IF (x = 15) THEN
+		DisplayTXFrame15 = Data
+	ELSE IF (x = 16) THEN
+		DisplayTXFrame16 = Data
+	ENDIF
+
+ENDLOOP
+
+IF (STEP > 0) THEN
+	n = n + 8
+ENDIF
+
+STEP = STEP + 1
+
+StepsRequired = ((DisplayChrs / 8) + 1) ;Steps = Total Chrs / 8 + 1
+IF STEP > StepsRequired THEN
+	STEP = 0
+ENDIF
+
+IF CANOK THEN
+
+	;------------------------------------------------------
+	;Configure the CAN write to CBW1 SDC1
+	;------------------------------------------------------
+
+
+	;Write to Displays
+	DisplayWrite1 = TRUE
+	;DisplayWrite2 = TRUE
+	DisplayWrite3 = TRUE
+	;DisplayWrite4 = TRUE
+	DisplayWrite5 = TRUE
+	;DisplayWrite6 = TRUE
+	DisplayWrite7 = TRUE
+	;DisplayWrite8 = TRUE
+	;DisplayWrite9 = TRUE
+	;DisplayWrite10 = TRUE
+	;DisplayWrite11 = TRUE
+	;DisplayWrite12 = TRUE
+	;DisplayWrite13 = TRUE
+	;DisplayWrite14 = TRUE
+	;DisplayWrite15 = TRUE
+	;DisplayWrite16 = TRUE
+
+	;------------------------
+	;Service CAN table
+	;------------------------
+
+	IF CANdftab_01.status=0 THEN						(*check error level*)
+		CANrwtab_01.enable		= 1
+		CANrwtab_01.tab_ident	= CANdftab_01.tab_ident (*define tab_id*)
+		CANrwtab_01 FUB CANrwtab()						(*initiate CANrwtab*)
+		LastError = CANrwtab_01.status
+	ENDIF
+
+	;-----------------
+	;Read Display Data
+	;-----------------
+	IF DisplayRead1 THEN
+		DisplayRead1 = FALSE
+		Reply = DisplayRXFrame1.Data[1]
+	ENDIF
+	IF DisplayRead2 THEN
+		DisplayRead2 = FALSE
+		Reply = DisplayRXFrame2.Data[1]
+	ENDIF
+	IF DisplayRead3 THEN
+		DisplayRead3 = FALSE
+		Reply = DisplayRXFrame3.Data[1]
+	ENDIF
+	IF DisplayRead4 THEN
+		DisplayRead4 = FALSE
+		Reply = DisplayRXFrame4.Data[1]
+	ENDIF
+	IF DisplayRead5 THEN
+		DisplayRead5 = FALSE
+		Reply = DisplayRXFrame5.Data[1]
+	ENDIF
+	IF DisplayRead6 THEN
+		DisplayRead6 = FALSE
+		Reply = DisplayRXFrame6.Data[1]
+	ENDIF
+	IF DisplayRead7 THEN
+		DisplayRead7 = FALSE
+		Reply = DisplayRXFrame7.Data[1]
+	ENDIF
+	IF DisplayRead8 THEN
+		DisplayRead8 = FALSE
+		Reply = DisplayRXFrame8.Data[1]
+	ENDIF
+	IF DisplayRead9 THEN
+		DisplayRead9 = FALSE
+		Reply = DisplayRXFrame9.Data[1]
+	ENDIF
+	IF DisplayRead10 THEN
+		DisplayRead10 = FALSE
+		Reply = DisplayRXFrame10.Data[1]
+	ENDIF
+	IF DisplayRead11 THEN
+		DisplayRead11 = FALSE
+		Reply = DisplayRXFrame11.Data[1]
+	ENDIF
+	IF DisplayRead12 THEN
+		DisplayRead12 = FALSE
+		Reply = DisplayRXFrame12.Data[1]
+	ENDIF
+	IF DisplayRead13 THEN
+		DisplayRead13 = FALSE
+		Reply = DisplayRXFrame13.Data[1]
+	ENDIF
+	IF DisplayRead14 THEN
+		DisplayRead14 = FALSE
+		Reply = DisplayRXFrame14.Data[1]
+	ENDIF
+	IF DisplayRead15 THEN
+		DisplayRead15 = FALSE
+		Reply = DisplayRXFrame15.Data[1]
+	ENDIF
+	IF DisplayRead16 THEN
+		DisplayRead16 = FALSE
+		Reply = DisplayRXFrame16.Data[1]
+	ENDIF
+
+ENDIF
+END_PROGRAM
+

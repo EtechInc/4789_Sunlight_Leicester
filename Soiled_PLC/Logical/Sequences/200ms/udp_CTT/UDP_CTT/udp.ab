@@ -1,0 +1,244 @@
+PROGRAM _INIT
+	
+Start 	= TRUE		  ;enables the UDP Connection			
+Start2 	= TRUE
+RX = TRUE
+
+strcpy(adr(unit),"kg")	 ;The Unit of weight for the CTT
+show_long_id = 1;	 Please change value to 1 to send long ID instead of Cat number
+
+;-----------------------------------------------------
+;ONLY FOR INFORMATION:
+;-----------------------------------------------------
+;D[5000] to D[5014] Customer Bank 1 upto 30 chr max.
+;D[5020] to D[5034] Customer Bank 2 upto 30 chr max.
+;D[5040] to D[5054] Customer Bank 3 upto 30 chr max.
+;D[5060] to D[5074] Customer Bank 4 upto 30 chr max.
+;D[5080] to D[5094] Customer Bank 5 upto 30 chr max.
+ 
+;D[5100] to D[5114] Category Stn 1 Category Name 30 chr max  
+;D[5115] to D[5119] Long ID Stn 1 Max 10 chrs.
+ 
+;D[5120] to D[5134] Category Stn 2 Category Name 30 chr max  
+;D[5135] to D[5139] Long ID Stn 2 Max 10 chrs.
+ 
+;D[5140] to D[5154] Category Stn 3 Category Name 30 chr max  
+;D[5155] to D[5159] Long ID Stn 3 Max 10 chrs.
+
+;...
+;...
+;-----------------------------------------------------
+
+
+END_PROGRAM
+
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: udp
+ * File: udp.ab
+ * Author: flender
+ * Created: November 05, 2009
+ ********************************************************************
+ * Implementation of program udp
+ ********************************************************************)
+
+PROGRAM _CYCLIC
+
+;-----------------------------------------------------
+; Open the UDP Connection 
+;-----------------------------------------------------
+
+	if Start OR (UDPopen_1.status <> 0) THEN        
+		UDPopen_1.enable = 1                        
+		UDPopen_1.port = 21003                   
+		UDPopen_1 FUB UDPopen() 				
+		Start = FALSE    
+																				 
+;-----------------------------------------------------
+; receive UDP Telegramm 
+;-----------------------------------------------------	
+	
+	else if	 (RX AND (UDPopen_1.status = 0)) THEN
+		UDPrecv_1.enable = 1
+		UDPrecv_1.cident = UDPopen_1.cident
+		UDPrecv_1.buffer = ADR(bufferRX)
+		UDPrecv_1.buflng = SIZEOF(bufferRX)
+		UDPrecv_1 FUB UDPrecv()
+		if (bufferRX.sendRequest = 1)then
+			bufferRX.sendRequest = 0
+			RX = FALSE
+		else
+			RX = TRUE
+		endif
+																				 
+;-----------------------------------------------------
+; send UDP Telegramm 
+;-----------------------------------------------------
+
+
+	else if(NOT RX and (UDPopen_1.status=0)) then
+		 
+		Daten_senden = 0
+
+		;-----------------------------------------------------		
+		;if connection is OK, the CTT needs this value for showing 
+		;-----------------------------------------------------
+		send_buffer[0].UDP_OK = udpConnectionOk
+		
+		;-----------------------------------------------------
+		;set up the customer name to sending buffer
+		;-----------------------------------------------------
+		;Customer Name for Station 1-12
+		if (bufferRX.DwnLeft <= 12) then
+			loop stat_index = 0 to 14 do
+				send_buffer[0].Customer[stat_index] = (D[5000 + stat_index]) (* initialize the buffer *)
+			endloop	
+		;Customer Name for Station 13-24
+		else if (bufferRX.DwnLeft > 12) and (bufferRX.DwnLeft <= 24) then
+			loop stat_index = 0 to 14 do
+				send_buffer[0].Customer[stat_index] = (D[5020 + stat_index]) (* initialize the buffer *)
+			endloop	
+		;Customer Name for Station 25-36
+		else if (bufferRX.DwnLeft > 24) and (bufferRX.DwnLeft <= 36) then
+			loop stat_index = 0 to 14 do
+				send_buffer[0].Customer[stat_index] = (D[5040 + stat_index]) (* initialize the buffer *)
+			endloop	
+		;Customer Name for Station 37-48
+		else if (bufferRX.DwnLeft > 36) and (bufferRX.DwnLeft <= 48) then
+			loop stat_index = 0 to 14 do
+				send_buffer[0].Customer[stat_index] = (D[5060 + stat_index]) (* initialize the buffer *)
+			endloop	
+		;Customer Name for Station 49-56
+		else 
+			loop stat_index = 0 to 14 do
+				send_buffer[0].Customer[stat_index] = (D[5080 + stat_index]) (* initialize the buffer *)
+			endloop
+		endif
+
+		;-----------------------------------------------------
+		;set the IP-Adress of the receiving CTT
+		;-----------------------------------------------------
+		UDPsend_1.ipaddr = 	UDPrecv_1.ipaddr 
+				
+		;-----------------------------------------------------
+		; Copy Category data to sending buffer
+		;-----------------------------------------------------
+		loop buff_index = 0 to 14 do
+			send_buffer[0].Category[buff_index] = D[5100 + buff_index + (bufferRX.UpLeft-1)*20]
+			send_buffer[1].Category[buff_index]	= D[5100 + buff_index + (bufferRX.DwnLeft-1)*20]
+			send_buffer[2].Category[buff_index]	= D[5100 + buff_index + (bufferRX.UpRight-1)*20]
+			send_buffer[3].Category[buff_index]	= D[5100 + buff_index + (bufferRX.DwnRight-1)*20]
+		endloop	
+		
+		if show_long_id = 0 then 
+			send_buffer[0].use_long_id = 0	
+			;-----------------------------------------------------
+			; Copy Cat data to sending buffer
+			;-----------------------------------------------------
+			;Make a String of Bag.Cat
+			udiToString(adr(pBaga),(Bag[200 + bufferRX.UpLeft].Cat),10)
+			udiToString(adr(pBagb),(Bag[200 + bufferRX.DwnLeft].Cat),10)
+			udiToString(adr(pBagc),(Bag[200 + bufferRX.UpRight].Cat),10)
+			udiToString(adr(pBagd),(Bag[200 + bufferRX.DwnRight].Cat),10)
+			;copy the string(10Byte)to sending buffer
+			memcpy(adr(send_buffer[0].Cat[0]),adr(pBaga),10)
+			memcpy(adr(send_buffer[1].Cat[0]),adr(pBagb),10)
+			memcpy(adr(send_buffer[2].Cat[0]),adr(pBagc),10)
+			memcpy(adr(send_buffer[3].Cat[0]),adr(pBagd),10)
+		else
+			send_buffer[0].use_long_id = 1	
+			;-----------------------------------------------------
+			; Copy Long ID data to sending buffer
+			;-----------------------------------------------------
+			loop buff_index = 0 to 4 do
+				send_buffer[0].Cat[buff_index] = D[5115 + buff_index + (bufferRX.UpLeft-1)*20]
+				send_buffer[1].Cat[buff_index] = D[5115 + buff_index + (bufferRX.DwnLeft-1)*20]
+				send_buffer[2].Cat[buff_index] = D[5115 + buff_index + (bufferRX.UpRight-1)*20]
+				send_buffer[3].Cat[buff_index] = D[5115 + buff_index + (bufferRX.DwnRight-1)*20]
+			endloop
+		endif
+		;-----------------------------------------------------
+		; Copy Wgt data to sending buffer
+		;-----------------------------------------------------
+
+		;round up weight to give to CTT
+		Remainder_a = SINT(Bag[200 + bufferRX.UpLeft].Wgt MOD 10)
+		IF (Remainder_a > 4) THEN
+			WgtRound_a = (Bag[200 + bufferRX.UpLeft].Wgt + 10)
+		ELSE
+			WgtRound_a = Bag[200 + bufferRX.UpLeft].Wgt
+		ENDIF
+
+		Remainder_b = SINT(Bag[200 + bufferRX.DwnLeft].Wgt MOD 10)
+		IF (Remainder_b > 4) THEN
+			WgtRound_b = (Bag[200 + bufferRX.DwnLeft].Wgt + 10)
+		ELSE
+			WgtRound_b = Bag[200 + bufferRX.DwnLeft].Wgt
+		ENDIF		
+		
+		Remainder_c = SINT(Bag[200 + bufferRX.UpRight].Wgt MOD 10)
+		IF (Remainder_c > 4) THEN
+			WgtRound_c = (Bag[200 + bufferRX.UpRight].Wgt + 10)
+		ELSE
+			WgtRound_c = Bag[200 + bufferRX.UpRight].Wgt
+		ENDIF		
+		
+		Remainder_d = SINT(Bag[200 + bufferRX.DwnRight].Wgt MOD 10)
+		IF (Remainder_d > 4) THEN
+			WgtRound_d = (Bag[200 + bufferRX.DwnRight].Wgt + 10)
+		ELSE
+			WgtRound_d = Bag[200 + bufferRX.DwnRight].Wgt
+		ENDIF		
+
+		;Make a String of WgtRound
+		udiToString(adr(pBaga_w),(WgtRound_a/10),3)
+		udiToString(adr(pBagb_w),(WgtRound_b/10),3)
+		udiToString(adr(pBagc_w),(WgtRound_c/10),3)
+		udiToString(adr(pBagd_w),(WgtRound_d/10),3)
+		;copy the string(3Byte)to sending buffer
+		memcpy(adr(send_buffer[0].Wgt[0]),adr(pBaga_w),3)
+		memcpy(adr(send_buffer[1].Wgt[0]),adr(pBagb_w),3)
+		memcpy(adr(send_buffer[2].Wgt[0]),adr(pBagc_w),3)
+		memcpy(adr(send_buffer[3].Wgt[0]),adr(pBagd_w),3)
+		;copy the unit of weight (kg) to buffer
+		memcpy(adr(send_buffer[0].Wgt[3]),adr(unit),2)
+		memcpy(adr(send_buffer[1].Wgt[3]),adr(unit),2)
+		memcpy(adr(send_buffer[2].Wgt[3]),adr(unit),2)
+		memcpy(adr(send_buffer[3].Wgt[3]),adr(unit),2)
+
+		;-----------------------------------------------------
+		;set up the color for the background (at the moment a constant value)
+		;-----------------------------------------------------
+	    send_buffer[0].BackColor = 60
+	    send_buffer[1].BackColor = 60
+	    send_buffer[2].BackColor = 60
+	    send_buffer[3].BackColor = 60
+
+
+		;-----------------------------------------------------
+		;make UDP port ready for sending data
+		;-----------------------------------------------------
+		UDPsend_1.enable = 1                		; enables the FBK
+	   	UDPsend_1.cident = UDPopen_1.cident         ; copy the Ident number
+		UDPsend_1.buffer = ADR(send_buffer)      	; address of the buffer
+		UDPsend_1.buflng = SIZEOF(send_buffer)      ; size of the buffer
+		UDPsend_1.port = 21000              		; port number of the receiver
+
+		;-----------------------------------------------------
+		;starts the sending process
+		;-----------------------------------------------------
+
+		UDPsend_1 FUB UDPsend()
+		RX = TRUE
+	endif
+		
+	;-----------------------------------------------------
+	;starts the sending process when UDP Buisy
+	;-----------------------------------------------------
+	if (UDPsend_1.status = 65535) then
+		UDPsend_1 FUB UDPsend()
+	endif 	
+
+										
+END_PROGRAM

@@ -1,0 +1,69 @@
+FUNCTION_BLOCK _SetCAN2TypeToCAN1Type
+;********************************************************************************************************
+; * Implementation of _SetCAN2TypeToCAN1Type
+;********************************************************************************************************
+; * version 		1.10
+;	* ###HO - 020905 - Fünftes Telegramm ergänzt
+; * version 		1.00
+; * last change		sep, 30th, 2003
+; * by				H.O.
+;********************************************************************************************************
+;********************************************************************************************************
+; 	-> 	pCAN2Data			.. pointer to CAN2 structure that contains data to read or write
+; 	-> 	iTelegramIndex		.. telegram index exctractet from received / broadcasted telegram
+; 		pCAN1Data 		->	.. return the address of CAN1 struct
+;********************************************************************************************************
+
+; set local pointer to incoming CAN2 uni structure
+memcpy(adr(LocalCAN2UniData), pCAN2Data, sizeof(LocalCAN2UniData))
+
+iStatus = 0
+
+; create CAN1 telegram from CAN2 te structure passed in..
+case iTelegramIndex of
+	action 1:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T1_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T1_By1
+		LocalCAN1Data.T_By2_By3 = LocalCAN2UniData.T1_By2_By3
+		LocalCAN1Data.T_By4_By5 = LocalCAN2UniData.T1_By4_By5
+		LocalCAN1Data.T_By6_By7 = LocalCAN2UniData.T1_By6_By7
+	endaction
+	action 2:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T2_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T2_By1
+		LocalCAN1Data.T_By2_By3 = LocalCAN2UniData.T2_By2_By3
+		LocalCAN1Data.T_By4_By5 = LocalCAN2UniData.T2_By4_By5
+		LocalCAN1Data.T_By6_By7 = LocalCAN2UniData.T2_By6_By7
+	endaction
+	action 3:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T3_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T3_By1
+		LocalCAN1Data.T_By2_By3 = LocalCAN2UniData.T3_By2_By3
+		LocalCAN1Data.T_By4_By5 = LocalCAN2UniData.T3_By4_By5
+		LocalCAN1Data.T_By6_By7 = LocalCAN2UniData.T3_By6_By7
+	endaction
+	action 4:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T4_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T4_By1
+		LocalCAN1Data.T_By2_By3 = LocalCAN2UniData.T4_By2_By3
+		LocalCAN1Data.T_By4_By5 = LocalCAN2UniData.T4_By4_By5
+		LocalCAN1Data.T_By6_By7 = LocalCAN2UniData.T4_By6_By7
+	endaction
+	action 5:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T5_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T5_By1
+		LocalCAN1Data.T_By2_By3 = LocalCAN2UniData.T5_By2_By3
+		LocalCAN1Data.T_By4_By5 = LocalCAN2UniData.T5_By4_By5
+		LocalCAN1Data.T_By6_By7 = LocalCAN2UniData.T5_By6_By7
+	endaction
+	elseaction:
+		iStatus = 109
+	endaction
+endcase
+
+; pass pointer to CAN1 telegram to output..
+pCAN1Data = ADR(LocalCAN1Data)
+
+;********************************************************************************************************
+;********************************************************************************************************
+END_FUNCTION_BLOCK

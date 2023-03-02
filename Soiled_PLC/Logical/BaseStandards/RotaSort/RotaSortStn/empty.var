@@ -1,0 +1,47 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myRelLine : UINT;
+	myBag : UINT;
+	i_bagAtBuffer : BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	o_openBuffer : BOOL;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : ARRAY[0..MAX_ROTASTATIONS] OF TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	bufferSettleTime : UDINT;
+	myOutBag : UINT;
+	i_bagInStation : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	myBank : UINT;
+	ton_SettledStation : ARRAY[0..MAX_ROTASTATIONS] OF TON_10ms;
+	o_steady : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	o_releaseBag : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	myAlm : UINT;
+	ton_retract : ARRAY[0..MAX_ROTASTATIONS] OF TON_10ms;
+	o_pusher : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	bagReleased : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	n : UINT;
+	Test_FullBagMode : BOOL;
+	StnBag : UINT;
+	o_reset : BOOL;
+	i_partLoad : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	myBagNumber : UDINT;
+	ton_SettledWeight : ARRAY[0..7] OF TON_10ms;
+END_VAR

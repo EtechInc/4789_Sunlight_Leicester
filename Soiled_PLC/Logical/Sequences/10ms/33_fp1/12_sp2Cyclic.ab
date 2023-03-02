@@ -1,0 +1,126 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+D[970] = 0
+D[971] = 0
+
+LOOP CurrentBag = Line[30].FirstBag  TO Line[30].LastBag DO
+;LOOP CurrentBag = 301  TO 301 DO		
+		EXITIF Line[30].FirstBag = 0
+		FirstBagDestination = Bag[301].Dst
+		CurrentDis = (Bag[CurrentBag].Dst)
+		EXITIF (FirstBagDestination <> Bag[CurrentBag].Dst)
+		IF (((Bag[CurrentBag].Dst) = FirstBagDestination) AND (FirstBagDestination = 23))THEN
+			D[970] = (D[970] + 1)
+			testkk = TRUE
+		ENDIF
+		IF (((Bag[CurrentBag].Dst)= FirstBagDestination) AND (FirstBagDestination = 24))THEN
+			D[971] = (D[971] + 1)
+		ENDIF
+					
+ENDLOOP
+	
+	
+	
+	
+	
+Uld[3].SDCReady 	= ((D[28] > 0)AND (Request.FDC[1] = TRUE) AND (D[970] = 0) AND (Bag[316].Cat= 0)) 
+Uld[4].SDCReady 	= ((D[29] > 0)AND (Request.FDC[2] = TRUE) AND (D[971] = 0) AND (Bag[316].Cat = 0))
+
+
+I_BagAtStop 		= X[11].X12
+
+O_OpenBufferStop    = FALSE						
+
+
+Alarm[33].Name 			= 0
+Alarm[33].Bag			= 316
+Alarm[33].Beacon		= TRUE
+Alarm[33].Extra			= 0
+Alarm[33].Time			= 2000
+
+;Setup Sequence
+STEP = D[933]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+IF I_BagAtStop  AND (Bag[301].Cat=0) THEN
+	Alarm[33].Name 			= almSwitchFault
+	Alarm[33].Time			= 300
+ELSE IF NOT I_BagAtStop  AND (Bag[301].Cat>0) THEN
+	Alarm[33].Name 			= almBagNotSettled
+	Alarm[33].Time			= 10000
+ENDIF
+
+;;Step 1 - Reset Points
+TON_10ms((STEP = 1),300,ResetPoints,ResetPointsET)
+IF (STEP = 1) THEN
+		Destination = 0
+	IF ResetPoints THEN
+		D[933] = 2
+	ENDIF
+ENDIF
+	
+
+;Bag at buffer stop with dest	
+TON_10ms((I_BagAtStop),300,BagAtBuffer,BagAtBufferET)	
+IF (STEP = 2) THEN
+	IF BagAtBuffer THEN
+		IF ((Request.FDC[1] = TRUE)AND (Bag[301].Cat > 0) AND (Bag[301].Dst= 23) AND (D[970] > 0))  THEN
+			Destination = 1
+			D[933] = 3
+		
+		ELSE IF ((Request.FDC[2] = TRUE) AND (Bag[301].Cat > 0) AND (Bag[301].Dst= 24) AND (D[971] > 0)) THEN
+			Destination = 2
+			D[933] = 3
+		ENDIF
+	ENDIF
+ENDIF
+
+
+;Select discharger 
+IF (STEP = 3) THEN
+	O_OpenBufferStop = TRUE
+	IF ((Bag[301].Cat >0) AND (Bag[316].Cat = 0) AND PLS) THEN
+		Bag[316] = Bag[301]
+		Bag[301] = Bag[0]
+	ENDIF
+	IF (D[931] > 2) AND (Destination = 1)THEN ;Bag at FDC 1
+		D[933] = 1
+	ELSE IF (D[932] > 2) AND (Destination = 2) THEN 
+		D[933] = 1
+	ENDIF
+	Alarm[33].Name 			= almBagNotReleased
+
+ENDIF
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[33].Name > 0)
+TimerAlarm.PT 	= Alarm[33].Time
+TimerAlarm FUB TON_10ms()
+Alarm[33].On 	= TimerAlarm.Q
+Alarm[33].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[11].Y12 = O_OpenBufferStop
+
+Y[11].Y10 = (Destination = 1);FP1
+Y[11].Y11 = (Destination = 2);FP1
+
+END_PROGRAM
+

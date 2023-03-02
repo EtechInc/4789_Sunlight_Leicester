@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?AutomationStudio Version="4.2.4.149"?>
+<UnitGroup xmlns="http://br-automation.co.at/AS/VC/Project" Name="Rotation">
+  <Property Name="DefaultDisplayUnit" Value="Source[embedded].Unit[Div100]"/>
+  <Property Name="DefaultLimit" Value="Source[embedded].Limit[Limit_0]"/>
+  <Property Name="DefaultPLCUnit" Value="Source[embedded].Unit[PLCUnit]"/>
+  <Property Name="Description" Value=""/>
+  <Property Name="InternalUnitTextIndex" Value="0"/>
+  <Property Name="RuntimeUnitChange" Value="None"/>
+  <Property Name="RuntimeUnitCurrentDatapoint" Value="None"/>
+  <TextGroup Name="TextGroup_1">
+    <Property Name="Description" Value=""/>
+    <Property Name="Index" Value="65536"/>
+    <TextSnippets/>
+    <TextLayer LanguageId="en-GB">
+      <Text ID="87750" Value=""/>
+      <Text ID="87751" Value=""/>
+      <Text ID="87752" Value=""/>
+      <Text ID="87753" Value="°"/>
+      <Text ID="87754" Value="°"/>
+    </TextLayer>
+    <TextLayer LanguageId="de-DE">
+      <Text ID="87750" Value=""/>
+      <Text ID="87751" Value=""/>
+      <Text ID="87752" Value=""/>
+      <Text ID="87753" Value="°"/>
+      <Text ID="87754" Value="°"/>
+    </TextLayer>
+    <TextLayer LanguageId="fr-FR">
+      <Text ID="87750" Value=""/>
+      <Text ID="87751" Value=""/>
+      <Text ID="87752" Value=""/>
+      <Text ID="87753" Value=""/>
+      <Text ID="87754" Value=""/>
+    </TextLayer>
+    <IndexMap>
+      <Index ID="87750" Value="0"/>
+      <Index ID="87751" Value="1"/>
+      <Index ID="87752" Value="2"/>
+      <Index ID="87753" Value="3"/>
+      <Index ID="87754" Value="4"/>
+    </IndexMap>
+  </TextGroup>
+  <Units>
+    <Unit ClassId="0x00000602" Name="PLCUnit">
+      <Property Name="DefaultPrecisionDatapoint" Value="None"/>
+      <Property Name="Description" Value=""/>
+      <Property Name="Factor" Value="1"/>
+      <Property Name="Index" Value="0"/>
+      <Property Name="Offset" Value="0"/>
+      <Property Name="Text_Abbreviation_TextGroup" Value="None"/>
+      <Property Name="Text_Abbreviation_TextIndex" Value="2"/>
+      <Property Name="Text_Description_TextGroup" Value="None"/>
+      <Property Name="Text_Description_TextIndex" Value="1"/>
+      <Property Name="UnitFraction" Value="False"/>
+      <Property Name="Unit_DefaultPrecision" Value="0"/>
+    </Unit>
+    <Unit ClassId="0x00000602" Name="Div100">
+      <Property Name="DefaultPrecisionDatapoint" Value="None"/>
+      <Property Name="Description" Value=""/>
+      <Property Name="Factor" Value="0.01"/>
+      <Property Name="Index" Value="1"/>
+      <Property Name="Offset" Value="0"/>
+      <Property Name="Text_Abbreviation_TextGroup" Value="None"/>
+      <Property Name="Text_Abbreviation_TextIndex" Value="4"/>
+      <Property Name="Text_Description_TextGroup" Value="None"/>
+      <Property Name="Text_Description_TextIndex" Value="3"/>
+      <Property Name="UnitFraction" Value="False"/>
+      <Property Name="Unit_DefaultPrecision" Value="2"/>
+    </Unit>
+  </Units>
+  <Limits>
+    <Limit Name="Limit_0">
+      <Property Name="Description" Value=""/>
+      <Property Name="MaxDatapoint" Value="None"/>
+      <Property Name="MaxValue" Value="40500"/>
+      <Property Name="MinDatapoint" Value="None"/>
+      <Property Name="MinValue" Value="-4500"/>
+    </Limit>
+  </Limits>
+</UnitGroup>

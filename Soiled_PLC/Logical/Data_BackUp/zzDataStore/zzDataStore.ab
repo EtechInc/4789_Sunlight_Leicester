@@ -1,0 +1,225 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzDataStore
+ * File: zzDataStore.ab
+ * Author: treamsbottom
+ * Created: March 20, 2014
+ ********************************************************************
+ * Implementation of program zzDataStore
+ ********************************************************************)
+;-- V1.01 21-03-2014 First Version-- TR. 
+
+
+PROGRAM _INIT
+;Set Global Memtype	
+MemType = doSYSROM
+pUSBDevice = ADR("USBStick")
+
+;Set the Data to be backed up
+;Name must be 10 chars max	
+Backup[0].MemTyp = MemType	
+Backup[0].DataLength = SIZEOF(Bag)	
+Backup[0].pData 	= ADR(Bag)
+Backup[0].pFileName	= ADR("Bak_Bag")
+	
+Backup[1].MemTyp = MemType	
+Backup[1].DataLength = SIZEOF(C)	
+Backup[1].pData 	= ADR(C)
+Backup[1].pFileName	= ADR("Bak_C")
+	
+Backup[2].MemTyp = MemType	
+Backup[2].DataLength = SIZEOF(D)	
+Backup[2].pData 	= ADR(D)
+Backup[2].pFileName	= ADR("Bak_D")
+	
+Backup[3].MemTyp = MemType	
+Backup[3].DataLength = SIZEOF(D32)	
+Backup[3].pData 	= ADR(D32)
+Backup[3].pFileName	= ADR("Bak_D32")
+	
+Backup[4].MemTyp = MemType	
+Backup[4].DataLength = SIZEOF(ReportBuffer)	
+Backup[4].pData 	= ADR(ReportBuffer)
+Backup[4].pFileName	= ADR("Bak_Report")
+	
+Backup[5].MemTyp = MemType	
+Backup[5].DataLength = SIZEOF(RB_Posn)	
+Backup[5].pData 	= ADR(RB_Posn)
+Backup[5].pFileName	= ADR("Bak_RBPosn")
+	
+Backup[6].MemTyp = MemType	
+Backup[6].DataLength = SIZEOF(RB_Perm)	
+Backup[6].pData 	= ADR(RB_Perm)
+Backup[6].pFileName	= ADR("Bak_RBPerm")
+	
+Backup[7].MemTyp = MemType	
+Backup[7].DataLength = SIZEOF(SQL)	
+Backup[7].pData 	= ADR(SQL)
+Backup[7].pFileName	= ADR("Bak_SQL")
+	
+;Backup[8].MemTyp = MemType	
+;Backup[8].DataLength = SIZEOF(RFIDCode)	
+;Backup[8].pData 	= ADR(RFIDCode)
+;Backup[8].pFileName	= ADR("Bak_RFID")
+
+	
+MaxBackUpAreas = 7
+
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+IF TestTIM THEN
+	memcpy(ADR(D),1,100000)
+	TestTIM = FALSE
+ENDIF		
+myMonitorReg = 291 ; D reg to monitor if 0 then stop back up
+myUpdateReg	= 292 ; Reply reg from Trackview used to restore data.	
+myAlarm = 209
+	
+Alarm[myAlarm].On	= FALSE
+Alarm[myAlarm].Bag 	= 0
+Alarm[myAlarm].Name	= 0		
+	
+	
+CASE eBackup OF	
+	ACTION eNull:
+		IF (D[myUpdateReg] = cBackUp_FromSYSROM) THEN
+			;Registers are updated when Read completes
+			eBackup = eRead			
+		ELSE IF (D[myUpdateReg] = cBackUp_FromUSB) THEN
+			D[myUpdateReg] = 0
+			eBackup = eReadFromUSB	
+		ELSE IF (D[myUpdateReg] = cBackUp_StartWithoutRestore) THEN		
+			D[myMonitorReg] = 1	
+			D[myUpdateReg] = 0
+		ELSE 	
+			D[myUpdateReg] = 0	
+			 IF (D[myMonitorReg] > 0) THEN
+				eBackup = eWrite	
+			ENDIF	
+		ENDIF
+		n = 0
+	ENDACTION		
+	
+	ACTION eWrite: ; Back up perm memory
+		BackUp.Enable = TRUE	
+		BackUp.DataAction = eWrite	
+		BackUp.DataLength = Backup[n].DataLength
+		BackUp.MemType = Backup[n].MemTyp	
+		BackUp.pData = Backup[n].pData	
+		BackUp.pFileName = Backup[n].pFileName	
+		BackUp FUB DataBackUp()		
+		IF ((BackUp.Status = ERR_OK) OR (BackUp.Status <> ERR_FUB_BUSY)) THEN			 	
+			Backup[n].ident = BackUp.CurrentDatFile.ident
+			IF (D[myMonitorReg] > 0) THEN
+				INC n
+				IF (n > MaxBackUpAreas)THEN
+					n = 0		
+					eBackup = eCopyToUSB		
+				ENDIF
+				IF (BackUp.Status = ERR_OK) THEN
+					INC Debug.WriteCount_MEM	
+				ELSE IF (BackUp.Status <> ERR_FUB_BUSY) THEN	
+					INC Debug.WriteFail_MEM		
+				ENDIF	
+			ELSE
+				eBackup = eNull 	
+			ENDIF		
+		ENDIF		
+	ENDACTION	
+		
+	ACTION eRead: ; Restore perm memory 	
+		
+		BackUp.Enable = TRUE	
+		BackUp.DataAction = eRead	
+		BackUp.DataLength = Backup[n].DataLength
+		BackUp.pData = Backup[n].pData	
+		BackUp.pFileName = Backup[n].pFileName	
+		BackUp FUB DataBackUp()		
+		IF ((BackUp.Status = ERR_OK) OR (BackUp.Status <> ERR_FUB_BUSY)) THEN			 	
+			Backup[n].ident = BackUp.CurrentDatFile.ident
+			INC n
+			IF (BackUp.Status = ERR_OK) THEN
+				INC Debug.ReadCount_MEM	
+			ELSE IF (BackUp.Status <> ERR_FUB_BUSY) THEN	
+				INC Debug.ReadFail_MEM		
+			ENDIF	
+			IF (n > MaxBackUpAreas)THEN 
+				D[myUpdateReg] = 0
+				eBackup = eNull		
+			ENDIF
+		ENDIF	
+	ENDACTION
+
+	ACTION eCopyToUSB: ; Copy all data files to USBStick	
+		CopytoUSB.Enable = TRUE
+		CopytoUSB.pDevice = pUSBDevice
+		CopytoUSB.pData = Backup[n].pData	
+		CopytoUSB.fiLen = Backup[n].DataLength
+		CopytoUSB.pFile = Backup[n].pFileName	
+		CopytoUSB FUB CopyToFileDevice()
+		IF CopytoUSB.Status = ERR_OK THEN
+			IF (D[myMonitorReg] > 0) THEN	
+				INC n
+				INC Debug.WriteCount_USB
+				IF (n > MaxBackUpAreas)THEN 
+					eBackup = eNull		
+				ENDIF
+			ELSE
+				eBackup = eNull 	
+			ENDIF	
+		ELSE IF CopytoUSB.Status = fiERR_FILE_DEVICE THEN ; File Device doesn't exist go back to writing to SYSROM 		
+			eBackup = eNull	
+		ELSE IF CopytoUSB.Status <> ERR_FUB_BUSY THEN			  
+			IF (D[myMonitorReg] > 0) THEN
+				INC n
+				INC Debug.WriteFail_USB
+				IF (n > MaxBackUpAreas)THEN 
+					eBackup = eNull		
+				ENDIF	
+			ELSE
+				eBackup = eNull 	
+			ENDIF
+		ENDIF
+	ENDACTION
+		
+	ACTION eReadFromUSB:	
+		ReadFromUSB.Enable = TRUE
+		ReadFromUSB.pDevice = pUSBDevice
+		ReadFromUSB.pFile = Backup[n].pFileName	
+		ReadFromUSB.fiLen = Backup[n].DataLength
+		ReadFromUSB.pDest = Backup[n].pData		
+		ReadFromUSB FUB	ReadFromFileDevice()
+		IF ReadFromUSB.Status = ERR_OK THEN	
+			INC n
+			INC Debug.ReadCount_USB
+			IF (n > MaxBackUpAreas)THEN 
+				eBackup = eNull	
+			ENDIF			
+		ELSE IF ReadFromUSB.Status = fiERR_FILE_DEVICE THEN ; File Device doesn't exist go back to writing to SYSROM 		
+			eBackup = eNull			
+		ELSE IF  ReadFromUSB.Status <> ERR_FUB_BUSY THEN	
+			INC n
+			INC Debug.ReadFail_USB
+			IF (n > MaxBackUpAreas)THEN 
+				eBackup = eNull	
+			ENDIF	
+		ENDIF		
+	ENDACTION	
+ENDCASE		
+
+IF D[myMonitorReg] = 0 THEN	
+	Alarm[myAlarm].Name = almBackUpNotRunning		
+	Alarm[myAlarm].On = TRUE	
+ENDIF			
+
+END_PROGRAM
+
+PROGRAM _EXIT
+;Copy all back up files to MemCard
+		
+
+		
+END_PROGRAM

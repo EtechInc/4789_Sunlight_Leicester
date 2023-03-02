@@ -1,0 +1,56 @@
+VAR RETAIN
+	LASTSTEP : UINT;
+	SelectedBuffer : USINT;
+	Destination : UINT;
+	FoundLine : UINT;
+END_VAR
+VAR
+	x : UINT;
+	Line14_Valid : BOOL;
+	LongestLine : UINT;
+	O_Select : ARRAY[0..22] OF BOOL;
+	LongestSTime : UINT;
+	LineInList : ARRAY[0..98] OF BOOL;
+	mySeq : UINT;
+	RecircSpaces : UINT;
+	O_Reset3way : BOOL;
+	r : UINT;
+	myRelLine : UINT;
+	SettleTime : UINT;
+	TransitBag : UINT;
+	RecircValid : BOOL;
+	TimerAlarm : TON_10ms;
+	SDC6_Valid : BOOL;
+	SDC5_Valid : BOOL;
+	SDC7_Valid : BOOL;
+	TestAtStop : BOOL;
+	STEP : UINT;
+	SDC3_Valid : BOOL;
+	SearchDest : UINT;
+	SDC4_Valid : BOOL;
+	I_InclineBufferStopOpen : BOOL;
+	ResetPointsET : TIME;
+	ResetPoints : BOOL;
+	OffGoingEnable : BOOL;
+	SDC1_Valid : BOOL;
+	SDC2_Valid : BOOL;
+	PLS : BOOL;
+	O_SDCBufferOpen : ARRAY[0..4] OF BOOL;
+	O_Reset : BOOL;
+	MaxLine : UINT;
+	n : UINT;
+	MinLine : UINT;
+	BufferBag : ARRAY[0..9] OF UINT;
+	LineSelect : ARRAY[0..30] OF BOOL;
+	MaxBuffers : UINT;
+	I_SDCBagAtBuffer : ARRAY[0..4] OF BOOL;
+	I_BagAtIncline : BOOL;
+	IncSettle : BOOL;
+	LineSettle : ARRAY[0..30] OF BOOL;
+	BestTime : UINT;
+	BufferClear : ARRAY[0..9] OF BOOL;
+	AlarmBagNotProx : BOOL;
+	I_BagAtStop : ARRAY[0..30] OF BOOL;
+	BagSettledTime : ARRAY[0..30] OF UINT;
+	myZone : UINT;
+END_VAR

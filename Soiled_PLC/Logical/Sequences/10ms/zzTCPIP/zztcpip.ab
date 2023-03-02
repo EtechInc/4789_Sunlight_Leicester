@@ -1,0 +1,391 @@
+;-----------------------------------
+;TCP IP Driver Communications Driver
+;-----------------------------------
+
+;------------------------------------------------------------------------------------------------------------
+;Version 1.00 01/12/2005 D.J. First Issue
+;Version 2.00 14/04/2009 D.J. Added VC_Posn data type
+;Version 3.00 02/06/2009 D.J. Added D32 32-Bit Data
+;Version 4.00 09/04/2010 D.J. Added MCN Machine Type Communication
+;Version 4.10 03/11/2010 D.J. Changed VC to RB (Robo) other than that full compatiable with Version 4.00
+;Version 5.00 28/04/2012 D.J. Enabled larger data size now 5000 bytes (200 bags with a size of 25 bytes each)
+;------------------------------------------------------------------------------------------------------------
+
+;Normally the driver will be sending constant requests - if the driver dosen't send anything for 1 second then the connection should be closed.
+
+PROGRAM _INIT
+
+;Enable connections set to TRUE or FALSE depending on how many connections are required
+EnableConnection1 = TRUE
+EnableConnection2 = TRUE
+
+;Start Connection
+ResetConnection = TRUE
+
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+;------------
+;Connection 1
+;------------
+
+;Restart - from init routine
+IF ResetConnection THEN
+	IF EnableConnection1 THEN
+		NEWSTEP = 1
+	ELSE
+		NEWSTEP = 0
+	ENDIF
+ENDIF
+
+STEP = NEWSTEP
+
+;Disabled
+IF STEP = 0 THEN
+	;Do Nothing
+ENDIF
+
+;Init Server
+IF STEP = 1 THEN
+	TCPserv_1.enable = 1
+	TCPserv_1.porta = 21001
+	TCPserv_1 FUB TCPserv()
+	IPAddr	= H_TO_NUDINT(TCPserv_1.ipaddr)
+	Port	= TCPserv_1.portb
+	NEWSTEP = 2
+ENDIF
+
+;Server to listening - until PC connects
+IF STEP = 2 THEN
+	TCPserv_1 FUB TCPserv()
+	IPAddr	= H_TO_NUDINT(TCPserv_1.ipaddr)
+	Port	= TCPserv_1.portb
+	IF TCPserv_1.status = 0 THEN
+		PLS = TRUE
+		NEWSTEP = 3
+	ELSE IF TCPserv_1.status = 27155 THEN 							;27155 = No buffer space available
+		NEWSTEP = 6
+	ENDIF
+ENDIF
+
+;PC Connected - if error then disconnect
+IF STEP = 3 THEN
+
+	WriteEnable = FALSE
+
+	IF TCPsend_1.status = 0 THEN
+
+		TCPrecv_1.enable = 1
+		TCPrecv_1.cident = TCPserv_1.cident
+		TCPrecv_1.buffer = ADR(rdata[0])
+		TCPrecv_1.mxbuflng = SIZEOF(rdata)
+		TCPrecv_1 FUB TCPrecv()
+		RXLength = TCPrecv_1.rxbuflng
+		RXStatus = TCPrecv_1.status
+
+		IF RXLength > 0 THEN
+
+			Data_RXTX_Type  = rdata[1] 								;WR = 1  WW = 3 
+			Data_Array_Type = rdata[2]								;C  = 1 D  = 2 Bag = 3
+			
+			Data_StartH = rdata[3]
+			Data_Start 	= LSL(Data_StartH,8) + rdata[4]
+			Data_AmountH = rdata[5]
+			Data_Amount = LSL(Data_AmountH,8) + rdata[6]
+			
+			IF Data_Array_Type = 1 THEN
+				Data_array_adr 	= pC
+				Bytes			= 2
+			ELSE IF Data_Array_Type = 2 THEN
+				Data_array_adr = pD
+				Bytes			= 2
+			ELSE IF Data_Array_Type = 3 THEN
+				Data_array_adr 	= pBag
+				Bytes			= SIZEOF(Bag[0])
+			ELSE IF Data_Array_Type = 4 THEN
+				Data_array_adr 	= pRB_Posn
+				Bytes			= SIZEOF(RB_Posn[0])
+			ELSE IF Data_Array_Type = 5 THEN
+				Data_array_adr 	= pD32
+				Bytes			= SIZEOF(D32[0])
+			ELSE IF Data_Array_Type = 6 THEN
+				Data_array_adr 	= pMCN
+				Bytes			= SIZEOF(MCN[0])
+			ENDIF
+			
+			PacketID = rdata[RXLength - 1] ;Packet ID sent back to Driver for check
+
+			;Increase tx_frame and rx frame now 5000 bytes (Data_Amount based on 16 bit register 2 bytes)
+			Data_Valid = ((Data_RXTX_Type > 0) AND (Data_Array_Type > 0) AND (Data_array_adr > 0) AND (Data_Amount > 0) AND (Data_Amount <= 2500))
+			
+			IF Data_Valid THEN
+
+				RXValid = RXValid + 1
+
+				IF (Data_RXTX_Type = 1) THEN					;Word Read - Transmit Data to PC
+
+					tx_frame[0] = rdata[0]						;PLC Station
+
+					memcpy(adr(tx_frame[1]),Data_array_adr + (Data_Start * Bytes),(Data_Amount * Bytes))
+
+					tx_frame[(Data_Amount * Bytes) + 1] = PacketID ;USINT(0) ;Checksum not required
+					tx_length 	= (Data_Amount * Bytes) + 2
+					WriteEnable = TRUE
+
+				ELSE IF (Data_RXTX_Type = 3) THEN 				;Word Write - Receive data from PC
+					
+					LengthValid = (RXLength > (Data_Amount * Bytes))		
+					IF LengthValid THEN
+						memcpy(Data_array_adr + (Data_Start * Bytes),adr(rdata[7]),(Data_Amount * Bytes))
+
+						tx_frame[0] = $06							;ACK
+						tx_frame[1] = rdata[0]						;PLC Station
+						tx_length 	= 2
+						WriteEnable	= TRUE							;Set write enable
+					ELSE
+						tx_frame[0] = $15 							;NAK
+						tx_frame[1] = rdata[0] 						;PLC Station
+						tx_length 	= 2
+						WriteEnable	= TRUE							;Set write enable
+						
+					ENDIF
+					
+				ENDIF
+
+			ELSE
+
+				tx_frame[0] = $15 								;NAK
+				tx_frame[1] = rdata[0] 							;PLC Station
+				tx_length 	= 2
+				WriteEnable	= TRUE								;Set write enable
+
+			ENDIF
+
+			IF WriteEnable THEN
+				TCPsend_1.enable = 1
+    			TCPsend_1.cident = TCPserv_1.cident
+    			TCPsend_1.buffer = ADR(tx_frame[0])
+    			TCPsend_1.buflng = tx_length ;SIZEOF(tx_frame)
+    			TCPsend_1 FUB TCPsend()
+	    	ENDIF
+
+	    ENDIF
+
+	ELSE
+		TCPsend_1 FUB TCPsend()
+	ENDIF
+
+    IF (((TCPsend_1.status <> 0) AND (TCPsend_1.status <> 65535)) OR NoData) THEN
+    	NoData  = FALSE
+    	NEWSTEP = 4
+    ENDIF
+
+ENDIF
+TON_10ms(((STEP = 3) AND (RXLength = 0)),500,NoData,NoDataET)
+
+
+;Close the connection - if closed then go-to listen else go-to wait for close
+IF STEP = 4 THEN
+	TCPclose_1.enable = 1
+	TCPclose_1.cident = TCPserv_1.cident
+	TCPclose_1 FUB TCPclose()
+	NEWSTEP = 5
+ENDIF
+
+;Closing - wait until connection closed
+IF STEP = 5 THEN
+	IF TCPclose_1.status <> 0 THEN
+		TCPclose_1 FUB TCPclose()
+	ELSE IF TCPclose_1.status = 0 THEN
+		TCPsend_1.status = 0
+		NEWSTEP = 1
+	ENDIF
+ENDIF
+
+IF STEP = 6 THEN
+	;Warm / Cold Start Required
+ENDIF
+
+;------------
+;Connection 2
+;------------
+
+;Restart - from init routine
+IF ResetConnection THEN
+	IF EnableConnection2 THEN
+		NEWSTEP2 = 1
+	ELSE
+		NEWSTEP2 = 0
+	ENDIF
+ENDIF
+
+STEP2 = NEWSTEP2
+
+;Disabled
+IF STEP2 = 0 THEN
+	;Do Nothing
+ENDIF
+
+;Init Server
+IF STEP2 = 1 THEN
+	TCPserv_2.enable = 1
+	TCPserv_2.porta = 21002
+	TCPserv_2 FUB TCPserv()
+	IPAddr2	= H_TO_NUDINT(TCPserv_2.ipaddr)
+	Port2	= TCPserv_2.portb
+	NEWSTEP2 = 2
+ENDIF
+
+;Server to listening - until PC connects
+IF STEP2 = 2 THEN
+	TCPserv_2 FUB TCPserv()
+	IPAddr2	= H_TO_NUDINT(TCPserv_2.ipaddr)
+	Port2	= TCPserv_2.portb
+	IF TCPserv_2.status = 0 THEN
+		PLS2 = TRUE
+		NEWSTEP2 = 3
+	ELSE IF TCPserv_2.status = 27155 THEN								;27155 = No buffer space available
+		NEWSTEP2 = 6
+	ENDIF
+ENDIF
+
+;PC Connected - if error then disconnect
+IF STEP2 = 3 THEN
+
+	WriteEnable2 = FALSE
+
+	IF TCPsend_2.status = 0 THEN
+
+		TCPrecv_2.enable = 1
+		TCPrecv_2.cident = TCPserv_2.cident
+		TCPrecv_2.buffer = ADR(rdata2[0])
+		TCPrecv_2.mxbuflng = SIZEOF(rdata2)
+		TCPrecv_2 FUB TCPrecv()
+		RXLength2 = TCPrecv_2.rxbuflng
+		RXStatus2 = TCPrecv_2.status
+
+		IF RXLength2 > 0 THEN
+
+			Data_RXTX_Type  = rdata2[1] 								;WR = 1 BR = 2 WW = 3 BW = 4 - Bit Read and Bit Write not used
+			Data_Array_Type = rdata2[2]									;C  = 1 D  = 2 E  = 3
+
+			Data_StartH = rdata2[3]
+			Data_Start 	= LSL(Data_StartH,8) + rdata2[4]
+			Data_AmountH = rdata2[5]
+			Data_Amount = LSL(Data_AmountH,8) + rdata2[6]
+			
+				IF Data_Array_Type = 1 THEN
+				Data_array_adr 	= pC
+				Bytes			= 2
+			ELSE IF Data_Array_Type = 2 THEN
+				Data_array_adr = pD
+				Bytes			= 2
+			ELSE IF Data_Array_Type = 3 THEN
+				Data_array_adr 	= pBag
+				Bytes			= SIZEOF(Bag[0])
+			ELSE IF Data_Array_Type = 4 THEN
+				Data_array_adr 	= pRB_Posn
+				Bytes			= SIZEOF(RB_Posn[0])
+			ELSE IF Data_Array_Type = 5 THEN
+				Data_array_adr 	= pD32
+				Bytes			= SIZEOF(D32[0])
+			ELSE IF Data_Array_Type = 6 THEN
+				Data_array_adr 	= pMCN
+				Bytes			= SIZEOF(MCN[0])
+			ENDIF
+			
+			PacketID = rdata2[RXLength2 - 1] ;Packet ID sent back to Driver for check
+
+			Data_Valid = ((Data_RXTX_Type > 0) AND (Data_Array_Type > 0) AND (Data_array_adr > 0) AND (Data_Amount > 0) AND (Data_Amount < 1001))
+			
+			IF Data_Valid THEN
+
+				RXValid2 = RXValid2 + 1
+
+				IF (Data_RXTX_Type = 1) THEN							;Word Read - Transmit Data to PC
+
+					tx_frame2[0] = rdata2[0] 							;PLC Station
+
+					memcpy(adr(tx_frame2[1]),Data_array_adr + (Data_Start * Bytes),(Data_Amount * Bytes))
+
+					tx_frame2[(Data_Amount * Bytes) + 1] = PacketID ;USINT(0) ;Checksum not required
+					tx_length2 	= (Data_Amount * Bytes) + 2
+					WriteEnable2 = TRUE
+
+				ELSE IF (Data_RXTX_Type = 3) THEN 						;Word Write - Receive data from PC
+					
+					LengthValid = (RXLength2 > (Data_Amount * Bytes))
+					IF LengthValid THEN
+						memcpy(Data_array_adr + (Data_Start * Bytes),adr(rdata2[7]),(Data_Amount * Bytes))
+
+						tx_frame2[0] = $06									;ACK
+						tx_frame2[1] = rdata2[0] 							;PLC Station
+						tx_length2 	= 2
+						WriteEnable2	= TRUE								;Set write enable
+					ELSE
+						tx_frame2[0] = $15 									;NAK
+						tx_frame2[1] = rdata2[0] 							;PLC Station
+						tx_length2 	 = 2
+						WriteEnable2 = TRUE									;Set write enable
+					ENDIF
+				ENDIF
+
+			ELSE
+
+				tx_frame2[0] = $15 										;NAK
+				tx_frame2[1] = rdata2[0] 								;PLC Station
+				tx_length2 	 = 2
+				WriteEnable2 = TRUE										;Set write enable
+
+			ENDIF
+
+			IF WriteEnable2 THEN
+				TCPsend_2.enable = 1
+    			TCPsend_2.cident = TCPserv_2.cident
+    			TCPsend_2.buffer = ADR(tx_frame2[0])
+    			TCPsend_2.buflng = tx_length2 ;SIZEOF(tx_frame)
+    			TCPsend_2 FUB TCPsend()
+	    	ENDIF
+
+	    ENDIF
+
+	ELSE
+		TCPsend_2 FUB TCPsend()
+	ENDIF
+
+    IF (((TCPsend_2.status <> 0) AND (TCPsend_2.status <> 65535)) OR NoData2) THEN
+    	NoData2  = FALSE
+    	NEWSTEP2 = 4
+    ENDIF
+
+ENDIF
+TON_10ms(((STEP2 = 3) AND (RXLength2 = 0)),500,NoData2,NoData2ET)
+
+
+;Close the connection - if closed then go-to listen else go-to wait for close
+IF STEP2 = 4 THEN
+	TCPclose_2.enable = 1
+	TCPclose_2.cident = TCPserv_2.cident
+	TCPclose_2 FUB TCPclose()
+	NEWSTEP2 = 5
+ENDIF
+
+;Closing - wait until connection closed
+IF STEP2 = 5 THEN
+	IF TCPclose_2.status <> 0 THEN
+		TCPclose_2 FUB TCPclose()
+	ELSE IF TCPclose_2.status = 0 THEN
+		TCPsend_2.status = 0
+		NEWSTEP2 = 1
+	ENDIF
+ENDIF
+
+IF STEP2 = 6 THEN
+	;Warm / Cold Start Required
+ENDIF
+
+;Clear Reset Connection from Init Sub
+ResetConnection = FALSE
+END_PROGRAM
+

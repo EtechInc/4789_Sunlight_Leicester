@@ -1,0 +1,5 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=36_sb_a 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=61 Type=0 Scope=0 Force=0 Index=1 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                  D[936]                                     UINT    0 "                                                               8"    1    6    1   10    0    0         

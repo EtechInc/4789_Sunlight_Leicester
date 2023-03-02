@@ -1,0 +1,25 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;Inputs
+I_SortBelt3Photo	= X[3].X16
+
+O_RunSortBelt1 		= FALSE
+O_RunSortBelt2 		= FALSE
+O_RunSortBelt3 		= FALSE
+
+
+;Run belts
+O_RunSortBelt3 = NOT I_SortBelt3Photo AND NOT Std.EStopLoading ;Std.EStop
+TON_10ms(O_RunSortBelt3,300,O_RunSortBelt2,SortBelt3RunningET)
+TON_10ms(O_RunSortBelt2,300,O_RunSortBelt1,SortBelt2RunningET)
+
+;Outputs
+Y[2].Y11 = O_RunSortBelt3
+;Y[13].Y09 = O_RunSortBelt2
+;Y[13].Y11 = O_RunSortBelt3
+
+
+
+END_PROGRAM
+

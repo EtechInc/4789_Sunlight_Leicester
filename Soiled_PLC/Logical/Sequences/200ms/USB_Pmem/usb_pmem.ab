@@ -1,0 +1,233 @@
+;--------------------------------------------------------------
+;Copy BagData, C and D data to and from USB Mass Storage device
+;--------------------------------------------------------------
+
+;----------------------------------------------------
+;Version 1.00 05/08/2006 D.J. First Issue
+;Version 2.00 24/06/2009 D.J. Added D32 & VC_Posn
+;Version 3.00 03/11/2010 D.J. Changed VC to RB (Robo)
+;----------------------------------------------------
+
+;Notes:-
+;Add a mass storage device to the PLC CPU
+;In CPU Properties select File Device
+;Add a new device and set the Device Name to "USBStick"
+;set the path of the USB device eg. "IF3.ST1" for a CP340
+
+PROGRAM _INIT
+
+bOK 			= FALSE
+STEP 			= 1
+byErrorLevel 	= 0
+CurrentFile 	= 0
+
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+;Error Step
+IF STEP = 0 THEN
+	bOK = FALSE
+ENDIF
+
+;Check if the file exists
+IF STEP = 1 THEN
+
+	FOpen.enable    = TRUE
+    FOpen.pDevice   = "USBStick"
+    IF CurrentFile = 0 THEN
+    	FOpen.pFile     = "PLC_BagData.dat"
+    ELSE IF CurrentFile = 1 THEN
+    	FOpen.pFile     = "PLC_C.dat"
+    ELSE IF CurrentFile = 2 THEN
+    	FOpen.pFile     = "PLC_D.dat"
+	ELSE IF CurrentFile = 3 THEN
+    	FOpen.pFile     = "PLC_D32.dat"
+	ELSE IF CurrentFile = 4 THEN
+    	FOpen.pFile     = "PLC_RBPosn.dat"
+    ENDIF
+    FOpen.mode      = 2 ;Read and write access
+
+    FOpen FUB FileOpen()
+
+    dwIdent = FOpen.ident
+    wStatus = FOpen.status
+
+    ;Status - 20708 = File doesn't exist
+    IF (wStatus = 20708) THEN
+    	STEP = 2 ;If the file not found then create the file
+    ELSE
+    	IF (wStatus = 0) THEN
+        	STEP = 4 ;If the file exists then copy back to PLC
+    	ELSE
+        	IF (wStatus <> 65535) THEN
+            	byErrorLevel = 1
+                STEP = 0
+				IF (wStatus = 20799) THEN
+                	wError = FileIoGetSysError()
+           		ENDIF
+            ENDIF
+    	ENDIF
+    ENDIF
+
+
+ENDIF
+
+;Create the file
+IF STEP = 2 THEN
+
+	FCreate.enable  = TRUE
+    FCreate.pDevice = "USBStick"
+    IF CurrentFile = 0 THEN
+    	FCreate.pFile     = "PLC_BagData.dat"
+    ELSE IF CurrentFile = 1 THEN
+    	FCreate.pFile     = "PLC_C.dat"
+    ELSE IF CurrentFile = 2 THEN
+    	FCreate.pFile     = "PLC_D.dat"
+    ELSE IF CurrentFile = 3 THEN
+    	FCreate.pFile     = "PLC_D32.dat"
+	ELSE IF CurrentFile = 4 THEN
+    	FCreate.pFile     = "PLC_RBPosn.dat"
+    ENDIF
+    FCreate FUB FileCreate()
+
+    dwIdent = FCreate.ident
+    wStatus = FCreate.status
+
+    IF (wStatus = 0) THEN
+    	STEP = 3
+    ELSE
+    	IF (wStatus <> 65535) THEN
+        	byErrorLevel = 4
+            STEP = 5 ;Close
+			IF (wStatus = 20799) THEN
+            	wError = FileIoGetSysError() ;General System Error - get more info
+        	ENDIF
+    	ENDIF
+    ENDIF
+ENDIF
+
+;Write data to the file
+IF STEP = 3 THEN
+
+    FWrite.enable   = TRUE
+    FWrite.ident    = dwIdent
+    FWrite.offset   = 0
+    IF CurrentFile = 0 THEN
+    	FWrite.pSrc     = pBag
+    	FWrite.len      = sizeof(Bag)
+    ELSE IF CurrentFile = 1 THEN
+    	FWrite.pSrc     = pC
+    	FWrite.len      = sizeof(C)
+    ELSE IF CurrentFile = 2 THEN
+    	FWrite.pSrc     = pD
+    	FWrite.len      = sizeof(D)
+	ELSE IF CurrentFile = 3 THEN
+    	FWrite.pSrc     = pD32
+    	FWrite.len      = sizeof(D32)
+	ELSE IF CurrentFile = 4 THEN
+    	FWrite.pSrc     = pRB_Posn
+    	FWrite.len      = sizeof(RB_Posn)
+    ENDIF
+
+    FWrite FUB FileWrite()
+
+    wStatus = FWrite.status
+
+    ;Status
+    IF (wStatus = 0) THEN
+    	STEP = 5 ;Close
+    ELSE
+       	IF (wStatus <> 65535) THEN
+        	byErrorLevel = 3
+    		STEP = 0
+
+          	IF (wStatus = 20799) THEN
+            	wError = FileIoGetSysError() ;General System Error - get more info
+        	ENDIF
+     	ENDIF
+  	ENDIF
+ENDIF
+
+;Read file
+IF STEP = 4 THEN
+
+    FRead.enable    = TRUE
+    FRead.ident     = dwIdent
+    FRead.offset    = 0
+
+	IF CurrentFile = 0 THEN
+    	FRead.pDest     = pBag
+    	FRead.len      = sizeof(Bag)
+    ELSE IF CurrentFile = 1 THEN
+    	FRead.pDest     = pC
+    	FRead.len      = sizeof(C)
+    ELSE IF CurrentFile = 2 THEN
+    	FRead.pDest     = pD
+    	FRead.len      = sizeof(D)
+    ELSE IF CurrentFile = 3 THEN
+    	FRead.pDest     = pD32
+    	FRead.len      	= sizeof(D32)
+	ELSE IF CurrentFile = 4 THEN
+    	FRead.pDest     = pRB_Posn
+    	FRead.len      	= sizeof(RB_Posn)
+	ENDIF
+
+    FRead FUB FileRead()
+
+    wStatus = FRead.status
+
+	;Status
+    IF (wStatus = 0) THEN
+    	STEP = 5
+    ELSE
+        IF (wStatus <> 65535) THEN
+            byErrorLevel = 4
+            STEP = 0
+            IF (wStatus = 20799) THEN
+            	wError = FileIoGetSysError() ;General System Error - get more info
+            ENDIF
+        ENDIF
+    ENDIF
+ENDIF
+
+;Close the file
+IF STEP = 5 THEN
+
+	FClose.enable   = TRUE
+	FClose.ident    = dwIdent
+
+	FClose FUB FileClose()
+
+	wStatus = FClose.status
+
+	;Status
+	IF (wStatus = 0) THEN
+		STEP = 7
+	ELSE
+        IF (wStatus <> 65535) THEN
+            byErrorLevel = 5
+            STEP = 0
+
+            IF (wStatus = 20799) THEN
+            	wError = FileIoGetSysError() ;General System Error - get more info
+            ENDIF
+        ENDIF
+	ENDIF
+ENDIF
+
+;Operation Complete - try next file if required
+IF STEP = 7 THEN
+	IF CurrentFile < 4 THEN
+		CurrentFile = CurrentFile + 1
+		STEP = 1
+	ENDIF
+ENDIF
+
+;Set this step manually to test this routine
+IF (STEP = 8) THEN
+	CurrentFile = 0
+	STEP		= 1
+ENDIF
+END_PROGRAM
+

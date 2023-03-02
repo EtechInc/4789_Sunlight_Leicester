@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.0.19.69 SP?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File" Description="Global data types">my_Panel.typ</Object>
+    <Object Type="File" Description="Global variables">my_Panel.var</Object>
+    <Object Type="DataObject" Language="Vc" Description="VC Data Entry 320x240 (QVGA)">myDataEntry1</Object>
+    <Object Type="Program" Language="IEC" Description="General Use Panel Display">myPanel</Object>
+  </Objects>
+</Package>

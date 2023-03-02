@@ -1,0 +1,55 @@
+﻿FUNCTION_BLOCK Zone
+{ VariableWorksheet := 'Variables' }
+﻿{GroupDefinition(0,'NewGroup')}
+
+VAR_INPUT {Group(0)}
+    {LINE(3)}
+    Zone_Reset : BOOL; (*Reset Zone*)
+    {LINE(4)}
+    SafeSystemOk : SAFEBOOL; (*Activate Zone Safety*)
+    {LINE(9)}
+    Zone_Dependancys : SAFEBOOL; (*Zone Dependancy*)
+    {LINE(14)}
+    Zone_EDM_Input : BOOL; (*First contact for monitoring*)
+    {LINE(15)}
+    Zone_EDM_Disbale : SAFEBOOL; (*Set to true to disable zone EDM*)
+    {LINE(16)}
+    Zone_Input : SAFEBOOL; (*Zone inputs for monitoring*)
+    {LINE(17)}
+    Auto_Reset : SAFEBOOL; (*Hoist need auto reset set to true*)
+END_VAR
+
+VAR_OUTPUT {Group(0)}
+    {LINE(5)}
+    Zone_Release : SAFEBOOL; (*Zone Status*)
+    {LINE(6)}
+    Zone_Ready : BOOL; (*Zone Ready*)
+    {LINE(7)}
+    Zone_Error : BOOL; (*Zone Error*)
+    {LINE(8)}
+    Zone_Diag_Code : WORD; (*Zone Error Code*)
+    {LINE(11)}
+    EDM_Ready : BOOL; (*EDM Status*)
+    {LINE(12)}
+    EDM_Error : BOOL; (*EDM Error*)
+    {LINE(13)}
+    EDM_Diag_Code : WORD; (*EDM Error Code*)
+END_VAR
+
+VAR {Group(0)}
+    {LINE(1)}
+    SF_EmergencyStop_V1_00_1 : SF_EmergencyStop_V1_00; (*ES FB*)
+    {LINE(2)}
+    F_TRIG_1 : F_TRIG; (*F TRIG FB*)
+    {LINE(10)}
+    SF_EDM_V1_00_1 : SF_EDM_V1_00; (*EDM FB*)
+    {LINE(18)}
+    R_TRIG_S_1 : R_TRIG_S; (*R TRIG FB*)
+END_VAR
+
+{ CodeWorksheet := 'Zone', Type := '.fbd' }
+﻿<?xml version="1.0" encoding="utf-16"?><FBD><comment localId="0" height="1" width="1"><position x="8" y="8" /><content><body><p style="color:#000000;font-family:Arial;font-weight:bold;font-style:normal;font-size:22pt;">An error occured while converting
+data to XML format.This worksheet
+will be empty.
+11/06/2020 16:11:21</p></body></content></comment></FBD>
+END_FUNCTION_BLOCK

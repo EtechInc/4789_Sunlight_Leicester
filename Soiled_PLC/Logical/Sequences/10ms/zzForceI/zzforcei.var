@@ -1,0 +1,9 @@
+VAR
+	n : UINT;
+	XForce : CardInputs;
+	XForceVal : CardInputs;
+	Force : UINT;
+	myForceState : UINT;
+	myForceValue : UINT;
+	myForceCard : UINT;
+END_VAR

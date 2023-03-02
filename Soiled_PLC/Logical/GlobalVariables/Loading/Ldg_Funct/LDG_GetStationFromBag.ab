@@ -1,0 +1,9 @@
+
+(* *Get the station number from bag *)
+FUNCTION LDG_GetStationFromBag
+	IF BagNum >= StationBagsStart THEN
+		LDG_GetStationFromBag :=  BagNum - StationBagsStart + 1	
+	ELSE		
+		LDG_GetStationFromBag := 0;
+		ENDIF;	
+END_FUNCTION

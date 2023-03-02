@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Library xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File Description="Exported data types">DataBackUp.typ</File>
+    <File Description="Exported constants">DataBackUp.var</File>
+    <File Description="*Save Memory to Dat file">DataSave.ab</File>
+    <File Description="*Write to File. Create if it doesn;t exist">CopyToFileDevice.ab</File>
+    <File Description="*Open &amp; Read file from File device">ReadFromFileDevice.ab</File>
+    <File Description="Exported functions and function blocks">DataBackUp.fun</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="DataObj" />
+  </Dependencies>
+</Library>

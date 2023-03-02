@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File" Description="Global data types">CustomLogs.typ</Object>
+    <Object Type="File" Description="Global variables">CustomLogs.var</Object>
+    <Object Type="Program" Language="IEC" Description="*DO NOT USE">zzWeighLog</Object>
+    <Object Type="Program" Language="IEC" Description="*Write Error messages to log on block failure">zzWeighStatus</Object>
+    <Object Type="Program" Language="IEC" Description="*Write Error messages to log on block failure">zzModuleLog</Object>
+    <Object Type="Program" Language="IEC" Description="*Advanced Module Logger -- Have to Manually set the block order.">zzModuleLog1</Object>
+  </Objects>
+</Package>

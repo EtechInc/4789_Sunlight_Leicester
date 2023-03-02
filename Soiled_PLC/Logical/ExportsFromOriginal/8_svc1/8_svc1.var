@@ -1,0 +1,40 @@
+VAR RETAIN
+	I_CarrAtTop	:BOOL;	
+	I_CarrAtBottom	:BOOL;	
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	O_MoveCarrUp	:BOOL;	
+	O_OpenCarrStop	:BOOL;	
+	O_MoveCarrDown	:BOOL;	
+	I_BagOnCarr	:BOOL;	
+END_VAR
+
+
+VAR
+	O_OpenBuffer	:BOOL;	
+	BagSettledOnCarr	:BOOL;	
+	BagSettledOnCarrET	:TIME;	
+	I_BagReleased	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+	I_CarrAtMiddle	:BOOL;	
+	I_CarrAtWeighing	:BOOL;	
+	I_NoEmptyBag	:BOOL;	
+	I_CollectEmpty	:BOOL;	
+	I_UseAsLoading	:BOOL;	
+	I_UpPushButton	:BOOL;	
+	I_DownPushButton	:BOOL;	
+	Dst	:UINT;	
+	PButton	:BOOL;	
+	SVCRaw	:DINT;	
+	n	:UINT;	
+	ValidCus	:BOOL;	
+	ValidWgt	:BOOL;	
+	O_AlarmLamp	:BOOL;	
+	ValidCat	:BOOL;	
+	Choice	:ARRAY [0..4] OF UINT;	
+	PButtonET	:TIME;	
+	Status	:UINT;	
+	PastMiddleET	:TIME;	
+	PastMiddle	:BOOL;	
+END_VAR

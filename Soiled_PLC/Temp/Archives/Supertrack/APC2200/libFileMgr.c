@@ -1,0 +1,10 @@
+void fileReadWrite(void) {};
+void _fileReadWrite(void) {};
+void fileToDatObj(void) {};
+void _fileToDatObj(void) {};
+void fileToMem(void) {};
+void _fileToMem(void) {};
+void FileCopyFromDev(void) {};
+void _FileCopyFromDev(void) {};
+void WriteXMLFromStructure(void) {};
+void _WriteXMLFromStructure(void) {};

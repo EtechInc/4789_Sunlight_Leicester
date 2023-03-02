@@ -1,0 +1,29 @@
+VAR
+	SafetyPLC_Ok : BOOL;
+END_VAR
+VAR CONSTANT
+	MAX_DESTINATIONS : USINT := 99;
+END_VAR
+VAR
+	VCStatus : ARRAY[0..9] OF UINT := [10(0)];
+	Std : Std_Vars;
+	Test : Test_Vars;
+	DestCountStorage : ARRAY[0..MAX_DESTINATIONS] OF UINT; (*Count of each destiantion code in storage*)
+	DestCountSystem : ARRAY[0..MAX_DESTINATIONS] OF UINT; (*Count of each destination code in the system*)
+	DestCountArea1 : ARRAY[0..MAX_DESTINATIONS] OF UINT; (*Count of each destination in a selected area*)
+	DestCountArea2 : ARRAY[0..MAX_DESTINATIONS] OF UINT; (*Count of each destination in a selected area*)
+	DestCountArea3 : ARRAY[0..MAX_DESTINATIONS] OF UINT; (*Count of each destination in a selected area*)
+	AutomaticLineAllocation : BOOL;
+	AutoLineAllocation : BOOL;
+	BidStn : UDINT;
+	pnlStatusMessage : ARRAY[0..29] OF STRING[20];
+	pnlStatus : ARRAY[0..19] OF UINT;
+	pnlName : ARRAY[0..29] OF STRING[25];
+	DoorOpen : ARRAY[0..49] OF TIME;
+	EasiSortHasRun : ARRAY[0..20] OF TIME;
+	StationClose : ARRAY[0..20] OF BOOL;
+	LongestTime : ARRAY[0..99] OF UINT;
+	DebugMode : BOOL;
+	Indication : ARRAY[0..79] OF BOOL;
+	TestSystem : BOOL;
+END_VAR

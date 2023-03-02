@@ -1,0 +1,96 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzEditBag
+ * File: zzEditBag.ab
+ * Author: Dave
+ * Created: September 25, 2010
+ ********************************************************************
+ * Implementation of program zzEditBag
+ ********************************************************************)
+
+;Version 2.00 08/07/2011 D.J. Removed the need to have a Bag ID (Batch Number) for Mis Server compatibility.
+;Version 3.00 03/11/2011 D.J. Mis BatchID and BagID now seperated
+;Veriosn 4.00 14/05/2012 D.J. New Bag Data Type
+
+PROGRAM _CYCLIC
+
+	EditPrg = USINT(D32[501])
+	EditDst	= USINT(D32[502])
+	EditWgt = UINT(D32[503])
+	EditCnt = UINT(D32[504])
+	EditUr1 = UINT(D32[505])
+	EditBid = D32[506]
+	EditCat = D32[507]
+	EditMis = D32[508]
+	EditCus	= D32[509]
+	EditUr2 = D32[510]
+	EditTimeStamp = DT(D32[511])
+		
+	EditPosnNow = D32[515]
+	EditPosnNew = D32[516]
+	EditMode	= D32[517]
+	EditAccLev	= USINT(D32[518])
+	EditStatus	= D32[519]
+	
+	;Loop through all bags 100 per scan and check if ID matches - access > supervisor
+	BagSize = SIZEOF(Bag[0])
+	MaxBags = ((SIZEOF(Bag) / BagSize) - 1)
+		
+	IF (EditStatus = 1) THEN
+		EditStatus = 2 ;Searching
+	ENDIF
+		
+	;Search 100 bags per scan
+	LOOP SearchBag = 1 TO MaxBags DO
+		;Bag with correct ID found then update
+		IF (EditStatus = 2) THEN
+			IF ((Bag[SearchBag].Bid = EditBid) AND (Bag[SearchBag].Bid > 0)) THEN
+				Bag[SearchBag].Prg 	= EditPrg
+				Bag[SearchBag].Dst 	= EditDst
+				Bag[SearchBag].Wgt 	= EditWgt
+				Bag[SearchBag].Cnt 	= EditCnt
+				Bag[SearchBag].Ur1 	= EditUr1
+				
+				Bag[SearchBag].Cat 	= EditCat
+				Bag[SearchBag].Mis 	= EditMis
+				Bag[SearchBag].Cus 	= EditCus
+				Bag[SearchBag].Ur2 	= EditUr2
+				Bag[SearchBag].Timestamp = EditTimeStamp
+				
+				EditStatus 			= 3 ;Complete
+			ENDIF
+		ENDIF
+	ENDLOOP
+	
+	;Bag not found and access >= engineer then add bag direct
+	IF (EditStatus = 2) THEN
+		IF (EditBid > 0) THEN
+			IF (EditAccLev >= accSupervisor) AND (EditPosnNew <= MaxBags) THEN
+				Bag[EditPosnNew].Prg 	= EditPrg
+				Bag[EditPosnNew].Dst 	= EditDst
+				Bag[EditPosnNew].Wgt 	= EditWgt
+				Bag[EditPosnNew].Cnt 	= EditCnt
+				Bag[EditPosnNew].Ur1 	= EditUr1
+				Bag[EditPosnNew].Bid 	= EditBid
+				Bag[EditPosnNew].Cat 	= EditCat
+				Bag[EditPosnNew].Mis 	= EditMis
+				Bag[EditPosnNew].Cus 	= EditCus
+				Bag[EditPosnNew].Ur2 	= EditUr2
+				Bag[EditPosnNew].Timestamp 	= EditTimeStamp
+				EditStatus 				= 3 ;Complete	
+			ELSE
+				EditStatus 				= 4 ;Failed
+			ENDIF
+		ENDIF
+	ENDIF
+	;Cancel when all bags have been searched
+	IF (EditStatus >= 3) THEN
+		D32[519] = 0
+	ENDIF
+		
+
+	
+	
+	
+END_PROGRAM

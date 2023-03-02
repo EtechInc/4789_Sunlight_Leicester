@@ -1,0 +1,3 @@
+VAR RETAIN
+	Line : ARRAY[0..99] OF Line_Typ;
+END_VAR

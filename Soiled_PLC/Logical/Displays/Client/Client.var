@@ -1,0 +1,39 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: Client
+ * File: Client.var
+ * Author: Dave
+ * Created: December 06, 2010
+ ********************************************************************
+ * Local variables of program Client
+ ********************************************************************)
+VAR
+	ScanCount : UINT;
+	ScanClock : TIME;
+	ScanLastClock : TIME;
+	ScanNow : TIME := T#0ms;
+	Client : Client_typ;
+END_VAR
+VAR RETAIN
+	IdentRetain : UDINT;
+END_VAR
+VAR
+	SocketState : USINT;
+END_VAR
+VAR CONSTANT
+	sckClosed : USINT := 0;
+	sckConnecting : USINT := 1;
+	sckConnected : USINT := 2;
+	sckError : USINT := 3;
+	sckListening : USINT := 4;
+	sckReceive : USINT := 5;
+	sckSend : USINT := 6;
+	sckSetLinger : USINT := 7;
+	sckWaitSync : USINT := 8;
+END_VAR
+VAR
+	TON_10ms_0 : TON_10ms;
+	ReadWriteEnable : BOOL;
+	SyncStart : BOOL;
+END_VAR

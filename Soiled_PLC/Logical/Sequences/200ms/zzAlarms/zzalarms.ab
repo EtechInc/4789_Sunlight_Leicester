@@ -1,0 +1,232 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;-----------------------------------------------
+;Alarm Messages with Screen position and history
+;-----------------------------------------------
+
+;-----------------------------------------------------------------
+;Version 1.00 - 08/12/2005 First Issue D.J.
+;Version 2.00 - 17/10/2006 Added Alarm.Extra D.J.
+;Version 3.00 - 23/04/2007 Added Constants to stop them being lost
+;Version 4.00 - 01/12/2009 Changed to 200 from 100 Sequence Alarms
+;-----------------------------------------------------------------
+
+;Alarm Constnts
+ConstKeep = almBagDataError
+ConstKeep = almBagNotArrived
+ConstKeep = almBagNotAtProx
+ConstKeep = almBagNotReleased
+ConstKeep = almBagNotSettled
+ConstKeep = almBagNotShownOnScreen
+ConstKeep = almBagOverWeight
+ConstKeep = almCarriageMoveFault
+ConstKeep = almClearingBeltPleaseWait
+ConstKeep = almDestinationNotValid
+ConstKeep = almEmergencyStop
+ConstKeep = almGeneralSequence
+ConstKeep = almInverterFault
+ConstKeep = almLoadNotDropped
+ConstKeep = almMotorOverload
+ConstKeep = almNoAlarm
+ConstKeep = almPhotocellBlocked
+ConstKeep = almPhotocellNotMade
+ConstKeep = almStationNotClosed
+ConstKeep = almStationNotEmpty
+ConstKeep = almSwitchFault
+ConstKeep = almUldNoBag
+ConstKeep = almUldProgFinished
+ConstKeep = almSystemStopped
+
+
+
+;Note - Sequence must set the following
+;Alarm[x].on
+;Alarm[x].Bag - for the bag position where the alarm will appear
+;Alarm[x].Name - for the message that will be displayed use constants strating "alm"
+;Alarn[x].Extra - Extra data for Graphics to use ie. Line number with fault on offgoing storage
+
+I_CancelAlarm 	= FALSE ;X[4].X16
+I_EStop 		= Std.EStop; OR Std.EStopLoading
+I_MotorOverload = Std.MotorOverload OR Std.MotorOverloadLoading
+I_SystemStopped = NOT Std.SafetyOn
+I_InverterFault = FALSE ;(X[3].X03 OR X[3].X04 OR X[3].X05 OR X[3].X06)
+;I_SafetyHighLevel	= Std.HaltSys
+;I_Safetyloading		= Std.HaltSysLoading	
+;I_SafetyVC[1]		= Std.HaltSysVC[1]	
+;I_SafetyVC[2]		= Std.HaltSysVC[2]	
+;--------------
+;Alarm Messages
+;--------------
+
+IF I_EStop THEN
+	Alarm[200].On	= TRUE
+	Alarm[200].Bag 	= 0
+	Alarm[200].Name	= almEmergencyStop
+ELSE IF I_MotorOverload THEN
+	Alarm[200].On	= TRUE
+	Alarm[200].Bag 	= 0
+	;Alarm[200].Name	= almMotorOverload
+	Alarm[200].Name	= KEV
+ELSE IF I_SystemStopped THEN
+	Alarm[200].On	= TRUE
+	Alarm[200].Bag 	= 0
+	Alarm[200].Name	= almSystemStopped
+ELSE IF I_InverterFault THEN
+	Alarm[200].On	= TRUE
+	Alarm[200].Bag 	= 0
+	Alarm[200].Name	= almInverterFault
+ELSE
+	Alarm[200].On	= FALSE
+	Alarm[200].Bag 	= 0
+	Alarm[200].Name	= almNoAlarm
+ENDIF
+LOOP n = 5 TO 9 DO 
+	Alarm[200 + n].On	= FALSE
+	Alarm[200 + n].Bag 	= 0
+	Alarm[200 + n].Name	= almNoAlarm		
+ENDLOOP	
+IF I_SafetyHighLevel THEN		
+	Alarm[205].On	= TRUE
+	Alarm[205].Bag 	= 0
+	Alarm[205].Name	= almSafetyHighLevel
+ENDIF	
+IF I_Safetyloading THEN	
+	Alarm[206].On	= TRUE
+	Alarm[206].Bag 	= 0
+	Alarm[206].Name	= almSafetyLoading	
+ENDIF	
+IF I_SafetyVC[1] THEN	 ; Don't use VC alarms unless cust reqs as will 
+	Alarm[207].On	= TRUE
+	Alarm[207].Bag 	= 0
+	Alarm[207].Name	= almSafetyVC	
+	Alarm[207].Extra = 1
+ENDIF
+;IF I_SafetyVC[2] THEN	
+;	Alarm[208].On	= TRUE
+;	Alarm[208].Bag 	= 0
+;	Alarm[208].Name	= almSafetyVC
+;	Alarm[208].Extra = 2	
+;ENDIF		
+;		
+	
+
+;Shuffle the Alarms List
+
+AlarmCount 		= 0
+BeaconInList 	= FALSE
+
+LOOP n = 1 TO 10 DO
+
+	;If Alarm not on anymore the clear from the list
+	AlmNumber = D[200 + n]
+	IF NOT Alarm[AlmNumber].On THEN
+		D[200 + n] = 0
+		D[210 + n] = 0
+	ENDIF
+
+	;Shuffle the list down
+	IF (D[200 + n] = 0) AND (D[201 + n] > 0) AND (n <> 10) THEN
+		D[200 + n] = D[201 + n]
+		D[210 + n] = D[211 + n]
+		D[201 + n] = 0
+		D[211 + n] = 0
+	ENDIF
+
+	;Set InList for any alarm in the list
+	Alarm[D[200 + n]].InList = TRUE
+
+	;Calculate total alarms in the list
+	IF D[200 + n] > 0 THEN
+		AlarmCount = AlarmCount + 1
+	ENDIF
+
+	;Is the alarm beacon required?
+	IF Alarm[AlmNumber].On AND Alarm[AlmNumber].Beacon THEN
+		BeaconInList = TRUE
+	ENDIF
+
+ENDLOOP
+
+;Cancel the alarm beacon
+IF I_CancelAlarm THEN
+	CancelBeacon = TRUE
+ENDIF
+
+;Cancel the CancelAlarm beacon if no alarm in the list requires the beacon
+IF NOT BeaconInList THEN
+	CancelBeacon = FALSE
+ENDIF
+
+;Look at each sequence alarm and if not in list then add to list if space
+LOOP n = 1 TO 209 DO
+
+	;If alarm active and a code has been given and not in the list and history is clear then add
+	IF ((AlarmCount < 10) AND Alarm[n].On AND NOT Alarm[n].InList AND ((D[221] = 0) OR (n > 200))) THEN
+
+		;If name not set then set to general
+		IF (Alarm[n].Name = 0) THEN
+			Alarm[n].Name = almGeneralSequence
+		ENDIF
+
+		D[210] 			= n
+		BuildD220		= LSL(Alarm[n].Extra,8)
+		BuildD220 		= BuildD220 + Alarm[n].Name
+		D[220] 			= BuildD220
+
+		;New alarm found requiring the beacon
+		IF Alarm[n].Beacon THEN
+			CancelBeacon = FALSE
+		ENDIF
+
+		;Store to History - if not Unloading Alarm
+		IF (n <= 200) THEN
+			D[221] 			= n				;Alarm Number (Seq)
+			D[222]			= Alarm[n].Name	;Alarm Name / Message
+			D[223] 			= D[223] + 1	;Alarm ID
+			D[224]			= Alarm[n].Extra;Alarm Extra Data
+			IF D[223] > 32000 THEN
+				D[223] = 1
+			ENDIF
+		ENDIF
+
+		;Inc Total Alarms
+		AlarmCount = AlarmCount + 1
+
+	ENDIF
+
+	;Cancel All InList's - will be checked on the next scan
+	Alarm[n].InList = FALSE
+
+ENDLOOP
+
+;Show Alarm position on the screen
+IF D[201] > 0 THEN
+	D[0] = Alarm[D[201]].Bag
+ELSE
+	D[0] = 0
+ENDIF
+;Alarms 203> used for extra safety zones
+UnloadingAlarm = (Alarm[201].On OR Alarm[202].On OR Alarm[203].On OR Alarm[204].On); OR Alarm[205].On OR Alarm[206].On OR Alarm[207].On OR Alarm[208].On)
+ 
+;Alarm Output - Unloading Alarm cannot be cancelled
+;Y[8].Y16 = ((BeaconInList AND NOT CancelBeacon) OR UnloadingAlarm)
+;Y[8].Y15 = CancelAlarm
+TON_10ms(Y[8].Y16,1200,Siren,SirenET)
+;Y[8].Y14 = Siren
+;Timed Alarm Output Horn or Beacon
+AlarmOutput = BeaconInList; OR UnloadingAlarm)
+
+tmrAlmOutput.IN = AlarmOutput
+tmrAlmOutput.PT = 6000
+tmrAlmOutput FUB TON_10ms() 
+	
+IF tmrAlmOutput.Q THEN
+	CancelBeacon = TRUE
+ENDIF
+
+;Y[3].Y01 = (AlarmOutput AND NOT CancelBeacon)
+
+
+END_PROGRAM
+

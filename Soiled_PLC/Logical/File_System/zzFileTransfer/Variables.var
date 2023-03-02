@@ -1,0 +1,42 @@
+VAR
+	state : UINT;
+	adrFileName : UDINT;
+END_VAR
+VAR CONSTANT
+	MEMCARD_SAVE : UINT := 1;
+	MEMCARD_READ : UINT := 2;
+END_VAR
+VAR
+	adrFileDevice : UDINT;
+	init : UINT;
+	devLink : DevLink;
+	adrParameter : UDINT;
+	fileRW : fileReadWrite;
+	TestData : ARRAY[0..99] OF USINT;
+	do_GetInfo : DatObjInfo;
+	error : UINT;
+	do_Read : DatObjRead;
+	testSize : UDINT;
+	do_Create : DatObjCreate;
+	do_Delete : DatObjDelete;
+	do_Ident : UDINT;
+	fiToDatObj : fileToDatObj;
+	do_Write : DatObjWrite;
+	xmlReadCreate : xmlCreateMemoryReader;
+	xmlReadNode : xmlReadNextNode;
+	forceRead : BOOL;
+	skip : BOOL;
+	xmlName : STRING[100];
+	xmlValue : STRING[100];
+	xmlReadAttNum : xmlReadAttributeNr;
+	xmlIndex : UDINT;
+	xmlCloseReader : xmlCloseMemoryReader;
+	fiToMem : fileToMem;
+	pTempMem : UDINT;
+	sizeTempMem : UDINT;
+	xmlReader : UINT;
+	xmlProperty : STRING[100];
+	xmlPropertyIndex : DINT;
+	n : UINT;
+	lineCount : UDINT;
+END_VAR

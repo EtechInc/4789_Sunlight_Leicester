@@ -1,0 +1,302 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+WasherUnloading         = X[12].X04 OR Testwash;relay in panel signal from washers             
+ManaulOperation         = X[12].X16;switch on remote box           
+InchPushButton          = X[12].X12;momentery push button        
+
+BeltA_DetectsLargeLoad  = X[12].X14;photocell on belt SB-A           
+SBA_PhotocellReverse    = X[12].X10;photocell at end of SB-A in reverse 
+       
+SBA_Photocell           = X[12].X15;linen detected end of SB-A 
+SB_3PhotocellFullBottom = X[12].X11;linen at end of conveyor when reversing
+
+SB4_PhotoCell           = X[12].X13;
+
+
+      
+LoadOK                  = X[15].X01;push button on panel
+
+O_BrakeA                = FALSE
+O_BrakeSB3              = FALSE
+
+O_BeltReadyFDC1         = FALSE;relay to washer
+O_BeltReadyFDC2         = FALSE;relay to washer
+
+AlarmLamp               = FALSE ;Lamp on panel
+O_OK_Lamp               = FALSE ;lamp in push button
+
+
+O_ReverseBeltA          = FALSE
+O_RunBeltA_Slow         = FALSE
+O_RunBeltA_Forward      = FALSE ;speed 2
+O_RunBeltB_Forward      = FALSE ;speed 1
+O_RunBeltB_Slow         = FALSE ;speed 1
+O_RunBeltB_Speed2       = FALSE
+O_Runbelt3_Forward      = FALSE
+O_Runbelt3_Slow         = FALSE
+O_RunBelt3_Speed2       = FALSE
+O_PauseUnloading        = FALSE
+
+Request.SB[2]           = FALSE
+
+Alarm[36].Name 			= 0
+Alarm[36].Bag			= 10009
+Alarm[36].Beacon		= TRUE
+Alarm[36].Extra			= 0
+Alarm[36].Time			= 3000
+
+;Setup Sequence
+STEP = D[936]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Alarm
+
+IF ((STEP >= 3) AND (STEP <= 6)) OR ((STEP >=7) AND (STEP <= 10)) THEN
+    O_BrakeA = TRUE
+ELSE  
+    O_BrakeA = FALSE
+ENDIF
+
+IF ((STEP >= 4) AND (STEP <= 9) AND (STEP <> 5) AND NOT StopBelts)  THEN
+    O_BrakeSB3 = TRUE
+ELSE  
+    O_BrakeSB3 = FALSE
+ENDIF
+
+;Sequence
+IF (STEP = 0) THEN
+	;disabled
+ENDIF
+
+TON_10ms(((STEP = 1)),200,ResetBelt,ResetBeltET)
+IF (STEP = 1) THEN
+	IF ResetBelt THEN
+		D[936] = 2
+	ENDIF
+ENDIF
+
+IF STEP <> 2 THEN
+	Alternate = 1
+ENDIF
+
+;Wait for unload signal and manaul or auto
+TON_10ms(((STEP = 2) AND (Alternate = 1)),500,FDC1,FDC1ET)
+TON_10ms(((STEP = 2)AND (Alternate = 2)),200,Clear,ClearET)
+TON_10ms(((STEP = 2)AND (Alternate = 3)),500,FDC2,FDC2ET)
+TON_10ms(((STEP = 2)AND (Alternate = 4)),200,Clear1,Clear1ET)
+IF (STEP = 2) THEN
+	IF ((Alternate > 4) OR (Alternate <= 0)) THEN
+		 Alternate = 1
+    ENDIF
+    
+    IF FDC1 THEN
+    	Alternate = 2
+    ELSE IF Clear THEN
+    	Alternate = 3
+    ELSE IF FDC2 THEN
+    	Alternate = 4
+	ELSE IF Clear1 THEN
+		Alternate = 1
+	ENDIF
+	
+	O_BeltReadyFDC1 = (Alternate = 1)
+    O_BeltReadyFDC2 = (Alternate = 3)
+	
+	;O_BeltReadyFDC1 = Std.M9035
+	;O_BeltReadyFDC2 = NOT Std.M9035
+		
+	IF ((WasherUnloading = TRUE) AND (NOT ManaulOperation)) THEN
+		D[936] = 4 ;changed from 3
+	ELSE IF ((WasherUnloading = TRUE) AND  (ManaulOperation = TRUE)) THEN
+		D[936] = 10		
+	ENDIF
+ENDIF
+
+;run belt at 10 meters a minute
+IF (STEP = 3) THEN	
+	O_RunBeltA_Forward = TRUE ;10ms	
+	IF (BeltA_DetectsLargeLoad = TRUE) THEN		
+		D[936] = 7
+	ENDIF	
+	IF (SBA_Photocell = TRUE) THEN
+		D[936] = 4
+	ENDIF
+ENDIF
+
+
+
+TON_10ms((STEP = 6) AND NOT RunBelt,500,StopBelts,StopBeltET)
+TON_10ms(StopBelts,500,RunBelt,RunBeltET)
+
+
+TON_10ms((SB_3PhotocellFullBottom = TRUE),50,SB_3Full,SB_3FullET)
+TON_10ms((SB_3PhotocellFullBottom = FALSE),50,SB_3Clear,SB_3ClearET)
+TON_10ms(((STEP = 4) AND SB4_PhotoCell),600,LinenDetected,LinenDetectedET)
+IF (STEP = 4) THEN
+	;IF NOT StopBelts THEN
+	     O_RunBeltA_Forward   = TRUE ;SB_3Clear
+	     O_RunBeltA_Slow      = kev
+	     O_RunBeltB_Forward   = TRUE
+	     O_RunBeltB_Speed2    = TRUE
+	     O_Runbelt3_Forward   = TRUE
+	     O_RunBelt3_Speed2    = TRUE
+	 ;ENDIF   
+	IF (BeltA_DetectsLargeLoad = TRUE) THEN		
+		D[936] = 8
+	ENDIF
+	IF (LinenDetected = TRUE) THEN
+		D[936] = 5
+	ENDIF
+ENDIF
+
+
+;I_SafetyRelayOn and sb2 not running
+TON_10ms(((NOT Std.HaltSys AND (Y[14].Y04= TRUE) AND (NOT Y[14].Y03) )),1700,SB2Clear,SB2ClearET)
+IF (STEP = 5) THEN
+	Request.SB[2] = TRUE
+	IF (SB2Clear = TRUE) THEN
+		D[936] = 6
+	ENDIF
+ENDIF
+
+;run belts at 10ms
+TON_10ms(((STEP = 6) AND (NOT SB4_PhotoCell) AND (NOT Std.HaltSys = TRUE)),3000,SBBeltClear,SBBeltClearET)	
+IF (STEP = 6) THEN
+		Request.SB[2] = TRUE
+    IF ((Y[14].Y04 = TRUE) AND NOT StopBelts) THEN
+		 O_RunBeltA_Forward         = TRUE
+		 O_RunBeltA_Slow            = SlowA
+		 O_RunBeltB_Forward         = TRUE
+		 O_Runbelt3_Forward         = TRUE		
+	ENDIF	
+	IF (BeltA_DetectsLargeLoad = TRUE) THEN
+		BeltAlarm   = TRUE
+		D[936] = 9
+	ENDIF
+	IF SBBeltClear THEN
+		D[936] = 1
+	ENDIF
+ENDIF
+
+;Large load from step 3
+IF (STEP = 7) THEN
+	AlarmLamp              = TRUE
+	O_OK_Lamp              = TRUE
+	O_PauseUnloading       = TRUE
+	IF (InchPushButton AND (SB4_PhotoCell = FALSE)) THEN
+	    O_RunBeltA_Forward = TRUE
+	 
+		O_RunBeltA_Slow    = Slow1
+				
+	ENDIF
+	IF LoadOK THEN
+		D[936] = 3
+	ENDIF
+ENDIF
+
+TON_10ms((O_RunBeltA_Forward = TRUE),50,Slow1,Slow1ET)
+
+;Large load from step 4
+IF (STEP = 8) THEN
+	AlarmLamp              = TRUE
+	O_OK_Lamp              = TRUE
+	O_PauseUnloading       = TRUE
+	IF (InchPushButton AND (SB4_PhotoCell = FALSE)) THEN
+	    O_RunBeltA_Forward = TRUE
+	    O_RunBeltA_Slow    = SlowA
+	    O_RunBeltB_Forward = TRUE
+	    O_RunBeltB_Slow    = SlowB
+	    O_Runbelt3_Forward = TRUE
+	    O_Runbelt3_Slow    = Slow3 
+	    
+	ENDIF
+	IF LoadOK THEN
+		D[936] = 4
+	ENDIF
+  ENDIF
+
+
+;Large load from step 6
+IF (STEP = 9) THEN
+	AlarmLamp              = TRUE
+	O_OK_Lamp              = TRUE
+	O_PauseUnloading       = TRUE
+	IF (InchPushButton AND (SB4_PhotoCell = FALSE)) THEN
+		O_RunBeltA_Slow    = SlowA
+	    O_RunBeltA_Forward = TRUE
+	    O_RunBeltB_Forward = TRUE
+	    O_RunBeltB_Slow    = SlowB
+	    O_Runbelt3_Forward = TRUE
+	    O_Runbelt3_Slow    = Slow3
+	    
+	ENDIF
+	IF LoadOK THEN
+		D[936] = 6
+	ENDIF
+ENDIF
+
+
+
+;manual mode
+IF (STEP = 10) THEN
+	;AlarmLamp              = TRUE
+	O_OK_Lamp              = TRUE
+	;O_PauseUnloading       = TRUE
+	IF (InchPushButton  AND (SBA_PhotocellReverse = FALSE)) THEN
+	    O_ReverseBeltA    = TRUE
+	ENDIF
+	IF LoadOK THEN
+		D[936] = 1
+	ENDIF
+ENDIF
+
+TON_10ms((O_RunBeltA_Forward = TRUE),50,SlowA,SlowAET)
+TON_10ms((O_RunBeltB_Forward = TRUE),50,SlowB,SlowBET)
+TON_10ms((O_Runbelt3_Forward = TRUE),50,Slow3,Slow3ET)
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[36].Name > 0)
+TimerAlarm.PT 	= Alarm[36].Time
+TimerAlarm FUB TON_10ms()
+Alarm[36].On 	= TimerAlarm.Q
+Alarm[36].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[12].Y15 = AlarmLamp ;YC15
+Y[15].Y01 = O_OK_Lamp ;Lamp on push button box YF01
+Y[12].Y14  = O_BeltReadyFDC1;YC14
+Y[12].Y16  = O_BeltReadyFDC2;YC16
+
+Y[14].Y13= O_RunBeltA_Slow ;YE13
+Y[14].Y09 = O_RunBeltA_Forward;YE09
+ 
+Y[14].Y11 = O_RunBeltB_Forward;YE11
+
+Y[14].Y05 = O_Runbelt3_Forward  ;YYE05
+
+Y[14].Y12 = O_RunBeltB_Slow;YE12
+
+Y[14].Y08 = O_Runbelt3_Slow ;YE08
+
+Y[14].Y10 = O_ReverseBeltA    ;YE10
+
+Y[15].Y02 = O_RunBeltB_Speed2 ;YF02
+
+Y[15].Y03 = O_RunBelt3_Speed2 ;YF03
+
+Y[15].Y04 = O_PauseUnloading  ;YF04
+
+Y[14].Y06 = Y[14].Y05
+
+Y[14].Y16 = O_BrakeA ;YE16
+Y[14].Y14 = O_BrakeSB3  ;YE14
+END_PROGRAM
+

@@ -1,0 +1,47 @@
+﻿@import "mixins.scss";
+@import "../../../../widgets/brease/NumericOutput/meta/NumericOutput_base";
+.widgets_brease_NumericOutput_style_Kannegiesser1 {
+@include widgets_brease_NumericOutput_base; 
+input {
+	color: #000000;
+}
+span.breaseNumericOutput_unit {
+	color: #000000;
+}
+	border-width: 1px;
+	border-color: #ffffff;
+input {
+	font-size: 12px;
+}
+	background-color: #088cdd;
+input {
+@include text-alignment(center);
+}
+
+}
+@import "../../../../widgets/brease/NumericInput/meta/NumericInput_base";
+.widgets_brease_NumericInput_style_Kannegiesser1 {
+@include widgets_brease_NumericInput_base; 
+&:not(.disabled):not(.active) input {
+	color: #000000;
+}
+&:not(.disabled):not(.active) span.breaseNumericInput_unit {
+	color: #000000;
+}
+&:not(.active):not(.disabled) {
+	border-width: 1px 5px 1px 1px;
+}
+&:not(.disabled):not(.active) {
+	border-color: #ffffff;
+}
+input {
+	font-size: 12px;
+}
+&:not(.disabled):not(.active) {
+	background-color: #077cc5;
+}
+input {
+@include text-alignment(center);
+}
+
+}

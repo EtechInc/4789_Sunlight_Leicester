@@ -1,0 +1,137 @@
+;-----------------------------------------------------
+;Sorting Station Search Routine - No changes required!
+;-----------------------------------------------------
+
+;----------------------------------------
+;Version 1.00 19/12/2005 First Issue D.J.
+;Version 2.00 03/11/2010 Revised D.J.
+;Version 3.00 19/07/2016 TR... Fix bug so multiple banks can release whilst purging..
+;----------------------------------------
+
+PROGRAM _CYCLIC
+
+
+	
+
+
+	
+
+
+
+IF Ldg[3].Search = 1 THEN
+	
+;Viking 5 CDC 5
+IF ((Bag[80].Cat = 0) AND (Bag[81].Cat = 0) AND (Bag[82].Cat = 0)) THEN
+	EmptyViking[15] = TRUE
+	
+
+ELSE IF ((Bag[81].Cat = 0 = 0) AND (Bag[82].Cat = 0)) THEN
+	Priority[15] = TRUE
+	
+ELSE 	
+	Priority[15]    = FALSE
+	EmptyViking[15] = FALSE
+ENDIF
+
+;Viking 4 CDC 6
+IF ((Bag[85].Cat = 0) AND (Bag[86].Cat = 0) AND (Bag[87].Cat = 0)) THEN
+	EmptyViking[16] = TRUE
+	
+ELSE IF ((Bag[86].Cat = 0) AND (Bag[87].Cat = 0)) THEN
+	Priority[16] = TRUE
+ELSE	
+	Priority[16]    = FALSE
+	EmptyViking[16] = FALSE
+ENDIF	
+
+;Viking 3 CDC 7 
+IF ((Bag[90].Cat = 0) AND (Bag[91].Cat = 0) AND (Bag[92].Cat = 0)) THEN
+	EmptyViking[16] = TRUE
+ELSE IF ((Bag[91].Cat = 0) AND (Bag[92].Cat = 0)) THEN
+	Priority[17] = TRUE
+ELSE	
+	Priority[17]    = FALSE
+	EmptyViking[17] = FALSE
+ENDIF	
+
+;Viking 2 CDC 8
+IF ((Bag[95].Cat = 0) AND (Bag[96].Cat = 0) AND (Bag[97].Cat = 0)) THEN
+	EmptyViking[18] = TRUE
+ELSE IF ((Bag[97].Cat = 0) AND (Bag[96].Cat = 0)) THEN
+	Priority[18] = TRUE
+ELSE	
+	Priority[18]    = FALSE
+	EmptyViking[18] = FALSE
+ENDIF	
+
+
+IF ((Bag[101].Cat = 0) AND (Bag[102].Cat = 0)AND (Bag[157].Cat = 0) AND (Bag[151].Cat = 0)) THEN
+	EmptyViking[18] = TRUE
+ELSE IF ((Bag[101].Cat = 0) AND (Bag[102].Cat = 0)AND (Bag[157].Cat = 0) AND (Bag[151].Cat = 0)) THEN
+	Priority[19] = TRUE
+ELSE	
+	Priority[19]    = FALSE
+	EmptyViking[19] = FALSE
+ENDIF	
+
+             n       = UINT(Bag[154].Cat)
+      		 Normal  = (D[3000 + n]) ;destinations from cat data base
+   	  		 Over1   = (D[3100 + n])
+   	  		 Over2   = (D[3200 + n])
+   	  		 Over3   = (D[3300 + n])
+   	  		 ;Over4   = (D[2400 + n])
+   	
+   	
+   	
+   	
+   	
+   	
+   	
+   	 
+   	IF ((Line[Normal].SpaceBIT = 2 ) AND (D[Normal] = 1)AND (EmptyViking[Normal] = TRUE)) THEN
+      	Dest = Normal
+   ELSE IF ((Line[Over1].SpaceBIT = 2) AND (D[Over1] = 1 )AND (EmptyViking[Over1] = TRUE)) THEN
+        Dest = Over1
+   ELSE IF ((Line[Over2].SpaceBIT = 2 ) AND (D[Over2] = 1 )AND (EmptyViking[Over2] = TRUE)) THEN
+        Dest = Over2     
+   ELSE IF ((Line[Over3].SpaceBIT = 2 ) AND (D[Over3] = 1 )AND (EmptyViking[Over3] = TRUE)) THEN
+        Dest = Over3
+   ;ELSE IF ((Viking[Over4] = 2 ) AND (D[Over4 ] = 1 )AND (EmptyViking[Over4] = TRUE)) THEN
+    ;    Dest = Over4
+          	 
+   ELSE IF ((Line[Normal].SpaceBIT = 2 ) AND (D[Normal] = 1)AND (Priority[Normal] = TRUE)) THEN
+      	Dest = Normal
+   ELSE IF ((Line[Over1].SpaceBIT = 2) AND (D[Over1] = 1 )AND (Priority[Over1] = TRUE)) THEN
+        Dest = Over1
+   ELSE IF ((Line[Over2].SpaceBIT = 2 ) AND (D[Over2] = 1 )AND (Priority[Over2] = TRUE)) THEN
+        Dest = Over2     
+   ELSE IF ((Line[Over3].SpaceBIT = 2 ) AND (D[Over3] = 1 )AND (Priority[Over3] = TRUE)) THEN
+        Dest = Over3
+   ;ELSE IF ((Viking[Over4] = 2 ) AND (D[Over4 + 7] = 1 )AND (Priority[Over4] = TRUE)) THEN
+   ;     Dest = Over4
+    ELSE IF ((Line[Normal].SpaceBIT > 0 ) AND (D[Normal ] = 1)) THEN
+       Dest = Normal
+    ELSE IF ((Line[Over1].SpaceBIT > 0) AND (D[Over1] = 1 )) THEN
+        Dest = Over1
+   ELSE IF ((Line[Over2].SpaceBIT > 0 ) AND (D[Over2] = 1 )) THEN
+        Dest = Over2     
+   ELSE IF ((Line[Over3].SpaceBIT > 0 ) AND (D[Over3] = 1 )) THEN
+        Dest = Over3
+   ;ELSE IF ((Viking[Over4] > 0 ) AND (D[Over4 + 7] = 1 )) THEN
+   ;     Dest = Over4
+   ENDIF
+   
+  IF ((Dest > 0) AND (Bag[154].Dst = 0) AND (Line[Dest].SpaceBIT>0)) THEN
+  	Ldg[3].Search = 2
+  	Ldg[3].Found       = Dest
+  ELSE IF (Bag[154].Dst > 14)AND (Line[Bag[154].Dst].SpaceBIT>0) THEN
+  	Ldg[3].Search = 2
+  	Ldg[3].Found       = Bag[154].Dst
+ ENDIF 
+ENDIF
+Debug:
+
+	
+
+END_PROGRAM
+

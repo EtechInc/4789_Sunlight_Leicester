@@ -1,0 +1,272 @@
+FUNCTION_BLOCK _GetNumberOfCan1Tels
+;********************************************************************************************************
+; * Implementation of _GetNumberOfCan1Tels
+;********************************************************************************************************
+; * version 		3.6.1
+; * last change		160112
+; * by				H.O.
+;********************************************************************************************************
+; History:
+; V3.6.1 - ###HO - 160112
+;	* 306 # 3->2
+;	* 316 # 2->1
+;	* 361 # 3->2
+;	* 371 # 2->1
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191  
+; * V3.4.0 ###HO 211209
+;	* COB ID 110 + 111 
+; V3.2.1 - ###hcs/HO - 111007
+; 	COB_ID130und140 und COB_ID131und141 entfernt - stattdessen Neudefinition:
+; 		* COB 130 und COB140 wie COB120
+;		* COB131 und COB141 wie COB121
+; * V3.2.0 ###HO 040907
+;	* COBs 261+262 neu
+;  	* COBs 302,303,304 wie 301 - 312,313,314 wie 311 - 253,255 wie 251 - 254,256 wie 252 - 352,353,354 wie 351
+; * V 1.0.0 HO
+; * V 2.0.0 HO
+;	* COBs  123,251,252,480,481 added
+; 	* COB 122 number of tels changed from two to four
+; * V2.1.0	HO	070404
+; 	* COB441..459 hinzugefügt
+; * V2.1.5	HO	310805
+; 	* COB401..419 hinzugefügt
+; * V3.0.0	HO	010905
+; 	* COBxxx.Customize[0..6] hinzugefügt -> Anzahl Telegramme inkrementiert
+;	*  ###HO - 070905 neu ab V3.0.0
+; 		*COBs 251=253=255=257 + 252=254=256=258
+;	* COBs 307+317 hinzugefügt
+; * V3.0.7 COB254,256,258:: 2->3
+; * V3.1.0 COB126,127,128,129 hinzugefügt
+;********************************************************************************************************
+
+; this FUB returns the number of CAN1 telegrams
+; - the CAN2 telegram will be divided up in this number of CAN1 telegrams later
+; note: number of CAN1 telegrams depends on control byte's data of CAN2 structure !
+; the number of telegrams is defined in CAN2 standard.
+
+; 	-> 	pPV						..incoming pointer to PV to get info how many CAN1 telegrams should be broadcasted
+;	-> 	ObjNr					..position of control byte's data depends on individual ID
+; 		iNumberOfCan1Tels ->	..return value (see above)
+;********************************************************************************************************
+;********************************************************************************************************
+; supported CANIDs: 120,121,122,123,130,140,131,141,201,209,211,219,221,231,
+; 					301,306,311,316,351,361..369,371..379,401..419,421..439,441..459
+; ###HO - 070905 neu ab V3.0.0
+; COBs 251..256
+;********************************************************************************************************
+
+
+; !! be aware: UDINTs on intel targets start at addresses dividable by four !!
+TARGETInfo_1.enable		= 1
+TARGETInfo_1.pOSVersion	= adr(szOsVersion)
+TARGETInfo_1 FUB TARGETInfo()
+
+; get pointer to PV to identify AKZ..
+memcpy(adr(LocalPV),pPV,sizeof(LocalPV))
+
+iStatus = 0
+
+case uiObjNr of
+	action 110:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 111:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 120:
+	action 126:
+	action 128:
+	action 130:
+	action 140:
+	action 150:
+	action 160:
+	action 170:
+	action 180:
+	action 190:
+		; write AKZ to temporarily byte..
+		byteTemp = LocalPV[13]
+		if ( byteTemp = 1 ) then 	; AKZ has to be transmitted by tel three and four..
+			iNumberOfCan1Tels = 5
+		else 						; without AKZ -> broadcast only two telegrams..
+			iNumberOfCan1Tels = 3
+		endif
+	endaction
+	action 121:
+	action 127:
+	action 129:
+	action 131:
+	action 141:		
+	action 151:
+	action 161:
+	action 171:
+	action 181:
+	action 191:
+		; for 121 only one tel defined
+		iNumberOfCan1Tels = 2
+	endaction
+	action 122:
+		; for 122 only two tels defined
+		iNumberOfCan1Tels = 5
+	endaction ; 122
+
+	action 123:
+		; for 123 only one tel defined
+		iNumberOfCan1Tels = 2
+	endaction ; 123
+(*
+	action 1130: ; 08.10.2007 - (hcs) DEAKTIVIERT
+		if (TARGETInfo_1.DataFormat = 1) then ; intel
+			; write AKZ to temporarily byte..
+			byteTemp = LocalPV[17]
+			if ( byteTemp = 1 ) then 	; AKZ has to be transmitted by tel three and four..
+				iNumberOfCan1Tels = 5
+			else 						; without AKZ -> broadcast only two telegrams..
+				iNumberOfCan1Tels = 3
+			endif
+		else if (TARGETInfo_1.DataFormat = 2) then  ; motorola
+			; write AKZ to temporarily byte..
+			byteTemp = LocalPV[15]
+			if ( byteTemp = 1 ) then 	; AKZ has to be transmitted by tel three and four..
+				iNumberOfCan1Tels = 5
+			else 						; without AKZ -> broadcast only two telegrams..
+				iNumberOfCan1Tels = 3
+			endif
+		else
+			iStatus = TARGETInfo_1.status
+		endif
+	endaction ; 130
+
+	action 1131:	; 08.10.2007 - (hcs) DEAKTIVIERT
+		iNumberOfCan1Tels = 2
+	endaction ; 131
+
+	action 140:
+		if (TARGETInfo_1.DataFormat = 1) then ; intel
+			; write AKZ to temporarily byte..
+			byteTemp = LocalPV[17]
+			if ( byteTemp = 1 ) then 	; AKZ has to be transmitted by tel three and four..
+				iNumberOfCan1Tels = 5
+			else 						; without AKZ -> broadcast only two telegrams..
+				iNumberOfCan1Tels = 3
+			endif
+		else if (TARGETInfo_1.DataFormat = 2) then  ; motorola
+			; write AKZ to temporarily byte..
+			byteTemp = LocalPV[15]
+			if ( byteTemp = 1 ) then 	; AKZ has to be transmitted by tel three and four..
+				iNumberOfCan1Tels = 5
+			else 						; without AKZ -> broadcast only two telegrams..
+				iNumberOfCan1Tels = 3
+			endif
+		else
+			iStatus = TARGETInfo_1.status
+		endif
+	endaction ; 140
+
+	action 141:
+		iNumberOfCan1Tels = 2
+	endaction
+*)
+	action 201:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 209:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 211:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 219:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 221:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 231:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 251:
+	action 253:
+	action 255:
+	action 257:
+		iNumberOfCan1Tels = 3
+	endaction
+
+	action 252:
+	action 254:
+	action 256:
+	action 258:
+		iNumberOfCan1Tels = 2
+	endaction
+
+	action 261:
+		iNumberOfCan1Tels = 1
+	endaction
+	action 262:
+		iNumberOfCan1Tels = 1
+	endaction
+	action 301:
+	action 302:
+	action 303:
+	action 304:
+		iNumberOfCan1Tels = 3
+	endaction
+
+	action 306:
+		iNumberOfCan1Tels = 3			
+	endaction
+	action 307:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 311:
+	action 312:
+	action 313:
+	action 314:
+		iNumberOfCan1Tels = 2
+	endaction
+
+	action 316:
+		iNumberOfCan1Tels = 2				
+	endaction
+	action 317:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 351:
+	action 352:
+	action 353:
+	action 354:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 361..369:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 371..379:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 401..419:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 421..439:
+		; always four for this uiObjNr..
+		iNumberOfCan1Tels = 4
+	endaction
+	action 441..459:
+		iNumberOfCan1Tels = 2
+	endaction
+	action 480:
+		iNumberOfCan1Tels = 3
+	endaction
+	action 481:
+		iNumberOfCan1Tels = 3
+	endaction
+
+	; return error status 110 -> unsupported uiObjNr/uiCANID has been passed..
+	elseaction:
+		iStatus = 110;
+	endaction
+endcase
+
+;********************************************************************************************************
+;********************************************************************************************************
+END_FUNCTION_BLOCK

@@ -1,0 +1,108 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBufferStop      = X[8].X03
+
+
+Enable.BSN[1]			= FALSE	;XA01 Changed from single bag buffer
+O_OpenBufferStop   = FALSE
+
+Alarm[15].Name 			= 0
+Alarm[15].Bag			= 10003
+Alarm[15].Beacon		= TRUE
+Alarm[15].Extra			= 0
+Alarm[15].Time			= 3000
+
+;Setup Sequence
+STEP = D[915]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - check bag stacker calling for bag and empty ready in SIC 3 or SVC5
+TON_10ms((STEP=1),300,Reset,ResetET)
+IF (STEP = 1) THEN
+	D[38] = 0
+	ResetSBS1Point = TRUE
+	IF Reset THEN
+		D[915] = 2
+	ENDIF
+	ELSE
+		ResetSBS1Point = FALSE
+ENDIF
+
+;Step 2 - Select SVC5
+TON_10ms((I_BagAtBufferStop),200,BagSettled,BagSettledET)
+IF (STEP = 2) THEN
+	IF BagSettled THEN
+		IF Line[25].Clear  AND (D[12]>0)THEN
+			D[38] = 1
+			C[25] = 0
+			D[915] = 3
+		ELSE IF (Request.BSN[1] = TRUE) AND (D[18]>0)THEN
+			D[38] = 2
+			D[915] = 4
+		ENDIF
+	ENDIF
+	;Alarm[27].Name = almBagNotArrived
+ENDIF
+
+
+;select SIC 3
+IF (STEP = 3) THEN
+O_OpenBufferStop = TRUE
+	;IF (D[38] = 1) THEN
+		;wait for bag on bypassline
+		IF Line[25].Trip THEN
+			D[915] = 1
+		ENDIF
+	;ELSE IF (D[38] = 2) THEN
+	;	Enable.BSN[1] = TRUE
+		;wait for bag at sbs 1
+	;	IF NOT Request.BSN[1] THEN
+	;		D[915] = 1
+	;	ENDIF
+	;ENDIF
+	Alarm[15].Name = almBagNotArrived
+ENDIF
+
+
+IF (STEP = 4) THEN
+O_OpenBufferStop = TRUE
+Enable.BSN[1] = TRUE
+	IF NOT Request.BSN[1] THEN
+			D[915] = 1
+	ENDIF
+Alarm[15].Name = almBagNotArrived
+ENDIF
+
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[15].Name > 0)
+TimerAlarm.PT 	= Alarm[15].Time
+TimerAlarm FUB TON_10ms()
+Alarm[15].On 	= TimerAlarm.Q
+Alarm[15].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[8].Y03 = O_OpenBufferStop
+
+Y[7].Y14 = ResetSBS1Point
+
+
+END_PROGRAM
+

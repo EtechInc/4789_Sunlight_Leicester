@@ -1,0 +1,40 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzLogger
+ * File: zzLogger.var
+ * Author: treamsbottom
+ * Created: November 06, 2014
+ ********************************************************************
+ * Local variables of program zzLogger
+ ********************************************************************)
+VAR CONSTANT
+	MAX_MODULE_LOGS : UINT := 399;
+END_VAR
+VAR
+	ModuleLog : ARRAY[0..MAX_MODULE_LOGS] OF Log_typ;
+	WriteLog : AsArLogWrite;
+	LocalLog : Log_typ;
+	CustomLogger : Logger_enum;
+	GetLogInfo : AsArLogGetInfo;
+	pLoggerName : UDINT;
+	CreateLog : AsArLogCreate;
+	n : UINT;
+	modNumString : STRING[10];
+	errorString : ARRAY[0..MAX_MODULE_LOGS] OF STRING[50];
+	shuffle : BOOL;
+	testTim : BOOL;
+	binaryData : ARRAY[0..15] OF BOOL;
+	x : UINT;
+	nextPos : UINT;
+END_VAR
+VAR CONSTANT
+	EmptyLog : LoggerModule_typ := (ident:=0,len:=0,memType:=0,ActIndex:=0,FormatVer:=0);
+END_VAR
+VAR
+	comp : DINT;
+	lastState : ARRAY[0..MAX_MODULE_LOGS] OF BOOL;
+	LoggerModule : LoggerModule_typ := (0);
+	blockID : ARRAY[0..399] OF UINT;
+	blockNumber : UINT;
+END_VAR

@@ -1,0 +1,37 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzDataStore
+ * File: zzDataStore.var
+ * Author: treamsbottom
+ * Created: March 20, 2014
+ ********************************************************************
+ * Local variables of program zzDataStore
+ ********************************************************************)
+VAR
+	eDataBackup : enum_DataBackup;
+	CreateDataFile : DatObjCreate;
+	GetFileInfo : DatObjInfo;
+	pFile_D : UDINT;
+	CurrentDatFile : DatFile_typ;
+	WriteData : DatObjWrite;
+	ReadData : DatObjRead;
+	BackUp : DataBackUp;
+	eBackupArea : enum_BackUpAreas;
+	Backup : ARRAY[0..9] OF Backup_typ;
+	MemType : USINT;
+	MaxBackUpAreas : UINT;
+	n : UINT;
+	eBackup : enum_BackUpState;
+	TestTIM : BOOL;
+	DataMove : DatObjMove;
+	myMonitorReg : UINT;
+	myUpdateReg : UINT;
+	myAlarm : UINT;
+	pUSBDevice : UDINT;
+	CopytoUSB : CopyToFileDevice;
+	ReadFromUSB : ReadFromFileDevice;
+END_VAR
+VAR RETAIN
+	Debug : Debug_typ;
+END_VAR

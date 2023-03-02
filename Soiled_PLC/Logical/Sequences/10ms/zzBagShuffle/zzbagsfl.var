@@ -1,0 +1,11 @@
+VAR RETAIN
+	CurrentBag : UINT;
+	CurrentLine : UINT;
+	LineSp : UINT;
+END_VAR
+VAR
+	NextBag : UINT;
+	CurrentDst : UINT;
+	BelowMaxLines : BOOL;
+	n : UINT;
+END_VAR

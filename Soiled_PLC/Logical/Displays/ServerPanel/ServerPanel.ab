@@ -1,0 +1,312 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: DisplayBuild
+ * File: DisplayBuild.ab
+ * Author: Dave
+ * Created: December 08, 2010
+ ********************************************************************
+ * Implementation of program Server Panel
+ ********************************************************************)
+
+;Version 1.00 12/12/2010 D.J. First Issue
+;Version 2.00 30/06/2011 D.J. Changed weight value to INT to display minus numbers
+;Version 3.00 20/07/2011 D.J. Added Code for CTT11 4 Displays on 1 screen (Quadrants)
+;Version 4.00 18/10/2011 D.J. Added Data Entry Panel
+
+PROGRAM _INIT
+	
+    ;Each Display Can send and receive upto 4 sets of data then Node is used to control which is sent
+	;All displays should get their names using the zzGetNames function including Data Entry panels which should have a panel bag as before.
+	
+	;Set Display indemyNode
+	DisplayDataSize = (SIZEOF(DisplayData) / SIZEOF(DisplayData[0])) - 1
+	NodeDataSize 	= (SIZEOF(NodeData) / SIZEOF(NodeData[0])) - 1
+		
+	;Foreground and Background colours
+	BgBlack 	= $0000
+	BgBlue		= $0001
+	BgLtBlue	= $0009
+	BgWhite		= $000F
+	BgRed		= $0033
+	BgOrange	= $002A
+	BgLtGray	= $0007
+	BgGray		= $0008
+	
+	FgBlack		= $0000
+	FgBlue		= $0100
+	FgLtBlue	= $0900
+	FgWhite		= $0F00
+	FgRed		= $3300
+	FgOrange	= $2A00
+	FgLtGray	= $0700
+	FgGray		= $0800
+	
+	myDisplay 	= TypeDataEntry	;Set to required main display 0 = Default
+	mySyncTime	= 100 	;100ms Default
+	NodeOffset 	= 31	;First Display Node
+	
+	LOOP myNode = 1 TO 2 DO
+		NodeData[myNode].DsplayType = TypeDataEntry
+	ENDLOOP
+   LOOP myNode = 3 TO 4 DO
+		NodeData[myNode].DsplayType = TypeDisplay
+		IF myNode = 3 THEN
+			strcpy(ADR(NodeData[myNode].Quadrant[myQuad].StnName),"SVC1")
+		ELSE IF myNode = 4 THEN
+			strcpy(ADR(NodeData[myNode].Quadrant[myQuad].StnName),"SVC2")
+		ENDIF
+	ENDLOOP
+	;Setup each Display Node
+	LOOP myNode = 1 TO NodeDataSize DO
+		IF NodeData[myNode].DsplayType = TypeDisplay THEN
+			
+			NodeData[myNode].MainDisplay = 21
+			
+			NodeData[myNode].MainColour	= (BgWhite + FgBlue)
+			LOOP myQuad = 0 TO 3 DO
+				itoa(stnIndex,ADR(myStnString)) 
+							
+				INC stnIndex
+				;strcpy(ADR(NodeData[myNode].Quadrant[myQuad].StnName),"SSK1")
+				NodeData[myNode].Quadrant[myQuad].TextColour1 	= (BgOrange + FgBlue) ;(BgLtBlue + FgWhite)
+				NodeData[myNode].Quadrant[myQuad].TextColour2 	= (BgWhite + FgBlue)
+				NodeData[myNode].Quadrant[myQuad].TextColour3 	= (BgWhite + FgBlue)
+				NodeData[myNode].Quadrant[myQuad].TextColour4 	= (BgWhite + FgBlue)
+				NodeData[myNode].Quadrant[myQuad].TextColour5 	= (BgBlue  + FgWhite)
+;				NodeData[myNode].Quadrant[myQuad].TextColour6 	= (BgWhite + FgBlue)
+			ENDLOOP	
+			
+		ELSE IF NodeData[myNode].DsplayType = TypeDataEntry THEN
+			itoa(stnIndex,ADR(myStnString))  
+			strcpy(ADR(NodeData[myNode].Quadrant[0].StnName),ADR(myStnString))			
+			NodeData[myNode].MainDisplay = 201
+			NodeData[myNode].MainColour	= (BgRed + BgWhite)
+			LOOP myQuad = 0 TO 3 DO
+				NodeData[myNode].Quadrant[myQuad].TextColour1 	= (BgRed + FgRed) ;(BgLtBlue + FgWhite)
+				NodeData[myNode].Quadrant[myQuad].TextColour2 	= (BgRed + FgRed)
+				NodeData[myNode].Quadrant[myQuad].TextColour3 	= (BgRed + FgRed)
+				NodeData[myNode].Quadrant[myQuad].TextColour4 	= (BgRed + FgRed)
+				NodeData[myNode].Quadrant[myQuad].TextColour5 	= (BgRed + FgRed)
+				NodeData[myNode].Quadrant[myQuad].TextColour6 	= (BgRed + FgRed)
+				
+				NodeData[myNode].Quadrant[myQuad].Max1 			= Std.MaxProg ;Program not entered
+				NodeData[myNode].Quadrant[myQuad].Max2 			= Std.MaxCats	;Cats
+				NodeData[myNode].Quadrant[myQuad].Max3 			= Std.MaxCust	;Customers
+				NodeData[myNode].Quadrant[myQuad].Max4 			= Std.MaxLines ; Destination
+				NodeData[myNode].Quadrant[myQuad].Max5 			= 0	;Not Used
+				NodeData[myNode].Quadrant[myQuad].Max6 			= 0	;Not Used
+			ENDLOOP
+		ENDIF
+	ENDLOOP
+
+
+	;Setup the BagIndex for each Node and Sub Quadrant	- PCT 03 Would Normally Only Use Quadrant 0 
+	LOOP n = 1 TO 2 DO
+		NodeData[n].Quadrant[0].BagIndex = 310
+	;	NodeData[n].Quadrant[1].BagIndex = 0
+	;	NodeData[n].Quadrant[2].BagIndex = 0
+	;	NodeData[n].Quadrant[3].BagIndex = 0
+	ENDLOOP
+	LOOP n = 3 TO 4 DO
+		NodeData[n].Quadrant[0].BagIndex = 100 + n
+	;	NodeData[n].Quadrant[1].BagIndex = 0
+	;	NodeData[n].Quadrant[2].BagIndex = 0
+	;	NodeData[n].Quadrant[3].BagIndex = 0
+	ENDLOOP
+	
+	strcpy(ADR(pnlStatusString[0]),ADR("1"))
+	strcpy(ADR(pnlStatusString[1]),ADR("Invalid Read"))
+	strcpy(ADR(pnlStatusString[2]),ADR("Enter Bag Number"))
+	strcpy(ADR(pnlStatusString[3]),ADR("Please Wait"))
+	strcpy(ADR(pnlStatusString[4]),ADR(""))
+;	strcpy(ADR(pnlStatusString[5]),ADR("No bag on carriage"))
+;	strcpy(ADR(pnlStatusString[6]),ADR("Weight not valid"))
+;	strcpy(ADR(pnlStatusString[7]),ADR("Program not valid"))
+	
+END_PROGRAM
+
+PROGRAM _CYCLIC
+	
+	ScreenSave  = 0
+	Connected = FALSE
+	TON_10ms(ScreenSave,3000,BacklightOff,BackLightOffET)
+		
+	LOOP myConn = 0 TO UINT(DisplayDataSize) DO
+						
+		;Check if connected - Client IP address
+		Status 		= ethInetAton(ADR(DisplayData[myConn].ClientIP),ADR(ClientIP))
+		ClientNode 	= 0
+		IF Status = 0 THEN
+			;Get the connected node number from the IP address
+			Node 		= swapUDINT(ClientIP) ;Mask out the IP address
+			ClientNode 	= (Node AND $000000FF) 
+		ENDIF
+				
+		IF (ClientNode > 0) THEN
+			
+			;Node to Display Number (myNode)
+			myNode = 0 ;Default Send zzGetNamesData[0] / Unknown display connected
+			IF ((ClientNode >= 31) AND (ClientNode <= 47)) THEN
+				myNode = (ClientNode - (NodeOffset - 1))
+			ENDIF
+			
+			
+			DisplayData[myConn].SendData[0].SQL = SQL.Login	
+			DisplayData[myConn].SendData[0].MainColour 		= NodeData[myNode].MainColour
+			DisplayData[myConn].SendData[0].CycleSync_ms 	= mySyncTime
+			DisplayData[myConn].SendData[0].MainDisplay 	= NodeData[myNode].MainDisplay
+
+			DisplayData[myConn].SendData[0].Max1 			= Std.MaxProg ;Program not entered
+				DisplayData[myConn].SendData[0].Max2 			= Std.MaxCats	;Cats
+				DisplayData[myConn].SendData[0].Max3 			= Std.MaxCust	;Customers
+				DisplayData[myConn].SendData[0].Max4 			= Std.MaxLines 
+
+
+			IF BacklightOff THEN
+				DisplayData[myConn].SendData[0].Brightness = 0 ;0 Will also turn off the backlight
+			ELSE IF ScreenSave THEN
+				DisplayData[myConn].SendData[0].Brightness = 1 ;0 Will also turn off the backlight
+			ELSE
+				DisplayData[myConn].SendData[0].Brightness = 100
+			ENDIF
+			 
+			LOOP myQuad = 0 TO 3 DO
+				
+				IF myNode < 10 THEN
+				;	itoa(NodeData[myNode].Quadrant[myQuad].BagIndex - (Std.StationBagDisplay[1] - 1) ,ADR(NodeData[myNode].Quadrant[myQuad].StnName))
+				ELSE
+					strcpy(ADR(NodeData[myNode].Quadrant[myQuad].StnName),"SSK1")
+				ENDIF	
+				strcpy(ADR(DisplayData[myConn].SendData[myQuad].StnName),ADR(NodeData[myNode].Quadrant[myQuad].StnName))
+				myBag	= NodeData[myNode].Quadrant[myQuad].BagIndex
+				
+				IF (myBag > 0) THEN
+
+                  DisplayData[myConn].SendData[myQuad].DisplayBag = Bag[myBag]
+
+					strcpy(ADR(myMessageString),"SP2= ")
+					mySP = D32[104]
+					mySP = mySP/10
+					length = ftoa(mySP,ADR(mySPString))
+					next_adr = strcat(ADR(myMessageString),ADR(mySPString))
+					next_adr = strcat(ADR(myMessageString)," Kg")
+
+					strcpy(ADR(DisplayData[myConn].SendData[myQuad].CustomText[0]),ADR(myMessageString))
+					IF Bag[99].Wgt > D32[105] THEN
+						strcpy(ADR(myMessageString),"SP3= ")
+						mySP = D32[105]
+						mySP = mySP/10
+						length = ftoa(mySP,ADR(mySPString))
+						next_adr = strcat(ADR(myMessageString),ADR(mySPString))
+						next_adr = strcat(ADR(myMessageString)," Kg")
+
+						strcpy(ADR(DisplayData[myConn].SendData[myQuad].CustomText[0]),ADR(myMessageString))
+						IF NOT Std.Clock1s THEN
+							DisplayData[myConn].SendData[myQuad].TextColour6 = (BgRed + FgBlue); (FgRed + BgWhite) 
+						ELSE
+							DisplayData[myConn].SendData[myQuad].TextColour6 =  (FgRed + BgWhite)
+						ENDIF
+					ELSE IF Bag[201].Wgt < D32[104] THEN				 
+ 						DisplayData[myConn].SendData[myQuad].TextColour6 = (BgWhite + FgBlue) 
+					ELSE IF Bag[99].Wgt > D32[104] THEN
+						strcpy(ADR(myMessageString),"SP2= ")
+						mySP = D32[104]
+						mySP = mySP/10
+						length = ftoa(mySP,ADR(mySPString))
+						next_adr = strcat(ADR(myMessageString),ADR(mySPString))
+						next_adr = strcat(ADR(myMessageString)," Kg")
+						strcpy(ADR(DisplayData[myConn].SendData[myQuad].CustomText[0]),ADR(myMessageString))
+						;IF NOT Std.Clock1s THEN
+							DisplayData[myConn].SendData[myQuad].TextColour6 = (BgRed + FgBlue); (FgRed + BgWhite) 
+						;ELSE
+						;	DisplayData[myConn].SendData[myQuad].TextColour6 =  (FgRed + BgWhite)
+						;ENDIF 
+;						DisplayData[myConn].SendData[myQuad].TextColour5 = (BgRed + FgRed)
+;						DisplayData[myConn].SendData[myQuad].TextColour4 = (BgRed + FgRed)
+;						DisplayData[myConn].SendData[myQuad].TextColour3 = (BgRed + FgRed)
+;						DisplayData[myConn].SendData[myQuad].TextColour2 = (BgRed + FgRed)
+;						DisplayData[myConn].SendData[myQuad].TextColour1 = (BgRed + FgRed)
+					ENDIF
+
+;					IF (myBag > 200) THEN
+;						StnNo = (myBag - 200)
+;					ENDIF
+;					IF Y[300 + StnNo].Y07 THEN
+;						NodeData[myNode].Quadrant[myQuad].Max1 			= Std.MaxProg ;Program not entered
+					;	NodeData[myNode].Quadrant[myQuad].Max2 			= Std.MaxCats	;Cats
+					;	NodeData[myNode].Quadrant[myQuad].Max3 			= Std.MaxCust	;Customers
+					;	NodeData[myNode].Quadrant[myQuad].Max4 			= Std.MaxLines ; Destination
+;					ELSE
+						DisplayData[myConn].SendData[myQuad].TextColour1 	= (BgOrange + FgRed) ;Customer
+						DisplayData[myConn].SendData[myQuad].TextColour2 	= (BgWhite + FgRed) ; Cat Long
+						DisplayData[myConn].SendData[myQuad].TextColour3 	= (BgWhite + FgRed); Cat
+						DisplayData[myConn].SendData[myQuad].TextColour4 	= (BgWhite + FgRed) ; Count
+						DisplayData[myConn].SendData[myQuad].TextColour5 	= (BgWhite + FgRed) ; Wieght
+	;					DisplayData[myConn].SendData[myQuad].TextColour6 	= (BgWhite + FgBlue) ; Stn
+;					ENDIF
+
+
+					;Copy Data Entry to Local
+					NodeData[myNode].Quadrant[myQuad].DataEntry1 			= DisplayData[myConn].ReceiveData[myQuad].DataEntry1
+					NodeData[myNode].Quadrant[myQuad].DataEntry2 			= DisplayData[myConn].ReceiveData[myQuad].DataEntry2
+					NodeData[myNode].Quadrant[myQuad].DataEntry3 			= DisplayData[myConn].ReceiveData[myQuad].DataEntry3
+					NodeData[myNode].Quadrant[myQuad].DataEntry4 			= DisplayData[myConn].ReceiveData[myQuad].DataEntry4
+					NodeData[myNode].Quadrant[myQuad].DataEntry5 			= DisplayData[myConn].ReceiveData[myQuad].DataEntry5
+					NodeData[myNode].Quadrant[myQuad].DataEntry6 			= DisplayData[myConn].ReceiveData[myQuad].DataEntry6
+					
+					NodeData[myNode].Quadrant[myQuad].Command				= DisplayData[myConn].ReceiveData[myQuad].Command									 
+				
+;					;Copy Entered Data to Bag Data
+					IF NodeData[myNode].DsplayType = TypeDataEntry THEN
+						Connected = TRUE
+					;	Bag[myBag] = DisplayData[myNode].ReceiveData[myQuad].DataEntryBag
+						Bag[myBag].Cat = NodeData[myNode].Quadrant[myQuad].DataEntry2
+						Bag[myBag].Cus = NodeData[myNode].Quadrant[myQuad].DataEntry3
+						Bag[myBag].Dst = USINT(NodeData[myNode].Quadrant[myQuad].DataEntry4)
+					;ELSE IF NodeData[myNode].DsplayType = TypeMaintLine THEN
+						;zzMaintLine[myNode].Data = UINT(NodeData[myNode].Quadrant[myQuad].DataEntry3)
+						ELSE
+						
+					ENDIF
+					
+				ENDIF ;/myGetIdx > 0	
+			ENDLOOP ;/myQuad
+			
+						
+
+			;Restart Display
+			IF RestartDisplays THEN
+				DisplayData[myConn].SendData[0].SYSreset = 1
+			ENDIF
+			
+		ENDIF
+		
+		;Cancel Restart Display
+		IF RestartComplete THEN
+			DisplayData[myConn].SendData[0].SYSreset = 0
+			IF (myConn = DisplayDataSize) THEN
+				RestartDisplays	= FALSE 	;Cancel Re-start when last display
+			ENDIF
+		ENDIF
+		
+		;Change IP address
+		IF ReplaceIP THEN
+			strcpy(ADR(DisplayData[myConn].SendData[0].IP_Address),ADR(ReplaceIPAddress))
+		ENDIF
+		
+		;Cancel Replace IP
+		IF ReplaceIPComplete THEN
+			strcpy(ADR(DisplayData[myConn].SendData[0].IP_Address),ADR(""))
+			ReplaceIP = FALSE 	;Cancel Replace IP when last display
+		ENDIF
+		
+	ENDLOOP
+	SkipMarker:
+	;Cancel re-start timer 
+	TON_10ms(RestartDisplays,200,RestartComplete,RestartCompleteET)
+	TON_10ms(ReplaceIP,200,ReplaceIPComplete,ReplaceIPCompleteET)
+
+;	Y[15].Y15 = NOT Connected
+;	CAN[1].Live = NOT Y[5].Y15
+END_PROGRAM

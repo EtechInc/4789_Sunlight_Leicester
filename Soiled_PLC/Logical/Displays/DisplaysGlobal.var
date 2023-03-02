@@ -1,0 +1,22 @@
+(********************************************************************
+ * COPYRIGHT -- Bernecker + Rainer
+ ********************************************************************
+ * Package: LibAsTCP
+ * File: LibAsTCP.var
+ * Author: Bernecker + Rainer
+ * Created: February 21, 2008
+ ********************************************************************
+ * Variables of package LibAsTCP
+ ********************************************************************)
+VAR
+	ClientText : ARRAY[0..3] OF pnlTextType;
+END_VAR
+VAR RETAIN
+	ClientServerIP : STRING[16];
+END_VAR
+VAR
+	ClientGeneral : pnlClient_Typ;
+	ClientReceive : ARRAY[0..3] OF pnlDisplaySend_Typ; (*Single Dimension Receive Array for Client Panel*)
+	ClientSend : ARRAY[0..3] OF pnlDisplayReceive_Typ; (*Single Dimension Send Array for Client Panel*)
+	DisplayData : ARRAY[0..19] OF pnlDisplay_Typ;
+END_VAR

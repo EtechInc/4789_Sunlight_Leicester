@@ -1,0 +1,43 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzEditBag
+ * File: zzEditBag.var
+ * Author: Dave
+ * Created: September 25, 2010
+ ********************************************************************
+ * Local variables of program zzEditBag
+ ********************************************************************)
+VAR CONSTANT
+	accOperator : USINT := 0;
+	accSupervisor : USINT := 1;
+	accEngineer : USINT := 2;
+	accProgrammer : USINT := 3;
+	accDesigner : USINT := 4;
+END_VAR
+VAR
+	EditPrg : USINT;
+	EditCat : UDINT;
+	EditCus : UDINT;
+	EditWgt : UINT;
+	EditCnt : UINT;
+	EditDst : USINT;
+	EditBid : UDINT;
+	EditPosnNow : UDINT;
+	EditPosnNew : UDINT;
+	EditMode : UDINT;
+	EditAccLev : USINT;
+	EditStatus : UDINT;
+	MaxBags : UINT;
+	n : INT;
+	BagsToSearch : UINT;
+	SearchBag : UINT;
+	CatValid : BOOL;
+	PrgValid : BOOL;
+	CusValid : BOOL;
+	EditMis : UDINT;
+	EditUr2 : UDINT;
+	EditUr1 : UINT;
+	BagSize : UINT;
+	EditTimeStamp : DATE_AND_TIME;
+END_VAR

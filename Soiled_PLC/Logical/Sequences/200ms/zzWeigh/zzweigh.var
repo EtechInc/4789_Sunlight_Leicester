@@ -1,0 +1,27 @@
+VAR RETAIN
+	n : UINT;
+	WeightUnits : DINT;
+	StnHigh : UINT;
+	StnLow : UINT;
+	StnTestWgt : UINT;
+	HighLow : UDINT;
+	RawLow : DINT;
+	StnRaw : ARRAY[0..99] OF UINT;
+	NewLow : UINT;
+	NewHigh : UINT;
+END_VAR
+VAR
+	tstRaw : DINT;
+	myRaw : DINT;
+	myStnRaw : UINT;
+	UseAI2744 : BOOL;
+	FixCalibration : BOOL;
+	Auto_ForceCalib : BOOL;
+	Calib_Stn : UINT;
+	Auto_Calib : enum_Calib;
+	test1 : UINT;
+	test2 : UINT;
+	test3 : UINT;
+	test4 : UINT;
+	weighttest : BOOL;
+END_VAR

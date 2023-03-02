@@ -1,0 +1,46 @@
+PROGRAM _INIT
+	(* init program *)
+
+CAN_enable = 1
+DisplayWrite1 = 0								;Reset CAN data table WRITE event
+DisplayRead1 = 0  								;Reset CAN data table READ event
+;EventWrite2 = 0								;Reset CAN data table WRITE event
+;EventRead2 = 0  								;Reset CAN data table READ event
+;EventWrite3 = 0								;Reset CAN data table WRITE event
+;EventRead3 = 0  							    ;Reset CAN data table READ event
+
+CANopen_01.enable		= CAN_enable
+CANopen_01.baud_rate	= 25					;Define baud rate - 250 kbit/s
+CANopen_01.cob_anz		= 100      				;Define number of link objects
+CANopen_01.error_adr	= ADR(error_var)		;Define address for error output
+CANopen_01.device		= ADR("SS1.IF2")		;Define number of device
+CANopen_01.info			= 0
+
+CANopen_01 FUB CANopen()						;Initiate CANopen
+
+IF CANopen_01.status=0 THEN						;Check error level
+
+	DOInfo.enable = 1
+	DOInfo.pName  = "disp_cmd"
+
+	DOInfo FUB DatObjInfo()
+
+	IF (DOInfo.status = 0) THEN
+
+		data_adr					= DOInfo.pDatObjMem
+		CANdftab_01.enable			= 1
+		CANdftab_01.us_ident 		= CANopen_01.us_ident	;Set us_id
+		CANdftab_01.table_adr		= data_adr				;Define address of data object
+		CANdftab_01.tab_num			= UINT(DOInfo.len / 72)	;Define number of values
+
+		CANdftab_01 FUB CANdftab()    						;Initiate CANdftab
+
+		IF CANdftab_01.status = 0 THEN
+			CANOK = TRUE
+		ENDIF
+
+	ENDIF
+
+ENDIF
+END_PROGRAM
+

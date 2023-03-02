@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Program" Language="IEC" Description="*Twin rail loading unit">lu_twin</Object>
+    <Object Type="Program" Language="IEC" Description="*Twin rail loading ongoing">lpn</Object>
+    <Object Type="Program" Language="IEC" Description="*Twin rail loading offgoing">lpf</Object>
+  </Objects>
+  <Dependencies>
+    <Dependency ObjectName="SUP" />
+  </Dependencies>
+</Package>

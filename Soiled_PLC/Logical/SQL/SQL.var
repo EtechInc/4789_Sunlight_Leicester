@@ -1,0 +1,20 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: SQL
+ * File: SQL.var
+ * Author: treamsbottom
+ * Created: October 01, 2013
+ ********************************************************************
+ * Variables of package SQL
+ ********************************************************************)
+VAR
+	SqlRequest : ARRAY[0..dec_c_MaxSQL] OF SQLRequest_typ;
+	SQLBuffer : SQLRequest_typ;
+END_VAR
+VAR RETAIN
+	SQL : SQL_Typ;
+END_VAR
+VAR
+	Count : ARRAY[0..99] OF UDINT;
+END_VAR

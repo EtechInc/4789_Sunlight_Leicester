@@ -1,0 +1,17 @@
+VAR
+	CountPLS : ARRAY[0..49] OF R_TRIG;
+	CountMode : UINT;
+	CountPiece : BOOL;
+	CountBoth : BOOL;
+	CountCount : BOOL;
+	StnUsePiece : BOOL;
+	StnCountPiece : BOOL;
+	StnCat : UDINT;
+	CountOn : BOOL;
+	StnGram : DINT;
+	StnPieceWgt : UINT;
+	Remainder : INT;
+	Items : DINT;
+	ItemsRound : DINT;
+	n : UINT := 0;
+END_VAR

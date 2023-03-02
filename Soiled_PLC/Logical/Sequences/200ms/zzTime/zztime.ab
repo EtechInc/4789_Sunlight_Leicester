@@ -1,0 +1,101 @@
+;-------------------
+;System Running Time
+;-------------------
+
+;-----------------------------------------
+;Revision 1.00 12/10/2005 D.J. First Issue
+;-----------------------------------------
+
+;Detection of system running - once the detection sequence has remained idle for a given
+;period the clock is stopped and the idle time (minutes) is given back. If the idle time
+;is 5 minutes and the system stopped at 12:01 then when the time is given back the time will
+;read 12:-04 as the time is only taken from the minutes and no the hours count.
+
+PROGRAM _INIT
+
+PLCFirstScan = TRUE
+
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+;Only use one sequence for system running. Norrmally Offgoing or a loop use the Discharger
+D[905]	;Monitor
+
+SystemAction = FALSE
+IF D[915] <> Seq THEN
+	SystemAction 	= TRUE
+	Seq 			= D[915]
+ENDIF
+
+R_TRIG(SystemAction,ActionPLS)
+
+TimeNow = clock_ms()
+
+;System Start / Stop Running
+IF ActionPLS THEN
+	SysRunning 	= TRUE
+ENDIF
+
+SysIdleMinutes = 5
+
+TON_10ms(NOT SystemAction,(SysIdleMinutes * 6000),NoAction,NoActionET)
+
+;Read from Graphics
+;Seconds = D[310]
+Minutes = INT(D[311]) ;Can go minus
+Hours	= D[312]
+
+R_TRIG(NoAction,NoActionPLS)
+
+;System has stopped give back the running timer time
+IF NoActionPLS THEN
+	Minutes 	= Minutes - SysIdleMinutes
+	SysRunning 	= FALSE
+ENDIF
+
+IF TEST THEN
+	Minutes 	= Minutes - 10
+	TEST 		= FALSE
+ENDIF
+
+IF SysRunning THEN
+	TimeDiff	= DiffT(TimeNow,TimeLast)
+	MiliSeconds = MiliSeconds + UINT(TimeDiff)
+ENDIF
+
+TimeLast = TimeNow
+
+;Count Seconds Running
+IF MiliSeconds >= 1000 THEN
+	Seconds 	= Seconds + 1
+	MiliSeconds = MiliSeconds - 1000 ;Keep and remaing ms to be added next time
+ENDIF
+
+IF Seconds >= 60 THEN
+	Minutes 	= Minutes + 1
+	Seconds 	= Seconds - 60
+ENDIF
+
+IF Minutes >= 60 THEN
+	Hours 		= Hours + 1
+	Minutes	 	= Minutes - 60
+ENDIF
+
+;Count Each 1000 hours
+IF Hours >= 1000 THEN
+	D[313] 		= D[313] + 1
+	Hours 		= Hours - 1000
+ENDIF
+
+;Store to Graphics
+;D[310] = Seconds - don't display seconds as causes TCP/IP driver to send data to Graphics
+D[311] = UINT(Minutes)
+D[312] = Hours
+D[313] = D[313] ;Hours * 1000
+
+
+
+
+END_PROGRAM
+

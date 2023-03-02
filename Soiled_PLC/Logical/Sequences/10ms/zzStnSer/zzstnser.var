@@ -1,0 +1,78 @@
+VAR
+	MixProgTyp : BOOL;
+	BatchFound : BOOL;
+	MixCusts : BOOL;
+	MixProgs : BOOL;
+	MatchCust : BOOL;
+	MatchBags : BOOL;
+	MatchProgType : BOOL;
+	MatchProg : BOOL;
+	MatchCat : BOOL;
+	StartPurge : BOOL;
+	MixCats : BOOL;
+	BankValid : BOOL;
+	LineValid : BOOL;
+	BagInList : ARRAY[0..30] OF BOOL;
+	StartPurgeET : UDINT;
+	BagNum : UINT;
+	BagWgt : UINT;
+	Index : UINT;
+	PurgeBagsQty : UINT;
+	StnNum : UINT;
+	BatchCount : UINT;
+	s : UINT;
+	BatchWeight : UINT;
+	myBag : UINT;
+	r : UINT;
+	MaxReverseWeight : UINT;
+END_VAR
+VAR RETAIN
+	LineSearchManual : UINT;
+END_VAR
+VAR
+	NumberOfPurgeBags : UINT;
+	x : UINT;
+END_VAR
+VAR RETAIN
+	SearchLine : UINT;
+END_VAR
+VAR
+	Bank : UINT;
+	Choice : UINT;
+	EndofBagArray : UINT;
+	PurgeBatchSize : UINT;
+	MaxBatchWieght : UINT;
+END_VAR
+VAR RETAIN
+	n : UINT;
+END_VAR
+VAR
+	t : UINT;
+	myBag_x : UINT;
+	myBag_n : UINT;
+END_VAR
+VAR RETAIN
+	SearchFound : UINT;
+END_VAR
+VAR
+	LineSearch : ARRAY[0..4] OF UINT;
+	SearchBagArray : ARRAY[0..30] OF UINT;
+	PurgeBags : ARRAY[0..30] OF UINT;
+	PurgeBagsInWgtOrder : ARRAY[0..30] OF UINT;
+	PurgeOn : UINT;
+	StatusReg : ARRAY[0..1] OF UDINT;
+	SearchIndex : USINT;
+	ReSearch : BOOL;
+	MisMatchedLoad : BOOL;
+	y : INT;
+	Break : BOOL;
+	StnCat : UDINT;
+	GetStn : UINT;
+	TestTim : BOOL;
+	myStartStop : UINT;
+	b : UINT;
+	TON_Purge : ARRAY[0..4] OF TON_10ms;
+	myBatchWgt : UDINT;
+	test : UDINT;
+	TEST : BOOL;
+END_VAR

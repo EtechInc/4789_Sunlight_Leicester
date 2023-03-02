@@ -1,0 +1,43 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;------------------------------
+;Indication picture on graphics
+;------------------------------
+
+;-----------------------------------------
+;Revision 1.00 19/10/2006 D.J. First Issue
+;-----------------------------------------
+
+;Write Indication[0 - 79] To D71 to D75
+
+Offset = 0
+
+LOOP n = 0 TO 4 DO
+
+	Encode[n].Input[0] 	= Indication[0 + Offset]
+	Encode[n].Input[1] 	= Indication[1 + Offset]
+	Encode[n].Input[2] 	= Indication[2 + Offset]
+	Encode[n].Input[3] 	= Indication[3 + Offset]
+	Encode[n].Input[4] 	= Indication[4 + Offset]
+	Encode[n].Input[5] 	= Indication[5 + Offset]
+	Encode[n].Input[6] 	= Indication[6 + Offset]
+	Encode[n].Input[7] 	= Indication[7 + Offset]
+	Encode[n].Input[8] 	= Indication[8 + Offset]
+	Encode[n].Input[9] 	= Indication[9 + Offset]
+	Encode[n].Input[10] = Indication[10 + Offset]
+	Encode[n].Input[11] = Indication[11 + Offset]
+	Encode[n].Input[12] = Indication[12 + Offset]
+	Encode[n].Input[13] = Indication[13 + Offset]
+	Encode[n].Input[14] = Indication[14 + Offset]
+	Encode[n].Input[15] = Indication[15 + Offset]
+
+	Encode[n] FUB BIT_ENCODE()
+
+	D[71 + n] = Encode[n].Output
+
+	Offset = Offset + 16
+
+ENDLOOP
+END_PROGRAM
+

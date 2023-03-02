@@ -1,0 +1,89 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtSBSF1BufferStop   = X[8].X08
+I_BagAtExpressBufferStop = X[8].X06
+
+
+
+O_OpenBufferStopSBSF1    = FALSE ;Y808
+O_OpenBufferStopExpress1 = FALSE ;Y806
+
+Alarm[16].Name 			= 0
+Alarm[16].Bag			= 10009
+Alarm[16].Beacon		= TRUE
+Alarm[16].Extra			= 0
+Alarm[16].Time			= 3000
+
+;Setup Sequence
+STEP = D[916]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;reset points
+TON_10ms((STEP = 1),100,Reset,ResetET)
+IF (STEP = 1) THEN
+	D[42] = 0
+	
+	IF (Reset = TRUE)THEN
+		D[916] = 2
+	ENDIF
+ENDIF
+
+;bag at buffer and send to express or bagstacker
+TON_10ms((I_BagAtSBSF1BufferStop),200,BagSettledSBSF1,BagSettledSBSF1ET)
+TON_10ms((I_BagAtExpressBufferStop),200,BagSettledExpress,BagSettledExpressET)
+IF (STEP = 2) THEN
+	IF Line[26].Clear THEN
+		IF BagSettledExpress THEN
+			D[42]  = 1
+			C[26]  = 0
+			D[916] = 3
+		ELSE IF BagSettledSBSF1 THEN
+			D[42]  = 2
+			C[26]  = 0
+			D[916] = 3
+	    ENDIF
+	ENDIF
+ENDIF	
+
+;wait for bag to arrive at destination	
+IF (STEP = 3) THEN
+	IF (D[42] = 1) THEN
+		O_OpenBufferStopExpress1 = TRUE
+	ELSE IF (D[42] = 2) THEN
+		O_OpenBufferStopSBSF1 = TRUE
+		;wait for bag at sbs 1
+	ENDIF
+	IF Line[26].Trip THEN
+			D[916] = 1
+	ENDIF
+ENDIF	
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[16].Name > 0)
+TimerAlarm.PT 	= Alarm[16].Time
+TimerAlarm FUB TON_10ms()
+Alarm[16].On 	= TimerAlarm.Q
+Alarm[16].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[8].Y06 = (D[42] = 1)
+Y[8].Y08 = (D[42] = 2)
+END_PROGRAM
+

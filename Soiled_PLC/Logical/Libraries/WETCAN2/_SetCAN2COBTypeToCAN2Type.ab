@@ -1,0 +1,4010 @@
+FUNCTION_BLOCK _SetCAN2COBTypeToCAN2Type
+;********************************************************************************************************
+; * Implementation of _SetCAN2COBTypeToCAN2Type
+;********************************************************************************************************
+; * set data for WRITE operation.. *
+;********************************************************************************************************
+; * version 		3.6.0
+; * last change		120210
+; * by				H.O.
+;********************************************************************************************************
+; History:
+;**********
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191 
+; V3.4.0 - ###HO - 211209
+;	* COB ID 110 + 111 
+; V3.3.0 - ###HO - 140409
+;	* LocalCOB_Typ_311.bStartPresse
+; 	* pv211.bSicherheitstuerPTPP 
+; 	* pv211.bStartbefehlAnPT
+; 
+; V3.2.3 - ###HO - 070308
+;	* LocalCOB_Typ_301.bNotAus aus DT COB301 und hier gelöscht
+;	* LocalCOB_Typ_301.bLichtschrankeBandende ++
+;	* LocalCOB_Typ_252.SperreBereich ++
+;	* LocalCOB_Typ_311.bSchutzgitterOffen ++
+
+	; action 252:
+; action 254:
+; action 256:
+; action 258:
+	; action 251:
+; action 253:
+; action 255:
+; action 257:
+
+	; action 301: ; 301:
+	; action 302: ; 302:
+	; action 303: ; 303:
+	; action 304: ; 304:
+
+	; action 311: ; 311:
+	; action 312: ; 312:
+	; action 313: ; 313:
+	; action 314: ; 314:
+; V3.2.2 - ###HO - 111007
+	; 	* _SetCAN2COBTypeToCAN2Type::COB211.usFehlerZweiteEW
+	; 	* _SetCAN1TypeToByteArray:: Korrektur Lesen von 211.bStartDesinfektion, 211.bStartSpuelen, 211.bEndeSpuelen
+; V3.2.1 - ###hcs/HO - 101007
+; 	COB_ID130und140 und COB_ID131und141 entfernt - stattdessen Neudefinition:
+; 		* COB 130 und COB140 wie COB120
+;		* COB131 und COB141 wie COB121
+; * V3.2.0 ###HO - 040907
+; 	* _SetCAN2COBTypeToCAN2Type::COB251.bStartBeladung
+; 	* COBs 261+262 neu
+;  	* COBs 302,303,304 wie 301 - 312,313,314 wie 311 - 253,255 wie 251 - 254,256 wie 252 - 352,353,354 wie 351
+; * V3.1.2 ###HO - 240107
+; 	* case aufgesplittet, sonst Sprung >32k (MyCheckLib)
+; * V3.1.1 ###HO - 110107
+; 	* COBs 351::a_usCustomize[0..7]
+; V3.1.0 ###HO - 260106
+;	* COB126,127,128,129 hinzugefügt (identisch COB 120+121)
+; V3.0.9 ###HO - 260106
+;	* COB231::usReserve1 -> By6 +  usReserve2 -> By7
+; V3.0.7 ###HO - 171105
+; 	* COB(252=254=256=258)
+; 	* COB253,255,257::LocalCAN2Data.T2_By0,4 - former: ..T2_By0,5
+; * V3.0.6 ###HO - 211005
+;	* COB_ID421bis439:: für IDs 422..439 erweitert
+; * V3.0.4 ###HO - 061005
+; 	* a_usCustomize[0..6] für: 301,221,201,211,219
+;
+; * V3.0.0 ###HO - 120905
+; 	* COBs 120,121,(251=253=255=257),(252=254=256=258),401,421,441 :: a_usCustomize[0..6]
+;	* COBs 307+317 hinzugefügt
+;
+; * V2.1.5 ###HO - 010905
+;		* COB401..419 hinzugefügt
+;		* COB441 für m68k -> OK
+;	todo: Rd_441_i386 (ok?)
+; * V2.10 HO	050404
+; 		* COB130.udKundenummer korrigiert
+;		* COB201 Desinfektion ergänzt
+;			* bFreigabeDesinfektion
+;			* bTankIstLeer
+;			* bFreigabeSpuelen
+;			* EndeDesinfektion
+;		* COB211 Desinfektion ergänzt + bSchiebeimpuls in bSchiebeimpulsWETShuttle umbenannt
+;			* bSchiebeimpulsZweiteEntwaess korrigiert
+;			* bStartDesinfektion	hinzugefügt
+;			* bStartSpuelen	hinzugefügt
+;			* bEndeSpuelen hinzugefügt
+;		* COB401..419
+;			* bProgrammabbruch umbenannt in bVorsignal
+;			* bKippsperre ergänzt
+;		* COB 421..439
+;			* 'bEntlaedt' umbenannt in 'bEntlade'
+;			* 'bNotAus' umbenannt in 'bNotAusTrockner
+; 		* COB231
+;			* usEntladungTrockner 	-> By2 + usTransferZBvorHFB			-> By3
+;			* usFehlernummer 		-> By4 +  usTransferZBvorTrockner 	-> By5
+;		* COB441..459 hinzugefügt
+; * V 2.0.0 HO
+;		* COBs 123, 251,252,480,481 added
+; 		* COB 122 replaced
+; 		* COBs 120,121 modified
+; * V1.00 	HO	071003
+;		* erste Version
+;
+; todo: support of redundancies ..
+; 		120,121,122,201,209,211,219,221,231,251,252
+; 		301,306,311,316,351,361..369,371..379,401..419,421..439,441..459
+;********************************************************************************************************
+; supports the marked CANIDs (=ObjNrs) :
+; 	-> 	pCAN2InitCOBData		.. to identify ObjNr
+; 	->	LocalCAN2Data			.. this FUB assigns a complete CAN2 struct (= 4 times CAN1 data) for incoming ObjNr..
+; 		pCAN2Data	-> 			.. and returns the address of this struct
+; 		status 		->			'0' - ok ; '1' - wrong TelNr passed in ; '2' - wrong ObjNr specified
+;********************************************************************************************************
+;********************************************************************************************************
+; supported CANIDs: 120,121,122,123,130,140,131,141,201,209,211,219,221,231,251,252
+; 					301,306,311,316,351,361..369,371..379,401..419,421..439,441..459,480,481
+;********************************************************************************************************
+;********************************************************************************************************
+
+; structure of type COBData has been passed in -> identify ObjNr + adr of individual data..
+memcpy(adr(Local_InitCAN2PV),p_InitCAN2PV,sizeof(Local_InitCAN2PV))
+
+; initiate LocalCAN2Data to avoid older data entries..
+LocalCAN2Data.T1_By0		= 0
+LocalCAN2Data.T2_By0		= 0
+LocalCAN2Data.T3_By0		= 0
+LocalCAN2Data.T4_By0		= 0
+LocalCAN2Data.T5_By0		= 0
+
+LocalCAN2Data.T1_By1		= 0
+LocalCAN2Data.T2_By1		= 0
+LocalCAN2Data.T3_By1		= 0
+LocalCAN2Data.T4_By1		= 0
+LocalCAN2Data.T5_By1		= 0
+
+LocalCAN2Data.T1_By2_By3	= 0
+LocalCAN2Data.T2_By2_By3	= 0
+LocalCAN2Data.T3_By2_By3	= 0
+LocalCAN2Data.T4_By2_By3	= 0
+LocalCAN2Data.T5_By2_By3	= 0
+
+LocalCAN2Data.T1_By4_By5	= 0
+LocalCAN2Data.T2_By4_By5	= 0
+LocalCAN2Data.T3_By4_By5	= 0
+LocalCAN2Data.T4_By4_By5	= 0
+LocalCAN2Data.T5_By4_By5	= 0
+
+LocalCAN2Data.T1_By6_By7	= 0
+LocalCAN2Data.T2_By6_By7	= 0
+LocalCAN2Data.T3_By6_By7	= 0
+LocalCAN2Data.T4_By6_By7	= 0
+LocalCAN2Data.T5_By6_By7	= 0
+
+iStatus = 0
+
+TARGETInfo_0.enable		= 1
+TARGETInfo_0.pOSVersion	= adr(szOSVersion)
+TARGETInfo_0 FUB TARGETInfo()
+
+case Local_InitCAN2PV.uiObjNr of
+
+;*******action 110********action 110********action 110********action 110********action 110********
+action 110: ; 110:
+    	; pLocalCOB_Typ_110 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_110),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_110))
+
+	;****ID 110****Telegram 1********ID 110****Telegram 1********ID 110****Telegram 1********ID 110****Telegram 1****
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;		bBereit
+    	if LocalCOB_Typ_110.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;		bEntladesignal
+    	if LocalCOB_Typ_110.bEntladesignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;		bEntladebereit
+    	if LocalCOB_Typ_110.bEntladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		;bUebergabestoerung			
+    	if LocalCOB_Typ_110.bUebergabestoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;		udPostennummer
+			udShr16 = shr(LocalCOB_Typ_110.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_110.udPostennummer)	; take LOWER byte..
+;			uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_110.uiGewicht
+
+;****ID 110****Telegram 2********ID 110****Telegram 2********ID 110****Telegram 2********ID 110****Telegram 2****
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		; bProgrammOderKategorie
+    	if LocalCOB_Typ_110.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		; bNotAusEntsander
+    	if LocalCOB_Typ_110.bNotAusEntsander = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+		; uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_110.uiProgrammKategorie
+    	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_110.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_110.udKundennummer)	; take LOWER bytes..
+
+;****ID 110****Telegram 3********ID 110****Telegram 3********ID 110****Telegram 3********ID 110****Telegram 3****
+		LocalCAN2Data.T3_By0  					= BIT_SET(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0  					= BIT_SET(LocalCAN2Data.T3_By0, 6)
+		LocalCAN2Data.T3_By0 					= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; 	a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_110.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_110.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_110.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_110.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_110.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_110.a_usCustomize[2] + 256* LocalCOB_Typ_110.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_110.a_usCustomize[4] + 256* LocalCOB_Typ_110.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_110.a_usCustomize[6] + 256* LocalCOB_Typ_110.a_usCustomize[5]
+		endif
+
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 110
+
+action 111:	; 111:
+    ; pLocalCOB_Typ_111 access Local_InitCAN2PV.pPVData
+    memcpy(adr(LocalCOB_Typ_111),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_111))
+;****ID 111****Telegram 1********ID 111****Telegram 1********ID 111****Telegram 1********ID 111****Telegram 1****
+	;T1 mandatotries ->:
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+	; bBereit
+    	if LocalCOB_Typ_111.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bEntladefreigabe
+    	if LocalCOB_Typ_111.bEntladefreigabe = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bUebernahmestoerung
+    	if LocalCOB_Typ_111.bUebernahmestoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	; bNotAusBeladeband
+	   	if LocalCOB_Typ_111.bNotAusBeladeband = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 5)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		endif
+				
+	;****ID 111****Telegram 2********ID 111****Telegram 2********ID 111****Telegram 2********ID 111****Telegram 2****
+	;T2 mandatotries ->:
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_111.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_111.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_111.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_111.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_111.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_111.a_usCustomize[2] + 256* LocalCOB_Typ_111.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_111.a_usCustomize[4] + 256* LocalCOB_Typ_111.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_111.a_usCustomize[6] + 256* LocalCOB_Typ_111.a_usCustomize[5]
+		endif
+
+	iStatus = 0
+	pCAN2Data = ADR(LocalCAN2Data)
+		
+endaction ; 111
+
+;*******action 120********action 120********action 120********action 120********action 120********
+action 120:
+action 126:
+action 128:
+action 130:
+action 140:
+action 150:
+action 160:
+action 170:
+action 180:
+action 190:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+    	; pLocalHFAnWaschm_ObjNr120 access Local_InitCAN2PV.pPVData
+   	   	memcpy(adr(LocalCOB_Typ_120),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_120))
+
+;****ID 120****Telegram 1********ID 120****Telegram 1********ID 120****Telegram 1********ID 120****Telegram 1****
+; always set telegram number "000"..
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+	; bBereit
+    	if LocalCOB_Typ_120.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+
+	; bAuftragskennzeichen
+    	if LocalCOB_Typ_120.bAuftragskennzeichen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	; usFehlernummer
+		LocalCAN2Data.T1_By1 	= LocalCOB_Typ_120.usFehlernummer
+
+	; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_120.udPostennummer	,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_120.udPostennummer)	; take LOWER byte..
+
+	; uiGewicht
+    	; no conversion needed -> both are WORD..
+    	LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_120.uiGewicht
+
+;****ID 120****Telegram 2********ID 120****Telegram 2********ID 120****Telegram 2********ID 120****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0			= BIT_SET(LocalCAN2Data.T2_By0, 4)
+		LocalCAN2Data.T2_By0			= BIT_CLR(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  			= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 			= BIT_SET(LocalCAN2Data.T2_By0, 7)
+	;bNotAusHF
+		if LocalCOB_Typ_120.bNotAusHF = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 3)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 3)
+		endif
+	; bProgrammOderKategorie
+    	if LocalCOB_Typ_120.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0	= BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0	= BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+	; bSchiebeVorposition
+		if LocalCOB_Typ_120.bSchiebeVorposition = 1 then
+			LocalCAN2Data.T2_By0	= BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0	= BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+
+	; usEinlaufInSpeibahnNr + usAuslaufAusSpeibahnNr
+		; prepare data..
+		; LocalCAN2Data.T2_By1 ---- Bit 0-3 ->  Einlauf
+		usTemp = LocalCOB_Typ_120.usEinlaufInSpeibahnNr
+		usTemp = shl(usTemp,4) ; move to UPPER BYTE
+		; LocalCAN2Data.T2_By1 ---- Bit 4-7 ->  Auslauf
+		LocalCAN2Data.T2_By1 = LocalCOB_Typ_120.usAuslaufAusSpeibahnNr ; set to LOWER BYTE
+		; .. and set to telegram
+		LocalCAN2Data.T2_By1 = LocalCAN2Data.T2_By1 + usTemp
+
+	; uiProgrammKategorie
+    	LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_120.uiProgrammKategorie
+
+   	; udKundennummer
+	   		udShr16 = shr(LocalCOB_Typ_120.udKundennummer,16)
+		; broadcast via can in motorola format: MSByte as byteN and LSByte as byteN+1 !!
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_120.udKundennummer	)	; take LOWER byte..
+
+;****ID 120****Telegram 3********ID 120****Telegram 3********ID 120****Telegram 3********ID 120****Telegram 3****
+		; always set telegram number "10"..
+		LocalCAN2Data.T3_By0		= BIT_CLR(LocalCAN2Data.T3_By0, 4)
+		LocalCAN2Data.T3_By0		= BIT_SET(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 		= BIT_CLR(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 7)
+	; Reserve
+		LocalCAN2Data.T3_By1 = LocalCOB_Typ_120.usReserve1
+	; bContainerUeberBeladetrichter
+		if LocalCOB_Typ_120.bContainerUeberBeladetrichter = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 0)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 0)
+		endif
+	; bDatenuebernahmeLift
+		if LocalCOB_Typ_120.bDatenuebernahmeLift	= 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+	; bPostennummer
+    	if LocalCOB_Typ_120.bPostennummer	 = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 2)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 2)
+		endif
+	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_120.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_120.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_120.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_120.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_120.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_120.a_usCustomize[2] + 256* LocalCOB_Typ_120.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_120.a_usCustomize[4] + 256* LocalCOB_Typ_120.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_120.a_usCustomize[6] + 256* LocalCOB_Typ_120.a_usCustomize[5]
+		endif
+;****ID 120****Telegram 4********ID 120****Telegram 4********ID 120****Telegram 4********ID 120****Telegram 4****
+   	; always set telegram number "11"..
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 4)
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 5)
+		LocalCAN2Data.T4_By0 		= BIT_CLR(LocalCAN2Data.T4_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T4_By0 = BIT_SET(LocalCAN2Data.T4_By0, 7)
+	; Reserve
+		LocalCAN2Data.T4_By1 = LocalCOB_Typ_120.usReserve2
+	; "Auftragskennzeichen" as string has to be set to T4 + T5..
+		; always assure transmitting this order:
+		; T3Byte2 -> zchn1 ; T4Byte7 -> zchn 12 (quasi-motorola order)
+		pLocByte4Str access (Local_InitCAN2PV.pPVData + 14) ; don't use static addresses !!!
+		LocByte4Str = pLocByte4Str
+
+	; szAuftragskennzeichen
+		memcpy(adr(LocalCAN2Data.T4_By2_By3),adr(LocalCOB_Typ_120.szAuftragskennzeichen),6)
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			; nichts tun..
+		else ; intel
+			; WORDS swappen !	 - 	swapUINT(IN, usLOWERBYTE, uiSWAP, uiIN)
+			LocalCAN2Data.T4_By2_By3 = _swapUINT(LocalCAN2Data.T4_By2_By3) ; ,0,0,0 - uiSwap
+			LocalCAN2Data.T4_By4_By5 = _swapUINT(LocalCAN2Data.T4_By4_By5) ;,0,0,0
+			LocalCAN2Data.T4_By6_By7 = _swapUINT(LocalCAN2Data.T4_By6_By7) ;,0,0,0
+		endif
+
+;****ID 120****Telegram 5********ID 120****Telegram 5********ID 120****Telegram 5********ID 120****Telegram 5****
+    	; always set telegram number "100"..
+		LocalCAN2Data.T5_By0 		= BIT_CLR(LocalCAN2Data.T5_By0, 4)
+		LocalCAN2Data.T5_By0		= BIT_CLR(LocalCAN2Data.T5_By0, 5)
+		LocalCAN2Data.T5_By0		= BIT_SET(LocalCAN2Data.T5_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T5_By0 = BIT_SET(LocalCAN2Data.T5_By0, 7)
+
+		; memcpy(adr(LocalCAN2Data.T5[1]),adr(LocalCOB_Typ_120.szAuftragskennzeichen)+5 ,6) ; = den Rest des AKZ
+		memcpy(adr(LocalCAN2Data.T5_By2_By3),adr(LocalCOB_Typ_120.szAuftragskennzeichen)+6,6)
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			; nicht stun..
+		else ; intel
+			; WORDS swappen !
+			LocalCAN2Data.T5_By2_By3 = _swapUINT(LocalCAN2Data.T5_By2_By3) ; ,0,0,0 - uiSwap
+			LocalCAN2Data.T5_By4_By5 = _swapUINT(LocalCAN2Data.T5_By4_By5)
+			LocalCAN2Data.T5_By6_By7 = _swapUINT(LocalCAN2Data.T5_By6_By7)
+		endif
+
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; ID 120
+
+;*******action 121********action 121********action 121********action 121********action 121********
+action 121:
+action 127:
+action 129:
+action 131:
+action 141:
+action 151:
+action 161:
+action 171:
+action 181:
+action 191:
+   	   	memcpy(adr(LocalCOB_Typ_121),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_121))
+
+;****ID 121****Telegram 1********ID 121****Telegram 1********ID 121****Telegram 1********ID 121****Telegram 1****
+	;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T4_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T4_By0, 6)
+			; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+	; bBereit
+    	if LocalCOB_Typ_121.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bSackOeffnen
+		if LocalCOB_Typ_121.bSackOeffnen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bSackLeerWeiter
+		if LocalCOB_Typ_121.bSackLeerWeiter = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+	; bFreigLiftBeschickungSpeibahn
+		if LocalCOB_Typ_121.bFreigLiftBeschickungSpeibahn = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	; bSchiebesignalPT
+		if LocalCOB_Typ_121.bSchiebesignalPT = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+	; bNotAusPT
+		if LocalCOB_Typ_121.bNotAusPT = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+
+		LocalCAN2Data.T1_By2_By3 = UINT(LocalCOB_Typ_121.usReserve3)
+		LocalCAN2Data.T1_By2_By3 = shl(LocalCAN2Data.T1_By2_By3,8)
+		LocalCAN2Data.T1_By2_By3 = LocalCAN2Data.T1_By2_By3 + LocalCOB_Typ_121.usReserve2
+
+		LocalCAN2Data.T1_By4_By5 = UINT(LocalCOB_Typ_121.usReserve5)
+		LocalCAN2Data.T1_By4_By5 = shl(LocalCAN2Data.T1_By4_By5,8)
+		LocalCAN2Data.T1_By4_By5 = LocalCAN2Data.T1_By4_By5 + LocalCOB_Typ_121.usReserve4
+
+		LocalCAN2Data.T1_By6_By7 = UINT(LocalCOB_Typ_121.usReserve7)
+		LocalCAN2Data.T1_By6_By7 = shl(LocalCAN2Data.T1_By6_By7,8)
+		LocalCAN2Data.T1_By6_By7 = LocalCAN2Data.T1_By6_By7 + LocalCOB_Typ_121.usReserve6
+
+;****ID 121****Telegram 2********ID 121****Telegram 2********ID 121****Telegram 2********ID 121****Telegram 2****
+	;T1 mandatotries ->:
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+		; Customize[0..6]
+		LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_121.a_usCustomize[0]
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_121.a_usCustomize[2] + 256* LocalCOB_Typ_121.a_usCustomize[1]
+		LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_121.a_usCustomize[4] + 256* LocalCOB_Typ_121.a_usCustomize[3]
+		LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_121.a_usCustomize[6] + 256* LocalCOB_Typ_121.a_usCustomize[5]
+
+		;******************** T3- T4 not defined in CAN2 standard ********************
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; ID 121
+
+;****ID 122************ID 122****ID 122****************ID 122****************ID 122****************ID 122********
+action 122:
+	    ; to do: transform type data to LocalCAN2Data
+    	memcpy(adr(LocalCOB_Typ_122),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_122))
+
+;****ID 122****Telegram 1********ID 122****Telegram 1********ID 122****Telegram 1********ID 122****Telegram 1****
+		; always set telegram number "00"
+		LocalCAN2Data.T1_By0 		= BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 		= BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram..
+		LocalCAN2Data.T1_By0 		= BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+		; bBereit
+		if LocalCOB_Typ_122.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+		; bPostenAufBelband
+		if LocalCOB_Typ_122.bPostenAufBelband = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+		; bPostendatenGueltig
+		if LocalCOB_Typ_122.bPostendatenGueltig = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		; bPostennummer
+		if LocalCOB_Typ_122.bPostennummer = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		; bAuftrKennz
+		if LocalCOB_Typ_122.bAuftrKennz = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+		; usFehlerNr
+		LocalCAN2Data.T1_By1 = LocalCOB_Typ_122.usFehlerNr
+
+	; bSchiebeVPzuBeladung 		-> removed from V2.0.0
+	; usEingangSpeicherNummer	-> removed from V2.0.0
+
+   	; udPostennummer
+    		udShr16 = shr(LocalCOB_Typ_122.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_122.udPostennummer)	; take LOWER byte..
+   	; uiGewicht
+    	LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_122.uiGewicht
+
+;****ID 122****Telegram 2********ID 122****Telegram 2********ID 122****Telegram 2********ID 122****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	; usVerlasseSpeicherNummer 	-> removed from V2.0.0
+	; uiProgrammKategorie		-> removed from V2.0.0
+
+		; bProgKat
+		if LocalCOB_Typ_122.bProgKat = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		; bNotAusSackbeladung
+		if LocalCOB_Typ_122.bProgKat = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+		; usZaehler
+		LocalCAN2Data.T2_By1 =	LocalCOB_Typ_122.usZaehler
+
+		; uiProgKat
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_122.uiProgKat
+
+   	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_122.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_122.udKundennummer)	; take LOWER bytes..
+
+;****ID 122****Telegram 3********ID 122****Telegram 3********ID 122****Telegram 3********ID 122****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+		; szAuftragskennzeichen
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			pLocByte4Str access (Local_InitCAN2PV.pPVData + 17) ; bad to use static address..
+		else ; intel
+			pLocByte4Str access (Local_InitCAN2PV.pPVData + 17)
+		endif
+		LocByte4Str = pLocByte4Str
+
+		LocalCAN2Data.T3_By2_By3	= UINT(pLocByte4Str[0])
+		LocalCAN2Data.T3_By2_By3	= shl(LocalCAN2Data.T3_By2_By3, 8)
+		LocalCAN2Data.T3_By2_By3	= LocalCAN2Data.T3_By2_By3 + pLocByte4Str[1]
+
+		LocalCAN2Data.T3_By4_By5	= UINT(pLocByte4Str[2])
+		LocalCAN2Data.T3_By4_By5	= shl(LocalCAN2Data.T3_By4_By5, 8)
+		LocalCAN2Data.T3_By4_By5	= LocalCAN2Data.T3_By4_By5 + pLocByte4Str[3]
+
+		LocalCAN2Data.T3_By6_By7	= UINT(pLocByte4Str[4])
+		LocalCAN2Data.T3_By6_By7	= shl(LocalCAN2Data.T3_By6_By7, 8)
+		LocalCAN2Data.T3_By6_By7	= LocalCAN2Data.T3_By6_By7 + pLocByte4Str[5]
+
+;****ID 122****Telegram 4********ID 122****Telegram 4********ID 122****Telegram 4********ID 122****Telegram 4****
+		; always set telegram number "01"..
+		LocalCAN2Data.T4_By0 = BIT_SET(LocalCAN2Data.T4_By0, 5)
+		LocalCAN2Data.T4_By0 = BIT_SET(LocalCAN2Data.T4_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T4_By0 = BIT_SET(LocalCAN2Data.T4_By0, 7)
+
+		; szAuftragskennzeichen
+		LocalCAN2Data.T4_By2_By3	= UINT(pLocByte4Str[6])
+		LocalCAN2Data.T4_By2_By3	= shl(LocalCAN2Data.T4_By2_By3, 8)
+		LocalCAN2Data.T4_By2_By3	= LocalCAN2Data.T4_By2_By3 + pLocByte4Str[7]
+
+		LocalCAN2Data.T4_By4_By5	= UINT(pLocByte4Str[8])
+		LocalCAN2Data.T4_By4_By5	= shl(LocalCAN2Data.T4_By4_By5, 8)
+		LocalCAN2Data.T4_By4_By5	= LocalCAN2Data.T4_By4_By5 + pLocByte4Str[9]
+
+		LocalCAN2Data.T4_By6_By7	= UINT(pLocByte4Str[10])
+		LocalCAN2Data.T4_By6_By7	= shl(LocalCAN2Data.T4_By6_By7, 8)
+		LocalCAN2Data.T4_By6_By7	= LocalCAN2Data.T4_By6_By7 + pLocByte4Str[11]
+
+		iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; ID 122
+
+
+;*******action 123********action 123********action 123********action 123********action 123********
+action 123:
+    	memcpy(adr(LocalCOB_Typ_123),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_123))
+
+;****ID 123****Telegram 1********ID 123****Telegram 1********ID 123****Telegram 1********ID 123****Telegram 1****
+	;T1 mandatotries ->:
+		; .. only sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+	; bBereit
+    	if LocalCOB_Typ_123.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bDatenBereitstellen
+    	if LocalCOB_Typ_123.bDatenBereitstellen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bBeladesignal
+    	if LocalCOB_Typ_123.bBeladesignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+    ; bNotAusPT
+	   	if LocalCOB_Typ_123.bNotAusPT = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 6)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		endif
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 123
+
+(*
+;*******action 130_140********action 130_140********action 130_140********action 130_140********action 130_140********
+action 1130:	; 08.10.2007 - (hcs) DEAKTIVIERT
+	; pLocalCOB_Typ_130_140 access Local_InitCAN2PV.pPVData
+  	memcpy(adr(LocalCOB_Typ_130_140),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_130_140))
+
+;****ID 130_140****Telegram 1********ID 130_140****Telegram 1********ID 130_140****Telegram 1********ID 130_140****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+; 	bBereit			1
+    	if LocalCOB_Typ_130_140.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bPostenAufBeladeband	1
+    	if LocalCOB_Typ_130_140.bPostenAufBeladeband = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bPostendatenGueltig		1
+    	if LocalCOB_Typ_130_140.bPostendatenGueltig = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;	bPostennummer			1
+    	if LocalCOB_Typ_130_140.bPostennummer = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;	bAuftragskennzeichen	1
+    	if LocalCOB_Typ_130_140.bAuftragskennzeichen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	udPostennummer			1
+	; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_130_140.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)								; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_130_140.udPostennummer)	; take LOWER byte..
+;	usFehlernummer			1
+		LocalCAN2Data.T1_By1 	= LocalCOB_Typ_130_140.usFehlernummer
+;	uiGewicht				1
+		LocalCAN2Data.T1_By6_By7 = LocalCOB_Typ_130_140.uiGewicht
+
+;****ID 130_140****Telegram 2********ID 130_140****Telegram 2********ID 130_140****Telegram 2********ID 130_140****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0					= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  					= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 					= BIT_SET(LocalCAN2Data.T2_By0, 7)
+    ; bNotAusBSOderEntsander
+    	if LocalCOB_Typ_130_140.bNotAusBSOderEntsander = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+;	usPositionszaehler		2
+		LocalCAN2Data.T2_By1 	= LocalCOB_Typ_130_140.usPositionszaehler
+;	bProgrammOderKategorie	2
+    	if LocalCOB_Typ_130_140.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+;	uiProgrammKategorie		2
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_130_140.uiProgrammKategorie
+;	udKundennummer			2
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+;		###HO 050404 .udKdnnr -> .udPostennr
+			udShr16 = shr(LocalCOB_Typ_130_140.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)									; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_130_140.udKundennummer)	; take LOWER byte..
+
+;****ID 130_140****Telegram 3********ID 130_140****Telegram 3********ID 130_140****Telegram 3********ID 130_140****Telegram 3****
+;T3 mandatotries ->:
+		LocalCAN2Data.T3_By0					= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 					= BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 					= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+;AKZ as STRING->:
+		; "Auftragskennzeichen" as string has to be set to T3 + T4..
+		; always assure transmitting this order:
+		; T3Byte2 -> zchn1 ; T4Byte7 -> zchn 12 (quasi-motorola order)
+
+;		access to address 'szAKZ' from PV..:
+
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			pLocByte4Str access (Local_InitCAN2PV.pPVData + 16) ; bad to use static address..
+		else ; intel
+			pLocByte4Str access (Local_InitCAN2PV.pPVData + 18)
+		endif
+		LocByte4Str = pLocByte4Str
+
+		LocalCAN2Data.T3_By2_By3	= UINT(pLocByte4Str[0])
+		LocalCAN2Data.T3_By2_By3	= shl(LocalCAN2Data.T3_By2_By3, 8)
+		LocalCAN2Data.T3_By2_By3	= LocalCAN2Data.T3_By2_By3 + pLocByte4Str[1]
+
+		LocalCAN2Data.T3_By4_By5	= UINT(pLocByte4Str[2])
+		LocalCAN2Data.T3_By4_By5	= shl(LocalCAN2Data.T3_By4_By5, 8)
+		LocalCAN2Data.T3_By4_By5	= LocalCAN2Data.T3_By4_By5 + pLocByte4Str[3]
+
+		LocalCAN2Data.T3_By6_By7	= UINT(pLocByte4Str[4])
+		LocalCAN2Data.T3_By6_By7	= shl(LocalCAN2Data.T3_By6_By7, 8)
+		LocalCAN2Data.T3_By6_By7	= LocalCAN2Data.T3_By6_By7 + pLocByte4Str[5]
+
+;****ID 130_140****Telegram 4********ID 130_140****Telegram 4********ID 130_140****Telegram 4********ID 130_140****Telegram 4****
+;T4 mandatotries ->:
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 5)
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 7)
+
+;AKZ as STRING->:
+		LocalCAN2Data.T4_By2_By3	= UINT(pLocByte4Str[6])
+		LocalCAN2Data.T4_By2_By3	= shl(LocalCAN2Data.T4_By2_By3, 8)
+		LocalCAN2Data.T4_By2_By3	= LocalCAN2Data.T4_By2_By3 + pLocByte4Str[7]
+
+		LocalCAN2Data.T4_By4_By5	= UINT(pLocByte4Str[8])
+		LocalCAN2Data.T4_By4_By5	= shl(LocalCAN2Data.T4_By4_By5, 8)
+		LocalCAN2Data.T4_By4_By5	= LocalCAN2Data.T4_By4_By5 + pLocByte4Str[9]
+
+		LocalCAN2Data.T4_By6_By7	= UINT(pLocByte4Str[10])
+		LocalCAN2Data.T4_By6_By7	= shl(LocalCAN2Data.T4_By6_By7, 8)
+		LocalCAN2Data.T4_By6_By7	= LocalCAN2Data.T4_By6_By7 + pLocByte4Str[11]
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 130_140
+*)
+(*
+;*******action 131_141********action 131_141********action 131_141********action 131_141********action 131_141********
+action 1131:	; 08.10.2007 - (hcs) DEAKTIVIERT
+
+    	memcpy(adr(LocalCOB_Typ_131_141),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_131_141))
+
+;****ID 131_141****Telegram 1********ID 131_141****Telegram 1********ID 131_141****Telegram 1********ID 131_141****Telegram 1****
+	;T1 mandatotries ->:
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+	; bNotAusWM
+	   	if LocalCOB_Typ_131_141.bNotAusWM = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 6)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		endif
+	; bBereit
+    	if LocalCOB_Typ_131_141.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bDatenBereitstellen
+    	if LocalCOB_Typ_131_141.bDatenBereitstellen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bBeladesignal
+    	if LocalCOB_Typ_131_141.bBeladesignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 131_141
+
+;*******action 130_140********action 130_140********action 130_140********action 130_140********action 130_140********
+
+action 140: ; the same as 130 !!
+	; LocalCOB_Typ_130_140 access Local_InitCAN2PV.pPVData
+  	memcpy(adr(LocalCOB_Typ_130_140),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_130_140))
+
+;****ID 130_140****Telegram 1********ID 130_140****Telegram 1********ID 130_140****Telegram 1********ID 130_140****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+; 	bBereit			1
+    	if LocalCOB_Typ_130_140.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bPostenAufBeladeband	1
+    	if LocalCOB_Typ_130_140.bPostenAufBeladeband = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bPostendatenGueltig		1
+    	if LocalCOB_Typ_130_140.bPostendatenGueltig = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;	bPostennummer			1
+    	if LocalCOB_Typ_130_140.bPostennummer = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;	bAuftragskennzeichen	1
+    	if LocalCOB_Typ_130_140.bAuftragskennzeichen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	udPostennummer			1
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_130_140.udPostennummer	,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)										; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_130_140.udPostennummer)	; take LOWER byte..
+;	usFehlernummer			1
+		LocalCAN2Data.T1_By1 	= LocalCOB_Typ_130_140.usFehlernummer
+;	uiGewicht				1
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_130_140.uiGewicht
+
+;****ID 130_140****Telegram 2********ID 130_140****Telegram 2********ID 130_140****Telegram 2********ID 130_140****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0		= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  		= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 		= BIT_SET(LocalCAN2Data.T2_By0, 7)
+    ; bNotAusBSOderEntsander
+    	if LocalCOB_Typ_130_140.bNotAusBSOderEntsander = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+	;	bProgrammOderKategorie	2
+    	if LocalCOB_Typ_130_140.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 	= BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 	= BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+;	usPositionszaehler		2
+		LocalCAN2Data.T2_By1 		= LocalCOB_Typ_130_140.usPositionszaehler
+;	uiProgrammKategorie		2
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_130_140.uiProgrammKategorie
+;	udKundennummer			2
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_130_140.udPostennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)									; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_130_140.udPostennummer)	; take LOWER byte..
+
+;****ID 130_140****Telegram 3********ID 130_140****Telegram 3********ID 130_140****Telegram 3********ID 130_140****Telegram 3****
+;T3 mandatotries ->:
+		LocalCAN2Data.T3_By0		= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+;AKZ as STRING->:
+		; "Auftragskennzeichen" as string has to be set to T3 + T4..
+		; always assure transmitting this order:
+		; T3Byte2 -> zchn1 ; T4Byte7 -> zchn 12 (quasi-motorola order)
+
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			pLocByte4Str access (Local_InitCAN2PV.pPVData + 16) ; bad to use static address..
+		else ; intel
+			pLocByte4Str access (Local_InitCAN2PV.pPVData + 18)
+		endif
+		LocByte4Str = pLocByte4Str
+
+		LocalCAN2Data.T3_By2_By3	= UINT(pLocByte4Str[0])
+		LocalCAN2Data.T3_By2_By3	= shl(LocalCAN2Data.T3_By2_By3, 8)
+		LocalCAN2Data.T3_By2_By3	= LocalCAN2Data.T3_By2_By3 + pLocByte4Str[1]
+
+		LocalCAN2Data.T3_By4_By5	= UINT(pLocByte4Str[2])
+		LocalCAN2Data.T3_By4_By5	= shl(LocalCAN2Data.T3_By4_By5, 8)
+		LocalCAN2Data.T3_By4_By5	= LocalCAN2Data.T3_By4_By5 + pLocByte4Str[3]
+
+		LocalCAN2Data.T3_By6_By7	= UINT(pLocByte4Str[4])
+		LocalCAN2Data.T3_By6_By7	= shl(LocalCAN2Data.T3_By6_By7, 8)
+		LocalCAN2Data.T3_By6_By7	= LocalCAN2Data.T3_By6_By7 + pLocByte4Str[5]
+
+;****ID 130_140****Telegram 4********ID 130_140****Telegram 4********ID 130_140****Telegram 4********ID 130_140****Telegram 4****
+;T3 mandatotries ->:
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 5)
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T4_By0 		= BIT_SET(LocalCAN2Data.T4_By0, 7)
+;AKZ as STRING->:
+		LocalCAN2Data.T4_By2_By3	= UINT(pLocByte4Str[6])
+		LocalCAN2Data.T4_By2_By3	= shl(LocalCAN2Data.T4_By2_By3, 8)
+		LocalCAN2Data.T4_By2_By3	= LocalCAN2Data.T4_By2_By3 + pLocByte4Str[7]
+
+		LocalCAN2Data.T4_By4_By5	= UINT(pLocByte4Str[8])
+		LocalCAN2Data.T4_By4_By5	= shl(LocalCAN2Data.T4_By4_By5, 8)
+		LocalCAN2Data.T4_By4_By5	= LocalCAN2Data.T4_By4_By5 + pLocByte4Str[9]
+
+		LocalCAN2Data.T4_By6_By7	= UINT(pLocByte4Str[10])
+		LocalCAN2Data.T4_By6_By7	= shl(LocalCAN2Data.T4_By6_By7, 8)
+		LocalCAN2Data.T4_By6_By7	= LocalCAN2Data.T4_By6_By7 + pLocByte4Str[11]
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 130_140
+*)
+(*
+;*******action 131_141********action 131_141********action 131_141********action 131_141********action 131_141********
+action 141:
+    	; LocalCOB_Typ_131_141 access Local_InitCAN2PV.pPVData
+   	 	memcpy(adr(LocalCOB_Typ_131_141),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_131_141))
+
+;****ID 131_141****Telegram 1********ID 131_141****Telegram 1********ID 131_141****Telegram 1********ID 131_141****Telegram 1****
+	;T1 mandatotries ->:
+		;LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		;LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+	; bNotAusWM
+	   	if LocalCOB_Typ_131_141.bNotAusWM = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 6)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		endif
+	; bBereit
+    	if LocalCOB_Typ_131_141.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bDatenBereitstellen
+    	if LocalCOB_Typ_131_141.bDatenBereitstellen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bBeladesignal
+    	if LocalCOB_Typ_131_141.bBeladesignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 131_141
+*)
+ ;****ID 201************ID 201************ID 201************ID 201********ID 201************ID 201************ID 201
+action 201:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+   	   	memcpy(adr(LocalCOB_Typ_201),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_201))
+;****ID 201****Telegram 1********ID 201****Telegram 1********ID 201****Telegram 1********ID 201****Telegram 1****
+	; always set telegram number "00"
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram..
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+	; bBereit
+    	if LocalCOB_Typ_201.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bVorsignal
+    	if LocalCOB_Typ_201.bVorsignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+	; bEntladesignal
+		if LocalCOB_Typ_201.bEntladesignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	; bKeineRueckgewinnung
+		if LocalCOB_Typ_201.bKeineRueckgewinnung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+; ###HO 05042004 Desinf ergänzt..
+	; bFreigabeDesinfektion
+    	if LocalCOB_Typ_201.bFreigabeDesinfektion = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+	; bTankIstLeer
+    	if LocalCOB_Typ_201.bTankIstLeer = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+	; bFreigabeSpuelen
+    	if LocalCOB_Typ_201.bFreigabeSpuelen = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 2)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 2)
+		endif
+	; EndeDesinfektion
+    	if LocalCOB_Typ_201.bEndeDesinfektion = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 3)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 3)
+		endif
+	; udPostennummer
+			udShr16 = shr(LocalCOB_Typ_201.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_201.udPostennummer)	; take LOWER byte..
+	; uiGewicht
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_201.uiGewicht
+
+;****ID 201****Telegram 2********ID 201****Telegram 2********ID 201****Telegram 2********ID 201****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+	;Reserve
+		LocalCAN2Data.T2_By1 = LocalCOB_Typ_201.usReserve1
+	; bNotAusWM
+		if LocalCOB_Typ_201.bNotAusWM = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+	; bProgrammOderKategorie
+		if LocalCOB_Typ_201.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+	; uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_201.uiProgrammKategorie
+   	; udKundennummer
+    		udShr16 = shr(LocalCOB_Typ_201.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_201.udKundennummer)	; take LOWER byte..
+
+;****ID 201****Telegram 3********ID 201****Telegram 3********ID 201****Telegram 3********ID 201****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_201.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_201.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_201.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_201.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_201.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_201.a_usCustomize[2] + 256* LocalCOB_Typ_201.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_201.a_usCustomize[4] + 256* LocalCOB_Typ_201.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_201.a_usCustomize[6] + 256* LocalCOB_Typ_201.a_usCustomize[5]
+		endif
+;****ID 201****4th telegram don't exist for ID 201*****ID 201****
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction  ; ID 201
+
+;*******action 209********action 209********action 209********action 209********action 209********
+action 209: ; 209:
+    	; pLocalCOB_Typ_209 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_209),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_209))
+
+;****ID 209****Telegram 1********ID 209****Telegram 1********ID 209****Telegram 1********ID 209****Telegram 1****
+		;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+    	if LocalCOB_Typ_209.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bVorsignal
+    	if LocalCOB_Typ_209.bVorsignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;	bEntladesignal
+    	if LocalCOB_Typ_209.bEntladesignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;	bKeineRueckgewinnung
+    	if LocalCOB_Typ_209.bKeineRueckgewinnung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+
+		LocalCAN2Data.T1_By1 = LocalCOB_Typ_209.usReserve1
+
+;	udPostennummer
+			udShr16 = shr(LocalCOB_Typ_209.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_209.udPostennummer)	; take LOWER byte..
+;	uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_209.uiGewicht
+
+;****ID 209****Telegram 2********ID 209****Telegram 2********ID 209****Telegram 2********
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+; bProgrammOderKategorie
+    	if LocalCOB_Typ_209.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+; bNotAusWetShuttle
+    	if LocalCOB_Typ_209.bNotAusWetShuttle = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+
+		LocalCAN2Data.T2_By1 = LocalCOB_Typ_209.usReserve2
+
+;uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_209.uiProgrammKategorie
+; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_209.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_209.udKundennummer)	; take LOWER bytes..
+
+  ;****ID 209****Telegram 3********ID 209****Telegram 3********ID 209****Telegram 3********
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_209.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_209.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_209.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_209.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_209.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_209.a_usCustomize[2] + 256* LocalCOB_Typ_209.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_209.a_usCustomize[4] + 256* LocalCOB_Typ_209.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_209.a_usCustomize[6] + 256* LocalCOB_Typ_209.a_usCustomize[5]
+		endif
+
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction 	; 209
+
+
+;*******action 211********action 211********action 211********action 211********action 211********
+action 211:
+    	; pLocalCOB_Typ_211 access Local_InitCAN2PV.pPVData
+ 	 	memcpy(adr(LocalCOB_Typ_211),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_211))
+
+;****ID 211****Telegram 1********ID 211****Telegram 1********ID 211****Telegram 1********ID 211****Telegram 1****
+	;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+	; bBereit
+    	if LocalCOB_Typ_211.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bBeladebereit
+    	if LocalCOB_Typ_211.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bSchiebeimpulsErsteEntwaess
+		if LocalCOB_Typ_211.bSchiebeimpulsErsteEntwaess = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		; ###HO 050404 bSchiebeimpuls -> bSchiebeimpulsWETShuttle
+	;bSchiebeimpulsWETShuttle
+    	if LocalCOB_Typ_211.bSchiebeimpSpbPreXOR_WETShuttle = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	;pv211.bFehlerBelgewErtsteEntwaess 	= 1
+	    if LocalCOB_Typ_211.bFehlerBelgewErtsteEntwaess = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+	;pv211.bAblassvZwangsoeffnErsteEnt 	= 1
+		if LocalCOB_Typ_211.bAblassvZwangsoeffnErsteEnt = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 5)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		endif
+	;pv211.bFehlerBelgewZweiteEntwaess 	= 1
+		if LocalCOB_Typ_211.bFehlerBelgewZweiteEntwaess = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+	;pv211.bAblassvZwangsoeffnZweiteEnt 	= 1
+		if LocalCOB_Typ_211.bAblassvZwangsoeffnZweiteEnt = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+	; pv211.bSchiebeimpulsZweiteEntwaess 	= 1
+		if LocalCOB_Typ_211.bSchiebeimpulsZweiteEntwaess = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 2)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 2)
+		endif
+	; pv211.bNotAusEntwaessWetShuttle 	= 1
+		if LocalCOB_Typ_211.bNotAusEntwaessWetShuttle = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 3)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 3)
+		endif
+		
+	; pv211.bSicherheitstuerPTPP = 1
+		if LocalCOB_Typ_211.bSicherheitstuerPTPP = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 4)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 4)
+		endif
+	; pv211.bStartbefehlAnPT = 1
+		if LocalCOB_Typ_211.bStartbefehlAnPT = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 5)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 5)
+		endif
+	;Redundanzen
+	(*
+		if LocalCOB_Typ_211.bReserve4 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 6)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 6)
+		endif
+				if LocalCOB_Typ_211.bReserve5 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 7)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 7)
+		endif
+
+		; fetch UPPER byte..
+		usUPPTemp 	= LocalCOB_Typ_211.usFehlerZweiteEntwaess
+		usLOWTemp	= USINT(LocalCAN2Data.T1_By4_By5)
+		; set bits of temp byte..
+		if LocalCOB_Typ_211.bReserve6 = 1 then
+			usUPPTemp = BIT_SET(usUPPTemp, 3)
+		else
+			usUPPTemp = BIT_CLR(usUPPTemp, 3)
+		endif
+		if LocalCOB_Typ_211.bReserve7 = 1 then
+			usUPPTemp = BIT_SET(usUPPTemp, 4)
+		else
+			usUPPTemp = BIT_CLR(usUPPTemp, 4)
+		endif
+		if LocalCOB_Typ_211.bReserve8 = 1 then
+			usUPPTemp = BIT_SET(usUPPTemp, 5)
+		else
+			usUPPTemp = BIT_CLR(usUPPTemp, 5)
+		endif
+		if LocalCOB_Typ_211.bReserve9 = 1 then
+			usUPPTemp = BIT_SET(usUPPTemp, 6)
+		else
+			usUPPTemp = BIT_CLR(usUPPTemp, 6)
+		endif
+		if LocalCOB_Typ_211.bReserve10 = 1 then
+			usUPPTemp = BIT_SET(usUPPTemp, 7)
+		else
+			usUPPTemp = BIT_CLR(usUPPTemp, 7)
+		endif
+		;#?#
+		; write back temp byte to UPPER byte - set two single bytes to WORD ..
+		LocalCAN2Data.T1_By4_By5	= UINT(usLOWTemp)		; set to LOWER byte..
+			uiShl8 = shl(LocalCAN2Data.T1_By4_By5,8)		; .. and shift to UPPER byte..
+		LocalCAN2Data.T1_By4_By5 	= usUPPTemp + uiShl8	; add LOWER byte..
+			*)
+	;pv211.usFehlerErsteEntwaess 	 +    pv211.usFehlerZweiteEntwaess
+		; set two single bytes to WORD ..
+		LocalCAN2Data.T1_By2_By3	= UINT(LocalCOB_Typ_211.usFehlerErsteEntwaess)	; set to LOWER byte..
+			uiShl8 = shl(LocalCAN2Data.T1_By2_By3,8)								; .. and shift to UPPER byte..
+		LocalCAN2Data.T1_By2_By3 	= LocalCOB_Typ_211.usFehlerWetShuttle + uiShl8	; add LOWER byte..
+
+	;pv211.usFehlerWetShuttle 	-> ins By4 schieben !
+		LocalCAN2Data.T1_By4_By5  = UINT(LocalCOB_Typ_211.usFehlerZweiteEntwaess )
+		;  ###HO 111007 - hier wurde 2x geshiftet - kein Wrt von usFehlerZweiteEW
+		;	LocalCAN2Data.T1_By4_By5  = shl(LocalCAN2Data.T1_By4_By5,8)
+	  		uiShl8 = shl(LocalCAN2Data.T1_By4_By5,8)		; .. and shift to UPPER byte..
+
+	; Desinfektionen in 'usT1By5Temp' sammeln...
+		;	bStartDesinfektion
+				if LocalCOB_Typ_211.bStartDesinfektion = 1 then
+					usT1By5Temp = BIT_SET(usT1By5Temp, 0)
+				else
+					usT1By5Temp = BIT_CLR(usT1By5Temp, 0)
+				endif
+		;	bStartSpuelen
+				if LocalCOB_Typ_211.bStartSpuelen = 1 then
+					usT1By5Temp = BIT_SET(usT1By5Temp, 1)
+				else
+					usT1By5Temp = BIT_CLR(usT1By5Temp, 1)
+				endif
+		; 	bEndeSpuelen
+				if LocalCOB_Typ_211.bEndeSpuelen = 1 then
+					usT1By5Temp = BIT_SET(usT1By5Temp, 2)
+				else
+					usT1By5Temp = BIT_CLR(usT1By5Temp, 2)
+				endif
+		LocalCAN2Data.T1_By4_By5 	= usT1By5Temp + uiShl8	; add LOWER byte..
+;****ID 211****Telegram 2********ID 211****Telegram 2********ID 211****Telegram 2********ID 211****Telegram 2****
+	;T1 mandatotries ->:
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	  	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_211.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_211.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_211.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_211.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_211.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_211.a_usCustomize[2] + 256* LocalCOB_Typ_211.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_211.a_usCustomize[4] + 256* LocalCOB_Typ_211.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_211.a_usCustomize[6] + 256* LocalCOB_Typ_211.a_usCustomize[5]
+		endif
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 211
+
+;*******action 219********action 219********action 219********action 219********action 219********
+action 219: ; 219:
+    	; pLocalCOB_Typ_219 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_219),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_219))
+
+;****ID 219****Telegram 1********ID 219****Telegram 1********ID 219****Telegram 1********
+		;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;bBereitEntwWetShuttle
+    	if LocalCOB_Typ_219.bBereitEntwWetShuttle = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;pv219.bBereitEntw
+    	if LocalCOB_Typ_219.bBereitEntw = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;pv219.bBeladebereit	= 1
+    	if LocalCOB_Typ_219.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;pv219.bSchiebeimpuls	= 1
+    	if LocalCOB_Typ_219.bSchiebeimpuls = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;pv219.bHANDWetShuttleEntladen	= 1
+    	if LocalCOB_Typ_219.bHANDWetShuttleEntladen = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;pv219.bFehlerBeladegewicht	= 1
+    	if LocalCOB_Typ_219.bFehlerBeladegewicht = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 5)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		endif
+;pv219.usFehlerEntw + pv219.usFehlerWetShuttle
+		; this matches -> ok
+    	LocalCAN2Data.T1_By2_By3= UINT(LocalCOB_Typ_219.usFehlerEntw)
+    	uiShl8 					= shl(LocalCAN2Data.T1_By2_By3,8)
+    	LocalCAN2Data.T1_By2_By3= LocalCOB_Typ_219.usFehlerWetShuttle + uiShl8
+
+ ;****ID 219****Telegram 2********ID 219****Telegram 2********ID 219****Telegram 2********
+		;T1 mandatotries ->:
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		;pv219.bNotAusEntw	= 1
+    	if LocalCOB_Typ_219.bNotAusEntw = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 5)
+		endif
+
+		; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_219.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_219.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_219.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_219.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_219.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_219.a_usCustomize[2] + 256* LocalCOB_Typ_219.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_219.a_usCustomize[4] + 256* LocalCOB_Typ_219.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_219.a_usCustomize[6] + 256* LocalCOB_Typ_219.a_usCustomize[5]
+		endif
+
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction 	; 219
+
+
+;*******action 221********action 221********action 221********action 221********action 221*******
+action 221:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+    	memcpy(adr(LocalCOB_Typ_221),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_221))
+
+;****ID 221****Telegram 1********ID 221****Telegram 1********ID 221****Telegram 1********ID 221****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;pv221.bBereit
+    	if LocalCOB_Typ_221.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;pv221.bPostendatenGueltig
+    	if LocalCOB_Typ_221.bPostendatenGueltig = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;pv221.bUnglPostenKeineDPBelAmTrockner
+    	if LocalCOB_Typ_221.bUnglPostenKeineDPBelAmTrockner = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;pv221.udPostennummer
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_221.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_221.udPostennummer)	; take LOWER byte..
+;pv221.uiGewicht
+    	LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_221.uiGewicht
+
+;****ID 221****Telegram 2********ID 221****Telegram 2********ID 221****Telegram 2********ID 221****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0  					= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  					= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 					= BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+;pv221.bTrocknerprogOderKategorie
+    	if LocalCOB_Typ_221.bTrocknerprogOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 				= BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 				= BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+;pv221.bNotAusWM
+	    if LocalCOB_Typ_221.bNotAusWM = 1 then
+			LocalCAN2Data.T2_By0 				= BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 				= BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+;pv221.uiTrocknerprogKategorie
+    	LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_221.uiTrocknerprogKategorie
+
+;pv221.udKundennummer
+	   		udShr16 = shr(LocalCOB_Typ_221.udKundennummer,16)
+		; broadcast via can in motorola format: MSByte as byteN and LSByte as byteN+1 !!
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_221.udKundennummer	)	; take LOWER byte..
+
+;****ID 221****Telegram 3********ID 221****Telegram 3********ID 221****Telegram 3********ID 221****Telegram 3****
+;T2 mandatotries ->:
+		LocalCAN2Data.T3_By0  					= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0  					= BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 					= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_221.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_221.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_221.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_221.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_221.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_221.a_usCustomize[2] + 256* LocalCOB_Typ_221.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_221.a_usCustomize[4] + 256* LocalCOB_Typ_221.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_221.a_usCustomize[6] + 256* LocalCOB_Typ_221.a_usCustomize[5]
+		endif
+
+	iStatus = 0
+	pCAN2Data = ADR(LocalCAN2Data)
+
+endaction ; ID 221
+
+;*******action 231********action 231********action 231********action 231********action 231********
+action 231:
+	; pLocalCOB_Typ_231 access Local_InitCAN2PV.pPVData
+	memcpy(adr(LocalCOB_Typ_231),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_231))
+
+;****ID 231****Telegram 1********ID 231****Telegram 1********ID 231****Telegram 1********ID 231****Telegram 1****
+;T1 mandatotries ->:
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,6)
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,7)
+
+	; bNotAusVerbundEinzeltr
+    	if LocalCOB_Typ_231.bNotAusVerbundEinzeltr = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,5)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,5)
+		endif
+;	bBereit
+    	if LocalCOB_Typ_231.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,0)
+		endif
+;	usBeladungTrockner
+		LocalCAN2Data.T1_By1 	= LocalCOB_Typ_231.usBeladungTrockner
+
+;	usEntladungTrockner -> By2	 + usTransferZBvorHFB	-> By3
+		; set two single bytes to WORD ..
+    	LocalCAN2Data.T1_By2_By3	= UINT(LocalCOB_Typ_231.usEntladungTrockner)
+    		uiShl8 = shl(LocalCAN2Data.T1_By2_By3,8)
+    	LocalCAN2Data.T1_By2_By3 = uiShl8 + LocalCOB_Typ_231.usTransferZBvorHFB
+
+;	usFehlernummer -> By4 +  usTransferZBvorTrockner -> By5
+		; set two single bytes to WORD ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_231.usFehlernummer)
+    		uiShl8 = shl(LocalCAN2Data.T1_By4_By5,8)
+    	LocalCAN2Data.T1_By4_By5 = LocalCOB_Typ_231.usTransferZBvorTrockner + uiShl8
+
+  ; ###HO - 260106
+    	;	usReserve1 -> By6 +  usReserve2 -> By7
+		; set two single bytes to WORD ..
+    	LocalCAN2Data.T1_By6_By7	= UINT(LocalCOB_Typ_231.usReserve1)
+    		uiShl8 = shl(LocalCAN2Data.T1_By6_By7,8)
+    	LocalCAN2Data.T1_By6_By7 = LocalCOB_Typ_231.usReserve2 + uiShl8
+
+
+;****ID 231****Telegram 2********ID 231****Telegram 2********ID 231****Telegram 2********ID 231****Telegram 2****
+;T2 mandatotries ->:
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0,6)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0,7)
+
+		; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_231.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_231.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_231.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_231.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_231.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_231.a_usCustomize[2] + 256* LocalCOB_Typ_231.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_231.a_usCustomize[4] + 256* LocalCOB_Typ_231.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_231.a_usCustomize[6] + 256* LocalCOB_Typ_231.a_usCustomize[5]
+		endif
+
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 231
+
+;*******action 251********action 251********action 251********action 251********action 251********
+action 251:
+action 253:
+action 255:
+action 257:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+  		memcpy(adr(LocalCOB_Typ_251),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_251))
+;****ID 251****Telegram 1********ID 251****Telegram 1********ID 251****Telegram 1********ID 251****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+		;bBereit
+		if LocalCOB_Typ_251.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,0)
+		endif
+
+		; bBeladeende
+		if LocalCOB_Typ_251.bBeladeende  = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,1)
+		endif
+
+		; bSperreBereich
+		if LocalCOB_Typ_251.bSperreBereich  = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,2)
+		endif
+
+		; bStartBeladung V3.2.0 ###HO 040907
+		if LocalCOB_Typ_251.bBeladestart  = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,3)
+		endif
+
+		; usZiel
+		LocalCAN2Data.T1_By1 = LocalCOB_Typ_251.usZiel
+
+		; udPostennummer
+			udShr16 = shr(LocalCOB_Typ_251.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_251.udPostennummer)	; take LOWER byte..
+
+		;uiGewicht
+		   	LocalCAN2Data.T1_By6_By7 = LocalCOB_Typ_251.uiGewicht
+
+;****ID 251****Telegram 2********ID 251****Telegram 2********ID 251****Telegram 2********ID 251****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0  					= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  					= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 					= BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+; bNotAusVerbund
+		if LocalCOB_Typ_251.bNotAusVerbund = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0,4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0,4)
+		endif
+
+; bProgKat
+		if LocalCOB_Typ_251.bProgKat = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0,0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0,0)
+		endif
+
+; uiProgKat
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_251.uiProgKat
+
+; udKundennummer
+			udShr16 = shr(LocalCOB_Typ_251.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_251.udKundennummer)	; take LOWER byte..
+
+;****ID 251****Telegram 3********ID 251****Telegram 3********ID 251****Telegram 3********ID 251****Telegram 3****
+;T3 mandatotries ->:
+		LocalCAN2Data.T3_By0  		= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0  		= BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_251.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_251.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_251.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_251.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_251.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_251.a_usCustomize[2] + 256* LocalCOB_Typ_251.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_251.a_usCustomize[4] + 256* LocalCOB_Typ_251.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_251.a_usCustomize[6] + 256* LocalCOB_Typ_251.a_usCustomize[5]
+		endif
+
+	iStatus = 0
+	pCAN2Data = ADR(LocalCAN2Data)
+
+endaction ; ID 251
+
+
+
+;*******action 252********action 252********action 252********action 252********action 252********
+action 252:
+action 254:
+action 256:
+action 258:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+  		memcpy(adr(LocalCOB_Typ_252),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_252))
+
+;****ID 252****Telegram 1********ID 252****Telegram 1********ID 252****Telegram 1********ID 252****Telegram 1****
+;T1 mandatotries ->:
+		; .. only sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+ 		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+; bBereit
+  		if LocalCOB_Typ_252.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,0)
+		endif
+; bSackBereit
+  		if LocalCOB_Typ_252.bSackBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,1)
+		endif
+; bSperreBereich
+  		if LocalCOB_Typ_252.bSperreBereich = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,2)
+		endif
+; NotAusSackbeladung
+  		if LocalCOB_Typ_252.bNotAusSackbeladung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0,3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0,3)
+		endif
+ ;****ID 252****Telegram 2********ID 252****Telegram 2********ID 252****Telegram 2********ID 252****Telegram 2****
+;T2 mandatotries ->:
+		; .. only sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_252.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_252.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_252.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_252.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_252.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_252.a_usCustomize[2] + 256* LocalCOB_Typ_252.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_252.a_usCustomize[4] + 256* LocalCOB_Typ_252.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_252.a_usCustomize[6] + 256* LocalCOB_Typ_252.a_usCustomize[5]
+		endif
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; ID 252;*******action 252********action 252********action 252********action 252********action 252********
+
+;*******action 261********action 261********action 261********action 261********action 261********
+action 261: ; 261:
+   	; pLocalCOB_Typ_261 access Local_InitCAN2PV.pPVData
+   	memcpy(adr(LocalCOB_Typ_261),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_261))
+
+;****ID 261****Telegram 1********ID 261****Telegram 1********ID 261****Telegram 1********ID 261****Telegram 1****
+
+	; Sign WCAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+	    	if LocalCOB_Typ_261.bBereit = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+			endif
+;	bBeladungBeendet
+	    	if LocalCOB_Typ_261.bBeladungBeendet = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+			endif
+;	bBeladungAktiv
+	    	if LocalCOB_Typ_261.bBeladungAktiv = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+			endif
+;	bSaugboxBelegt
+	    	if LocalCOB_Typ_261.bSaugboxBelegt = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+			endif
+;	bNotHaltSaugbox
+	    	if LocalCOB_Typ_261.bNotHaltSaugbox = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 6)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+			endif
+;	uiMeldung
+			LocalCAN2Data.T1_By2_By3	= LocalCOB_Typ_261.uiMeldung
+;	uiGewicht
+			LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_261.uiGewicht
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 261
+
+;*******action 262********action 262********action 262********action 262********action 262********
+action 262: ; 262:
+   	; pLocalCOB_Typ_262 access Local_InitCAN2PV.pPVData
+   	memcpy(adr(LocalCOB_Typ_262),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_262))
+
+;****ID 262****Telegram 1********ID 262****Telegram 1********ID 262****Telegram 1********ID 262****Telegram 1****
+
+	; Sign WCAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+	    	if LocalCOB_Typ_262.bBereit = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+			endif
+;	bSackBereit
+	    	if LocalCOB_Typ_262.bSackBereit = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+			endif
+;	bEntladefreigabe
+	    	if LocalCOB_Typ_262.bEntladefreigabe = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+			endif
+;	bNotHaltSackspeicher
+	    	if LocalCOB_Typ_262.bNotHaltSackspeicher = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 6)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+			endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 262
+
+;*******action 301********action 301********action 301********action 301********action 301********
+action 301: ; 301:
+action 302: ; 302:
+action 303: ; 303:
+action 304: ; 304:
+    	; pLocalCOB_Typ_301 access Local_InitCAN2PV.pPVData
+   	   	memcpy(adr(LocalCOB_Typ_301),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_301))
+
+;****ID 301****Telegram 1********ID 301****Telegram 1********ID 301****Telegram 1********ID 301****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+	; bBereit					1
+	    if LocalCOB_Typ_301.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bEntwaesserungEntlaedt			1
+	    	if LocalCOB_Typ_301. bEntwaesserungEntlaedt = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bPostenInEntwaesserung			1
+	    	if LocalCOB_Typ_301.bPostenInEntwaesserung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+	; bEntladestoerungAnPresse			1
+	    	if LocalCOB_Typ_301.bEntladestoerungAnPresse = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	; bSperreFahrbandVonZentrifuge		1
+	    	if LocalCOB_Typ_301.bSperreFahrbandVonZentrifuge = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+	; bVorsignalEntladung
+		if LocalCOB_Typ_301.bVorsignalEntladung = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+	; bBandlaufEntladeband
+		if LocalCOB_Typ_301.bBandlaufEntladeband = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+	; bLichtschrankeBandende
+		if LocalCOB_Typ_301.bLichtschrankeBandende = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 2)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 2)
+		endif
+	; bEntladeueberwachung
+		if LocalCOB_Typ_301.bEntladeueberwachung = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 3)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 3)
+		endif		
+	; udPostennummer					1
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_301.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_301.udPostennummer)	; take LOWER byte..
+	; uiGewicht							1
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_301.uiGewicht
+
+;****ID 301****Telegram 2********ID 301****Telegram 2********ID 301****Telegram 2********ID 301****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0  					= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  					= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 					= BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	; bNotAusEntwaesserung
+		if LocalCOB_Typ_301.bNotAusEntwaesserung = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+	; bProgrammOderKategorie			2
+		if LocalCOB_Typ_301.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+	; uiProgrammKategorie				2
+			LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_301.uiProgrammKategorie
+	; udKundennummer					2
+			; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_301.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_301.udKundennummer)	; take LOWER byte..
+
+   ;****ID 301****Telegram 3********ID 301****Telegram 3********ID 301****Telegram 3********ID 301****Telegram 3****
+;T1 mandatotries ->:
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+		; ###HO - 230905 - a_usCustomize[0..6]
+			if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+				memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_301.a_usCustomize[0]),1)
+				memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_301.a_usCustomize[1]),2)
+				memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_301.a_usCustomize[3]),2)
+				memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_301.a_usCustomize[5]),2)
+			else ; intel
+				LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_301.a_usCustomize[0]
+				LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_301.a_usCustomize[2] + 256* LocalCOB_Typ_301.a_usCustomize[1]
+				LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_301.a_usCustomize[4] + 256* LocalCOB_Typ_301.a_usCustomize[3]
+				LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_301.a_usCustomize[6] + 256* LocalCOB_Typ_301.a_usCustomize[5]
+			endif
+
+    	iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 301
+
+;;;
+;*******action 306********action 306********action 306********action 306********action 306********
+action 306: ; 306:
+    	; pLocalCOB_Typ_306 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_306),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_306))
+
+;****ID 306****Telegram 1********ID 306****Telegram 1********ID 306****Telegram 1********ID 306****Telegram 1****
+	;T1 mandatotries ->:	
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;			bBereit
+    	if LocalCOB_Typ_306.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;			bAeroEntlaedt
+    	if LocalCOB_Typ_306.bAeroEntlaedt = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;			bPostenInAero
+    	if LocalCOB_Typ_306.bPostenInAero = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		; bÜbergabestörung 
+		if LocalCOB_Typ_306.bUebergabestoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;			bSperreFahrbandVonAero
+    	if LocalCOB_Typ_306.bSperreFahrbandVonAero = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;			udPostennummer
+			udShr16 = shr(LocalCOB_Typ_306.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_306.udPostennummer)	; take LOWER byte..
+;			uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_306.uiGewicht
+
+;****ID 306****Telegram 2********ID 306****Telegram 2********ID 306****Telegram 2********ID 306****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+		
+		; bProgrammOderKategorie
+    	if LocalCOB_Typ_306.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		
+		; bNotAusAero
+    	if LocalCOB_Typ_306.bNotAusAero = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+
+		; uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_306.uiProgrammKategorie
+    	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_306.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_306.udKundennummer)	; take LOWER bytes..
+				
+;****ID 306****Telegram 3********ID 306****Telegram 3********ID 306****Telegram 3********ID 306****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+		
+	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_306.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_306.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_306.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_306.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_306.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_306.a_usCustomize[2] + 256* LocalCOB_Typ_306.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_306.a_usCustomize[4] + 256* LocalCOB_Typ_306.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_306.a_usCustomize[6] + 256* LocalCOB_Typ_306.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+				
+endaction ; 306
+
+;*******action 307********action 307********action 307********action 307********action 307********
+action 307: ; 307:
+   	; pLocalCOB_Typ_307 access Local_InitCAN2PV.pPVData
+   	memcpy(adr(LocalCOB_Typ_307),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_307))
+
+;****ID 307****Telegram 1********ID 307****Telegram 1********ID 307****Telegram 1********ID 307****Telegram 1****
+	;T1 mandatotries ->:
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+	    	if LocalCOB_Typ_307.bBereit = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+			endif
+;	bEntladesignal
+	    	if LocalCOB_Typ_307.bEntladesignal = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+			endif
+;	bPostenAufBand
+	    	if LocalCOB_Typ_307.bPostenAufBand = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+			endif
+;	bEntladestoerungBand
+	    	if LocalCOB_Typ_307.bEntladestoerungBand = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+			endif
+;	bKundenwechsel
+	    	if LocalCOB_Typ_307.bKundenwechsel = 1 then
+				LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+			else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+			endif
+;	udPostennummer
+				udShr16 = shr(LocalCOB_Typ_307.udPostennummer,16)
+	    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+	    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_307.udPostennummer)	; take LOWER byte..
+;	uiGewicht
+			LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_307.uiGewicht
+
+;****ID 307****Telegram 2********ID 307****Telegram 2********ID 307****Telegram 2********ID 307****Telegram 2****
+	; always set telegram number "01"..
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+	LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+;	bProgrammKategorie
+    	if LocalCOB_Typ_307.bProgrammKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+; 	bBandlaufEntladeband
+    	if LocalCOB_Typ_307.bBandlaufEntladeband = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 3)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 3)
+		endif
+;	bNotAusVerbund
+    	if LocalCOB_Typ_307.bNotAusVerbund = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+; 	uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_307.uiProgrammKategorie
+; 	udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_307.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_307.udKundennummer)	; take LOWER bytes..
+;****ID 307****Telegram 3********ID 307****Telegram 3********ID 307****Telegram 3********ID 307****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_307.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_307.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_307.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_307.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_307.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_307.a_usCustomize[2] + 256* LocalCOB_Typ_307.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_307.a_usCustomize[4] + 256* LocalCOB_Typ_307.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_307.a_usCustomize[6] + 256* LocalCOB_Typ_307.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 307
+
+;*******action 311********action 311********action 311********action 311********action 311********
+action 311: ; 311:
+action 312: ; 312:
+action 313: ; 313:
+action 314: ; 314:
+    	; ocalCOB_Typ_311 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_311),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_311))
+;****ID 311****Telegram 1********ID 311****Telegram 1********ID 311****Telegram 1********ID 311****Telegram 1****
+	;T1 mandatotries ->:
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+		; bBereit
+    	if LocalCOB_Typ_311.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+		; bBeladebereit
+    	if LocalCOB_Typ_311.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+		; bStartPresse
+    	if LocalCOB_Typ_311.bStartPresse = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		; bUebernahmestoerungVerbETAero
+    	if LocalCOB_Typ_311.bUebernahmestoerungVerbETAero = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		; bEntladelichtschrZentrifuge
+    	if LocalCOB_Typ_311.bEntladelichtschrZentrifuge	 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+   ; bNotAusETVerbAero
+	    if LocalCOB_Typ_311.bNotAusETVerbAero = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+   ; bSchutzgitterOffen
+	    if LocalCOB_Typ_311.bSchutzgitterOffen = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+
+;****ID 311****Telegram 2********ID 311****Telegram 2********ID 311****Telegram 2********ID 311****Telegram 2****
+	;T1 mandatotries ->:
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	; ###HO - 230905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_311.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_311.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_311.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_311.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_311.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_311.a_usCustomize[2] + 256* LocalCOB_Typ_311.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_311.a_usCustomize[4] + 256* LocalCOB_Typ_311.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_311.a_usCustomize[6] + 256* LocalCOB_Typ_311.a_usCustomize[5]
+		endif
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 311
+;-----------------------------------------------------------------------------------------------------------------
+
+;-----------------------------------------------------------------------------------------------------------------
+
+action 316:	; 316:
+    ; pLocalCOB_Typ_316 access Local_InitCAN2PV.pPVData
+    memcpy(adr(LocalCOB_Typ_316),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_316))
+;****ID 316****Telegram 1********ID 316****Telegram 1********ID 316****Telegram 1********ID 316****Telegram 1****
+	;T1 mandatotries ->:	
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+		
+	; bNotAusVerbET
+	   	if LocalCOB_Typ_316.bNotAusVerbET = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+	; bBereit
+    	if LocalCOB_Typ_316.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bBeladebereit
+    	if LocalCOB_Typ_316.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bUebernahmestoerungVerbET
+    	if LocalCOB_Typ_316.bUebernahmestoerungVerbET = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	
+	;****ID 316****Telegram 2********ID 316****Telegram 2********ID 316****Telegram 2********ID 316****Telegram 2****
+	;T1 mandatotries ->:
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+	LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	; ###HO - 230905 - a_usCustomize[0..6]
+	if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+		memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_316.a_usCustomize[0]),1)
+		memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_316.a_usCustomize[1]),2)
+		memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_316.a_usCustomize[3]),2)
+		memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_316.a_usCustomize[5]),2)
+	else ; intel
+		LocalCAN2Data.T2_By1 	 = LocalCOB_Typ_316.a_usCustomize[0]
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_316.a_usCustomize[2] + 256* LocalCOB_Typ_316.a_usCustomize[1]
+		LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_316.a_usCustomize[4] + 256* LocalCOB_Typ_316.a_usCustomize[3]
+		LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_316.a_usCustomize[6] + 256* LocalCOB_Typ_316.a_usCustomize[5]
+	endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+		
+endaction ; 316
+
+;*******action 317********action 317********action 317********action 317********action 317********
+action 317: ; 317:
+    	; pLocalCOB_Typ_317 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_317),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_317))
+
+;****ID 317****Telegram 1********ID 317****Telegram 1********ID 317****Telegram 1********ID 317****Telegram 1****
+	;T1 mandatotries ->:
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+    	if LocalCOB_Typ_317.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bBeladebereit
+    	if LocalCOB_Typ_317.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bBeladeunterbrechung
+    	if LocalCOB_Typ_317.bBeladeunterbrechung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;	bUebernahmestoerung
+    	if LocalCOB_Typ_317.bUebernahmestoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+;	bQuittierungKundenwechsel
+    	if LocalCOB_Typ_317.bQuittierungKundenwechsel = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	bNotAusAero
+    	if LocalCOB_Typ_317.bNotAusAero = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 5)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		endif
+;****ID 317****Telegram 2********ID 317****Telegram 2********ID 317****Telegram 2********ID 317****Telegram 2****
+	; always set telegram number "01"..
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+   	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_317.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_317.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_317.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_317.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1	 = LocalCOB_Typ_317.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_317.a_usCustomize[2] + 256* LocalCOB_Typ_317.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_317.a_usCustomize[4] + 256* LocalCOB_Typ_317.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_317.a_usCustomize[6] + 256* LocalCOB_Typ_317.a_usCustomize[5]
+		endif
+
+  	iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 317
+
+;*******action 351********action 351********action 351********action 351********action 351********
+action 351: ; 351:
+    	; pLocalCOB_Typ_351 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_351),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_351))
+
+;****ID 351****Telegram 1********ID 351****Telegram 1********ID 351****Telegram 1********ID 351****Telegram 1****
+		;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+    	if LocalCOB_Typ_351.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bAktPosFehler
+    	if LocalCOB_Typ_351.bAktPosFehler = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bIdxPostenindex_x - 110107
+    	if LocalCOB_Typ_351.bIdxPostenspeicher_1 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		if LocalCOB_Typ_351.bIdxPostenspeicher_2 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		if LocalCOB_Typ_351.bIdxPostenspeicher_4 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	usAktPos
+		LocalCAN2Data.T1_By1	= LocalCOB_Typ_351.usAktPos
+;	udPostennummer				8-11
+			udShr16 = shr(LocalCOB_Typ_351.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_351.udPostennummer)	; take LOWER byte..
+;	uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_351.uiGewicht
+
+;****ID 351****Telegram 2********ID 351****Telegram 2********ID 351****Telegram 2********ID 351****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		; bProgrammOderKategorie
+    	if LocalCOB_Typ_351.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		;	bNotAusAero
+    	if LocalCOB_Typ_351.bNotAusAero = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+;		uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_351.uiProgrammKategorie
+    	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_351.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_351.udKundennummer)	; take LOWER bytes..
+
+;****ID 351****Telegram 3********ID 351****Telegram 3********ID 351****Telegram 3********ID 351****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+;	bAktPosGesperrt
+    	if LocalCOB_Typ_351.bAktPosGesperrt = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 0)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 0)
+		endif
+;	bAktPosWarnung
+    	if LocalCOB_Typ_351.bAktPosWarnung = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+	; ###HO - 110107 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_351.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_351.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_351.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_351.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_351.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_351.a_usCustomize[2] + 256* LocalCOB_Typ_351.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_351.a_usCustomize[4] + 256* LocalCOB_Typ_351.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_351.a_usCustomize[6] + 256* LocalCOB_Typ_351.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction 	; 351
+
+;*******action 352********action 352********action 352********action 352********action 352********
+action 352: ; 352:
+    	; pLocalCOB_Typ_352 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_352),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_352))
+
+;****ID 352****Telegram 1********ID 352****Telegram 1********ID 352****Telegram 1********ID 352****Telegram 1****
+		;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+    	if LocalCOB_Typ_352.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bAktPosFehler
+    	if LocalCOB_Typ_352.bAktPosFehler = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bIdxPostenindex_x - 110107
+    	if LocalCOB_Typ_352.bIdxPostenspeicher_1 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		if LocalCOB_Typ_352.bIdxPostenspeicher_2 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		if LocalCOB_Typ_352.bIdxPostenspeicher_4 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	usAktPos
+		LocalCAN2Data.T1_By1	= LocalCOB_Typ_352.usAktPos
+;	udPostennummer				8-11
+			udShr16 = shr(LocalCOB_Typ_352.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_352.udPostennummer)	; take LOWER byte..
+;	uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_352.uiGewicht
+
+;****ID 352****Telegram 2********ID 352****Telegram 2********ID 352****Telegram 2********ID 352****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		; bProgrammOderKategorie
+    	if LocalCOB_Typ_352.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		;	bNotAusAero
+    	if LocalCOB_Typ_352.bNotAusAero = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+;		uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_352.uiProgrammKategorie
+    	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_352.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_352.udKundennummer)	; take LOWER bytes..
+
+;****ID 352****Telegram 3********ID 352****Telegram 3********ID 352****Telegram 3********ID 352****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+;	bAktPosGesperrt
+    	if LocalCOB_Typ_352.bAktPosGesperrt = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 0)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 0)
+		endif
+;	bAktPosWarnung
+    	if LocalCOB_Typ_352.bAktPosWarnung = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+	; ###HO - 110107 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_352.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_352.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_352.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_352.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_352.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_352.a_usCustomize[2] + 256* LocalCOB_Typ_352.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_352.a_usCustomize[4] + 256* LocalCOB_Typ_352.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_352.a_usCustomize[6] + 256* LocalCOB_Typ_352.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction 	; 352
+
+;*******action 353********action 353********action 353********action 353********action 353********
+action 353: ; 353:
+    	; pLocalCOB_Typ_353 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_353),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_353))
+
+;****ID 353****Telegram 1********ID 353****Telegram 1********ID 353****Telegram 1********ID 353****Telegram 1****
+		;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+    	if LocalCOB_Typ_353.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bAktPosFehler
+    	if LocalCOB_Typ_353.bAktPosFehler = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bIdxPostenindex_x - 110107
+    	if LocalCOB_Typ_353.bIdxPostenspeicher_1 = 1 then
+
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		if LocalCOB_Typ_353.bIdxPostenspeicher_2 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		if LocalCOB_Typ_353.bIdxPostenspeicher_4 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	usAktPos
+		LocalCAN2Data.T1_By1	= LocalCOB_Typ_353.usAktPos
+;	udPostennummer				8-11
+			udShr16 = shr(LocalCOB_Typ_353.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_353.udPostennummer)	; take LOWER byte..
+;	uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_353.uiGewicht
+
+;****ID 353****Telegram 2********ID 353****Telegram 2********ID 353****Telegram 2********ID 353****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		; bProgrammOderKategorie
+    	if LocalCOB_Typ_353.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		;	bNotAusAero
+    	if LocalCOB_Typ_353.bNotAusAero = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+;		uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_353.uiProgrammKategorie
+    	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_353.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_353.udKundennummer)	; take LOWER bytes..
+
+;****ID 353****Telegram 3********ID 353****Telegram 3********ID 353****Telegram 3********ID 353****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+;	bAktPosGesperrt
+    	if LocalCOB_Typ_353.bAktPosGesperrt = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 0)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 0)
+		endif
+;	bAktPosWarnung
+    	if LocalCOB_Typ_353.bAktPosWarnung = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+	; ###HO - 110107 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_353.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_353.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_353.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_353.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_353.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_353.a_usCustomize[2] + 256* LocalCOB_Typ_353.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_353.a_usCustomize[4] + 256* LocalCOB_Typ_353.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_353.a_usCustomize[6] + 256* LocalCOB_Typ_353.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction 	; 353
+
+;*******action 354********action 354********action 354********action 354********action 354********
+action 354: ; 354:
+    	; pLocalCOB_Typ_354 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_354),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_354))
+
+;****ID 354****Telegram 1********ID 354****Telegram 1********ID 354****Telegram 1********ID 354****Telegram 1****
+		;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	bBereit
+    	if LocalCOB_Typ_354.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+				LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	bAktPosFehler
+    	if LocalCOB_Typ_354.bAktPosFehler = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	bIdxPostenindex_x - 110107
+    	if LocalCOB_Typ_354.bIdxPostenspeicher_1 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+		if LocalCOB_Typ_354.bIdxPostenspeicher_2 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		if LocalCOB_Typ_354.bIdxPostenspeicher_4 = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	usAktPos
+		LocalCAN2Data.T1_By1	= LocalCOB_Typ_354.usAktPos
+;	udPostennummer				8-11
+			udShr16 = shr(LocalCOB_Typ_354.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_354.udPostennummer)	; take LOWER byte..
+;	uiGewicht					16-17
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_354.uiGewicht
+
+;****ID 354****Telegram 2********ID 354****Telegram 2********ID 354****Telegram 2********ID 354****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+		; bProgrammOderKategorie
+    	if LocalCOB_Typ_354.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		;	bNotAusAero
+    	if LocalCOB_Typ_354.bNotAusAero = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+;		uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_354.uiProgrammKategorie
+    	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_354.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_354.udKundennummer)	; take LOWER bytes..
+
+;****ID 354****Telegram 3********ID 354****Telegram 3********ID 354****Telegram 3********ID 354****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+;	bAktPosGesperrt
+    	if LocalCOB_Typ_354.bAktPosGesperrt = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 0)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 0)
+		endif
+;	bAktPosWarnung
+    	if LocalCOB_Typ_354.bAktPosWarnung = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+	; ###HO - 110107 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_354.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_354.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_354.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_354.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1 	 = LocalCOB_Typ_354.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_354.a_usCustomize[2] + 256* LocalCOB_Typ_354.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_354.a_usCustomize[4] + 256* LocalCOB_Typ_354.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_354.a_usCustomize[6] + 256* LocalCOB_Typ_354.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction 	; 354
+;;;
+;*******action 361..369********action 361..369********action 361..369********action 361..369********action 361..369********
+action 361..369: ; 361..369:
+    	; pLocalCOB_Typ_361bis369 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_361bis369),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_361bis369))
+
+;****ID 361..369****Telegram 1********ID 361..369****Telegram 1********ID 361..369****Telegram 1********ID 361..369****Telegram 1****
+	;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+	; bBereit
+    	if LocalCOB_Typ_361bis369.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; usStation
+		LocalCAN2Data.T1_By1	= LocalCOB_Typ_361bis369.usStation
+	; udPostennummer
+			udShr16 = shr(LocalCOB_Typ_361bis369.udPostennummer,16)
+	   	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)								; take UPPERBytes ..
+	   	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_361bis369.udPostennummer)	; take LOWER byte..
+	; uiGewicht
+		LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_361bis369.uiGewicht
+
+;****ID 361..369****Telegram 2********ID 361..369****Telegram 2********ID 361..369****Telegram 2********ID 361..369****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+	; bProgrammOderKategorie
+    	if LocalCOB_Typ_361bis369.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+	; uiProgrammKategorie
+   		LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_361bis369.uiProgrammKategorie
+   	; udKundennummer
+	   	 	udShr16 = shr(LocalCOB_Typ_361bis369.udKundennummer,16)
+	   	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)									; take UPPERBytes ..
+	   	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_361bis369.udKundennummer)	; take LOWER bytes..
+		
+	;****ID 361..369****Telegram 3********ID 361..369****Telegram 3********ID 361..369****Telegram 3********ID 361..369****Telegram 3****
+		; always set telegram number "01"..
+		LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+      ; ###HO - 270905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_361bis369.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_361bis369.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_361bis369.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_361bis369.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1	 = LocalCOB_Typ_361bis369.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_361bis369.a_usCustomize[2] + 256* LocalCOB_Typ_361bis369.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_361bis369.a_usCustomize[4] + 256* LocalCOB_Typ_361bis369.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_361bis369.a_usCustomize[6] + 256* LocalCOB_Typ_361bis369.a_usCustomize[5]
+		endif
+
+	    iStatus = 0
+	    pCAN2Data = ADR(LocalCAN2Data)
+				
+endaction ; 361..369
+
+;*******action 371bis379********action 371bis379********action 371bis379********action 371bis379********action 371bis379********
+action 371..379: ; 371bis379:
+    	; pLocalCOB_Typ_371bis379 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_371bis379),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_371bis379))
+
+;****ID 371bis379****Telegram 1********ID 371bis379****Telegram 1********ID 371bis379****Telegram 1********ID 371bis379****Telegram 1****
+	;T1 mandatotries ->:
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+	; bDruckstatus
+    	if LocalCOB_Typ_371bis379.bDruckstatus = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+		
+	; bBereit
+    	if LocalCOB_Typ_371bis379.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+			
+	; usDruckerfehler
+		LocalCAN2Data.T1_By1	= LocalCOB_Typ_371bis379.usDruckerfehler
+	; usStation
+		LocalCAN2Data.T1_By2_By3 = USINT(LocalCOB_Typ_371bis379.usStation) 	; write usStation to lower byte..
+		LocalCAN2Data.T1_By2_By3 = shl(LocalCAN2Data.T1_By2_By3,8)			; .. and shift to UPPER byte..
+
+;****ID 371bis379****Telegram 2********ID 371bis379****Telegram 2********ID 371bis379****Telegram 2********ID 371bis379****Telegram 2****
+		; always set telegram number "01"..
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 7)
+		; .. and sign CAN2 telegram
+
+   	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T2_By1),adr(LocalCOB_Typ_371bis379.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T2_By2_By3),adr(LocalCOB_Typ_371bis379.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T2_By4_By5),adr(LocalCOB_Typ_371bis379.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7),adr(LocalCOB_Typ_371bis379.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By1	 = LocalCOB_Typ_371bis379.a_usCustomize[0]
+			LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_371bis379.a_usCustomize[2] + 256* LocalCOB_Typ_371bis379.a_usCustomize[1]
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_371bis379.a_usCustomize[4] + 256* LocalCOB_Typ_371bis379.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_371bis379.a_usCustomize[6] + 256* LocalCOB_Typ_371bis379.a_usCustomize[5]
+		endif
+
+  	iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 371bis379
+
+;*******action 401..419********action 401..419********action 401..419********action 401..419********action 401..419********
+action 401..419: ; 401..419 :
+   	; pLocalCOB_Typ_401bis419 access Local_InitCAN2PV.pPVData
+   	memcpy(adr(LocalCOB_Typ_401bis419),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_401bis419))
+
+;*******action 401..419********action 401..419********action 401..419********action 401..419********action 401..419********
+
+;****ID 401..419****Telegram 1********ID 401..419****Telegram 1********ID 401..419****Telegram 1********ID 401..419****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+;	++	bBereit
+	    if LocalCOB_Typ_401bis419.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;	++	bBeladeanforderung
+	    if LocalCOB_Typ_401bis419.bBeladeanforderung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+;	++	bEntladefreigabe
+	    if LocalCOB_Typ_401bis419.bEntladefreigabe = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+;	++	bAnsteuerungSpeicherband
+	    if LocalCOB_Typ_401bis419.bAnsteuerungSpeicherband = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+		; ###HO 060404 -> ehemals bProgrammabbruch..
+;	++	bVorsignal
+	    if LocalCOB_Typ_401bis419.bVorsignal = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;	++	udPostennummer
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_401bis419.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)									; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_401bis419.udPostennummer)	; take LOWER byte..
+;	++	uiGewicht
+	    	LocalCAN2Data.T1_By6_By7	= LocalCOB_Typ_401bis419.uiGewicht
+
+;****ID 401..419****Telegram 2********ID 401..419****Telegram 2********ID 401..419****Telegram 2********ID 401..419****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0  					= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  					= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 					= BIT_SET(LocalCAN2Data.T2_By0, 7)
+;  	++	bProgrammOderKategorie
+	    if LocalCOB_Typ_401bis419.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+	; ###HO - 310805 -  bFreigabeFlusen
+		if LocalCOB_Typ_401bis419.bFreigabeFlusen = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+;	++	bKippsperre
+	    if LocalCOB_Typ_401bis419.bKippsperre = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 2)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 2)
+		endif
+   ; bNotAusVerbST
+	    if LocalCOB_Typ_401bis419.bNotAusVerbST = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+;	++	uiProgrammKategorie
+	    	LocalCAN2Data.T2_By2_By3	= LocalCOB_Typ_401bis419.uiProgrammKategorie
+;	++	udKundennummer
+			udShr16 = shr(LocalCOB_Typ_401bis419.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)									; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_401bis419.udKundennummer)	; take LOWER byte..
+
+;****ID 401..419****Telegram 3********ID 401..419****Telegram 3********ID 401..419****Telegram 3*****
+;T3 mandatotries ->:
+	LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 5)
+	LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+      ; ###HO - 270905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_401bis419.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_401bis419.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_401bis419.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_401bis419.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1	 = LocalCOB_Typ_401bis419.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_401bis419.a_usCustomize[2] + 256* LocalCOB_Typ_401bis419.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_401bis419.a_usCustomize[4] + 256* LocalCOB_Typ_401bis419.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_401bis419.a_usCustomize[6] + 256* LocalCOB_Typ_401bis419.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 401..419
+
+;*******action 421********action 421********action 421********action 421********action 421********
+action 421..439: ; 421:
+   	; pLocalCOB_Typ_421bis439 access Local_InitCAN2PV.pPVData
+   	memcpy(adr(LocalCOB_Typ_421bis439),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_421bis439))
+
+;****ID 421****Telegram 1********ID 421****Telegram 1********ID 421****Telegram 1********ID 421****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 3)
+		LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 4)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 5)
+
+	; bBereit					1
+		if LocalCOB_Typ_421bis439.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+	; bBeladebereit					1
+		if LocalCOB_Typ_421bis439.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+	; bBelaedt						1
+		if LocalCOB_Typ_421bis439.bBelaedt = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+	; bEntladebereit					1
+		if LocalCOB_Typ_421bis439.bEntladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+	; ###060404 umbenannt von 'bEntlaedt'
+	; bEntlade						1
+		if LocalCOB_Typ_421bis439.bEntlade = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+	; bTrocknet						1
+		if LocalCOB_Typ_421bis439.bTrocknet = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+	; bHauptgeblaese					1
+		if LocalCOB_Typ_421bis439.bHauptgeblaese = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 6)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		endif
+	; bFlusenabsaugung				1
+		if LocalCOB_Typ_421bis439.bFlusenabsaugung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 7)
+		endif
+	; bAbkuehlung						1
+		if LocalCOB_Typ_421bis439.bAbkuehlung = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 2)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 2)
+		endif
+	; bLichtschrSpeicherbandHinten	1
+		if LocalCOB_Typ_421bis439.bLichtschrSpeicherbandHinten = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 6)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 6)
+		endif
+	; bLichtschrSpeicherbandVorne		1
+		if LocalCOB_Typ_421bis439.bLichtschrSpeicherbandVorne = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 7)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 7)
+		endif
+	; bEIN							1
+		if LocalCOB_Typ_421bis439.bEIN = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+	; bStoerung						1
+		if LocalCOB_Typ_421bis439.bStoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 5)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		endif
+	; udPostennummer					1
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_421bis439.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)									; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_421bis439.udPostennummer)	; take LOWER byte..
+	; uiGewicht						1
+		LocalCAN2Data.T1_By6_By7 = LocalCOB_Typ_421bis439.uiGewicht
+
+;****ID 421****Telegram 2********ID 421****Telegram 2********ID 421****Telegram 2********ID 421****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By1			= BIT_SET(LocalCAN2Data.T2_By1, 3)
+		LocalCAN2Data.T2_By1  			= BIT_CLR(LocalCAN2Data.T2_By1, 4)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By1 			= BIT_SET(LocalCAN2Data.T2_By1, 5)
+	; bProgrammOderKategorie
+		if LocalCOB_Typ_421bis439.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By1 = BIT_SET(LocalCAN2Data.T2_By1, 0)
+		else
+			LocalCAN2Data.T2_By1 = BIT_CLR(LocalCAN2Data.T2_By1, 0)
+		endif
+	; bHand
+		if LocalCOB_Typ_421bis439.bHand = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+		; ###HO 060404 bNotAus umbenannt in bNotAusTrockner
+	; bNotAusTrockner
+		if LocalCOB_Typ_421bis439.bNotAusTrockner = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 6)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		endif
+	; uiProgrammKategorie
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_421bis439.uiProgrammKategorie
+	; udKundennummer
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(LocalCOB_Typ_421bis439.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_421bis439.udKundennummer)	; take LOWER byte..
+
+;****ID 421****Telegram 3********ID 421****Telegram 3********ID 421****Telegram 3********ID 421****Telegram 3****
+;T3 mandatotries ->:
+		LocalCAN2Data.T3_By1  			= BIT_CLR(LocalCAN2Data.T3_By1, 3)
+		LocalCAN2Data.T3_By1			= BIT_SET(LocalCAN2Data.T3_By1, 4)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By1 			= BIT_SET(LocalCAN2Data.T3_By1, 5)
+
+	; bTemperatureinheit
+		if LocalCOB_Typ_421bis439.bTemperatureinheit = 1 then
+			LocalCAN2Data.T3_By1 = BIT_SET(LocalCAN2Data.T3_By1, 7)
+		else
+			LocalCAN2Data.T3_By1 = BIT_CLR(LocalCAN2Data.T3_By1, 7)
+		endif
+	; uiRestzeit
+		LocalCAN2Data.T3_By2_By3	= LocalCOB_Typ_421bis439.uiRestzeit
+
+	; ###HO 060404  usZulufttemperatur + usAbluftIRTemp entfallen
+	;				- dafür uiAbluftTemp + uiIRTemp
+(*
+	; usZulufttemperatur -> By4 +  usAbluftIRTemp ->  By5
+		; set two single bytes to WORD .. -> this matches!!
+		; set CAN byte 4..
+		LocalCAN2Data.T3_By4_By5	= UINT(LocalCOB_Typ_421bis439.usZulufttemperatur)	; set to LOWER byte..
+			uiShl8 = shl(LocalCAN2Data.T3_By4_By5,8)									; .. and shift to UPPER byte..
+		; set CAN byte 5..
+		LocalCAN2Data.T3_By4_By5 = uiShl8 + LocalCOB_Typ_421bis439.usAbluftIRTemp		; add LOWER byte..
+*)
+		LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_421bis439.uiAbluftTemp
+		LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_421bis439.uiIRTemp
+
+;****ID 421****Telegram 4********ID 421****Telegram 4********ID 421****Telegram 4********ID 421****Telegram 4****
+;T4 mandatotries ->:
+		LocalCAN2Data.T4_By1			= BIT_SET(LocalCAN2Data.T4_By1, 3)
+		LocalCAN2Data.T4_By1  			= BIT_SET(LocalCAN2Data.T4_By1, 4)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T4_By1 			= BIT_SET(LocalCAN2Data.T4_By1, 5)
+
+  	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T4_By0),adr(LocalCOB_Typ_421bis439.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T4_By2_By3),adr(LocalCOB_Typ_421bis439.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T4_By4_By5),adr(LocalCOB_Typ_421bis439.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T4_By6_By7),adr(LocalCOB_Typ_421bis439.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T4_By0	 = LocalCOB_Typ_421bis439.a_usCustomize[0]
+			LocalCAN2Data.T4_By2_By3 = LocalCOB_Typ_421bis439.a_usCustomize[2] + 256* LocalCOB_Typ_421bis439.a_usCustomize[1]
+			LocalCAN2Data.T4_By4_By5 = LocalCOB_Typ_421bis439.a_usCustomize[4] + 256* LocalCOB_Typ_421bis439.a_usCustomize[3]
+			LocalCAN2Data.T4_By6_By7 = LocalCOB_Typ_421bis439.a_usCustomize[6] + 256* LocalCOB_Typ_421bis439.a_usCustomize[5]
+		endif
+
+	; Telegrammabschluss markieren..
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 421
+
+;*******action 441..459********action 441..459********action 441..459********action 441..459********action 441..459********
+action 441..459: ; 441..459:
+    	; pLocalCOB_Typ_441bis459 access Local_InitCAN2PV.pPVData
+    	memcpy(adr(LocalCOB_Typ_441bis459),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_441bis459))
+
+;****ID 441..459****Telegram 1********ID 441..459****Telegram 1********ID 441..459****Telegram 1********ID 441..459****Telegram 1****
+	;T1 mandatotries ->:
+	;	..über temp-Byte gehen - By2_3 teilen sich Nutzdaten + Mandatories..
+	; 	Byte3 z.Zt. leer..
+		usTempBy2 = 0
+		usTempBy2 = BIT_CLR(usTempBy2,6)
+		usTempBy2 = BIT_SET(usTempBy2,7); .. and sign CAN2 telegram
+
+	; ###HO - 310805 - bVorsignal Flusen
+		if LocalCOB_Typ_441bis459.bVorsignalFlusen = 1 then
+			usTempBy2 = BIT_SET(usTempBy2, 0)
+		else
+			usTempBy2 = BIT_CLR(usTempBy2, 0)
+		endif
+	; ###HO - 310805 - bSaugbeladungAktiv
+		if LocalCOB_Typ_441bis459.bSaugbeladungAktiv = 1 then
+			usTempBy2 = BIT_SET(usTempBy2, 1)
+		else
+			usTempBy2 = BIT_CLR(usTempBy2, 1)
+		endif
+	; ###HO - 310805 - bAnforderungFlusen
+		if LocalCOB_Typ_441bis459.bAnforderungFlusen = 1 then
+			usTempBy2 = BIT_SET(usTempBy2, 2)
+		else
+			usTempBy2 = BIT_CLR(usTempBy2, 2)
+		endif
+
+	; Byte2 an die richtige Stelle schieben..
+	LocalCAN2Data.T1_By2_By3 = UINT(usTempBy2)
+	if(TARGETInfo_0.DataFormat = 2) then  ; m68k
+		LocalCAN2Data.T1_By2_By3 = shl(LocalCAN2Data.T1_By2_By3,8)
+	else ; i386
+		; nicht shiften..
+		LocalCAN2Data.T1_By2_By3 = shl(LocalCAN2Data.T1_By2_By3,8)
+	endif
+
+	; uiTrocknerrestzeit
+   		if(TARGETInfo_0.DataFormat = 2) then  ; m68k
+			LocalCAN2Data.T1_By0 = USINT(shr(LocalCOB_Typ_441bis459.uiTrocknerrestzeit,8))
+			LocalCAN2Data.T1_By1 = USINT(LocalCOB_Typ_441bis459.uiTrocknerrestzeit)
+		else ; i386
+			LocalCAN2Data.T1_By0 = USINT(shr(LocalCOB_Typ_441bis459.uiTrocknerrestzeit,8))
+			LocalCAN2Data.T1_By1 = USINT(LocalCOB_Typ_441bis459.uiTrocknerrestzeit)
+		endif
+
+;****ID 441..459****Telegram 2********ID 441..459****Telegram 2********ID 441..459****Telegram 2********ID 441..459****Telegram 2****
+	;T2 mandatotries ->:
+	; LocalCAN2Data.T2_By2_By3 -> dieses WORT teilen sich Steuerbyte+Nutzinfos..
+	usTempBy2 = 0
+	usTempBy2 = BIT_SET(usTempBy2,6)
+	usTempBy2 = BIT_SET(usTempBy2,7); .. and sign CAN2 telegram
+
+	usTempBy3 = LocalCOB_Typ_441bis459.a_usCustomize[2]
+
+	; Bytes 2+3 an die richtige Stelle schieben..
+	LocalCAN2Data.T2_By2_By3 = UINT(usTempBy2)
+	if(TARGETInfo_0.DataFormat = 2) then  ; m68k
+		LocalCAN2Data.T2_By2_By3 = shl(LocalCAN2Data.T2_By2_By3,8)
+		LocalCAN2Data.T2_By2_By3= LocalCAN2Data.T2_By2_By3 + usTempBy3
+	else ; i386
+		LocalCAN2Data.T2_By2_By3 = shl(LocalCAN2Data.T2_By2_By3,8)
+		LocalCAN2Data.T2_By2_By3= LocalCAN2Data.T2_By2_By3 + usTempBy3
+	endif
+
+		; das Steuerbyte liegt inmitten der Daten..
+		; Targetunabhängig - nur USINTs
+		memcpy(adr(LocalCAN2Data.T2_By0), adr(LocalCOB_Typ_441bis459.a_usCustomize[0]),2)
+
+	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			; LocalCAN2Data.T2_By2_By3 -> s.o.
+			memcpy(adr(LocalCAN2Data.T2_By4_By5), adr(LocalCOB_Typ_441bis459.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T2_By6_By7), adr(LocalCOB_Typ_441bis459.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T2_By4_By5 = LocalCOB_Typ_441bis459.a_usCustomize[4] + 256* LocalCOB_Typ_441bis459.a_usCustomize[3]
+			LocalCAN2Data.T2_By6_By7 = LocalCOB_Typ_441bis459.a_usCustomize[6] + 256* LocalCOB_Typ_441bis459.a_usCustomize[5]
+		endif
+
+    iStatus = 0
+    pCAN2Data = ADR(LocalCAN2Data)
+endaction ; 441..459
+
+;*******action 480********action 480********action 480********action 480********action 480********
+action 480:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+  		memcpy(adr(LocalCOB_Typ_480),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_480))
+
+;****ID 480****Telegram 1********ID 480****Telegram 1********ID 480****Telegram 1********ID 480****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+;----------------------------By 0--------------------------------------
+; bBereit
+		if LocalCOB_Typ_480.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+; bBeladebereit
+		if LocalCOB_Typ_480.bBeladebereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+; bBeladungAktiv
+		if LocalCOB_Typ_480.bBeladungAktiv = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+; bStörung
+		if LocalCOB_Typ_480.bStoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+; bBeladeanfHalbauto
+		if LocalCOB_Typ_480.bBeladeanfHalbauto = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+;----------------------------By 1--------------------------------------
+; bBeladeabbruch
+		if LocalCOB_Typ_480.bBeladeabbruch = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+; bFreigabeBeladung
+		if LocalCOB_Typ_480.bFreigabeBeladung = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+; bDurchschleusenStart
+		if LocalCOB_Typ_480.bDurchschleusenStart = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 2)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 2)
+		endif
+; bNotAusAero
+		if LocalCOB_Typ_480.bNotAusAero = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 3)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 3)
+		endif
+; bBeladepause
+		if LocalCOB_Typ_480.bBeladepause = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 4)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 4)
+		endif
+; T1-By - 5..7 -> Redundanzen..
+		if LocalCOB_Typ_480.bReserve1 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 5)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 5)
+		endif
+		if LocalCOB_Typ_480.bReserve2 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 6)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 6)
+		endif
+		if LocalCOB_Typ_480.bReserve3 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 7)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 7)
+		endif
+; udPostennummer						1
+			udShr16 = shr(LocalCOB_Typ_480.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_480.udPostennummer)	; take LOWER byte..
+; uiGewicht						1
+		LocalCAN2Data.T1_By6_By7 = LocalCOB_Typ_480.uiGewicht
+
+;****ID 480****Telegram 2********ID 480****Telegram 2********ID 480****Telegram 2********ID 480****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0 		= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 		= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 		= BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+; bProgKat
+		if LocalCOB_Typ_480.bProgKat = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+; Redundanzen -> T2-By0 - bit1..5
+		if LocalCOB_Typ_480.bReserve4 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+		if LocalCOB_Typ_480.bReserve5 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 2)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 2)
+		endif
+		if LocalCOB_Typ_480.bReserve6 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 3)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 3)
+		endif
+		if LocalCOB_Typ_480.bReserve7 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+;Redundanzen
+		LocalCAN2Data.T2_By1 = LocalCOB_Typ_480.usReserve1
+; uiProgKat
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_480.uiProgKat
+; udKundennummer
+			udShr16 = shr(LocalCOB_Typ_480.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_480.udKundennummer)	; take LOWER byte..
+
+;****ID 480****Telegram 3********ID 480****Telegram 3********ID 480****Telegram 3********ID 480****Telegram 3****
+;T3 mandatotries ->:
+	LocalCAN2Data.T3_By0 		= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+	LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+; 	Res 8..9
+		if LocalCOB_Typ_480.bReserve8 = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 0)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 0)
+		endif
+		if LocalCOB_Typ_480.bReserve9 = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+
+	; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_480.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_480.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_480.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_480.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1	 = LocalCOB_Typ_480.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_480.a_usCustomize[2] + 256* LocalCOB_Typ_480.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_480.a_usCustomize[4] + 256* LocalCOB_Typ_480.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_480.a_usCustomize[6] + 256* LocalCOB_Typ_480.a_usCustomize[5]
+		endif
+
+	iStatus = 0
+	pCAN2Data = ADR(LocalCAN2Data)
+endaction ; ID 480
+
+;*******action 481********action 481********action 481********action 481********action 481********
+action 481:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+  		memcpy(adr(LocalCOB_Typ_481),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_481))
+
+;****ID 481****Telegram 1********ID 481****Telegram 1********ID 481****Telegram 1********ID 481****Telegram 1****
+;T1 mandatotries ->:
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+	LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+
+; bBereit
+		if LocalCOB_Typ_481.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+; bBeladeanfAuto
+		if LocalCOB_Typ_481.bBeladeanfAuto = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 1)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 1)
+		endif
+; bStoerung
+		if LocalCOB_Typ_481.bStoerung = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 2)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 2)
+		endif
+; bAnlagenstrgHalbauto
+		if LocalCOB_Typ_481.bAnlagenstrgHalbauto = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 3)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 3)
+		endif
+; bAnlagenstrgAuto
+		if LocalCOB_Typ_481.bAnlagenstrgAuto = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 4)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 4)
+		endif
+; bDurchschleusen
+		if LocalCOB_Typ_481.bDurchschleusen = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 0)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 0)
+		endif
+; bFreigabeDurchschl
+		if LocalCOB_Typ_481.bFreigabeDurchschl = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 1)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 1)
+		endif
+; bNotAusAnlagenStrg
+		if LocalCOB_Typ_481.bNotAusAnlagenStrg = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 2)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 2)
+		endif
+; bPauseAktiv
+		if LocalCOB_Typ_481.bPauseAktiv = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 3)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 3)
+		endif
+; T1-By - 3..7 -> Redundanzen..
+		if LocalCOB_Typ_481.bReserve1 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 4)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 4)
+		endif
+		if LocalCOB_Typ_481.bReserve2 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 5)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 5)
+		endif
+		if LocalCOB_Typ_481.bReserve3 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 6)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 6)
+		endif
+		if LocalCOB_Typ_481.bReserve4 = 1 then
+			LocalCAN2Data.T1_By1 = BIT_SET(LocalCAN2Data.T1_By1, 7)
+		else
+			LocalCAN2Data.T1_By1 = BIT_CLR(LocalCAN2Data.T1_By1, 7)
+		endif
+; udPostennummer
+			udShr16 = shr(LocalCOB_Typ_481.udPostennummer,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(LocalCOB_Typ_481.udPostennummer)	; take LOWER byte..
+; uiGewicht
+		LocalCAN2Data.T1_By6_By7 = LocalCOB_Typ_481.uiGewicht
+
+;****ID 481****Telegram 2********ID 481****Telegram 2********ID 481****Telegram 2********ID 481****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0 		= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0 		= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 		= BIT_SET(LocalCAN2Data.T2_By0, 7)
+
+; bProgKat
+		if LocalCOB_Typ_481.bProgKat = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+
+; Redundanzen -> T2-By0 - bit1..5
+		if LocalCOB_Typ_481.bReserve5 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 1)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 1)
+		endif
+		if LocalCOB_Typ_481.bReserve6 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 2)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 2)
+		endif
+		if LocalCOB_Typ_481.bReserve7 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 3)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 3)
+		endif
+		if LocalCOB_Typ_481.bReserve8 = 1 then
+			LocalCAN2Data.T2_By0 = BIT_SET(LocalCAN2Data.T2_By0, 4)
+		else
+			LocalCAN2Data.T2_By0 = BIT_CLR(LocalCAN2Data.T2_By0, 4)
+		endif
+; Redundanzen..
+		LocalCAN2Data.T2_By1 = LocalCOB_Typ_481.usReserve1
+; uiProgKat
+		LocalCAN2Data.T2_By2_By3 = LocalCOB_Typ_481.uiProgKat
+; udKundennummer
+			udShr16 = shr(LocalCOB_Typ_481.udKundennummer,16)
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)							; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(LocalCOB_Typ_481.udKundennummer)	; take LOWER byte..
+
+;****ID 481****Telegram 3********ID 481****Telegram 3********ID 481****Telegram 3********ID 481****Telegramm 3****
+;T2 mandatotries ->:
+	LocalCAN2Data.T3_By0 		= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+	LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 6)
+	; .. and sign CAN2 telegram
+	LocalCAN2Data.T3_By0 		= BIT_SET(LocalCAN2Data.T3_By0, 7)
+
+	; Redundanzen
+		if LocalCOB_Typ_481.bReserve9 = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 1)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 1)
+		endif
+		if LocalCOB_Typ_481.bReserve10 = 1 then
+			LocalCAN2Data.T3_By0 = BIT_SET(LocalCAN2Data.T3_By0, 2)
+		else
+			LocalCAN2Data.T3_By0 = BIT_CLR(LocalCAN2Data.T3_By0, 2)
+		endif
+
+		; ###HO - 260905 - a_usCustomize[0..6]
+		if(TARGETInfo_0.DataFormat = 2) then  ; motorola
+			memcpy(adr(LocalCAN2Data.T3_By1),adr(LocalCOB_Typ_481.a_usCustomize[0]),1)
+			memcpy(adr(LocalCAN2Data.T3_By2_By3),adr(LocalCOB_Typ_481.a_usCustomize[1]),2)
+			memcpy(adr(LocalCAN2Data.T3_By4_By5),adr(LocalCOB_Typ_481.a_usCustomize[3]),2)
+			memcpy(adr(LocalCAN2Data.T3_By6_By7),adr(LocalCOB_Typ_481.a_usCustomize[5]),2)
+		else ; intel
+			LocalCAN2Data.T3_By1	 = LocalCOB_Typ_481.a_usCustomize[0]
+			LocalCAN2Data.T3_By2_By3 = LocalCOB_Typ_481.a_usCustomize[2] + 256* LocalCOB_Typ_481.a_usCustomize[1]
+			LocalCAN2Data.T3_By4_By5 = LocalCOB_Typ_481.a_usCustomize[4] + 256* LocalCOB_Typ_481.a_usCustomize[3]
+			LocalCAN2Data.T3_By6_By7 = LocalCOB_Typ_481.a_usCustomize[6] + 256* LocalCOB_Typ_481.a_usCustomize[5]
+		endif
+
+     iStatus = 0
+     pCAN2Data = ADR(LocalCAN2Data)
+endaction ; ID 481
+
+; *** add new COBs here.. ***
+
+; the other IDs that have not been defined below that are not supported by this Lib..
+elseaction:
+    	iStatus = 110
+endaction
+
+endcase
+
+ENDE:
+;********************************************************************************************************
+;********************************************************************************************************
+
+
+
+;********************************************************************************************************
+;********************************************************************************************************
+; use to add new COB .. ->
+;********************************************************************************************************
+;********************************************************************************************************
+
+;*******action xxx********action xxx********action xxx********action xxx********action xxx********
+(*
+
+action xxx:
+	    ; to do: transform LocalHFAnWaschm_ObjNr120_type data to LocalCAN2Data
+  		memcpy(adr(LocalCOB_Typ_xxx),Local_InitCAN2PV.pPVData,sizeof(LocalCOB_Typ_xxx))
+
+;****ID xxx****Telegram 1********ID xxx****Telegram 1********ID xxx****Telegram 1********ID xxx****Telegram 1****
+;T1 mandatotries ->:
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 5)
+		LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+;BOOL->:
+		; bBereit
+    	if pLocalHFAnWaschm_ObjNr120.bBereit = 1 then
+			LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 0)
+		else
+			LocalCAN2Data.T1_By0 = BIT_CLR(LocalCAN2Data.T1_By0, 0)
+		endif
+;USINT->:
+		; usFehlernummer
+		LocalCAN2Data.T1_By1 	= pLocalHFAnWaschm_ObjNr120.usFehlernummer
+;UDINT->:
+		; broadcast via CAN in 'motorola order' : MSByte as byte2 and LSByte as byte5 !!
+			udShr16 = shr(pLocalHFAnWaschm_ObjNr120.udPostennummer	,16)
+    	LocalCAN2Data.T1_By2_By3	= UINT(udShr16)										; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T1_By4_By5	= UINT(pLocalHFAnWaschm_ObjNr120.udPostennummer)	; take LOWER byte..
+;UINT->
+		; uiGewicht
+    	LocalCAN2Data.T1_By6_By7	= pLocalHFAnWaschm_ObjNr120.uiGewicht
+
+;****ID xxx****Telegram 2********ID xxx****Telegram 2********ID xxx****Telegram 2********ID xxx****Telegram 2****
+;T2 mandatotries ->:
+		LocalCAN2Data.T2_By0					= BIT_SET(LocalCAN2Data.T2_By0, 5)
+		LocalCAN2Data.T2_By0  					= BIT_CLR(LocalCAN2Data.T2_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T2_By0 					= BIT_SET(LocalCAN2Data.T2_By0, 7)
+		LocalCAN2Data.T1_By0 = BIT_SET(LocalCAN2Data.T1_By0, 7)
+;BOOL->:
+		; bProgrammOderKategorie
+    	if pLocalHFAnWaschm_ObjNr120.bProgrammOderKategorie = 1 then
+			LocalCAN2Data.T2_By0 				= BIT_SET(LocalCAN2Data.T2_By0, 0)
+		else
+			LocalCAN2Data.T2_By0 				= BIT_CLR(LocalCAN2Data.T2_By0, 0)
+		endif
+;UINT->
+		; uiProgrammKategorie
+    	LocalCAN2Data.T2_By2_By3	= pLocalHFAnWaschm_ObjNr120.uiProgrammKategorie
+;UDINT->:
+	   	; udKundennummer
+	   		udShr16 = shr(pLocalHFAnWaschm_ObjNr120.udKundennummer	,16)
+		; broadcast via can in motorola format: MSByte as byteN and LSByte as byteN+1 !!
+    	LocalCAN2Data.T2_By4_By5	= UINT(udShr16)								; take UPPERBytes of Prog/Kat ..
+    	LocalCAN2Data.T2_By6_By7	= UINT(pLocalHFAnWaschm_ObjNr120.udKundennummer	)	; take LOWER byte..
+
+;****ID xxx****Telegram 3********ID xxx****Telegram 3********ID xxx****Telegram 3********ID xxx****Telegram 3****
+;T3 mandatotries ->:
+		LocalCAN2Data.T3_By0					= BIT_CLR(LocalCAN2Data.T3_By0, 5)
+		LocalCAN2Data.T3_By0 					= BIT_SET(LocalCAN2Data.T3_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T3_By0 					= BIT_SET(LocalCAN2Data.T3_By0, 7)
+;AKZ as STRING->:
+		; "Auftragskennzeichen" as string has to be set to T3 + T4..
+		; always assure transmitting this order:
+		; T3Byte2 -> zchn1 ; T4Byte7 -> zchn 12 (quasi-motorola order)
+
+		pLocByte4Str access (Local_InitCAN2PV.adr_data + 14) ; don't use static address !!!
+		LocByte4Str = pLocByte4Str
+
+		LocalCAN2Data.T3_By2_By3	= UINT(pLocByte4Str[0])
+		LocalCAN2Data.T3_By2_By3	= shl(LocalCAN2Data.T3_By2_By3, 8)
+		LocalCAN2Data.T3_By2_By3	= LocalCAN2Data.T3_By2_By3 + pLocByte4Str[1]
+
+		LocalCAN2Data.T3_By4_By5	= UINT(pLocByte4Str[2])
+		LocalCAN2Data.T3_By4_By5	= shl(LocalCAN2Data.T3_By4_By5, 8)
+		LocalCAN2Data.T3_By4_By5	= LocalCAN2Data.T3_By4_By5 + pLocByte4Str[3]
+
+		LocalCAN2Data.T3_By6_By7	= UINT(pLocByte4Str[4])
+		LocalCAN2Data.T3_By6_By7	= shl(LocalCAN2Data.T3_By6_By7, 8)
+		LocalCAN2Data.T3_By6_By7	= LocalCAN2Data.T3_By6_By7 + pLocByte4Str[5]
+
+;****ID xxx****Telegram 4********ID xxx****Telegram 4********ID xxx****Telegram 4********ID xxx****Telegram 4****
+;T3 mandatotries ->:
+		LocalCAN2Data.T4_By0 				= BIT_SET(LocalCAN2Data.T4_By0, 5)
+		LocalCAN2Data.T4_By0 				= BIT_SET(LocalCAN2Data.T4_By0, 6)
+		; .. and sign CAN2 telegram
+		LocalCAN2Data.T4_By0 = BIT_SET(LocalCAN2Data.T4_By0, 7)
+;AKZ as STRING->:
+		LocalCAN2Data.T4_By2_By3	= UINT(pLocByte4Str[6])
+		LocalCAN2Data.T4_By2_By3	= shl(LocalCAN2Data.T4_By2_By3, 8)
+		LocalCAN2Data.T4_By2_By3	= LocalCAN2Data.T4_By2_By3 + pLocByte4Str[7]
+
+		LocalCAN2Data.T4_By4_By5	= UINT(pLocByte4Str[8])
+		LocalCAN2Data.T4_By4_By5	= shl(LocalCAN2Data.T4_By4_By5, 8)
+		LocalCAN2Data.T4_By4_By5	= LocalCAN2Data.T4_By4_By5 + pLocByte4Str[9]
+
+		LocalCAN2Data.T4_By6_By7	= UINT(pLocByte4Str[10])
+		LocalCAN2Data.T4_By6_By7	= shl(LocalCAN2Data.T4_By6_By7, 8)
+		LocalCAN2Data.T4_By6_By7	= LocalCAN2Data.T4_By6_By7 + pLocByte4Str[11]
+
+        iStatus = 0
+        pCAN2Data = ADR(LocalCAN2Data)
+
+endaction ; ID xxx
+*)
+
+;********************************************************************************************************
+;********************************************************************************************************
+
+	; check swapping and casting..
+(*	x 	= $89abcdef			; -> 16# 89 ab cd ef
+	xswap 	= swapUDINT(x)	; -> 16# ef cd ab 89
+	uiCastx = UINT(x)		; -> 16# cd ef
+	udSHR4x = shr(x,16)		; -> 16# 00 00 89 ab *)
+
+;********************************************************************************************************
+;********************************************************************************************************
+
+
+END_FUNCTION_BLOCK

@@ -1,0 +1,282 @@
+
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;Sequence 6 - Discharger 1 D[906]
+
+;-----------------------------------------
+;Revision 1.00 19/12/2005 D.J. First Issue
+;-----------------------------------------
+
+DischargerEnable 		= ((D[16] > 0) AND NOT Std.HaltSys)
+
+I_ReadyToLoad           = X[12].X01 OR TestLoad
+I_OpenBag				= X[12].X02		
+I_LoadDropped			= X[12].X03	
+I_BagAtDischarger		= X[11].X13 OR Testxb13
+I_BagOutDischarger      = X[11].X15
+
+O_BagReady				= FALSE
+O_OpenBuffer 			= FALSE
+O_Steadys				= FALSE
+O_OpenBag				= FALSE
+O_Closer				= FALSE
+O_OpenStop				= FALSE
+
+
+
+Request.FDC[1] 			= FALSE
+Request.FDCEmpty[1]     = FALSE
+
+EndOfLoading            = FALSE
+;Alarm
+Alarm[31].Name 			= almNoAlarm ;Clear sequence alarm name
+Alarm[31].Bag 			= 317
+Alarm[31].Beacon			= TRUE
+Alarm[31].Extra			= 0
+Alarm[31].Time			= 3000
+
+;Setup Sequence
+STEP = D[931]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Check Status - Discharger clear
+TON_10ms((NOT I_BagAtDischarger),200,DischargerClear,DischargerClearET)
+IF (STEP = 1) THEN 
+	IF ((DischargerClear)  AND (D[28] > 0) AND ((Bag[317].Cat = 0) OR (D[970] > 0))) THEN
+		D[931] = 2
+	ENDIF
+ENDIF
+
+;Wait for bag in discharger
+IF (STEP = 2) THEN
+Request.FDC[1] = I_ReadyToLoad
+
+	IF I_BagAtDischarger THEN
+	
+		IF (Bag[317].Cat = 0) THEN ;move bag into discharger if first bag
+			Bag[317] = Bag[316]
+			Bag[316] = Bag[0]
+			D[931] = 3
+		ENDIF
+	ENDIF
+ENDIF
+
+;Let bag settle in discharger
+;Settled At Discharger (Sad)
+TON_10ms(((STEP = 3) AND I_BagAtDischarger),1000,SettledAtDischarger,SettledAtDischargerET)
+IF (STEP = 3) THEN 
+	IF SettledAtDischarger THEN 
+		D[931] = 4
+	ENDIF
+	Alarm[31].Time = 2000
+	Alarm[31].Name = almBagNotSettled
+ENDIF
+
+;Allow steadys to move down
+TON_10ms((STEP = 4),400,SteadysDown,SteadysDownET)
+IF (STEP = 4) THEN
+	IF SteadysDown THEN
+		D[931] = 5
+	ENDIF
+	IF (Bag[317].Cat = Std.MaxCats) THEN
+		D[931] = 7
+	ENDIF
+ENDIF
+
+;Steady cylinders on from steps 4 - 9
+O_Steadys = ((STEP >= 4) AND (STEP <= 9))
+
+;Bag opener on from step 5 - 8
+O_OpenBag = ((STEP >= 6) AND (STEP <= 8))
+
+CodeStep  = ((STEP >= 4) AND (STEP <= 5))
+
+;Wash Codes
+;Wash Codes
+IF CodeStep THEN
+;Wash Codes
+BCD_BIN_CAT.RegisterIN 	= Bag[317].Cat
+BCD_BIN_CAT.Enable		= CodeStep
+BCD_BIN_CAT.BIN			= TRUE
+BCD_BIN_CAT FUB BCD_BIN_OUTPUT()
+
+Y[12].Y01 = BCD_BIN_CAT.Output1
+Y[12].Y02 = BCD_BIN_CAT.Output2
+Y[12].Y03 = BCD_BIN_CAT.Output4
+Y[12].Y04 = BCD_BIN_CAT.Output8
+Y[12].Y05 = BCD_BIN_CAT.Output10
+;Y[10].Y14 = BCD_BIN_CAT.Output20
+;Y[10].Y15 = BCD_BIN_CAT.Output40
+;Y[10].Y16 = BCD_BIN_CAT.Output80
+
+;BCD_BIN_CUS.RegisterIN 	= Bag[152].Cus
+;BCD_BIN_CUS.Enable		= CodeStep
+;BCD_BIN_CUS.BIN			= FALSE
+;BCD_BIN_CUS FUB BCD_BIN_OUTPUT()
+;
+;Y[11].Y01 = BCD_BIN_CUS.Output1
+;Y[11].Y02 = BCD_BIN_CUS.Output2
+;Y[11].Y03 = BCD_BIN_CUS.Output4
+;Y[11].Y04 = BCD_BIN_CUS.Output8
+;Y[11].Y05 = BCD_BIN_CUS.Output10
+;Y[11].Y06 = BCD_BIN_CUS.Output20
+;Y[11].Y07 = BCD_BIN_CUS.Output40
+;Y[11].Y08 = BCD_BIN_CUS.Output80
+;Y[11].Y09 = BCD_BIN_CUS.Output100
+;Y[11].Y10 = BCD_BIN_CUS.Output200
+;Y[11].Y11 = BCD_BIN_CUS.Output400
+;Y[11].Y12 = BCD_BIN_CUS.Output800
+
+;BCD_BIN_WGT.RegisterIN 	= (Bag[152].Wgt / 10)
+;BCD_BIN_WGT.Enable		= CodeStep
+;BCD_BIN_WGT.BIN			= FALSE
+;BCD_BIN_WGT FUB BCD_BIN_OUTPUT()
+;
+;Y[26].Y05 = BCD_BIN_WGT.Output1
+;Y[26].Y06 = BCD_BIN_WGT.Output2
+;Y[26].Y07 = BCD_BIN_WGT.Output4
+;Y[26].Y08 = BCD_BIN_WGT.Output8
+;Y[26].Y09 = BCD_BIN_WGT.Output10
+;Y[26].Y10 = BCD_BIN_WGT.Output20
+;Y[26].Y11 = BCD_BIN_WGT.Output40
+;Y[26].Y12 = BCD_BIN_WGT.Output80
+ELSE
+Y[12].Y01 =  FALSE
+Y[12].Y02 =  FALSE
+Y[12].Y03 =  FALSE
+Y[12].Y04 =  FALSE
+Y[12].Y05=  FALSE
+ENDIF
+
+
+;Bag Ready to Washing Machine
+IF (STEP = 5) THEN
+	O_BagReady = (Bag[317].Cat > 0)
+	IF I_OpenBag THEN
+		D[931] = 6
+	ENDIF
+	IF (Bag[317].Cat = 0) THEN
+		Alarm[31].Time = 1
+		Alarm[31].Name = almBagNotShownOnScreen
+	ENDIF
+	ELSE
+	O_BagReady = FALSE
+ENDIF
+
+;Set LoadDropped to False
+IF (STEP <> 6) THEN
+	LoadDropped = FALSE
+ENDIF
+
+;Open Bag Until LoadDropped recieved and has been open for 6 seconds
+TON_10ms((STEP = 6),600,MinOpen,MinOpenET) ;ET means Elapsed Time
+IF (STEP = 6) THEN
+
+	IF I_LoadDropped OR TestDischarger THEN
+	;IF I_BagEmpty THEN
+		LoadDropped = TRUE
+	ENDIF
+
+	IF (LoadDropped AND MinOpen) THEN
+		;Write Report
+		;------------
+		IF (ReportUnloading[3].Cat = 0) THEN
+			ReportUnloading[3].Cat = UINT(Bag[317].Cat)	;Category
+			ReportUnloading[3].Cus = Bag[317].Cus		;Customer
+			ReportUnloading[3].Wgt = 500		;Weight
+			ReportUnloading[3].Cnt = 0					;Count
+			ReportUnloading[3].Stn = 0					;Station
+			ReportUnloading[3].Mcn = 3					;Machine
+		ENDIF
+	ENDIF
+	IF (LoadDropped AND MinOpen) THEN
+		D[931] = 7
+	ENDIF
+	Alarm[31].Name = almLoadNotDropped
+ENDIF
+
+;Change display to empty bag
+IF (STEP = 7) THEN
+	IF ((D[970] = 0 AND NOT I_LoadDropped AND I_BagEmpty) OR TestDrop) THEN
+		Bag[317].Prg 	= Std.MaxProg
+		Bag[317].Cat 	= Std.MaxCats
+		D[931] 			= 8
+	ENDIF
+	IF  NOT I_LoadDropped AND NOT I_OpenBag then
+		D[931] 			= 8
+	ENDIF
+	Alarm[31].Name = almGeneralSequence
+ENDIF
+
+;Close bag
+TON_10ms((STEP = 8),100,CloserDown,CloserDownET)
+IF (STEP = 8) THEN
+	O_Closer = TRUE
+	IF CloserDown THEN
+		D[931] = 9
+	ENDIF
+ENDIF
+
+;Allow closer to go back up
+TON_10ms((STEP = 9),100,CloserUp,CloserUpET)
+IF (STEP = 9) THEN
+	IF CloserUp THEN
+		D[931] = 10
+	ENDIF
+ENDIF
+
+;Allow steadys to go up
+TON_10ms((STEP = 10),400,SteadyUp,SteadyUpET)
+IF (STEP = 10) THEN
+	EndOfLoading = (D[970] = 0)
+	IF (SteadyUp AND NOT Enable.FDCEmpty[1])THEN
+		D[931] = 11
+	ENDIF
+ENDIF
+
+;Check for space on empty bag buffer
+IF (STEP = 11) THEN
+	Request.FDCEmpty[1] = TRUE
+	IF (Enable.FDCEmpty[1] AND NOT I_BagOutDischarger) THEN
+		D[931] = 12
+	ENDIF
+ENDIF
+
+;Open buffer stop - unitl bag out
+IF (STEP = 12) THEN	
+	O_OpenStop = TRUE
+	Bag[317] = Bag[0]
+	IF (PLS AND (D[970] = 0)) THEN  
+			Bag[317] = Bag[0]
+	ENDIF
+	IF I_BagOutDischarger THEN
+		D[931] = 1
+	ENDIF
+
+	Alarm[31].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[31].Name > 0)
+TimerAlarm.PT 	= Alarm[31].Time
+TimerAlarm FUB TON_10ms()
+Alarm[31].On 	= TimerAlarm.Q
+Alarm[31].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[12].Y12            = O_BagReady
+Y[11].Y03 			= O_Steadys
+Y[11].Y04 			= O_OpenBag
+Y[11].Y05 			= O_Closer
+Y[11].Y13 			= O_OpenStop
+Y[12].Y13            = EndOfLoading
+END_PROGRAM
+

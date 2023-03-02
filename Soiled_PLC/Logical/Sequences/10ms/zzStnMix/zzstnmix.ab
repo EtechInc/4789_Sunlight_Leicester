@@ -1,0 +1,84 @@
+PROGRAM _CYCLIC
+;----------------------
+;Sorting Station Mixing
+;----------------------
+
+;----------------------------------------
+;Version 1.00 09/12/2005 D.J. First Issue
+;----------------------------------------
+
+
+;Notes:
+;When the operator changes either the Category or Customer of any station then the report should be written.
+;If the Customer or Category is set to zero the report will be written for the previous Cat and Cus however
+;the previous Cat and Cus will be set to zero. When the Cat or Cus is next changed there will be no report
+
+IF Std.StationReports THEN
+
+	;Special for Mewa only box 1 to 6 are reported on
+	LOOP n = 1 TO Std.MaxWeighstations DO
+				
+		StnBag = LDG_GetBagFromStation(Std.StationBagsStart,n);n + (Std.StationBagsStart[1] - 1) ;Assumes all station bags will follow in order
+
+		IF (ReportLoading[n].Cat = 0) THEN
+
+			;Check if Category or Customer have been changed
+			CatChanged 	= (Bag[StnBag].Cat <> StnPrev[n].Cat)
+			CatValid   	= (StnPrev[n].Cat > 0)
+
+			CusChanged 	= (Bag[StnBag].Cus <> StnPrev[n].Cus)
+			CusValid   	= (StnPrev[n].Cus > 0)
+
+			;Check if anything has been added and current weight is not less than the previous
+			WgtValue 	= Stn[n].Weight	- INT(StnPrev[n].Wgt)
+			WgtValid 	= (WgtValue > 0)
+
+			;Check if anything has been added and current weight is not less than the previous
+			CntValue 	= Stn[n].Count - INT(StnPrev[n].Cnt)
+			CntValid 	= (CntValue > 0)
+
+			;Ensure valid values as we report on either a weight or count change
+			IF (WgtValue < 0) THEN
+				WgtValue = 0
+			ENDIF
+
+			IF (CntValue < 0) THEN
+				CntValue = 0
+			ENDIF
+
+			IF ((CatChanged OR CusChanged) AND CusValid AND CatValid AND (WgtValid OR CntValid)) THEN
+				
+				ReportLoading[n].Prg = StnPrev[n].Prg		;Program
+				ReportLoading[n].Cat = StnPrev[n].Cat		;Category
+				ReportLoading[n].Cus = StnPrev[n].Cus		;Customer
+				ReportLoading[n].Wgt = UINT(WgtValue)		;Weight
+				ReportLoading[n].Cnt = UINT(CntValue)		;Count
+				ReportLoading[n].Stn = n         			;Station
+				ReportLoading[n].Mcn = 0					;Machine
+				ReportLoading[n].Bid = StnPrev[n].Bid		;Bag ID
+				ReportLoading[n].Mis = n
+				ReportLoading[n].Act = repMix
+				ReportLoading[n].Ur1 = 0
+				ReportLoading[n].Ur2 = 0
+				ReportLoading[n].Rkg = 0
+
+			ENDIF
+
+			;Set Previous to Current even if the Previous values were not valid
+			IF (CatChanged OR CusChanged) THEN
+				StnPrev[n].Prg = Bag[StnBag].Prg
+				StnPrev[n].Cat = Bag[StnBag].Cat
+				StnPrev[n].Cus = Bag[StnBag].Cus
+				StnPrev[n].Wgt = Stn[n].Weight
+				StnPrev[n].Cnt = Stn[n].Count
+				StnPrev[n].Bid = Bag[StnBag].Bid
+			ENDIF
+
+		ENDIF
+
+	ENDLOOP
+
+ENDIF
+
+END_PROGRAM
+

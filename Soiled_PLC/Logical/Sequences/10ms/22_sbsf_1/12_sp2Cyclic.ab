@@ -1,0 +1,153 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+I_RockSepA				= X[7].X07
+I_RockSepB				= X[7].X08
+I_TiltA					= X[7].X09
+I_TiltB					= X[7].X10
+I_OutLineA				= X[7].X06
+I_OutLineB				= X[7].X11
+
+O_OpenRockSep			= FALSE 
+O_LevelCylinder			= FALSE 
+O_OpenLineAStop			= FALSE 
+O_OpenLineBStop			= FALSE 
+O_SelectLineA			= FALSE 
+O_SelectLineB			= FALSE 
+
+Request.BSF[1]         = FALSE
+
+Alarm[22].Name 			= 0
+Alarm[22].Bag			= 10011
+Alarm[22].Beacon		= TRUE
+Alarm[22].Extra			= 0
+Alarm[22].Time			= 3000
+
+;Setup Sequecne
+STEP = D[922]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+
+
+;Sequence
+
+;Select Line 'A'
+TON_10ms((NOT I_TiltA AND NOT I_TiltB),100,LevelClear,LevelClearET)
+IF (STEP = 1) THEN
+	IF LevelClear AND NOT Std.HaltSys THEN
+		D[922] = 2
+	ENDIF
+	Alarm[22].Name = almSwitchFault
+ENDIF
+
+;Open seperators wait for leveller to be ready
+TON_10ms(((STEP = 2) AND I_RockSepA AND I_RockSepB),200,SettledInSeps,SettledInSepsET)
+IF (STEP = 2) THEN
+	O_OpenRockSep = TRUE
+	IF SettledInSeps THEN
+		D[922] = 3
+	ENDIF
+	;Alarm[22].Name = almBagNotArrived
+ENDIF
+
+;Wait for bag to settle in leveller position
+TON_10ms((I_TiltA AND I_TiltB),300,SettledLevel,SettledLevelET)
+IF (STEP = 3) THEN
+	IF SettledLevel THEN
+		D[922] = 4
+	ENDIF
+	Alarm[22].Name = almBagNotSettled
+ENDIF
+
+;Move bag leveller down
+TON_10ms((STEP = 4),500,LevellerDown,LevellerDownET)
+IF (STEP = 4) THEN
+	O_LevelCylinder = TRUE
+	IF LevellerDown THEN
+		D[922] = 5
+	ENDIF
+ENDIF
+
+;Allow bag leveller to retract
+TON_10ms((STEP = 5),500,LevellerUp,LevellerUpET)
+IF (STEP = 5) THEN
+	O_LevelCylinderUP = TRUE
+	IF LevellerUp THEN
+		D[922] = 6
+	ENDIF
+ENDIF
+
+;Check room in Buffer
+IF (STEP = 6) THEN
+	IF NOT Std.HaltSys THEN
+		Request.BSF[1] = TRUE
+		IF Enable.BSF[1] THEN
+			D[922] = 7
+		ENDIF
+	ENDIF
+ENDIF
+
+O_SelectLineA = ((STEP <> 8) AND (STEP <> 9))
+
+;Open stop on line 'A'
+IF (STEP = 7) THEN
+	O_OpenLineAStop = TRUE
+	;IF PLS THEN
+	;	C[17] = 0
+	;ENDIF
+	IF I_OutLineA THEN
+		D[922] = 8
+	ENDIF
+	Alarm[22].Name = almBagNotReleased
+ENDIF
+
+;Open stop on line 'B'
+IF (STEP = 8) THEN
+	O_OpenLineBStop = TRUE
+	IF I_OutLineB THEN
+		D[922] = 9
+	ENDIF
+	Alarm[22].Name = almBagNotReleased
+ENDIF
+
+;Select bag stop and wait for bag out of leveller
+IF (STEP = 9) THEN
+	O_SelectLineB = TRUE
+	IF NOT Enable.BSF[1] THEN
+		D[922] = 1
+	ENDIF
+	Alarm[22].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[22].Name > 0)
+TimerAlarm.PT 	= Alarm[22].Time
+TimerAlarm FUB TON_10ms()
+Alarm[22].On 	= TimerAlarm.Q
+Alarm[22].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[7].Y08 = O_OpenRockSep
+Y[7].Y11 = O_LevelCylinder
+Y[7].Y09 = O_OpenLineAStop
+Y[7].Y10 = O_OpenLineBStop
+Y[7].Y07 = O_SelectLineA
+Y[7].Y06 = O_SelectLineB
+
+;SBS Offgoing Bagstacker Pressure relief
+TON_10ms((NOT X[7].X12 AND NOT X[7].X13),500,Y[7].Y12,PRLineClearET[0])
+
+;SPR1-3
+TON_10ms((NOT X[4].X13 AND NOT X[4].X14),500,Y[4].Y13,PRLineClearET[1])
+TON_10ms((NOT X[5].X13 AND NOT X[5].X14),500,Y[5].Y13,PRLineClearET[2])
+TON_10ms((NOT X[4].X13 AND NOT X[7].X14),500,Y[7].Y14,PRLineClearET[3])
+TON_10ms((NOT X[7].X15 AND NOT X[7].X16),500,Y[7].Y15,PRLineClearET[4])
+END_PROGRAM
+

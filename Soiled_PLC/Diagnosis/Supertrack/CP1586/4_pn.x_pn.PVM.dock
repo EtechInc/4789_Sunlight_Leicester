@@ -1,0 +1,15 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=4_pn 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=125 Type=76 Scope=95 Force=1 Index=10 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                    D[4]                                     UINT    0 "                                                               1"    1    6    1   10    0    0         
+                                   D[76]                                     UINT    0 "                                                               3"    1    6    1   10    0    0         
+                                  D[904]                                     UINT    0 "                                                               2"    1    6    1   10    0    0         
+                                   mySeq                                     UINT    0 "                                                               4"    0    6    1   10    1    0         
+                                 Request                              Enable_Vars    0 "                                                               *"    0   24    1    0    0    1         
+                                      VC                               BOOL[0..9]    0 "                                                               *"    1    1   10    0    0    1         
+                                   VC[1]                                     BOOL    0 "                                                           FALSE"    2    1    1    2    0    0         
+                                       Y                      CardOutputs[0..399]    0 "                                                               *"    0   24  400    0    0    1         
+                                   Y[15]                              CardOutputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     Y15                                     BOOL    0 "                                                           FALSE"    2    1    1    2    0    0         
+                               BufferDst                                     UINT    0 "                                                               0"    0    6    1   10    1    0         

@@ -1,0 +1,76 @@
+(*
+T: PROGRAM Main
+FW: NO
+CI#: 80
+QSL: 11
+QVE: 11
+QVPC: 11
+QPar: 0
+QFBI: 9
+*)
+@V 1 2 0
+SafeModules_OK_1	1	VAR	@FB:83
+		     
+
+;
+
+@V 1 3 0
+Zone_0	2	VAR	@FB:81
+		     
+
+;
+
+@V 1 4 0
+Output_Zone_0	3	VAR	@FB:82
+		     
+
+;
+
+@V 1 5 0
+Zone_1	4	VAR	@FB:81
+		     
+
+;
+
+@V 1 6 0
+Zone_2	5	VAR	@FB:81
+		     
+
+;
+
+@V 1 7 0
+Zone_3	6	VAR	@FB:81
+		     
+
+;
+
+@V 1 8 0
+Output_Zone_1	7	VAR	@FB:82
+		     
+
+;
+
+@V 1 9 0
+Output_Zone_2	8	VAR	@FB:82
+		     
+
+;
+
+@V 1 10 0
+Output_Zone_3	9	VAR	@FB:82
+		     
+
+;
+
+@V 1 11 0
+SafeModules_All_OK	10	VAR	@TYP:43
+		     
+
+;
+
+@V 1 12 0
+Zone_0_Active	11	VAR	@TYP:43
+		     
+
+;
+

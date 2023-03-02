@@ -1,0 +1,6 @@
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/Hoist.var
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/Hoist.typ
+$(AS_PROJECT_PATH)/Logical/Safety/SafetyUI/SafetyUI.var
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.sw
+$(AS_PROJECT_PATH)/Logical/Safety/AsSafety/AsSafety.typ
+$(AS_PROJECT_PATH)/Logical/Safety/AsSafety/AsSafety.fun

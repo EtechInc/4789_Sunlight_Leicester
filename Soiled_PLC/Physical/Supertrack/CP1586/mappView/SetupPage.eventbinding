@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<EventBindingSet id="SetupPageEventBinding" xmlns="http://www.br-automation.com/iat2014/eventbinding/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+
+		<!-- Open dialog "AutoTeach" -->
+		<EventBinding>
+			<Source xsi:type="widgets.brease.PushButton.Event"
+					contentRefId="ContentSetup"
+					widgetRefId="PushButtonAutoTeach"
+					event="Click" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.OpenDialog" 
+								dialogId="AutoTeachDialog"
+								horizontalPos="center" 
+								verticalPos="middle" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+		<!-- Close dialog "Add AutoTeach" with "Continue"-->
+		<EventBinding>
+			<Source xsi:type="widgets.brease.ToggleButton.Event"
+					contentRefId="ContentAutoTeachDialog"
+					widgetRefId="ToggleButtonContinueAutoTeach"
+					event="Click" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.CloseDialog" 
+								dialogId="AutoTeachDialog" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+		
+		<!-- Open dialog "Add position" -->
+		<EventBinding>
+			<Source xsi:type="widgets.brease.MomentaryPushButton.Event"
+					contentRefId="ContentSetup"
+					widgetRefId="MomentPushButtonAddPos"
+					event="Click" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.OpenDialog" 
+								dialogId="AddPosDialog" 
+								horizontalPos="center" 
+								verticalPos="middle" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+		<!-- Close dialog "Add position" with "Confirm"-->
+		<EventBinding>
+			<Source xsi:type="widgets.brease.ToggleButton.Event"
+					contentRefId="ContentAddPosDialog"
+					widgetRefId="ToggleButtonConfirmAddPosition"
+					event="Click" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.CloseDialog" 
+								dialogId="AddPosDialog" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+		<!-- Open dialog "Delete File" -->
+		<EventBinding>
+			<Source xsi:type="widgets.brease.PushButton.Event"
+					contentRefId="ContentSetup"
+					widgetRefId="PushButtonDeleteFile"
+					event="Click" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.OpenDialog" 
+								dialogId="DeleteFileDialog"
+								horizontalPos="center" 
+								verticalPos="middle" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+		<!-- Close dialog "Delete File" with "Continue"-->
+		<EventBinding>
+			<Source xsi:type="widgets.brease.ToggleButton.Event"
+					contentRefId="ContentDeleteFileDialog"
+					widgetRefId="ToggleButtonDeleteFile"
+					event="Click" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.CloseDialog" 
+								dialogId="DeleteFileDialog" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+  </Bindings>
+</EventBindingSet>

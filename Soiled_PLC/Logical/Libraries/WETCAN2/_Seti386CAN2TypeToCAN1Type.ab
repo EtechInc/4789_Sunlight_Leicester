@@ -1,0 +1,112 @@
+FUNCTION_BLOCK _Seti386CAN2TypeToCAN1Type
+;********************************************************************************************************
+; * Implementation of _Seti386CAN2TypeToCAN1Type
+;********************************************************************************************************
+; * version 		1.1.0
+; * last change		sep, 12th, 2005
+; * by				H.O.
+;********************************************************************************************************
+;********************************************************************************************************
+; 	-> 	pCAN2Data			.. pointer to CAN2 structure that contains data to read or write
+; 	-> 	iTelegramIndex		.. telegram index exctractet from received / broadcasted telegram
+; 		pCAN1Data 		->	.. return the address of CAN1 struct
+;********************************************************************************************************
+; V1.1.0 ###HO  - 120905
+;	* 5th tel added
+;********************************************************************************************************
+
+; set local pointer to incoming CAN2 uni structure
+pLocalCAN2UniData access (pCAN2Data)
+LocalCAN2UniData = pLocalCAN2UniData
+
+; create CAN1 telegram from CAN2 te structure passed in..
+case iTelegramIndex of
+
+	action 1:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T1_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T1_By1
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T1_By2_By3,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T1_By2_By3,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By2_By3 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T1_By4_By5,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T1_By4_By5,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By4_By5 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T1_By6_By7,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T1_By6_By7,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By6_By7 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+	endaction
+		action 2:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T2_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T2_By1
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T2_By2_By3,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T2_By2_By3,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By2_By3 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T2_By4_By5,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T2_By4_By5,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By4_By5 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T2_By6_By7,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T2_By6_By7,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By6_By7 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+	endaction
+		action 3:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T3_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T3_By1
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T3_By2_By3,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T3_By2_By3,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By2_By3 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T3_By4_By5,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T3_By4_By5,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By4_By5 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T3_By6_By7,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T3_By6_By7,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By6_By7 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+	endaction
+		action 4:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T4_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T4_By1
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T4_By2_By3,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T4_By2_By3,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By2_By3 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T4_By4_By5,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T4_By4_By5,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By4_By5 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T4_By6_By7,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T4_By6_By7,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By6_By7 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+	endaction
+	action 5:
+		LocalCAN1Data.T_By0 	= LocalCAN2UniData.T5_By0
+		LocalCAN1Data.T_By1 	= LocalCAN2UniData.T5_By1
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T5_By2_By3,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T5_By2_By3,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By2_By3 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T5_By4_By5,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T5_By4_By5,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By4_By5 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+
+		uiShiftUPPERWord 		= shr(LocalCAN2UniData.T5_By6_By7,8) ; move UPPER byte to the right
+		uiShiftLOWERWord 		= shl(LocalCAN2UniData.T5_By6_By7,8) ; move LOWER byte to the left
+		LocalCAN1Data.T_By6_By7 = uiShiftUPPERWord + uiShiftLOWERWord ; now uiShiftWord contains LocalCAN2UniData.T1_By2_By3 in reverse order
+	endaction
+endcase
+
+; pass pointer to CAN1 telegram to output..
+pCAN1Data = ADR(LocalCAN1Data)
+
+;********************************************************************************************************
+;********************************************************************************************************
+END_FUNCTION_BLOCK

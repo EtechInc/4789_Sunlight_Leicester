@@ -1,0 +1,8 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/MTBasics/MTBasics.fun
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/MTBasics/MTBasics.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Std/Standard.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Std/Standard.typ
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/HoistServer/Variables.var
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/Hoist.var
+$(AS_PROJECT_PATH)/Logical/HoistLibrary/Hoist.typ

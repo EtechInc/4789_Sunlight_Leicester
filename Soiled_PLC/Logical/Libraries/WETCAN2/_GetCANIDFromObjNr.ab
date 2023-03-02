@@ -1,0 +1,117 @@
+FUNCTION_BLOCK _GetCANIDFromObjNr
+;********************************************************************************************************
+; * Implementation of _GetCANIDFromObjNr
+;********************************************************************************************************
+; * version 		3.6.0
+; * last change		120210
+; * by				H.O.
+;********************************************************************************************************
+; History:
+;*********
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191 
+; * V3.4.0 ###HO
+; 	- COB ID 110 + 111
+; * V3.2.1 ###HO
+; 	- COB 130,140 wie 120  und...
+;	- 131 und 141 wie 121
+; * V3.2.0 ###HO  - 040907
+;  	* COBs 261+262 hinzugefügt
+; 	* COBs302,303,304,312,313,314,253,255,254,256,352,353,354  neu
+;	* udCANID = udObjNr für alle erwähnten Objektnummern
+; * V3.1.0 ###HO  - 141206
+; 	* COBs 126,127,128,129 hinzugefügt
+; * V3.0.0 ###HO  - 120905
+; 	* IDs 253..258 hinzugefügt
+; 	* IDs 307..317 hinzugefügt
+; * V 1.0.0  	* Erste Version
+; * V 2.0.0 HO 	* COBs 251,252,480,481 added
+; 				* COB 123 added
+; * V2.1.0 HO	* COB 441..459 added
+;********************************************************************************************************
+; supported CANIDs: 120,121,122,123,130,140,131,141,201,209,211,219,221,231,251,252
+; 					301,306,311,316,351,361..369,371..379,401..419,421..439,441..459,480,481
+;********************************************************************************************************
+
+; ObjNr and CANID are identical..
+iStatus = 0
+case udObjNr of
+
+    action 120 :
+    action 126 :
+    action 128 :
+    action 130 :
+    action 140 :
+	action 150:
+	action 160:
+	action 170:
+	action 180:
+	action 190:
+        udCANID = 120
+    endaction
+   	action 121:
+    action 127 :
+    action 129 :
+    action 131 :
+    action 141 :
+	action 151:
+	action 161:
+	action 171:
+	action 181:
+	action 191:
+        udCANID = 121
+	endaction
+    
+	action 110 :
+	action 111 :
+	action 122 :
+   	action 123 :
+	action 201:
+	action 209:
+	action 211:
+	action 219:
+	action 221:
+	action 231:
+	action 251:
+	action 252:
+	action 253:
+	action 254:
+	action 255:
+	action 256:
+	action 257:
+	action 258:
+	action 261:
+	action 262:
+	action 301:
+	action 302:
+	action 303:
+	action 304:
+	action 306:
+	action 307:
+	action 311:
+	action 312:
+	action 313:
+	action 314:
+	action 316:
+	action 317:
+	action 351:
+	action 352:
+	action 353:
+	action 354:
+	action 361..369:
+	action 371..379:
+	action 401..419:
+	action 421..439:
+	action 441..459:
+	action 480:
+	action 481:
+        udCANID = udObjNr
+	endaction
+	elseaction:
+		; all other ObjNrs..
+		iStatus = 110
+	endaction
+endcase
+;********************************************************************************************************
+END_FUNCTION_BLOCK

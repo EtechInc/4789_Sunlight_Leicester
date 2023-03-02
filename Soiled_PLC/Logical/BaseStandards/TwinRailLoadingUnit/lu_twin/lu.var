@@ -1,0 +1,66 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: lu
+ * File: lu.var
+ * Author: treamsbottom
+ * Created: July 17, 2015
+ ********************************************************************
+ * Local variables of program lu
+ ********************************************************************)
+VAR
+	useRequest : BOOL;
+	useCompressor : BOOL;
+	ton_10ms_SteadyDown : TON_10ms;
+	ton_10ms_SettleInLU : TON_10ms;
+	timerAlarm : TON_10ms;
+	switchFault : BOOL;
+	step : UINT;
+	releaseValid : BOOL;
+	pls : BOOL;
+	o_steadyCylinders : BOOL;
+	o_openBuffer : BOOL;
+	o_moveCompressorDown : BOOL;
+	myZone : UINT;
+	mySeq : UINT;
+	myOutBag : UINT;
+	myLU : UINT;
+	myIO : UINT;
+	myBuffBag : UINT;
+	myBag : UINT;
+	lu_Enabled : BOOL;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	i_compressorAtTop : ARRAY[0..2] OF BOOL;
+	i_compress : BOOL;
+	i_bufferOutOpen : ARRAY[0..2] OF BOOL;
+	i_bagInLoadingUnit : ARRAY[0..2] OF BOOL;
+	i_bagAtBufferOut : ARRAY[0..2] OF BOOL;
+	i_bagAtBuffer : ARRAY[0..2] OF BOOL;
+	compressorUp : BOOL;
+	compress : BOOL;
+	bufferSettleTime : UINT;
+	myReportStn : UINT;
+	myBelt : UINT;
+	myCan : UINT;
+	unloadFinished : BOOL;
+	ton_10ms_LuClear : TON_10ms;
+	ton_10ms_SettledBuffer : TON_10ms;
+	ton_10ms_CompressCheck : TON_10ms;
+	ton_10ms_CompressDown : TON_10ms;
+	ton_10ms_CompressorCheck : TON_10ms;
+	myPrg : USINT;
+	myCat : UDINT;
+	myCus : UDINT;
+	myWgt : UINT;
+	myMis : UDINT;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	bag_buff : REFERENCE TO Bag_typ;
+	can : REFERENCE TO CAN_Vars;
+	o_releaseBag : BOOL := 0;
+END_VAR

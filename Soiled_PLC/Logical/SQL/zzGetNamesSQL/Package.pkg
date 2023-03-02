@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.1.214?>
+<Package Version="3.00.0" xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File" Description="Global data types">zzGetNameSQL.typ</Object>
+    <Object Type="File" Description="Global variables">zzGetNameSQL.var</Object>
+    <Object Type="Program" Language="IEC" Description="Get Names for Display">zzGetNameSQL</Object>
+  </Objects>
+</Package>

@@ -1,0 +1,10 @@
+{
+  global:
+    fileReadWrite;
+    fileToDatObj;
+    fileToMem;
+    FileCopyFromDev;
+    WriteXMLFromStructure;
+  local:
+    *;
+ };

@@ -1,0 +1,349 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------------------
+;Sequence 8 - SVC1 Vertical conveyor 1 D[908]
+;--------------------------------------------
+
+;Inputs
+I_CarrAtTop				= X[3].X01
+I_CarrAtBottom			= X[3].X02
+I_CarrAtEmtyBagIn       = X[3].X03
+I_CarrAtEmptyBagOut     = X[3].X04
+I_BagOnCarr				= X[3].X05
+I_FullBagReleased	    = X[3].X07
+I_EmptyBagReleased	    = X[8].X06
+
+I_FullBagAtBuffer		= X[3].X06
+I_WeighBeamOverRide     = X[5].X12
+
+O_OpenBuffer				= FALSE
+O_MoveCarrUp				= FALSE 
+O_MoveCarrDownToBottom		= FALSE 
+O_MoveCarrDownToEmptyIn 	= FALSE
+O_MoveCarrDownToEmptyBagOut = FALSE
+O_OpenCarrStop				= FALSE 
+OpenBufferStop              = FALSE
+
+Request.SVCEmptyBag[1]		= FALSE ;request to SP7
+Request.SVCFullBag[1]       = FALSE ;request to SVC2
+
+Alarm[8].Name 			= 0
+Alarm[8].Bag			= 294
+Alarm[8].Beacon			= FALSE
+Alarm[8].Extra			= 0
+Alarm[8].Time			= 3000
+
+;Setup Sequence
+STEP = D[908]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Move carriage down to Empty IN
+IF (STEP = 1) THEN
+	O_MoveCarrDownToEmptyIn = NOT I_CarrAtEmtyBagIn
+	IF I_CarrAtEmtyBagIn THEN
+		D[908] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check Status
+IF (STEP = 2) THEN
+	IF (NOT I_BagOnCarr AND (Bag[294].Cat = 0) AND NOT I_CarrAtTop) THEN 
+		D[908] = 3
+	ENDIF
+	IF (Bag[294].Cat > 0) THEN
+		Alarm[8].Name = almBagDataError
+	ELSE IF I_BagOnCarr OR I_CarrAtTop THEN
+		Alarm[8].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;Check opreation mode
+IF (STEP = 3) THEN
+	Request.SVCEmptyBag[1] = TRUE ;request bto SP7
+	
+	IF Enable.SVCEmptyBag[1] AND NOT Std.HaltSys THEN
+		D[908] = 4
+	ENDIF
+	IF (NoEmptyBag AND BagSettledAtStop AND (C[30] = 2)) THEN
+		D[908] = 9  ;if no bag at buffer and full bag at buffer below then go and get
+	ENDIF
+ENDIF
+
+;wait for bag to arrive from SP7
+IF (STEP = 4) THEN
+	Request.SVCEmptyBag[1] = TRUE
+	IF I_BagOnCarr THEN
+		D[908] = 5
+	ENDIF
+	Alarm[8].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle on carriage
+TON_10ms(I_BagOnCarr,20,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 5) THEN
+
+	IF BagSettledOnCarr THEN
+		D[908] = 6
+	ENDIF
+	Alarm[8].Name = almBagNotSettled
+ENDIF
+
+;Move Carriage down to empty out position
+IF (STEP = 6) THEN
+	O_MoveCarrDownToEmptyBagOut = NOT I_CarrAtEmptyBagOut
+	IF I_CarrAtEmptyBagOut THEN
+		D[908] = 7
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check if buffer is clear
+IF (STEP = 7) THEN
+	IF NOT Std.HaltSys THEN
+		IF NOT Y[8].Y06 AND NOT I_EmptyBagReleased AND Line[29].Clear THEN ;check low level empty buffer is clear
+			D[908] = 8
+		ENDIF
+	ENDIF
+	;IF I_BagReleased THEN
+	;Alarm[8].Name = almSwitchFault
+	;ENDIF
+ENDIF
+
+;Open carriage stop let empty bag out
+IF (STEP = 8) THEN
+	O_OpenCarrStop = I_CarrAtEmptyBagOut
+	IF PLS THEN
+		C[29] 	= 0
+	ENDIF
+	
+	IF (PLS AND (D[903] = 1)) THEN
+		D[903] = 2
+	ENDIF
+	
+	IF I_EmptyBagReleased THEN
+		D[908] 	= 9
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almBagNotReleased
+	ENDIF
+ENDIF
+
+;Check Middle position switch
+IF (STEP = 9) THEN
+	IF (NOT I_FullBagAtBuffer AND (Bag[292].Cat = 0) AND NOT I_BagOnCarr) THEN
+		D[908] = 19
+	ENDIF
+	
+	IF NOT I_CarrAtBottom THEN
+		D[908] = 10
+	ENDIF
+	Alarm[8].Name = almSwitchFault
+ENDIF
+
+
+;move down to full bag in
+IF (STEP = 10) THEN
+	O_MoveCarrDownToBottom = NOT I_CarrAtBottom
+	IF  I_CarrAtBottom THEN
+		D[908] = 11
+	ENDIF
+	Alarm[8].Name = almSwitchFault
+ENDIF
+
+;Calculate weight
+AI351RAW_02
+SVCRaw = DINT(AI351RAW_01)
+SVCRaw = (SVCRaw * 1000) ;2000
+IF (SVCRaw > 0) THEN
+	weighbeambag = INT(SVCRaw / 32767)
+ELSE
+	weighbeambag = 0
+ENDIF
+IF (Bag[292].Cat > 0) AND (D32[120] <>Bag[292].Cat ) THEN
+			D32[120] := Bag[292].Cat
+ENDIF
+
+;Over Weight
+IF ((weighbeambag > D32[125]) AND NOT I_WeighBeamOverRide AND (STEP = 11)) THEN
+	OverWeight = TRUE
+	D[81] = 1
+ELSE
+	OverWeight = FALSE
+	D[81] = 0
+ENDIF
+
+Bag[370].Cat = 1
+Bag[370].Wgt = weighbeambag
+
+
+OVERLOAD = uint(D32[125]);Over weight SP3
+LowWeight= uint(D32[123]) ;SP1
+
+UnderWeight = (weighbeambag <(D32[123]));Under weight 
+
+;Full Bag at buffer stop
+TON_10ms(I_FullBagAtBuffer AND (Bag[292].Cat > 0),300,BagSettledAtStop,BagSettledAtStopET)
+IF (STEP = 11) THEN
+	TON_10ms(NOT OverWeight,100,WeightOK,WeightOKET)
+	IF BagSettledAtStop AND NOT I_BagOnCarr  THEN
+		IF (weighbeambag <(D32[123])) AND WeightOK OR I_WeighBeamOverRide THEN
+			IF UnderWeight THEN
+				ReportLoading[17].Cat = UINT(Bag[292].Cat)	;Category
+					ReportLoading[17].Cus = Bag[292].Cus			;Customer
+					ReportLoading[17].Wgt = UINT(Bag[370].Wgt)		;Weight
+					ReportLoading[17].Cnt = 17						;Count
+					ReportLoading[17].Stn = 17        				;Station
+					ReportLoading[17].Mcn = 17						;Machine
+			ENDIF											
+			D[908] = 12
+		ELSE IF UnderWeight THEN
+			Alarm[8].Time = 10
+			Alarm[8].Bag				= 292
+			Alarm[8].Name = almBagDataError
+			;D[82] = 1
+		
+		ELSE
+			Alarm[8].Time = 10
+			Alarm[8].Bag				= 292
+			;Alarm[8].Name = almBagOverWeight
+			;D[82] = 0
+		ENDIF
+	
+	ENDIF
+	
+	
+	IF I_BagOnCarr THEN
+		Alarm[8].Name = almSwitchFault
+	ELSE IF OverWeight THEN
+		Alarm[8].Time = 10
+		Alarm[8].Bag				= 292
+		Alarm[8].Name = almBagOverWeight
+	ENDIF
+ENDIF
+
+;Open buffer stop
+IF (STEP = 12) THEN
+	OpenBufferStop = I_CarrAtBottom
+	IF ((Bag[292].Cat > 0) AND (Bag[293].Cat = 0)) THEN
+		Bag[293] = Bag[292]
+		Bag[292] = Bag[0]
+	ENDIF
+	
+	IF I_BagOnCarr THEN
+		Bag[294] = Bag[293]
+		Bag[293] = Bag[0]
+		D[908] = 13
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almBagNotReleased
+	ENDIF
+ENDIF
+
+;Bag settles on carriage
+IF (STEP = 13) THEN
+	IF BagSettledOnCarr THEN
+		D[908] = 14
+	ENDIF
+ENDIF
+
+;check status 	
+IF (STEP = 14) THEN
+	IF NOT I_CarrAtTop THEN
+		D[908] = 15
+	ENDIF
+ENDIF
+
+;move carriage up
+IF STEP = 15 THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtTop AND NOT Enable.SVCFullBag[1] THEN
+		D[908] = 16
+	ENDIF
+ENDIF
+
+;request a bag to SVC2 
+IF (STEP = 16) THEN
+	
+		Request.SVCFullBag[1] = TRUE
+	IF (Enable.SVCFullBag[1] AND NOT I_FullBagReleased AND (Bag[295].Cat = 0)) THEN
+		C[14]  = 0
+		D[908] = 17
+	ENDIF
+ENDIF
+
+;open carriage stop
+IF (STEP = 17) THEN
+	O_OpenCarrStop = I_CarrAtTop
+	IF PLS THEN
+		C[14] = 0
+	ENDIF
+	
+	IF ((Bag[294].Cat > 0) AND (Bag[295].Cat = 0)) THEN
+		Bag[295] = Bag[294]
+		Bag[294] = Bag[0]
+	ENDIF
+		
+	IF Line[14].Clear AND NOT PLS THEN
+		D[908] = 18
+	ENDIF
+ENDIF
+
+;Check status
+IF STEP = 18 THEN
+	IF NOT I_CarrAtEmtyBagIn THEN
+		D[908] = 1
+	ENDIF
+ENDIF
+
+;Go to top
+IF STEP = 19 THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtTop THEN
+		D[908] = 1
+	ENDIF
+ENDIF
+
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[8].Name > 0)
+TimerAlarm.PT 	= Alarm[8].Time
+TimerAlarm FUB TON_10ms()
+Alarm[8].On 	= TimerAlarm.Q
+Alarm[8].ET 	= TimerAlarm.ET
+
+
+;PLC Outputs
+;-----------
+Y[12].Y01 		= (O_MoveCarrUp 	AND NOT I_CarrAtTop)
+Y[12].Y02 		= (O_MoveCarrDownToEmptyIn OR O_MoveCarrDownToBottom  OR O_MoveCarrDownToEmptyBagOut)
+;Y[12].Y03 		= O_MoveCarrDownToEmptyBagOut
+
+Y[12].Y04 		= O_OpenCarrStop
+Y[3].Y06        = OpenBufferStop
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[12].Y01 = TRUE
+YForceDisable[12].Y02 = TRUE
+YForceDisable[12].Y04 = TRUE
+YForceDisable[12].Y05 = TRUE
+
+
+
+
+END_PROGRAM
+

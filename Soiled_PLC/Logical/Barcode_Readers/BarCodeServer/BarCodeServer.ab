@@ -1,0 +1,307 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: CognexTCP
+ * File: CognexTCP.ab
+ * Author: treamsbottom
+ * Created: February 19, 2015
+ ********************************************************************
+ * Implementation of program CognexTCP
+ ********************************************************************)
+
+
+
+
+PROGRAM _INIT
+	
+	
+LOOP n = 1 TO READER_MAX_DEVICES DO	
+	BarcodeReader[n].SocketState = eTCPResetPower
+ENDLOOP
+CloseAllConnections = TRUE
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+LOOP n = 1 TO READER_MAX_DEVICES DO	
+	BarcodeReader[n].interface.read = FALSE	
+ENDLOOP
+
+;IF CloseAllConnections THEN
+;	CloseAllOpenPort.Enable = TRUE
+;	CloseAllOpenPort FUB CloseAllOpenTCPIdents()
+;	IF (CloseAllOpenPort.Status = ERR_OK) OR (CloseAllOpenPort.Status <> ERR_FUB_BUSY)  THEN
+;		LOOP n = 1 TO READER_MAX_DEVICES DO
+;			TCP_OpenPort_ident[n] = 0
+;			BarcodeReader[n].SocketState = eTCPConnect		
+;		ENDLOOP
+;		CloseAllConnections = FALSE
+;	ENDIF	
+;ENDIF	
+
+LOOP b = 1 TO READER_MAX_DEVICES DO			
+	
+	IF TestScanner = 0 THEN
+		n = b		
+	ELSE
+		n = TestScanner
+	ENDIF
+	
+	BarcodeReader[n].interface.power = (BarcodeReader[n].SocketState <> eTCPResetPower)	
+		
+	TON_Idle_TimeOut[n].IN = (BarcodeReader[n].SocketState = eTCPResetPower)
+	TON_Idle_TimeOut[n].PT = 100	
+	TON_Idle_TimeOut[n] FUB TON_10ms()	
+	
+		
+		
+	TON_Connection_TimeOut[n].IN = (BarcodeReader[n].SocketState = eTCPConnectToClient) AND (TCP_OpenPort_ident[n] > 0)
+	TON_Connection_TimeOut[n].PT = 6000	
+	TON_Connection_TimeOut[n] FUB TON_10ms()	
+	IF TON_Connection_TimeOut[n].Q THEN
+		BarcodeReader[n].SocketState = eTCPDisconnect	
+	ENDIF	
+		
+	TON_SendTimeOut[n].IN = (BarcodeReader[n].SocketState = eTCPSend)
+	TON_SendTimeOut[n].PT = 100	
+	TON_SendTimeOut[n] FUB TON_10ms()	
+	
+	BarcodeReader[n].send_TimeOut = TON_SendTimeOut[n].Q	
+	
+		
+	TON_ReaderNotConnected[n].IN = 	(BarcodeReader[n].SocketState <> eTCPRead) AND (BarcodeReader[n].SocketState <> eTCPSend) AND (BarcodeReader[n].SocketState <> eTCPWaitForCmd)
+	TON_ReaderNotConnected[n].PT = 500
+	TON_ReaderNotConnected[n] FUB TON_10ms()
+	
+		
+	IF (BarcodeReader[n].RetryFailCount > 0) THEN
+		BarcodeReader[n].read_Fail = ((BarcodeReader[n].read_TryCount >= BarcodeReader[n].RetryFailCount) OR TON_ReaderNotConnected[n].Q)	
+	ELSE
+		BarcodeReader[n].read_Fail = TON_ReaderNotConnected[n].Q
+	ENDIF		
+	
+	CASE BarcodeReader[n].SocketState OF
+		
+		ACTION eTCPDisconnect:
+			
+			;Close Server connection not port connection	
+			TCP_Close[n].enable = (TCP_OpenPort_ident[n] > 0)
+			TCP_Close[n].how = 0
+			TCP_Close[n].ident = TCP_OpenPort_ident[n]
+			TCP_Close[n] FUB TcpClose()	
+			IF (TCP_OpenPort_ident[n] = 0) THEN
+				BarcodeReader[n].SocketState = eTCPConnect
+			ELSE IF TCP_Close[n].status = ERR_OK THEN
+				TCP_OpenPort_ident[n] = 0		
+				BarcodeReader[n].SocketState = eTCPConnect
+			ELSE IF TCP_Close[n].status <> ERR_FUB_BUSY THEN
+				IF (TCP_OpenPort_ident[n] = 0) THEN
+					BarcodeReader[n].SocketState = eTCPConnect
+				ELSE
+					BarcodeReader[n].LastErrorState = eTCPDisconnect
+					BarcodeReader[n].LastError = TCP_Close[n].status	
+					BarcodeReader[n].SocketState = eTCPError	
+				ENDIF			
+			ENDIF		
+		ENDACTION
+		
+		;
+		ACTION eTCPConnect:
+			TCP_Connect[n].enable = (TCP_OpenPort_ident[n] = 0) ; Check if port is already open.. if so do not re-open.
+			TCP_Connect[n].options = tcpOPT_REUSEADDR
+			TCP_Connect[n].pIfAddr = ADR(BarcodeReader[n].IPAddress)
+			TCP_Connect[n].port	= 0;READER_TCP_PORT
+			TCP_Connect[n] FUB TcpOpen()
+			IF (TCP_OpenPort_ident[n] > 0) THEN
+				BarcodeReader[n].SocketState = eTCPDisconnect
+			ELSE IF (TCP_Connect[n].status = ERR_OK) AND (TCP_Connect[n].ident > 0) THEN					
+				TCP_OpenPort_ident[n] = TCP_Connect[n].ident	
+				BarcodeReader[n].SocketState = eTCPConnectToClient	
+			ELSE IF TCP_Connect[n].status <> ERR_FUB_BUSY THEN
+				BarcodeReader[n].LastErrorState = eTCPConnect		
+				BarcodeReader[n].LastError = TCP_Connect[n].status
+				BarcodeReader[n].SocketState = eTCPError
+			ENDIF	
+					
+		ENDACTION
+	   	
+		ACTION eTCPConnectToClient:
+			
+			TCP_Client[n].enable = (TCP_OpenPort_ident[n] > 0)
+			TCP_Client[n].ident = TCP_OpenPort_ident[n]	
+			TCP_Client[n].portserv = READER_TCP_PORT	
+			TCP_Client[n].pServer = ADR(BarcodeReader[n].IPAddress)
+			TCP_Client[n] FUB TcpClient()
+			IF TCP_Client[n].status = ERR_OK THEN
+				BarcodeReader[n].SocketState = eTCPWaitForCmd
+				INC GOTOCmd[n]
+			ELSE IF TCP_Client[n].status = tcpERR_INVALID THEN
+				//SCANNER IS IN ERROR AND NEEDS RESTART.
+				BarcodeReader[n].SocketState = eTCPResetPower	
+			ELSE IF TCP_Client[n].status = tcpERR_PARAMETER THEN
+				;Connection is not correctly configured. Do Nothing
+			ELSE IF TCP_Client[n].status = ERR_FUB_ENABLE_FALSE THEN
+				INC TestCount[n]
+				BarcodeReader[n].SocketState = eTCPConnect
+			ELSE IF TCP_Client[n].status <> ERR_FUB_BUSY THEN			
+				INC ErrorCount[n]
+				BarcodeReader[n].LastErrorState = eTCPConnectToClient
+				BarcodeReader[n].LastError = TCP_Client[n].status
+				BarcodeReader[n].SocketState = eTCPError
+			ENDIF
+		ENDACTION		
+			
+		ACTION eTCPSend:	
+	;		TCP_Send[n].enable = TRUE	
+	;		TCP_Send[n].flags = 0
+	;		TCP_Send[n].ident = TCP_OpenPort_ident[n]
+	;		TCP_Send[n].datalen = SIZEOF(BarcodeReader[n].SendData)	
+	;		TCP_Send[n].pData = ADR(BarcodeReader[n].SendData)
+	;		TCP_Send[n] FUB TcpSend()	
+	;		IF TCP_Send[n].status = ERR_OK THEN
+	;			BarcodeReader[n].SocketState = eTCPRead		
+	;			DebugSentBytes = TCP_Send[n].sentlen
+	;		ELSE IF TCP_Send[n].status <> ERR_FUB_BUSY THEN
+	;			BarcodeReader[n].LastError = TCP_Send[n].status
+	;			BarcodeReader[n].SocketState = eTCPError	 
+	;		ENDIF	
+				
+			BarcodeReader[n].interface.read = TRUE
+			IF BarcodeReader[n].interface.result_Good THEN
+				BarcodeReader[n].cmd = 0	 ; Clear the command. if bad read then retry after reading the fail message over TCP
+				BarcodeReader[n].SocketState = eTCPRead		
+			ELSE IF BarcodeReader[n].interface.result_Bad THEN
+				INC BarcodeReader[n].read_TryCount
+					
+				BarcodeReader[n].SocketState = eTCPRead		
+			ELSE IF BarcodeReader[n].send_TimeOut THEN
+				BarcodeReader[n].SocketState = eTCPRead		
+			ENDIF						
+		ENDACTION	
+			
+		//Need to add code to ensure buffer is clear on 1st read!..USE TCP IOCTL TO check buffer size....	
+		ACTION eTCPRead:
+			TCP_Read[n].enable = TRUE
+			TCP_Read[n].datamax = SIZEOF(BarcodeReader[n].RecieveData)
+			TCP_Read[n].flags = 0
+			TCP_Read[n].ident = TCP_OpenPort_ident[n]	
+			TCP_Read[n].pData = ADR(BarcodeReader[n].RecieveData)	
+			TCP_Read[n] FUB TcpRecv()
+			IF TCP_Read[n].status = ERR_OK THEN			
+				
+					
+				BarcodeReader[n].RecieveData = LEFT(BarcodeReader[n].RecieveData,INT(TCP_Read[n].recvlen))	
+				
+				BarcodeReader[n].NoDataRecv_TimeOut = 0 
+				BarcodeReader[n].Resend_Count = 0	
+						
+				IF (BarcodeReader[n].cmd = 0) AND (TCP_Read[n].recvlen <= 8) THEN ; Good Read Decode	
+					;Get PLC Value				
+					tempString = LEFT(BarcodeReader[n].RecieveData,2)	 	
+					BarcodeReader[n].decoded_Data.PLCStn = UINT(atoi(ADR(tempString)))	
+					
+					tempString = MID(BarcodeReader[n].RecieveData,1,3)	 	
+				 	memcpy(ADR(ascii),ADR(tempString),1)
+					IF ascii = READER_COLOUR_BLUE.ascii THEN
+						BarcodeReader[n].decoded_Data.Colour = READER_COLOUR_BLUE.value 	
+					ELSE IF ascii = READER_COLOUR_RED.ascii THEN
+						BarcodeReader[n].decoded_Data.Colour = READER_COLOUR_RED.value 	
+					ELSE IF ascii = READER_COLOUR_GREEN.ascii THEN
+						BarcodeReader[n].decoded_Data.Colour = READER_COLOUR_GREEN.value 	
+					ELSE
+						BarcodeReader[n].decoded_Data.Colour = 99 ; ERROR
+					ENDIF		
+					tempString = DELETE(BarcodeReader[n].RecieveData,4,0)	 	
+					;tempString = MID(BarcodeReader[n].RecieveData,4,5)
+					BarcodeReader[n].decoded_Data.BagNumber = UINT(atoi(ADR(tempString)))	
+					
+					BarcodeReader[n].read_Complete = TRUE	
+					BarcodeReader[n].SocketState = eTCPWaitForCmd	
+				ELSE IF (BarcodeReader[n].cmd = 0) THEN
+					INC DebugCount_ReadLength_Too_Large[n]
+					strcpy(ADR(BarcodeReader[n].RecieveData),"")	
+					BarcodeReader[n].cmd = cTelNet_cmd_CLEAR_READ_BUFFER // Read Data again until data buffer is empty then try again
+				ELSE IF (BarcodeReader[n].cmd = cTelNet_cmd_CLEAR_READ_BUFFER ) THEN
+					//Do not go to send. Wait until Databuffer is emtpy	
+					strcpy(ADR(BarcodeReader[n].RecieveData),"")
+					INC DebugCount[n]
+				ELSE
+					IF BarcodeReader[n].req_Read THEN
+						BarcodeReader[n].SocketState = eTCPSend
+					ELSE
+						BarcodeReader[n].SocketState = eTCPWaitForCmd	
+					ENDIF		
+				ENDIF		
+			ELSE IF TCP_Read[n].status = tcpERR_NO_DATA THEN		
+			;WAIT
+				IF (BarcodeReader[n].cmd = 0) THEN ; Wait for Data,
+	;				BarcodeReader[n].SocketState = eTCPWaitForCmd
+	;				BarcodeReader[n].NoDataRecv_TimeOut = 0
+	;				BarcodeReader[n].Resend_Count = 0		
+					IF (BarcodeReader[n].NoDataRecv_TimeOut < $FFFF) THEN
+						INC BarcodeReader[n].NoDataRecv_TimeOut	
+					ENDIF
+				ELSE IF (BarcodeReader[n].cmd = cTelNet_cmd_CLEAR_READ_BUFFER ) THEN
+					strcpy(ADR(BarcodeReader[n].RecieveData),"")// Make sure the recieve buffer is empty. ?? TCPRECV only memcopies the data recieved so we can get extra characters????
+					BarcodeReader[n].cmd = cTelNet_cmd_TRIGGER_ON		
+					BarcodeReader[n].SocketState = eTCPSend	
+				ELSE IF (BarcodeReader[n].NoDataRecv_TimeOut < $FFFF) THEN
+					INC BarcodeReader[n].NoDataRecv_TimeOut	
+				ENDIF
+				IF BarcodeReader[n].NoDataRecv_TimeOut > READER_TCP_TIMEOUT THEN
+					BarcodeReader[n].NoDataRecv_TimeOut = 0	
+					INC BarcodeReader[n].Resend_Count 	
+					IF (BarcodeReader[n].Resend_Count > READER_MAX_RESEND_COUNT) THEN
+						BarcodeReader[n].SocketState = eTCPDisconnect
+					ELSE		
+						strcpy(ADR(BarcodeReader[n].RecieveData),"")
+						BarcodeReader[n].SocketState = eTCPSend 
+					ENDIF
+				ENDIF		
+			ELSE IF TCP_Read[n].status <> ERR_FUB_BUSY THEN
+				BarcodeReader[n].LastErrorState = eTCPRead	
+				BarcodeReader[n].LastError = TCP_Read[n].status
+				BarcodeReader[n].SocketState = eTCPError	
+			ENDIF		
+				
+		ENDACTION	
+			
+		ACTION eTCPIoctl:	
+		
+		ENDACTION
+		
+		ACTION eTCPError:		
+			BarcodeReader[n].SocketState = eTCPDisconnect	
+		ENDACTION		
+	
+		ACTION eTCPWaitForCmd:	; Idle state waiting for data to send..
+			BarcodeReader[n].read_TryCount = 0
+			IF (BarcodeReader[n].req_Read AND NOT BarcodeReader[n].read_Complete) THEN;Wait for request from task..
+				BarcodeReader[n].cmd = cTelNet_cmd_CLEAR_READ_BUFFER
+				strcpy(ADR(BarcodeReader[n].RecieveData),"");Clear Data buffer ready to recive new data					
+				BarcodeReader[n].decoded_Data = READER_EMPTY_DATA
+				BarcodeReader[n].Resend_Count = 0
+				BarcodeReader[n].NoDataRecv_TimeOut = 0
+				BarcodeReader[n].SocketState = eTCPRead ;eTCPSend ; GOTO Read first to clear any data in the reader buffer..	
+			ELSE	
+				BarcodeReader[n].cmd = 0	
+			ENDIF	
+		ENDACTION		
+		
+		ACTION eTCPResetPower:	
+			IF TON_Idle_TimeOut[n].Q THEN
+				IF (TCP_OpenPort_ident[n] = 0) THEN
+					BarcodeReader[n].SocketState = eTCPConnect
+				ELSE		
+					BarcodeReader[n].SocketState = eTCPDisconnect
+				ENDIF		
+			ENDIF		
+		ENDACTION
+	
+	ENDCASE	
+	BarcodeReader[n].interface.airBlast = (BarcodeReader[n].read_TryCount > 10)	
+		
+ENDLOOP
+
+
+END_PROGRAM

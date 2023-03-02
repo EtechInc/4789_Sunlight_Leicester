@@ -1,0 +1,19 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Library: TelNet
+ * File: TelNet.var
+ * Author: treamsbottom
+ * Created: February 20, 2015
+ ********************************************************************
+ * Constants of library TelNet
+ ********************************************************************)
+VAR CONSTANT
+	READER_TCP_PORT : UINT := 50010;
+	READER_MAX_DATA : UINT := 256;
+	READER_TCP_TIMEOUT : UDINT := 10; (*in scan counts...10ms*)
+	READER_MAX_DEVICES : USINT := 3;
+	READER_MAX_RESEND_COUNT : USINT := 20; (*Max count of retry sending data before we reconnect on tcp*)
+	READER_EMPTY_DATA : ReaderDecodeData_typ := (PLCStn:=0,Colour:=0,BagNumber:=0);
+END_VAR
+(*Insert your comment here.*)

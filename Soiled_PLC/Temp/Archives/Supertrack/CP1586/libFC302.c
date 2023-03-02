@@ -1,0 +1,10 @@
+void FC302_WriteParam(void) {};
+void _FC302_WriteParam(void) {};
+void FC302_ReadSTW(void) {};
+void _FC302_ReadSTW(void) {};
+void FC302_WriteCTW(void) {};
+void _FC302_WriteCTW(void) {};
+void FC302_ReadParamTbl(void) {};
+void _FC302_ReadParamTbl(void) {};
+void FC302_ReadParam(void) {};
+void _FC302_ReadParam(void) {};

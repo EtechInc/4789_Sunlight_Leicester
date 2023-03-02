@@ -1,0 +1,74 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Library: DataBackUp
+ * File: FileWrite.ab
+ * Author: treamsbottom
+ * Created: March 24, 2014
+ ********************************************************************
+ * Implementation of library DataBackUp
+ ********************************************************************) 
+
+(* *Write to File. Create if it doesn;t exist *)
+FUNCTION_BLOCK CopyToFileDevice
+	
+IF Enable  THEN	
+	IF Status <> ERR_FUB_BUSY THEN	
+		WriteAction = eOpenFile
+		Status = ERR_FUB_BUSY		
+	ENDIF
+ENDIF	
+	
+CASE WriteAction OF	
+	ACTION eOpenFile:
+		OpenFile.enable = TRUE
+		OpenFile.mode = fiWRITE_ONLY
+		OpenFile.pDevice = pDevice
+		OpenFile.pFile = pFile	
+		OpenFile FUB FileOpen()
+		IF OpenFile.status = ERR_OK THEN
+			WriteAction = eWriteToFile	
+			fiIdent = OpenFile.ident
+		ELSE IF OpenFile.status = fiERR_FILE_NOT_FOUND THEN	
+			WriteAction = eCreateFile
+		ELSE IF OpenFile.status <> ERR_FUB_BUSY THEN		
+			Status = OpenFile.status 
+		ENDIF		
+	ENDACTION
+	
+	ACTION eCreateFile:	
+		CreateFile.enable = TRUE
+		CreateFile.pDevice = pDevice
+		CreateFile.pFile = pFile	
+		CreateFile FUB FileCreate()
+		IF CreateFile.status = ERR_OK THEN
+			WriteAction = eWriteToFile	
+			fiIdent = CreateFile.ident	
+		ELSE IF CreateFile.status <> ERR_FUB_BUSY THEN		
+			Status = CreateFile.status
+		ENDIF		
+	ENDACTION
+	
+	ACTION eWriteToFile: 	
+		WriteFile.enable = TRUE	
+		WriteFile.ident = fiIdent	
+		WriteFile.len = fiLen
+		WriteFile.offset = 0
+		WriteFile.pSrc = pData	
+		WriteFile FUB FileWrite()
+		IF ((WriteFile.status = ERR_OK) OR (WriteFile.status <> ERR_FUB_BUSY)) THEN
+			WriteAction = eCloseFile		
+		ENDIF
+	ENDACTION	
+	
+	ACTION eCloseFile:	
+		CloseFile.enable = TRUE	
+		CloseFile.ident = fiIdent
+		CloseFile FUB FileClose()	
+		IF ((CloseFile.status = ERR_OK) OR (CloseFile.status <> ERR_FUB_BUSY)) THEN
+			Status = CloseFile.status		
+		ENDIF
+	ENDACTION			
+ENDCASE	
+	
+END_FUNCTION_BLOCK

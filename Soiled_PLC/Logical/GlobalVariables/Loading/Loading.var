@@ -1,0 +1,12 @@
+VAR
+	StnPrev : ARRAY[0..60] OF Bag_typ;
+	Ldg : ARRAY[0..4] OF Loading_Vars;
+	Stn : ARRAY[0..60] OF Stn_Vars;
+END_VAR
+VAR CONSTANT
+	MAX_WEIGHSTATIONS : UINT := 14;
+END_VAR
+VAR
+	AI351RAW_01 : INT;
+	AI351RAW_02 : INT;
+END_VAR

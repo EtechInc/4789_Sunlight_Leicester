@@ -1,0 +1,61 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myRelLine : UINT;
+	myBag : UINT;
+	i_bagAtBuffer : BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	o_openBuffer : BOOL;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	bufferSettleTime : UDINT;
+	myOutBag : UINT;
+	myBank : UINT;
+	ton_Reset : TON_10ms;
+	lineValid : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	waitTime : ARRAY[0..MAX_ROTASTATIONS] OF UDINT;
+	waitingLongest : ARRAY[0..2] OF UDINT;
+	o_reset : BOOL;
+	ton_SettledBuffer : TON_10ms;
+	bufferClear : BOOL;
+	myStn : UINT;
+	o_openStops : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	i_bagOnStnA : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	i_bagOnStnB : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	o_Rotate : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	StnBag : UINT;
+	ton_Rotate : TON_10ms;
+	o_openStopsRelease : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	i_pastStop : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	switchCheck : BOOL;
+	closeStop : ARRAY[0..MAX_ROTASTATIONS] OF BOOL;
+	bagAtBufferOut : BOOL;
+	bufferOutOpen : BOOL;
+	ton_FullBagTest : TON_10ms;
+	ton_FullBagTest2 : TON_10ms;
+	n : UINT;
+	myStnBag : UINT;
+	myBuffBag : UINT;
+	recieveValid : BOOL;
+	myInTransitBag : UINT;
+	queueTime : ARRAY[0..2] OF UDINT;
+	queueValid : ARRAY[0..2] OF BOOL;
+END_VAR

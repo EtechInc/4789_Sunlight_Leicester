@@ -1,0 +1,40 @@
+VAR RETAIN
+	I_BagAtBuffer	:BOOL;	
+	I_OnLineA	:BOOL;	
+	I_TiltA	:BOOL;	
+	I_TiltB	:BOOL;	
+	I_Bagout	:BOOL;	
+	O_OpenBufferStop	:BOOL;	
+	O_SelectLineA	:BOOL;	
+	O_SelectLineB	:BOOL;	
+	O_OpenStops	:BOOL;	
+	O_TiltCylinder	:BOOL;	
+	O_OperatePusher	:BOOL;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	STEP	:UINT;	
+	BagAtBufferET	:UDINT;	
+	BagAtBuffer	:BOOL;	
+	TiltDownET	:UDINT;	
+	TiltDown	:BOOL;	
+	TiltUpET	:UDINT;	
+	TiltUp	:BOOL;	
+	NotFullET	:UDINT;	
+	NotFull	:BOOL;	
+	RequirePusherET	:UDINT;	
+	Pushed	:BOOL;	
+	PushedET	:UDINT;	
+END_VAR
+
+
+VAR
+	BagAtTiltET	:TIME;	
+	BagAtTilt	:BOOL;	
+	PointReset	:BOOL;	
+	PointResetET	:TIME;	
+	TimerAlarm	:TON_10ms;	
+	SwtichesOk	:BOOL;	
+	Pusher	:BOOL;	
+	PusherET	:TIME;	
+	O_Pusher	:BOOL;	
+END_VAR

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Package" Description="Alarm Variables">Alarm</Object>
+    <Object Type="Package" Description="Bag Variables">Bag</Object>
+    <Object Type="Package" Description="Data Variables">Data</Object>
+    <Object Type="Package" Description="Sequence Request &amp; Enable Variables">Enable</Object>
+    <Object Type="Package" Description="IO Variables">IO</Object>
+    <Object Type="Package" Description="Line Status Variables">Line</Object>
+    <Object Type="Package" Description="Loading [Sorting Station] Variables">Loading</Object>
+    <Object Type="Package">Machine</Object>
+    <Object Type="Package" Description="Standard Variables">Std</Object>
+    <Object Type="Package" Description="Unloading Program Variables">Unloading</Object>
+    <Object Type="Package" Description="Batch ID Variables">BatchID</Object>
+    <Object Type="Package" Description="A package of related programs and data objects.">CustomerChange</Object>
+    <Object Type="Package">Global</Object>
+  </Objects>
+</Package>

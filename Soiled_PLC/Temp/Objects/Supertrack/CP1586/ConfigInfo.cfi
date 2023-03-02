@@ -1,0 +1,1129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version="4.10.2.37"?>
+<ConfigInfo xmlns="http://br-automation.co.at/AS/BuildInfo">
+  <TaskClass
+    Name="Cyclic#1" />
+  <TaskClass
+    Name="Cyclic#2">
+    <Task
+      Name="zzTC2str"
+      Disable="false"
+      Source="Sequences.10ms.Scan.zzTC2str"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\Scan\zzTC2str\zztc2str.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzTC2str\zztc2str.ab.var" />
+    </Task>
+    <Task
+      Name="zzGetTime"
+      Disable="false"
+      Source="Timestamp.zzGetTime"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzGetTime\zzGetTimeCyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Timestamp\zzGetTime\zzGetTime.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Timestamp\zzGetTime\zzGetTime.var" />
+    </Task>
+    <Task
+      Name="zzStd"
+      Disable="false"
+      Source="Sequences.10ms.zzStd"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzStd\zzstd.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzStd\zzstd.ab.var" />
+    </Task>
+    <Task
+      Name="zzEditBag"
+      Disable="false"
+      Source="Sequences.10ms.zzEditBag"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzEditBag\zzEditBag.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzEditBag\zzEditBag.ab.var" />
+    </Task>
+    <Task
+      Name="zzForceI"
+      Disable="false"
+      Source="Sequences.10ms.zzForceI"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzForceI\zzforcei.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzForceI\zzforcei.ab.var" />
+    </Task>
+    <Task
+      Name="zzConst"
+      Disable="false"
+      Source="Sequences.10ms.zzConst"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzConst\zzconst.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzConst\zzconst.ab.var" />
+    </Task>
+    <Task
+      Name="zzBagID"
+      Disable="false"
+      Source="Sequences.10ms.zzBagID"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzBagID\zzBagID.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzBagID\zzBagID.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzBagID\zzBagID.ab.var" />
+    </Task>
+    <Task
+      Name="zzTrip"
+      Disable="false"
+      Source="Sequences.10ms.zzTrip"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzTrip\zztrip.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzTrip\zztrip.ab.var" />
+    </Task>
+    <Task
+      Name="zzStnMix"
+      Disable="false"
+      Source="Sequences.10ms.zzStnMix"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzStnMix\zzstnmix.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzStnMix\zzstnmix.ab.var" />
+    </Task>
+    <Task
+      Name="zzBagShuff"
+      Disable="false"
+      Source="Sequences.10ms.zzBagShuffle"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzBagShuffle\zzbagsfl.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzBagShuff\zzbagsfl.ab.var" />
+    </Task>
+    <Task
+      Name="zzBITcal"
+      Disable="false"
+      Source="Sequences.10ms.zzBITcal"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzBITcal\zzbitcal.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzBITcal\zzbitcal.ab.var" />
+    </Task>
+    <Task
+      Name="zzStnSer"
+      Disable="false"
+      Source="Sequences.10ms.zzStnSer"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzStnSer\zzstnser.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzStnSer\zzstnser.ab.var" />
+    </Task>
+    <Task
+      Name="zzcp10ser"
+      Disable="false"
+      Source="Sequences.10ms.zzcp10ser"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzcp10ser\zzstnser.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzcp10ser\zzstnser.ab.var" />
+    </Task>
+    <Task
+      Name="zzStatus"
+      Disable="false"
+      Source="Sequences.10ms.zzStatus"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzStatus\zzstatus.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzStatus\zzstatus.ab.var" />
+    </Task>
+    <Task
+      Name="zzCusFIFO"
+      Disable="false"
+      Source="Sequences.10ms.zzCusFIFO"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzCusFIFO\zcusfifo.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzCusFIFO\zcusfifo.ab.var" />
+    </Task>
+    <Task
+      Name="0_sbelt"
+      Disable="true"
+      Source="Sequences.10ms.0_sbelt"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\0_sbelt\0_sbeltCyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\0_sbelt\0_sbeltInit.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\0_sbelt\0_sbelt.var" />
+    </Task>
+    <Task
+      Name="50_stns1_7"
+      Disable="false"
+      Source="Sequences.10ms.50_stns1_7"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\50_stns1_7\stnsa.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\50_stns1_7\stnsa.ab.var" />
+    </Task>
+    <Task
+      Name="50_stn8_14"
+      Disable="false"
+      Source="Sequences.10ms.50_stn8_14"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\50_stn8_14\stnsa.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\50_stn8_14\stnsa.ab.var" />
+    </Task>
+    <Task
+      Name="2_stb1B"
+      Disable="false"
+      Source="Sequences.10ms.2_stb1"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\2_stb1\belt.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\2_stb1B\beltCyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\2_stb1B\_setBeltTime.st.var" />
+    </Task>
+    <Task
+      Name="3_clu_1"
+      Disable="false"
+      Source="Sequences.10ms.3_clu_1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\3_clu_1\3_slu_1Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\3_clu_1\3_slu_1Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\3_clu_1\3_slu_1.var" />
+    </Task>
+    <Task
+      Name="4_pn"
+      Disable="false"
+      Source="Sequences.10ms.4_pn"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\4_pn\x_pn.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\4_pn\x_pn.ab.var" />
+    </Task>
+    <Task
+      Name="5_pf"
+      Disable="false"
+      Source="Sequences.10ms.5_pf"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\5_pf\pf1.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\5_pf\pf1.ab.var" />
+    </Task>
+    <Task
+      Name="6_sdc1"
+      Disable="false"
+      Source="Sequences.10ms.6_sdc1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\6_sdc1\6_sdc1Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\6_sdc1\6_sdc1Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\6_sdc1\6_sdc1.var" />
+    </Task>
+    <Task
+      Name="7_sdc2"
+      Disable="false"
+      Source="Sequences.10ms.7_sdc2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\7_sdc2\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\7_sdc2\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\7_sdc2\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="8_sdc3"
+      Disable="false"
+      Source="Sequences.10ms.8_sdc3"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\8_sdc3\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\8_sdc3\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\8_sdc3\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="9_sdc4"
+      Disable="false"
+      Source="Sequences.10ms.9_sdc4"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\9_sdc4\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\9_sdc4\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\9_sdc4\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="10_sdc5"
+      Disable="false"
+      Source="Sequences.10ms.10_sdc5"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\10_sdc5\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\10_sdc5\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\10_sdc5\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="11_sdc6"
+      Disable="false"
+      Source="Sequences.10ms.11_sdc6"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\11_sdc6\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\11_sdc6\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\11_sdc6\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="12_sdc7"
+      Disable="false"
+      Source="Sequences.10ms.12_sdc7"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\12_sdc7\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\12_sdc7\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\12_sdc7\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="13_sdc8"
+      Disable="false"
+      Source="Sequences.10ms.13_sdc8"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\13_sdc8\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\13_sdc8\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\13_sdc8\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="14_sdc9"
+      Disable="false"
+      Source="Sequences.10ms.14_sdc9"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\14_sdc9\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\14_sdc9\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\14_sdc9\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="15_cbc1"
+      Disable="false"
+      Source="Sequences.10ms.15_cbc1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\15_cbc1\7_sdc2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\15_cbc1\7_sdc2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\15_cbc1\7_sdc2.var" />
+    </Task>
+    <Task
+      Name="16_cic1"
+      Disable="false"
+      Source="Sequences.10ms.16_cic1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\16_cic1\ic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\16_cic1\ic.var" />
+    </Task>
+    <Task
+      Name="17_cic2"
+      Disable="false"
+      Source="Sequences.10ms.17_cic2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\17_cic2\ic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\17_cic2\ic.var" />
+    </Task>
+    <Task
+      Name="18_cic3"
+      Disable="false"
+      Source="Sequences.10ms.18_cic3"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\18_cic3\ic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\18_cic3\ic.var" />
+    </Task>
+    <Task
+      Name="19_cic4"
+      Disable="false"
+      Source="Sequences.10ms.19_cic4"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\19_cic4\ic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\19_cic4\ic.var" />
+    </Task>
+    <Task
+      Name="20_cp1"
+      Disable="false"
+      Source="Sequences.10ms.20_cp17"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\20_cp1\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\20_cp1\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\20_cp17\12_sp2.var" />
+    </Task>
+    <Task
+      Name="21_cpi1"
+      Disable="false"
+      Source="Sequences.10ms.21_cpi1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\21_cpi1\pic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\21_cpi1\pic.var" />
+    </Task>
+    <Task
+      Name="22_cpi2"
+      Disable="false"
+      Source="Sequences.10ms.22_cpi2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\22_cpi2\pic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\22_cpi2\pic.var" />
+    </Task>
+    <Task
+      Name="23_cpi3"
+      Disable="false"
+      Source="Sequences.10ms.23_cpi3"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\23_cpi3\pic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\23_cpi3\pic.var" />
+    </Task>
+    <Task
+      Name="24_cpi4"
+      Disable="false"
+      Source="Sequences.10ms.24_cpi4"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\24_cpi4\pic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\24_cpi4\pic.var" />
+    </Task>
+    <Task
+      Name="25_cvc1"
+      Disable="false"
+      Source="Sequences.10ms.25_cvc1"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\25_cvc1\7_svc1.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\25_cvc1\7_svc1Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\25_cvc1\7_svc1Cyclic.ab.var" />
+    </Task>
+    <Task
+      Name="26_cp3"
+      Disable="false"
+      Source="Sequences.10ms.26_cp3"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\26_cp3\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\26_cp3\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\26_cp3\12_sp2.var" />
+    </Task>
+    <Task
+      Name="27_cp17"
+      Disable="false"
+      Source="Sequences.10ms.27_cp17"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\27_cp17\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\27_cp17\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\27_cp17\12_sp2.var" />
+    </Task>
+    <Task
+      Name="28_cp16"
+      Disable="false"
+      Source="Sequences.10ms.28_cp16"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\28_cp16\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\28_cp16\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\28_cp16\12_sp2.var" />
+    </Task>
+    <Task
+      Name="29_cp15"
+      Disable="false"
+      Source="Sequences.10ms.29_cp15"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\29_cp15\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\29_cp15\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\29_cp15\12_sp2.var" />
+    </Task>
+    <Task
+      Name="30_cp14"
+      Disable="false"
+      Source="Sequences.10ms.30_cp14"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\30_cp14\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\30_cp14\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\30_cp14\12_sp2.var" />
+    </Task>
+    <Task
+      Name="31_cp2"
+      Disable="false"
+      Source="Sequences.10ms.31_cp2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\31_cp2\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\31_cp2\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\31_cp2\12_sp2.var" />
+    </Task>
+    <Task
+      Name="32_clu_2"
+      Disable="false"
+      Source="Sequences.10ms.3_clu_2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\32_clu_2\3_slu_1Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\32_clu_2\3_slu_1Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\3_clu_2\3_slu_1.var" />
+    </Task>
+    <Task
+      Name="33_stb2_A"
+      Disable="false"
+      Source="Sequences.10ms.32_stb2"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\32_stb2\belt.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\33_stb2_A\beltCyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\33_stb2_A\_setBeltTime.st.var" />
+    </Task>
+    <Task
+      Name="34_cpi5"
+      Disable="false"
+      Source="Sequences.10ms.34_cpi5"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\34_cpi5\pic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\34_cpi5\pic.var" />
+    </Task>
+    <Task
+      Name="35_cic5"
+      Disable="false"
+      Source="Sequences.10ms.35_cic5"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\35_cic5\ic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\35_cic5\ic.var" />
+    </Task>
+    <Task
+      Name="36_cic6"
+      Disable="false"
+      Source="Sequences.10ms.36_cic6"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\36_cic6\ic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\36_cic6\ic.var" />
+    </Task>
+    <Task
+      Name="37_cpi6"
+      Disable="false"
+      Source="Sequences.10ms.37_cpi6"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\37_cpi6\pic.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\37_cpi6\pic.var" />
+    </Task>
+    <Task
+      Name="38_cp10"
+      Disable="false"
+      Source="Sequences.10ms.38_cp10"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\38_cp10\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\38_cp10\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\38_cp10\12_sp2.var" />
+    </Task>
+    <Task
+      Name="39_cpc1"
+      Disable="false"
+      Source="Sequences.10ms.39_cpc1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\39_cpc1\Standard_Sequence_PneumaticVC_V1.00.1_ENG.docx.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\39_cpc1\pc.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\39_cpc1\pc.var" />
+    </Task>
+    <Task
+      Name="40_cp4"
+      Disable="false"
+      Source="Sequences.10ms.40_cp4"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\40_cp4\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\40_cp4\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\40_cp4\12_sp2.var" />
+    </Task>
+    <Task
+      Name="41_cp8"
+      Disable="false"
+      Source="Sequences.10ms.41_cp8"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\41_cp8\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\41_cp8\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\41_cp8\12_sp2.var" />
+    </Task>
+    <Task
+      Name="42_cp9"
+      Disable="false"
+      Source="Sequences.10ms.42_cp9"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\42_cp9\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\42_cp9\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\42_cp9\12_sp2.var" />
+    </Task>
+    <Task
+      Name="43_cp12"
+      Disable="false"
+      Source="Sequences.10ms.43_cp12"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\43_cp12\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\43_cp12\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\43_cp12\12_sp2.var" />
+    </Task>
+    <Task
+      Name="44_cpr2"
+      Disable="false"
+      Source="Sequences.10ms.44_cpr2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\44_cpr2\Standard_Sequence_Pressure_Relief_ENG.docx.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\44_cpr2\pr.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\44_cpr2\pr.var" />
+    </Task>
+    <Task
+      Name="45_cpr3"
+      Disable="false"
+      Source="Sequences.10ms.45_cpr3"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\45_cpr3\Standard_Sequence_Pressure_Relief_ENG.docx.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\45_cpr3\pr.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\45_cpr3\pr.var" />
+    </Task>
+    <Task
+      Name="46_cpr4"
+      Disable="false"
+      Source="Sequences.10ms.46_cpr4"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\46_cpr4\Standard_Sequence_Pressure_Relief_ENG.docx.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\46_cpr4\pr.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\46_cpr4\pr.var" />
+    </Task>
+    <Task
+      Name="47_cpr1"
+      Disable="false"
+      Source="Sequences.10ms.47_cpr1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\47_cpr1\Standard_Sequence_Pressure_Relief_ENG.docx.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\47_cpr1\pr.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\47_cpr1\pr.var" />
+    </Task>
+    <Task
+      Name="48_cp6"
+      Disable="false"
+      Source="Sequences.10ms.48_cp6"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\48_cp6\12_sp2Init.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\48_cp6\12_sp2Cyclic.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\48_cp6\12_sp2.var" />
+    </Task>
+    <Task
+      Name="ssr"
+      Disable="false"
+      Source="Sequences.10ms.ssr"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\ssr\Standard Sequence Speed Reducer V1.00.1 ENG.docx.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\ssr\ssr.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\ssr\ssr.var" />
+    </Task>
+    <Task
+      Name="zzUld_4"
+      Disable="false"
+      Source="Sequences.10ms.zzUld_4"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzUld_4\zzuld_4.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzUld_4\zzuld_4.ab.var" />
+    </Task>
+    <Task
+      Name="zzUld_4a"
+      Disable="true"
+      Source="Sequences.10ms.zzUld_4a"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzUld_4a\zzuld_4.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzUld_4a\zzuld_4.ab.var" />
+    </Task>
+    <Task
+      Name="zzForceO"
+      Disable="false"
+      Source="Sequences.10ms.zzForceO"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzForceO\zzforceo.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzForceO\zzforceo.ab.var" />
+    </Task>
+    <Task
+      Name="zzIndi"
+      Disable="true"
+      Source="Sequences.10ms.zzIndi"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzIndi\zzindi.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzIndi\zzindiCyclic.ab.var" />
+    </Task>
+    <Task
+      Name="zzTCPIP"
+      Disable="false"
+      Source="Sequences.10ms.zzTCPIP"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzTCPIP\zztcpip.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzTCPIP\zztcpip.ab.var" />
+    </Task>
+    <Task
+      Name="zzIO"
+      Disable="false"
+      Source="Sequences.10ms.zzIO"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzIO\zzio.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzIO\zzio.ab.var" />
+    </Task>
+    <Task
+      Name="zzOk"
+      Disable="false"
+      Source="Sequences.10ms.zzOk"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\zzOk\zzok.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzOk\zzok.ab.var" />
+    </Task>
+    <Task
+      Name="zzDataStor"
+      Disable="false"
+      Source="Data_BackUp.zzDataStore"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzDataStor\zzDataStore.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Data_BackUp\zzDataStore\zzDataStore.var" />
+    </Task>
+    <Task
+      Name="zzTvText"
+      Disable="false"
+      Source="SQL.zzTvText"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzTvText\zzTvText.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\SQL\zzTvText\zzTvText.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\SQL\zzTvText\zzTvText.var" />
+    </Task>
+    <Task
+      Name="ServerPane"
+      Disable="false"
+      Source="Displays.ServerPanel"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\ServerPane\ServerPanel.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Displays\ServerPanel\ServerPanel.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Displays\ServerPanel\ServerPanel.var" />
+    </Task>
+    <Task
+      Name="Server"
+      Disable="false"
+      Source="Displays.Server"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\Server\Server.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Displays\Server\Server.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Displays\Server\Server.var" />
+    </Task>
+    <Task
+      Name="zzClientTe"
+      Disable="true"
+      Source="Displays.zzClientText"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzClientTe\Client.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Displays\zzClientText\Client.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Displays\zzClientText\Client.var" />
+    </Task>
+    <Task
+      Name="zzHttpDriv"
+      Disable="true"
+      Source="http_Lib.zzHttpDriver"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\http_Lib\zzHttpDriver\Types.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\http_Lib\zzHttpDriver\Variables.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzHttpDriv\Main.st.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzHttpDriv\_ringBuffer.st.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzHttpDriv\_addToRing.st.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzHttpDriv\_orderRing.st.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzHttpDriv\_httpComm.st.var" />
+    </Task>
+    <Task
+      Name="zzGetName1"
+      Disable="true"
+      Source="SQL.zzGetNamesSQL.zzGetNameSQL"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\SQL\zzGetNamesSQL\zzGetNameSQL\zzGetNames.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzGetName1\zzGetNames.ab.var" />
+    </Task>
+    <Task
+      Name="zzTC2end"
+      Disable="false"
+      Source="Sequences.10ms.Scan.zzTC2end"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\10ms\Scan\zzTC2end\zztc2end.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzTC2end\zztc2end.ab.var" />
+    </Task>
+  </TaskClass>
+  <TaskClass
+    Name="Cyclic#3">
+    <Task
+      Name="zzGetNames"
+      Disable="true"
+      Source="Sequences.zzGetNames"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\zzGetNames\zzGetNames.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzGetNames\zzGetNames.ab.var" />
+    </Task>
+  </TaskClass>
+  <TaskClass
+    Name="Cyclic#4">
+    <Task
+      Name="SafetyUI"
+      Disable="true"
+      Source="Safety.SafetyUI"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\SafetyUI\SafetyUI.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\SafetyUI\SafetyUI.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\SafetyUI\SafetyUI.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\SafetyUI\SafetyUI.fun" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\SafetyUI\itoahex.st.var" />
+    </Task>
+  </TaskClass>
+  <TaskClass
+    Name="Cyclic#5">
+    <Task
+      Name="HoistServe"
+      Disable="false"
+      Source="HoistLibrary.HoistServer"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\HoistServe\Main.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\HoistLibrary\HoistServer\Variables.var" />
+    </Task>
+    <Task
+      Name="AccessCont"
+      Disable="false"
+      Source="Safety.AccessControl"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\AccessCont\Main.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\AccessControl\Types.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\AccessControl\Variables.var" />
+    </Task>
+    <Task
+      Name="Safety"
+      Disable="true"
+      Source="Safety.Safety"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\Safety\Main.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\Safety\Types.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Safety\Safety\Variables.var" />
+    </Task>
+    <Task
+      Name="can_drv1"
+      Disable="false"
+      Source="Sequences.200ms.CAN.can_drv1"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\can_drv1\can_drv2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\can_drv1\can_drv2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\CAN\can_drv1\can_drv2.var" />
+    </Task>
+    <Task
+      Name="can_drv2"
+      Disable="false"
+      Source="Sequences.200ms.CAN.can_drv2"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\can_drv2\can_drv2Cyclic.ab.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\can_drv2\can_drv2Init.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\CAN\can_drv2\can_drv2.var" />
+    </Task>
+    <Task
+      Name="zzWeigh"
+      Disable="false"
+      Source="Sequences.200ms.zzWeigh"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\zzWeigh\zzweigh.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\zzWeigh\zzweigh.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzWeigh\zzweigh.ab.var" />
+    </Task>
+    <Task
+      Name="zzAlarms"
+      Disable="false"
+      Source="Sequences.200ms.zzAlarms"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\zzAlarms\zzalarms.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzAlarms\zzalarms.ab.var" />
+    </Task>
+    <Task
+      Name="zzReport"
+      Disable="false"
+      Source="Sequences.200ms.Reports.zzReport"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\Reports\zzReport\zzreport.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzReport\zzreport.ab.var" />
+    </Task>
+    <Task
+      Name="zzStn_Q"
+      Disable="false"
+      Source="Sequences.200ms.zzStn_Q"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\zzStn_Q\zzstn_q.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzStn_Q\zzstn_q.ab.var" />
+    </Task>
+    <Task
+      Name="zzTime"
+      Disable="false"
+      Source="Sequences.200ms.zzTime"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\zzTime\zztime.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzTime\zztime.ab.var" />
+    </Task>
+    <Task
+      Name="CAN_Live"
+      Disable="false"
+      Source="Sequences.200ms.CAN.CAN_Live"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\Sequences\200ms\CAN\CAN_Live\can_live.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\CAN_Live\can_live.ab.var" />
+    </Task>
+    <Task
+      Name="httpServer"
+      Disable="true"
+      Source="http_Lib.httpServer"
+      Language="IEC">
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\http_Lib\httpServer\Variables.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\httpServer\Main.st.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\httpServer\_getFunctionName.st.var" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\httpServer\_setBagDestination.st.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\http_Lib\httpServer\Types.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\http_Lib\httpServer\LocalFunctions.fun" />
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\httpServer\httpGetParameter.st.var" />
+    </Task>
+  </TaskClass>
+  <TaskClass
+    Name="Cyclic#6" />
+  <TaskClass
+    Name="Cyclic#7" />
+  <TaskClass
+    Name="Cyclic#8">
+    <Task
+      Name="zzModuleLo"
+      Disable="false"
+      Source="CustomLogs.zzModuleLog"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzModuleLo\zzModuleLog.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\CustomLogs\zzModuleLog\zzModuleLog.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\CustomLogs\zzModuleLog\zzModuleLog.var" />
+    </Task>
+    <Task
+      Name="zzSQLDrive"
+      Disable="true"
+      Source="SQL.zzSQLDriver"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzSQLDrive\zzSQLDriver.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\SQL\zzSQLDriver\zzSQLDriver.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\SQL\zzSQLDriver\zzSQLDriver.var" />
+    </Task>
+    <Task
+      Name="zzWeighSta"
+      Disable="true"
+      Source="CustomLogs.zzWeighStatus"
+      Language="IEC">
+      <InternalFile
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586\zzWeighSta\zzModuleLog.ab.var" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\CustomLogs\zzWeighStatus\zzModuleLog.typ" />
+      <File
+        Path="C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Logical\CustomLogs\zzWeighStatus\zzModuleLog.var" />
+    </Task>
+  </TaskClass>
+</ConfigInfo>

@@ -1,0 +1,53 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Library: DispLib
+ * File: IP_Replace.ab
+ * Author: Dave
+ * Created: December 12, 2010
+ ********************************************************************
+ * Implementation of library DispLib
+ ********************************************************************) 
+
+(* Replace existing first 3 parts of IP address *)
+
+;Version 1.00 12/12/2010 D.J. First Issue
+
+FUNCTION_BLOCK IP_Replace
+	
+	;Get the node part of the existing IP arddress
+	ethStatus 	= ethInetAton(pIP_Now,ADR(IP_Hex))
+	Node 		= 0
+	IF ethStatus = 0 THEN
+		;Get the node number from the IP address
+		Node 		= (IP_Hex AND $FF000000) ;Mask out the IP address
+	ELSE
+		status = 1 
+	ENDIF
+	
+	;Get the new IP address first three parts
+	IF (Node > 0) THEN
+		ethStatus 	= ethInetAton(pIP_New,ADR(IP_HexNew))
+		IP_Build 	= 0
+		IF ethStatus = 0 THEN
+			;Get the node number from the IP address
+			IP_Build	= (IP_HexNew AND $00FFFFFF) ;Mask out the node part of the address		
+		ELSE
+			status = 3		
+		ENDIF
+	ELSE
+		status = 2
+	ENDIF
+	
+	;Build the complete replacement IP address
+	IF ((Node > 0) AND (IP_Build > 0)) THEN
+		IP_HexReplace 	= (IP_Build + Node)
+		ethStatus = ethInetNtoa(IP_HexReplace,ADR(IP_Replace))
+		IF ethStatus = 0 THEN
+			status = 0
+		ENDIF
+	ELSE
+		status = 4
+	ENDIF
+	
+END_FUNCTION_BLOCK

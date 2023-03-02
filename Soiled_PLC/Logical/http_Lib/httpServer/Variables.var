@@ -1,0 +1,23 @@
+VAR
+	httpServer : httpService;
+	sendResponse : BOOL;
+	abortResponse : BOOL;
+	URI : STRING[500];
+	requestHeader : httpRequestHeader_t;
+	requestData : STRING[10000];
+	responseHeader : httpResponseHeader_t;
+	responseData : STRING[10000];
+	Statistics : httpStatistics_t;
+	serviceName : STRING[50];
+	getParameterName : httpGetParameter;
+END_VAR
+VAR CONSTANT
+	STRING_DOLLAR : STRING[1] := '&';
+END_VAR
+VAR
+	activeFunction : UINT;
+	mis : UDINT;
+	bagIndex : UDINT;
+	dst : USINT;
+	error : INT;
+END_VAR

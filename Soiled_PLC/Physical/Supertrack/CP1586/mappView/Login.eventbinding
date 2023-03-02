@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EventBindingSet id="ContentControl_2_eventbinding" xmlns="http://www.br-automation.com/iat2014/eventbinding/v2" xmlns:types="http://www.br-automation.com/iat2015/widgetTypes/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Bindings>
+		<EventBinding id="ContentControl_2.Btn_Login.Click">
+			<Source contentRefId="ContentControl_2" 
+				widgetRefId="Btn_Login" 
+				xsi:type="widgets.brease.Button.Event" 
+			event="Click" />
+			<EventHandler>
+				<Sequence>
+					<Step order="2">
+						<Action>
+							<Target xsi:type="clientSystem.Action">
+								<Method xsi:type="clientSystem.Action.OpenDialog" 
+									dialogId="LoginDialog"
+									horizontalPos="center" 
+								verticalPos="middle" />
+							</Target>
+						</Action>
+					</Step>
+					<Step order="1">
+						<Action>
+							<Target xsi:type="session.VariableAction" refId="SessionPassword" >
+								<Method xsi:type="session.VariableAction.SetValueString" value="" />
+							</Target>
+						</Action>	
+					</Step>
+					<Step order="0">
+						<Action>
+							<Target xsi:type="session.VariableAction" refId="SessionLoginFail" >
+								<Method xsi:type="session.VariableAction.SetValueBool" value="false" />
+							</Target>
+						</Action>
+					</Step>
+				</Sequence>	
+			</EventHandler>
+		</EventBinding>
+		
+		<EventBinding id="ContentControl_2.LogoutButton.MouseDown">
+			<Source contentRefId="ContentControl_2" widgetRefId="LogoutButton" xsi:type="widgets.brease.LogoutButton.Event" event="MouseDown" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.Navigate" pageId="StatusPage" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		<EventBinding id="ContentLoginDialog.LoginButton1.AuthentificationFailed">
+			<Source contentRefId="ContentLoginDialog" widgetRefId="LoginButton1" xsi:type="widgets.brease.LoginButton.Event" event="AuthentificationFailed" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="session.VariableAction" refId="SessionLoginFail" >
+						<Method xsi:type="session.VariableAction.SetValueBool" value="true" />
+					</Target>
+				</Action>
+			</EventHandler>
+		</EventBinding>
+		
+		<EventBinding id="ContentLoginDialog.LoginButton1.LoginSuccess">
+			<Source contentRefId="ContentLoginDialog" widgetRefId="LoginButton1" xsi:type="widgets.brease.LoginButton.Event" event="LoginSuccess" />
+			<EventHandler>
+				<Action>
+					<Target xsi:type="clientSystem.Action">
+						<Method xsi:type="clientSystem.Action.CloseDialog" dialogId="LoginDialog" />
+					</Target>
+				</Action>
+			
+			</EventHandler>
+		</EventBinding>
+
+	</Bindings>
+</EventBindingSet>

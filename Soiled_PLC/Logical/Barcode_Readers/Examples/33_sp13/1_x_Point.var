@@ -1,0 +1,56 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: 1_x_Point
+ * File: 1_x_Point.var
+ * Author: treamsbottom
+ * Created: March 13, 2015
+ ********************************************************************
+ * Local variables of program 1_x_Point
+ ********************************************************************)
+VAR CONSTANT
+	LOCAL_MAX_DESTS : UINT := 2;
+END_VAR
+VAR
+	mySeq : UINT;
+	no_RecieveLines : UINT;
+	myRelLine : ARRAY[0..LOCAL_MAX_DESTS] OF UINT;
+	useDestinations : BOOL;
+	myRelLineDest : ARRAY[0..LOCAL_MAX_DESTS] OF relLineDest_typ;
+	myZone : UINT;
+	myIO : UINT;
+	myBag : UINT;
+	i_bagAtBuffer : BOOL;
+	x : UINT;
+	i_bagAtBufferOut : ARRAY[0..LOCAL_MAX_DESTS] OF BOOL;
+	i_bufferOutOpen : ARRAY[0..LOCAL_MAX_DESTS] OF BOOL;
+	n : UINT;
+	bufferClear : ARRAY[0..LOCAL_MAX_DESTS] OF BOOL;
+	myOutBag : ARRAY[0..LOCAL_MAX_DESTS] OF UINT;
+	o_select : ARRAY[0..LOCAL_MAX_DESTS] OF BOOL;
+	o_reset : BOOL;
+	o_openBuffer : BOOL;
+	step : UINT;
+	pls : BOOL;
+	lastStep : UINT;
+	alt : UINT;
+	myLine : UINT;
+	releaseValid : BOOL;
+	ton_10ms_reset : TON_10ms;
+	ton_10ms_SettledBuffer : TON_10ms;
+	timerAlarm : TON_10ms;
+	bagArrived : ARRAY[0..LOCAL_MAX_DESTS] OF BOOL;
+	bagReleased : BOOL;
+	myTransitBag : UINT;
+	bufferSettleTime : UDINT;
+	myPoint : UINT;
+	myReader : UINT;
+	readBarcode : BOOL;
+	readComplete : BOOL;
+	myBagNumber : UINT;
+	myHttp : UINT;
+	bagNoString : STRING[10];
+	requestURL : STRING[255];
+	httpResponse : STRING[500];
+	requestData : STRING[100];
+END_VAR

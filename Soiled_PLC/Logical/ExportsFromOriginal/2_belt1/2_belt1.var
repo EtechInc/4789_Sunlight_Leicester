@@ -1,0 +1,28 @@
+VAR RETAIN
+	MinBeltRunCV	:UINT;	
+	MinBeltRun	:BOOL;	
+	BeltClearET	:TIME;	
+	BeltClear	:BOOL;	
+	LinenDetectedET	:TIME;	
+	LinenDetected	:BOOL;	
+	n	:UINT;	
+	STEP	:UINT;	
+	Step6ET	:TIME;	
+	LASTSTEP	:UINT;	
+	PLS	:BOOL;	
+	O_RunBelt	:BOOL;	
+	RunBelt	:BOOL;	
+END_VAR
+
+
+VAR
+	TimerAlarm	:TON_10ms;	
+	I_PhotoBottom	:BOOL;	
+	I_PhotoTop	:BOOL;	
+	Bank	:UINT;	
+	WeightValid	:BOOL;	
+	WeightValue	:INT;	
+	BeltRunTime	:UINT;	
+	BeltAddTime	:UINT;	
+	StnBag	:UINT;	
+END_VAR

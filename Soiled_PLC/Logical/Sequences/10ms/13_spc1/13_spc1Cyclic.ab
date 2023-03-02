@@ -1,0 +1,157 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;----------------------------------------------
+;Sequence 13 - SPC1 Pneumatic Conveyor 1 D[913]
+;----------------------------------------------
+
+;Inputs
+I_CarrAtTop				= X[5].X09
+I_CarrAtBottom			= X[5].X10
+I_BagOnCarr				= X[5].X11
+I_BagReleased			= FALSE ;X[13].X04
+I_BagAtBuffer			= X[5].X12
+
+I_BagAtLLBuff			= FALSE ;X[12].X01
+O_LLBuffOpen			= FALSE ;Y[12].Y01
+
+O_OpenBuffer			= FALSE
+O_MoveCarrUp			= FALSE
+O_MoveCarrDown			= FALSE
+O_OpenCarrStop			= FALSE
+
+Alarm[13].Name 			= 0
+Alarm[13].Bag			= 10013
+Alarm[13].Beacon		= FALSE
+Alarm[13].Extra			= 0
+Alarm[13].Time			= 3000
+
+;Setup Sequence
+STEP = D[913]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Move carriage up to top position
+IF (STEP = 1) THEN
+	O_MoveCarrUp = TRUE
+	IF I_CarrAtTop THEN
+		D[913] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[13].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check Status
+IF (STEP = 2) THEN
+	IF (NOT I_BagOnCarr AND NOT I_CarrAtBottom) THEN
+		D[913] = 3
+	ENDIF
+	IF I_BagOnCarr OR I_CarrAtBottom THEN
+		Alarm[13].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;Wait for bag at buffer
+TON_10ms(I_BagAtBuffer,300,SettledBuffer,SettledBufferET)
+IF (STEP = 3) THEN
+	IF SettledBuffer AND NOT Std.HaltSys THEN
+		D[913] = 4
+	ENDIF
+ENDIF
+
+;Open Buffer stop - Enable
+IF (STEP = 4) THEN
+	O_OpenBuffer 	= (NOT I_BagOnCarr AND I_CarrAtTop)
+	;Enable.SVC[4] 	= (NOT I_BagOnCarr AND I_CarrAtBottom)
+	IF I_BagOnCarr THEN
+		D[913] = 5
+	ENDIF
+	Alarm[13].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle on carriage
+TON_10ms(I_BagOnCarr,300,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 5) THEN
+	IF BagSettledOnCarr THEN
+		D[913] = 6
+	ENDIF
+	Alarm[13].Name = almBagNotSettled
+ENDIF
+
+;Move Carriage down to bottom position
+IF (STEP = 6) THEN
+	O_MoveCarrDown = TRUE
+	IF I_CarrAtBottom THEN
+		D[913] = 7
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[13].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check if buffer is clear
+IF (STEP = 7) THEN
+	;IF (Line[33].Clear AND NOT I_BagAtLLBuff AND NOT O_LLBuffOpen AND NOT Std.HaltSysLoading) THEN
+	IF Enable.BSN[1] THEN
+		D[913] = 8
+	ENDIF
+	;IF NOT Std.HaltSys THEN
+	;	IF I_BagReleased THEN
+	;		Alarm[13].Name = almSwitchFault
+	;	ENDIF
+	;ENDIF
+ENDIF
+
+;Open carriage stop let bag into buffer
+IF (STEP = 8) THEN
+	O_OpenCarrStop = TRUE
+	;IF PLS THEN
+	;	C[33] = 0
+	;ENDIF
+	;IF Line[33].Trip THEN
+	IF NOT Enable.BSN[1] THEN
+		D[913] = 9
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[13].Name = almBagNotReleased
+	ENDIF
+ENDIF
+
+;Check Top position switch
+IF (STEP = 9) THEN
+	IF NOT I_CarrAtTop THEN
+		D[913] = 1
+	ENDIF
+	Alarm[13].Name = almSwitchFault
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[13].Name > 0)
+TimerAlarm.PT 	= Alarm[13].Time
+TimerAlarm FUB TON_10ms()
+Alarm[13].On 	= TimerAlarm.Q
+Alarm[13].ET 	= TimerAlarm.ET
+
+;PLC Outputs
+;-----------
+Y[7].Y16 		= (O_OpenBuffer 	AND I_CarrAtTop)
+Y[2].Y03 		= (O_MoveCarrUp 	AND NOT I_CarrAtTop)
+Y[2].Y07 		= (O_MoveCarrDown 	AND NOT I_CarrAtBottom)
+Y[2].Y12 		= (O_OpenCarrStop 	AND I_CarrAtBottom)
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[7].Y16 = TRUE
+YForceDisable[2].Y03 = TRUE
+YForceDisable[2].Y07 = TRUE
+YForceDisable[2].Y12 = TRUE
+
+
+END_PROGRAM
+

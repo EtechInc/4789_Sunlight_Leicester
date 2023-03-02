@@ -1,0 +1,3 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Safety/Safety.var
+$(AS_PROJECT_PATH)/Logical/Safety/Safety.typ

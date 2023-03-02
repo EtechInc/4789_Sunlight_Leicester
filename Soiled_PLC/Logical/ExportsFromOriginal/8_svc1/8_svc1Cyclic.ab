@@ -1,0 +1,362 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------------------
+;Sequence 8 - SVC1 Vertical conveyor 1 D[908]
+;--------------------------------------------
+
+;Inputs
+I_CarrAtTop				= X[3].X09
+I_CarrAtMiddle			= X[3].X11
+I_CarrAtBottom			= X[3].X10
+I_CarrAtWeighing		= X[3].X12
+I_BagOnCarr				= X[3].X13
+I_BagReleased			= X[3].X14
+
+I_UpPushButton			= X[8].X01
+I_DownPushButton		= X[8].X02
+
+I_UseAsLoading			= X[8].X03
+I_NoEmptyBag			= X[8].X05
+I_CollectEmpty			= X[8].X04
+
+O_MoveCarrUp			= FALSE
+O_MoveCarrDown			= FALSE
+O_OpenCarrStop			= FALSE
+
+Enable.SVC[1]			= FALSE
+Request.SVC[1]			= FALSE
+SVC1RequestEmpty		= FALSE
+
+Alarm[8].Name 			= 0
+Alarm[8].Bag			= 222
+Alarm[8].Beacon			= TRUE
+Alarm[8].Extra			= 0
+Alarm[8].Time			= 3000
+
+;Setup Sequence
+STEP = D[908]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Move carriage down to middle position
+IF (STEP = 1) THEN
+	O_MoveCarrDown = TRUE
+	IF I_CarrAtMiddle THEN
+		D[908] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check Status
+IF (STEP = 2) THEN
+	IF (NOT I_BagOnCarr AND (Bag[222].Cat = 0) AND NOT I_CarrAtTop AND NOT I_BagReleased) THEN
+		D[908] = 3
+	ENDIF
+	IF (Bag[223].Cat > 0) THEN
+		Alarm[8].Name = almBagDataError
+	ELSE IF I_BagOnCarr OR I_CarrAtTop OR I_BagReleased THEN
+		Alarm[8].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;Check opreation mode
+IF (STEP = 3) THEN
+	IF I_UseAsLoading AND I_NoEmptyBag THEN
+		D[908] = 10 ;Loading VC mode and no empty required
+	ELSE
+		D[908] = 4
+	ENDIF
+ENDIF
+
+;Open Buffer stop - Enable
+IF (STEP = 4) THEN
+	O_OpenBuffer 	= (NOT I_BagOnCarr AND I_CarrAtMiddle)
+	Enable.SVC[1] 	= (NOT I_BagOnCarr AND I_CarrAtMiddle)
+	SVC1RequestEmpty = I_UseAsLoading
+	IF I_BagOnCarr THEN
+		D[908] = 5
+	ENDIF
+	;Alarm[8].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle on carriage
+TON_10ms(I_BagOnCarr,300,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 5) THEN
+	;IF (Bag[223].Cat = 0) AND (Bag[222].Cat > 0) THEN
+	;	Bag[223] = Bag[222]
+	;	Bag[222] = Bag[0]
+	;ENDIF
+	IF BagSettledOnCarr THEN
+		IF (I_UseAsLoading AND (Bag[222].Cat = Std.MaxCats)) THEN
+			D[908] = 10
+		ELSE IF (Bag[200].Wgt < 550) THEN
+			D[908] = 6
+		ELSE IF (Bag[200].Wgt > 550) THEN
+			Alarm[8].Name = almBagOverWeight
+			Alarm[8].Time			= 500
+		ENDIF
+	ENDIF
+	IF NOT BagSettledOnCarr THEN
+		Alarm[8].Name = almBagNotSettled
+	ENDIF
+ENDIF
+
+;Move Carriage up to top position
+IF (STEP = 6) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtTop THEN
+		D[908] = 7
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Request Release to Ongoing
+IF (STEP = 7) THEN
+	Request.SVC[1]	= TRUE
+	IF Enable.SPN[1] THEN
+		D[908] = 8
+	ENDIF
+ENDIF
+
+;Open carriage stop let bag into buffer
+IF (STEP = 8) THEN
+	Request.SVC[1]	= TRUE
+	O_OpenCarrStop 	= I_CarrAtTop
+	IF (Bag[224].Cat = 0) AND (Bag[222].Cat > 0) THEN
+		Bag[224] = Bag[222]
+		Bag[222] = Bag[0]
+	ENDIF
+	IF I_BagReleased THEN
+		D[908] = 9
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almBagNotReleased
+	ENDIF
+ENDIF
+
+;Check Middle position switch
+IF (STEP = 9) THEN
+	IF NOT I_CarrAtMiddle THEN
+		D[908] = 1
+	ENDIF
+	Alarm[8].Name = almSwitchFault
+ENDIF
+
+;----------------------
+;End of Normal Sequence
+;----------------------
+
+;Loading Conveyor Section
+;------------------------
+
+;Check bottom switch
+IF (STEP = 10) THEN
+	IF NOT I_CarrAtBottom THEN
+		D[908] = 11
+	ENDIF
+	Alarm[8].Name = almSwitchFault
+ENDIF
+
+;Move Carriage down to loading position
+IF (STEP = 11) THEN
+	O_MoveCarrDown = (NOT I_CarrAtBottom AND I_DownPushButton)
+	IF I_CarrAtBottom THEN
+		D[908] = 12
+	ENDIF
+ENDIF
+
+;Move Carriage up or down to weighing level
+IF (STEP = 12) THEN
+	O_MoveCarrDown 	= (NOT I_CarrAtBottom AND I_DownPushButton AND NOT I_UpPushButton)
+	O_MoveCarrUp 	= (NOT I_CarrAtWeighing AND NOT I_DownPushButton AND I_UpPushButton)
+	IF I_CarrAtWeighing THEN
+		D[908] = 13
+	ENDIF
+	;Cancel Loading VC Mode
+	IF NOT I_UseAsLoading AND NOT I_BagOnCarr THEN
+		D[908] = 16 ;Collect empty / back to loading unit position
+	ENDIF
+ENDIF
+
+;Check neither push button is pressed
+IF (STEP = 13) THEN
+	IF (NOT I_UpPushButton AND NOT I_DownPushButton) THEN
+		D[908] = 14
+	ENDIF
+	Alarm[16].Name = almSwitchFault
+ENDIF
+
+;Calculate weight
+SVCRaw = DINT(AI351RAW_01)
+SVCRaw = (SVCRaw * 1000) ;2000
+IF (SVCRaw > 0) THEN
+	Bag[200].Wgt = INT(SVCRaw / 32767)
+ELSE
+	Bag[200].Wgt = 0
+ENDIF
+
+;Check Destination Clear and up push button pressed
+Status = 0
+TON_10ms(((STEP = 14) AND I_UpPushButton),50,PButton,PButtonET)
+IF (STEP = 14) THEN
+
+	IF I_CollectEmpty THEN
+		IF PButton AND NOT I_BagOnCarr THEN
+			D[908] = 16
+		ENDIF
+	ELSE IF I_DownPushButton THEN
+		D[908] = 11
+	ELSE
+		ValidDst 	= ((Bag[200].Dst >= 0) 	AND (Bag[200].Dst <= Std.MaxLines))
+		ValidCat 	= ((Bag[200].Cat > 0) 	AND (Bag[200].Cat <= Std.MaxCats ))
+		ValidCus 	= ((Bag[200].Cus > 0) 	AND (Bag[200].Cus <= Std.MaxCust ))
+
+		;Machines have different weights Lines 1-5 for Powertrans
+		IF (Bag[200].Dst <= 5) THEN
+			ValidWgt	= (Bag[200].Wgt < 550) ;Under 52 Kg
+		ELSE
+			ValidWgt	= (Bag[200].Wgt < 550) ;Under 52 Kg
+		ENDIF
+
+		;Messages on the Panel
+		IF NOT ValidDst THEN
+			Status = 1
+		ELSE IF NOT ValidCat THEN
+			Status = 2
+		ELSE IF NOT ValidCus THEN
+			Status = 3
+		ELSE IF NOT I_BagOnCarr THEN
+			Status = 5
+		ELSE IF NOT ValidWgt THEN
+			Status = 6
+		ENDIF
+		IF PButton THEN
+			IF (I_BagOnCarr AND ValidCus AND ValidCat AND ValidDst AND ValidWgt AND (Enable.Search = (Std.MaxStationBanks + 1))) THEN
+				Status 	= 0
+				Dst 	= 0
+				;Read Destination
+				;IF Bag[200].Dst = 0 THEN
+				;	Choice[1] = D[2200 + Bag[200].Cat]
+				;	Choice[2] = D[2300 + Bag[200].Cat]
+				;	Choice[3] = D[2400 + Bag[200].Cat]
+				;	Choice[4] = D[2500 + Bag[200].Cat]
+				;ELSE
+					Choice[1] = Bag[200].Dst
+					Choice[2] = 0
+					Choice[3] = 0
+					Choice[4] = 0
+				;ENDIF
+				;Check 1st to 4th Choice destinations
+				LOOP n = 4 DOWNTO 1 DO
+					IF (Line[Choice[n]].SpaceBIT > 0) THEN
+						Dst = Choice[n]
+					ENDIF
+				ENDLOOP
+
+				IF (Dst > 0) THEN
+
+					ReportLoading[n].Cat = Bag[200].Cat	;Category
+					ReportLoading[n].Cus = Bag[200].Cus	;Customer
+					ReportLoading[n].Wgt = Bag[200].Wgt	;Weight
+					ReportLoading[n].Cnt = 0			;Count
+					ReportLoading[n].Stn = 17         	;Station
+					ReportLoading[n].Mcn = 0			;Machine
+					;Copy Panel values to bag and goto next step
+					Bag[222] 		= Bag[200]
+					Bag[222].Dst 	= USINT(Dst)
+
+					D[908] = 15
+
+				ELSE
+					Status = 4
+				ENDIF
+
+			ELSE
+				;Not Valid
+				O_AlarmLamp = TRUE
+
+
+			ENDIF ;Valid
+
+		ENDIF ;PButton
+
+	ENDIF
+
+ELSE
+	O_AlarmLamp = FALSE
+ENDIF
+
+;Show Status on SVC1 Panel
+IF (Enable.Search = (Std.MaxStationBanks + 1)) THEN
+	SVC1Status = Status
+ENDIF
+
+;Step 15 - Check top switch
+IF (STEP = 15) THEN
+	IF NOT I_CarrAtTop THEN
+		D[908] = 6
+	ENDIF
+	Alarm[16].Name = almSwitchFault
+ENDIF
+
+;End of loading VC
+
+;Re-position carriage
+;--------------------
+
+;Move carriage up to middle position
+IF (STEP = 16) THEN
+	O_MoveCarrUp = TRUE
+	IF I_CarrAtMiddle THEN
+		D[908] = 17
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Move carriage past middle position
+TON_10ms(((STEP = 17) AND NOT I_CarrAtMiddle),100,PastMiddle,PastMiddleET)
+IF (STEP = 17) THEN
+	O_MoveCarrUp = TRUE
+	IF PastMiddle THEN
+		D[908] = 1
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[8].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[8].Name > 0)
+TimerAlarm.PT 	= Alarm[8].Time
+TimerAlarm FUB TON_10ms()
+Alarm[8].On 	= TimerAlarm.Q
+Alarm[8].ET 	= TimerAlarm.ET
+
+
+;PLC Outputs
+;-----------
+Y[2].Y01 		= (O_MoveCarrUp 	AND NOT I_CarrAtTop)
+Y[2].Y02 		= (O_MoveCarrDown 	AND NOT I_CarrAtBottom)
+Y[2].Y04 		= (O_OpenCarrStop 	AND I_CarrAtTop)
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[2].Y01 = TRUE
+YForceDisable[2].Y02 = TRUE
+YForceDisable[2].Y04 = TRUE
+
+
+END_PROGRAM
+

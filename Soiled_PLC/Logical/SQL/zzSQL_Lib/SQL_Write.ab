@@ -1,0 +1,107 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Library: zzSQL_Lib
+ * File: SQL_Write.ab
+ * Author: treamsbottom
+ * Created: May 10, 2012
+ ********************************************************************
+ * Implementation of library zzSQL_Lib
+ ********************************************************************) 
+
+(* *General Write to SWL Server. Set Data parameters in connection string. *)
+FUNCTION_BLOCK SQL_Write
+status = ERR_FUB_BUSY
+
+IF NOT enable AND (SQL <> eConnect)  THEN
+	SQL = eDisconnect	
+ENDIF
+CASE SQL OF
+
+	ACTION eConnect:
+		internal_error = FALSE
+		SQLConnect.enable 			= enable ;AND NOT internal_error
+		SQLConnect.pServerName 		= pServerName;ADR("10.0.10.1:1433")  	
+		SQLConnect.pUserName		= pUserName;ADR("SUP")	
+		SQLConnect.pPassword		= pPassword;ADR("1234")
+		SQLConnect.pDatabaseName	= pDatabaseName;ADR("SUPDB1")	
+		SQLConnect.databaseSystem 	= DB_SYSTEM_MS_SQL
+		SQLConnect FUB dbConnect()
+
+		sql_Ident = SQLConnect.connectionIdent
+		sql_Status = SQLConnect.status 	
+		sql_Error = SQLConnect.dbError
+		IF sql_Status = ERR_OK THEN
+			SQL = eExecute	
+			;SQL = eIdle	
+		ELSE IF sql_Status <> ERR_FUB_BUSY THEN
+			status = sql_Status
+			SQL = eError
+		ENDIF		
+	ENDACTION
+
+
+	ACTION eExecute:					
+		SQLExecute.enable 			= TRUE 
+		SQLExecute.connectionIdent 	= sql_Ident	
+		SQLExecute.pSqlStatement 	= pSQl_Cmd_String 	
+		SQLExecute FUB dbExecuteSql()
+		IF SQLExecute.status = ERR_OK THEN
+			SQL = eDisconnect
+			;SQL = eIdle	
+		ELSE IF SQLExecute.status <> ERR_FUB_BUSY THEN
+			status = SQLExecute.status
+			SQL = eError
+			sql_Error = SQLExecute.dbError
+			sql_Status = SQLExecute.status	
+		ENDIF		
+	ENDACTION		
+
+
+	ACTION eDisconnect:	
+		SQLDisconnect.enable 			= TRUE	
+		SQLDisconnect.connectionIdent 	= sql_Ident
+		SQLDisconnect FUB dbDisconnect()
+		sql_Status = SQLDisconnect.status
+		IF SQLDisconnect.status = ERR_OK THEN
+			;enable = FALSE
+			IF internal_error THEN
+	
+			ELSE	
+				status = ERR_OK
+			ENDIF	
+			SQL = eConnect
+		ELSE IF SQLDisconnect.status = dbERR_INVALID_HANDLE THEN ; Ident not valid	
+			SQL = eConnect
+		ENDIF		
+	ENDACTION
+
+
+	ACTION eError:	
+		internal_error = TRUE
+		SQLGetErrorMsg.enable = TRUE
+		SQLGetErrorMsg.connectionIdent = sql_Ident	
+		SQLGetErrorMsg.pErrorMessage = ADR(SQL_Error_Msg)	
+		SQLGetErrorMsg.errorMessageSize = SIZEOF(SQL_Error_Msg)
+		SQLGetErrorMsg FUB dbGetErrorMessage()	
+		IF SQLGetErrorMsg.status = ERR_OK THEN
+			IF sql_Ident = 0 THEN
+				SQL = eConnect
+				;enable = FALSE
+			ELSE 
+				SQL = eDisconnect
+			ENDIF		
+		ELSE IF (SQLGetErrorMsg.status <> ERR_FUB_BUSY) THEN 			
+			IF sql_Ident = 0 THEN
+				SQL = eConnect
+			ELSE 
+				SQL = eDisconnect
+			ENDIF
+		ENDIF				
+	ENDACTION		
+
+ENDCASE			
+
+
+	
+END_FUNCTION_BLOCK

@@ -1,0 +1,139 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 8 - SP8 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+O_SelectLine[11]          = FALSE
+O_SelectLine[12]          = FALSE ;YB10
+O_SelectLine[13]          = FALSE ;YB10
+EnableRel.PC[2]           = FALSE
+MySeq                     = 40
+MyBag                     = 156
+MyTransBag                = 158	
+	
+I_BagatBuffer	          = RequestRel.PC[1]
+	
+O_Reset                   = FALSE
+
+
+Alarm[MySeq].Name 			= 0
+Alarm[MySeq].Bag			= MyTransBag
+Alarm[MySeq].Beacon		    = TRUE
+Alarm[MySeq].Extra			= 0
+Alarm[MySeq].Time			= 5000
+
+;Setup Sequence
+STEP = D[900 + MySeq]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;clear data
+TON_10ms((STEP = 1),100,Reset,ResetET)
+IF (STEP = 1) THEN
+	O_Reset = TRUE
+	IF (Reset = TRUE)AND (Bag[MyTransBag].Cat = 0) THEN
+		D[900 + MySeq] = 2
+	ENDIF
+	IF Reset THEN
+		Alarm[MySeq].Time			= 5
+		Alarm[MySeq].Name 	= almBagDataError
+	ENDIF
+ENDIF
+
+
+;Wait SLU1 request and destination clear
+TON_10ms(I_BagatBuffer,300,BagAtBuffer,BagAtBufferET)
+IF (STEP = 2) THEN
+	IF (Bag[MyBag].Cat >0) AND (Bag[MyBag].Dst >0) AND RequestRel.PC[1] THEN
+		IF (Line[Bag[MyBag].Dst].Space > 0) AND (Bag[MyBag].Dst > 10) AND (Bag[MyBag].Dst < 14) AND (Line[Bag[MyBag].Dst].Clear) AND (Bag[Line[Bag[MyBag].Dst].LastBag].Cat = 0) THEN
+			Dest = Bag[MyBag].Dst 
+			C[Dest]        = 0	
+			D[900 + MySeq] = 3	
+		ENDIF
+	
+	ENDIF		
+ENDIF
+	
+
+		;Open buffer to release a bag to svc 1
+IF (STEP = 3) THEN
+	EnableRel.PC[2] = TRUE
+	O_SelectLine[Dest] = TRUE
+	IF PLS THEN
+		IF (Bag[MyBag].Cat>0) AND (Bag[MyTransBag].Cat = 0)	THEN
+			
+			Bag[MyTransBag]     = Bag[MyBag]
+			Bag[MyBag]          = Bag[0]	
+		ENDIF	
+	ENDIF	
+	IF (Dest = 13) THEN
+		IF (Bag[MyTransBag].Cat>0) AND (Bag[159].Cat=0) AND X[4].X16 THEN
+			Bag[159] = Bag[MyTransBag]
+			Bag[MyTransBag] = Bag[0]
+		ENDIF 
+		IF Line[Dest].Trip THEN
+			IF ((Bag[73].Cat = 0) AND (Bag[159].Cat>0)) THEN
+				Bag[159].Dst = 0
+				Bag[73]      = Bag[159]
+				Bag[159]     = Bag[0]
+			ENDIF
+			D[900 + MySeq] = 1
+		ENDIF
+    ELSE IF (Dest > 10) AND (Dest < 13) THEN
+			IF Line[Dest].Trip THEN
+				Bag[MyTransBag].Dst     = 0
+				Bag[Line[Dest].LastBag] = Bag[MyTransBag]
+				Bag[MyTransBag]         = Bag[0]
+				D[900 + MySeq] = 1
+		ENDIF
+		
+	ENDIF 
+	
+	Alarm[MySeq].Name 	= almBagNotArrived
+ENDIF
+
+;select svc 2 point
+IF (STEP = 4) THEN
+O_SelectSVC2 = TRUE
+	
+	IF Line[18].Trip THEN
+		IF (Bag[221].Cat > 0) AND (Bag[222].Cat= 0) THEN
+			Bag[222] = Bag[221]
+			Bag[221] = Bag[0]
+		ENDIF
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	= almBagNotArrived
+ENDIF
+
+
+
+;Outputs
+
+Y[5].Y08 = O_SelectLine[11]
+Y[5].Y09 = O_SelectLine[12]
+Y[5].Y10 = O_Reset OR O_SelectLine[13]	
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[MySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[MySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[MySeq].On 	= TimerAlarm.Q
+Alarm[MySeq].ET 	= TimerAlarm.ET
+
+;Outputs
+;Y[6].Y07 = O_SelectPointSVC1
+;Y[6].Y08 = O_SelectPointSVC2
+END_PROGRAM
+

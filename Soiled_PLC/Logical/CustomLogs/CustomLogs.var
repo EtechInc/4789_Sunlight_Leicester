@@ -1,0 +1,16 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: CustomLogs
+ * File: CustomLogs.var
+ * Author: treamsbottom
+ * Created: November 06, 2014
+ ********************************************************************
+ * Variables of package CustomLogs
+ ********************************************************************)
+VAR CONSTANT
+	dec_C_MaxCustomLogs : UINT := 400;
+END_VAR
+VAR
+	CustomLog : ARRAY[0..dec_C_MaxCustomLogs] OF Log_typ := [100(0)];
+END_VAR

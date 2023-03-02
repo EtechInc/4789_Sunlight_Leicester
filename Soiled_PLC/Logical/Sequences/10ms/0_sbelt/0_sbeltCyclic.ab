@@ -1,0 +1,26 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;Inputs
+	O_RunSortBelt[1]	= FALSE
+	O_RunSortBelt[2]	= FALSE
+	O_RunSortBelt[3]	= FALSE
+	O_RunSortBelt[4]	= FALSE
+	O_RunSortBelt[5]	= FALSE
+	O_RunSortBelt[6]	= FALSE
+	;Run belts
+	O_RunSortBelt[1] =  NOT Std.EStop AND (NOT X[8].X13) AND (NOT Request.SB[2])
+	O_RunSortBelt[2] =  NOT Std.EStop AND (NOT X[8].X13)
+	O_RunSortBelt[3] =  NOT Std.EStop
+	O_RunSortBelt[4] =  NOT Std.EStop
+	O_RunSortBelt[5] =  NOT Std.EStop
+	O_RunSortBelt[6] =  NOT Std.EStop
+
+	;TON_10ms(O_RunSortBelt[3],300,O_RunSortBelt[2],SortBeltRunningET[2])
+	;TON_10ms(O_RunSortBelt[2],300,O_RunSortBelt[1],SortBeltRunningET[1])
+
+	;Outputs
+	Y[14].Y03 = O_RunSortBelt[1]  AND (D[15]>0)
+	Y[14].Y04 = O_RunSortBelt[2] AND (D[15]>0)
+END_PROGRAM
+

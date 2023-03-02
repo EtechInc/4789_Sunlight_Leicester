@@ -1,0 +1,8 @@
+VAR
+	I_SortBelt3Photo	:BOOL;	
+	O_RunSortBelt1	:BOOL;	
+	O_RunSortBelt2	:BOOL;	
+	O_RunSortBelt3	:BOOL;	
+	SortBelt2RunningET	:TIME;	
+	SortBelt3RunningET	:TIME;	
+END_VAR

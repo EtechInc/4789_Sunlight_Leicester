@@ -1,0 +1,126 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;Sequence 11 - Pneumatic Incline 1 D[911]
+
+;Incline Conveyor
+
+;-----------------------------------------
+;Revision 1.00 17/01/2006 D.J. First Issue
+;-----------------------------------------
+
+TON_10ms(O_MoveDown,1000,TempDownTime,TempDownTimeET)
+
+I_BagAtBuffer			= X[8].X12
+I_BaginIncline			= X[8].X13
+I_CarrAtBottom			= X[8].X14
+I_CarrAtTop				= X[8].X15
+
+O_MoveDown 				= FALSE
+O_OpenBufferStop		= FALSE
+
+Request.SPI[1]			= FALSE
+
+Alarm[11].Name 			= 0
+Alarm[11].Bag			= 10011
+Alarm[11].Beacon		= TRUE
+
+;Setup Sequence
+;--------------
+STEP = D[911]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Allow carriage to go up to top
+IF (STEP = 1) THEN
+	IF I_CarrAtTop THEN
+		D[911] = 2
+	ENDIF
+	IF NOT Std.HaltSys THEN
+		Alarm[11].Name = almCarriageMoveFault
+	ENDIF
+ENDIF
+
+;Check for bag at buffer
+TON_10ms(I_BagAtBuffer,300,BagSettledBuffer,BagSettledBufferET)
+IF (STEP = 2) THEN
+	IF BagSettledBuffer THEN
+		D[911] = 3
+	ENDIF
+ENDIF
+
+;Open Buffer Stop on steps 3
+IF (STEP >= 3) AND (STEP <= 3) THEN
+	O_OpenBufferStop = TRUE
+ENDIF
+
+;Wait for bag in incline
+IF (STEP = 3) THEN
+	IF I_BaginIncline THEN
+		D[911] = 4
+	ENDIF
+	Alarm[11].Name = almBagNotArrived
+ENDIF
+
+;Let bag settle at base of incline
+TON_10ms(I_BaginIncline,300,BagSettled,BagSettledET)
+IF (STEP = 4) THEN
+	IF BagSettled THEN
+		D[911] = 5
+	ENDIF
+	Alarm[11].Name = almBagNotSettled
+ENDIF
+
+;Move carriage down to bottom
+IF (STEP = 5) THEN
+	O_MoveDown = TRUE
+	IF I_CarrAtBottom THEN
+		D[911] = 6
+	ENDIF
+	Alarm[11].Name = almCarriageMoveFault
+ENDIF
+
+;Allow carriage to move up to top
+IF (STEP = 6) THEN
+	IF I_CarrAtTop THEN
+		D[911] 	= 7
+	ENDIF
+	Alarm[11].Name = almCarriageMoveFault
+ENDIF
+
+;Wait for space at empty bag buffer
+IF (STEP = 7) THEN
+	Request.SPI[1] = TRUE
+	IF Line[18].Clear AND BagSettled THEN
+		D[911] 	= 8
+	ENDIF
+ENDIF
+
+;Move carriage down to bottom
+IF (STEP = 8) THEN
+	O_MoveDown = TRUE
+	IF I_CarrAtBottom THEN
+		D[911] = 9
+	ENDIF
+	Alarm[11].Name = almCarriageMoveFault
+ENDIF
+
+;Allow carriage to move up releasing bag
+IF (STEP = 9) THEN
+	IF PLS THEN
+		C[18] = 0
+	ENDIF
+	IF Line[18].Trip THEN
+		D[911] = 1
+	ENDIF
+	Alarm[11].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TON_10ms(NOT PLS AND (Alarm[11].Name > 0),3000,Alarm[11].On,Alarm[11].ET)
+
+Y[8].Y12 = O_OpenBufferStop
+Y[8].Y13 = O_MoveDown
+END_PROGRAM
+

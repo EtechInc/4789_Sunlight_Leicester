@@ -1,0 +1,16 @@
+void stUINT_ASC(void) {};
+void _stUINT_ASC(void) {};
+void DIS4(void) {};
+void _DIS4(void) {};
+void stUNI5(void) {};
+void _stUNI5(void) {};
+void stASC_UINT(void) {};
+void _stASC_UINT(void) {};
+void BCD_BIN_OUTPUT(void) {};
+void _BCD_BIN_OUTPUT(void) {};
+void BIN_TO_BCD(void) {};
+void _BIN_TO_BCD(void) {};
+void stUNI4(void) {};
+void _stUNI4(void) {};
+void BIT_ENCODE(void) {};
+void _BIT_ENCODE(void) {};

@@ -1,0 +1,3 @@
+V1.00 First version
+	Only tested with 17bit comm. Functionality is questionable as only i need the output wired to the IO circuit for comms.
+	?? Should we use addition DM, with PLC main supply for this comms?

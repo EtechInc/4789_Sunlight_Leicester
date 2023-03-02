@@ -1,0 +1,51 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myRelLine : UINT;
+	myBag : UINT;
+	i_bagAtBuffer : BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	o_openBuffer : BOOL;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	bufferSettleTime : UDINT;
+	myOutBag : UINT;
+	myBuffBag : UINT;
+	isDecline : BOOL;
+	i_carrAtTop : BOOL;
+	i_carrAtBottom : BOOL;
+	i_bagArrive : BOOL;
+	i_bagOnCarriage : BOOL;
+	o_moveDown : BOOL;
+	o_moveUp : BOOL;
+	myPC : UINT;
+	useRequest : BOOL;
+	o_openCarriageStop : BOOL;
+	myX20IO : UINT;
+	moveToIncomingPosition : BOOL;
+	carrInIncomingPos : BOOL;
+	releaseValid : BOOL;
+	ton_10ms_SettledBuffer : TON_10ms;
+	moveToOutgoingPosition : BOOL;
+	carrAtOutgoingPos : BOOL;
+	carrInPosLatch : BOOL;
+	ton_10ms_SettledCarriage : TON_10ms;
+END_VAR

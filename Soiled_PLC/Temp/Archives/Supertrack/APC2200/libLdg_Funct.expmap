@@ -1,0 +1,7 @@
+{
+  global:
+    LDG_GetBagFromStation;
+    LDG_GetStationFromBag;
+  local:
+    *;
+ };

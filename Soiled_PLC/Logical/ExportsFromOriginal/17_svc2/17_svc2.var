@@ -1,0 +1,42 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	O_OpenBufferStop	:BOOL;	
+	I_BagAtBuffer	:BOOL;	
+	O_RunMotor	:BOOL;	
+	BagSettled	:BOOL;	
+	BagSettledET	:TIME;	
+	BagAtBuffer	:BOOL;	
+	RunOnET	:TIME;	
+	RunOn	:BOOL;	
+	BagNearTopET	:TIME;	
+	BagNearTop	:BOOL;	
+	BagAtBufferET	:UDINT;	
+	I_BagInIncline	:BOOL;	
+END_VAR
+
+
+VAR
+	I_BagAtOutgoingBuffer	:BOOL;	
+	I_PaddleInPosition	:BOOL;	
+	CloseBufferStop	:BOOL;	
+	CloseBufferStopET	:TIME;	
+	O_OutgoingBufferOpen	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+	O_SelectSP4ToSP2	:BOOL;	
+	I_BagReleased	:BOOL;	
+	O_SelectSP4	:BOOL;	
+	I_BagOutAtTop	:BOOL;	
+	I_BagOutAtBottom	:BOOL;	
+	I_BagOnCarriage	:BOOL;	
+	I_CarriageAtTop	:BOOL;	
+	I_CarriageAtBottom	:BOOL;	
+	O_OpenCarriageStop	:BOOL;	
+	O_MoveUp	:BOOL;	
+	O_MoveDown	:BOOL;	
+	I_BagAtSVCBuffer	:BOOL;	
+	O_BufferStop	:BOOL;	
+	Carrstoptimer	:BOOL;	
+	CarrstoptimerET	:TIME;	
+END_VAR

@@ -1,0 +1,21 @@
+VAR
+	n : UINT;
+	transitSettlePT : UDINT; (*Determines the amount of time to wait for bags in transit to settle before opening the interlock*)
+	ton_10ms_Transit_Settle : ARRAY[0..MAX_SAFE_ZONES] OF TON_10ms; (*Determines the amount of time to wait for bags in transit to settle before opening the interlock*)
+	safeState : ARRAY[0..MAX_SAFE_ZONES] OF USINT; (*USINT that tracks the state of the safe system so it can control the tower light*)
+	debounceMasterPT : UDINT;
+	masterReset : ARRAY[0..MAX_SAFE_ZONES] OF BOOL;
+	ton_10ms_Master_Reset : TON_10ms;
+	masterResetRequest : BOOL;
+	startUpWarningPT : UDINT;
+	ton_10ms_startUp_Warning : TON_10ms;
+	tp_10ms_reset_Pulse : TP_10ms;
+	enableMasterReset : BOOL;
+	ton_10ms_Reset_Debounce : ARRAY[0..MAX_SAFE_ZONES] OF TON_10ms;
+	ton_10ms_bagsInTransit : ARRAY[0..MAX_SAFE_ZONES] OF TON_10ms;
+	f_trigRequestAccess : ARRAY[0..MAX_SAFE_ZONES] OF F_TRIG;
+	ton_entryError : ARRAY[0..MAX_SAFE_ZONES] OF TON_10ms;
+	resetRequired : BOOL;
+	lockDoor : ARRAY[0..MAX_SAFE_ZONES] OF BOOL;
+	tof_HoistsOutOfPosition : ARRAY[0..MAX_SAFE_ZONES] OF TOF_10ms;
+END_VAR

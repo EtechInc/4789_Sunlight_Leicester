@@ -1,0 +1,63 @@
+VAR
+	SpecialTreatment : ARRAY[0..9] OF UINT;
+	LoadingBagLU1 : BOOL;
+	StrobeComplete4 : BOOL;
+	StrobeComplete3 : BOOL;
+	StrobeComplete2 : BOOL;
+	StrobeComplete1 : BOOL;
+	Alarm : ARRAY[0..209] OF Alm;
+END_VAR
+VAR CONSTANT
+	almNoAlarm : UINT := 0;
+END_VAR
+VAR
+	AlarmBagNotProxLine : UINT := 0;
+END_VAR
+VAR CONSTANT
+	almEmergencyStop : UINT := 1;
+END_VAR
+VAR
+	repRel : UINT := 1;
+	repMix : UINT := 2;
+END_VAR
+VAR CONSTANT
+	almMotorOverload : UINT := 2;
+	almUldProgFinished : UINT := 3;
+	almUldNoBag : UINT := 4;
+	almSwitchFault : UINT := 5;
+	almBagNotArrived : UINT := 6;
+	almBagNotSettled : UINT := 7;
+	almBagNotReleased : UINT := 9;
+	almLoadNotDropped : UINT := 10;
+	almCarriageMoveFault : UINT := 11;
+	almPhotocellBlocked : UINT := 12;
+	almPhotocellNotMade : UINT := 13;
+	almStationNotClosed : UINT := 14;
+	almGeneralSequence : UINT := 15;
+	almBagNotAtProx : UINT := 16;
+	almBagNotShownOnScreen : UINT := 17;
+	almInverterFault : UINT := 18;
+	almDestinationNotValid : UINT := 19;
+	almBagDataError : UINT := 20;
+	almBagOverWeight : UINT := 21;
+	almStationNotEmpty : UINT := 22;
+	almClearingBeltPleaseWait : UINT := 23;
+	almSystemStopped : UINT := 25;
+	almReleaseSwitchFault : UINT := 26;
+	almReceiveSwitchFault : UINT := 27;
+	almRailNotAligned : UINT := 28;
+	almLiftRefNotFound : UINT := 29;
+	almLiftParameterError : UINT := 30;
+	almLiftRefSwitchFault : UINT := 31;
+	almRotateRefNotFound : UINT := 32;
+	almRotateParameterError : UINT := 33;
+	almRotateRefSwitchFault : UINT := 34;
+	almNoBatchIDfromSQLserver : UINT := 40;
+	almAirPressureLow : UINT := 41;
+	almSafetyLoading : UINT := 42;
+	almSafetyHighLevel : UINT := 43;
+	almSafetyVC : UINT := 44;
+	almDisableSequence : UINT := 45;
+	almBackUpNotRunning : UINT := 50;
+	ALM_SERVO_HOIST : UINT := 65;
+END_VAR

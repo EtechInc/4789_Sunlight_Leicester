@@ -1,0 +1,155 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * PROGRAM: Client
+ * File: Client.ab
+ * Author: Dave
+ * Created: December 06, 2010
+ ********************************************************************
+ * Implementation OF PROGRAM Client
+ ********************************************************************)
+
+;Version 1.00 12/12/2010 D.J. First Issue
+;Version 1.01.0 12/07/2016 - TR Fix issue not clearing bag data
+;Version 1.01.1 16/08/2017	- TR- Fix issue with random data loss.
+
+PROGRAM _INIT
+
+	
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	mySql = 75
+
+	SQL.Login	= ClientReceive[0].SQL
+	IF NOT WaitReply THEN
+	
+		myQuad = myQuad + 2
+		IF (myQuad > 2) THEN
+			myQuad = 0
+		ENDIF	
+
+		IF (ClientText[myQuad].Cat <> ClientReceive[myQuad].DisplayBag.Cat) THEN
+			strcpy(ADR(ClientText[myQuad].CatName),"")
+			strcpy(ADR(ClientText[myQuad].CatLong),"")
+			strcpy(ADR(ClientText[myQuad].ImagePath),"")
+			ClientText[myQuad].Cat = 0;
+			ClientText[myQuad].Prg = 0
+			WaitReply = (ClientReceive[myQuad].DisplayBag.Cat > 0)
+		ENDIF
+
+	
+		IF (ClientText[myQuad].Cus <> ClientReceive[myQuad].DisplayBag.Cus) THEN
+			strcpy(ADR(ClientText[myQuad].CusName),"")
+			strcpy(ADR(ClientText[myQuad].CusLong),"")
+			ClientText[myQuad].Cus = 0
+			WaitReply = ((ClientReceive[myQuad].DisplayBag.Cus > 0) OR WaitReply)
+		ENDIF
+	
+		IF (ClientText[myQuad + 1].Cat <> ClientReceive[myQuad + 1].DisplayBag.Cat) THEN
+			strcpy(ADR(ClientText[myQuad + 1].CatName),"")
+			strcpy(ADR(ClientText[myQuad + 1].CatLong),"")
+			strcpy(ADR(ClientText[myQuad + 1].ImagePath),"")
+			ClientText[myQuad + 1].Cat = 0;
+			ClientText[myQuad + 1].Prg = 0
+			WaitReply = ((ClientReceive[myQuad + 1].DisplayBag.Cat > 0) OR WaitReply)
+		ENDIF
+
+	
+		IF (ClientText[myQuad + 1].Cus <> ClientReceive[myQuad + 1].DisplayBag.Cus) THEN
+			strcpy(ADR(ClientText[myQuad + 1].CusName),"")
+			strcpy(ADR(ClientText[myQuad + 1].CusLong),"")
+			ClientText[myQuad + 1].Cus = 0
+			WaitReply =  ((ClientReceive[myQuad + 1].DisplayBag.Cus > 0) OR WaitReply)
+		ENDIF
+		;Set TrackView Registers
+		IF WaitReply THEN
+			itoa(ClientReceive[myQuad].DisplayBag.Cat,ADR(myCatString))
+			itoa(ClientReceive[myQuad].DisplayBag.Cus,ADR(myCusString))
+			itoa(ClientReceive[myQuad + 1].DisplayBag.Cat,ADR(myCatString1))
+			itoa(ClientReceive[myQuad + 1].DisplayBag.Cus,ADR(myCusString1))
+		
+			SqlRequest[mySql].Request = TRUE
+		ENDIF
+	
+	ENDIF	
+	
+	;Set request to TrackView until reply
+	IF (WaitReply AND SqlRequest[mySql].Complete) THEN
+	
+		ClientText[myQuad].Prg = USINT(atoi(ADR(SqlRequest[mySql].OutputData[1])))
+		strcpy(ADR(ClientText[myQuad].PrgLong),ADR(SqlRequest[mySql].OutputData[2]))
+		strcpy(ADR(ClientText[myQuad].PrgName),ADR(SqlRequest[mySql].OutputData[3]))
+	
+		;		strcpy(ADR(ClientText[myQuad].CatName),"")
+		;		strcpy(ADR(ClientText[myQuad].CatLong),"")
+		;		strcpy(ADR(ClientText[myQuad].ImagePath),"")
+			
+		ClientText[myQuad].Cat = atoi(ADR(SqlRequest[mySql].Parameters[0].Param_String))
+		strcpy(ADR(ClientText[myQuad].CatLong),ADR(SqlRequest[mySql].OutputData[4]))
+		strcpy(ADR(ClientText[myQuad].CatName),ADR(SqlRequest[mySql].OutputData[5]))
+
+		;		strcpy(ADR(ClientText[myQuad].Cus),"")
+		;		strcpy(ADR(ClientText[myQuad].CusLong),"")
+			
+		ClientText[myQuad].Cus = atoi(ADR(SqlRequest[mySql].Parameters[1].Param_String))
+		strcpy(ADR(ClientText[myQuad].CusLong),ADR(SqlRequest[mySql].OutputData[6]))
+		strcpy(ADR(ClientText[myQuad].CusName),ADR(SqlRequest[mySql].OutputData[7]))
+	
+		strcpy(ADR(ClientText[myQuad].ImagePath),ADR(SqlRequest[mySql].OutputData[8]))
+	
+		ClientText[myQuad + 1].Prg = USINT(atoi(ADR(SqlRequest[mySql].OutputData[9])))
+		strcpy(ADR(ClientText[myQuad + 1].PrgLong),ADR(SqlRequest[mySql].OutputData[10]))
+		strcpy(ADR(ClientText[myQuad + 1].PrgName),ADR(SqlRequest[mySql].OutputData[11]))
+	
+		;		strcpy(ADR(ClientText[myQuad + 1].CatName),"")
+		;		strcpy(ADR(ClientText[myQuad + 1].CatLong),"")
+		;		strcpy(ADR(ClientText[myQuad + 1].ImagePath),"")
+		
+		ClientText[myQuad + 1].Cat = atoi(ADR(SqlRequest[mySql].Parameters[2].Param_String))
+		strcpy(ADR(ClientText[myQuad + 1].CatLong),ADR(SqlRequest[mySql].OutputData[12]))
+		strcpy(ADR(ClientText[myQuad + 1].CatName),ADR(SqlRequest[mySql].OutputData[13]))
+
+		;		strcpy(ADR(ClientText[myQuad].Cus),"")
+		;		strcpy(ADR(ClientText[myQuad].CusLong),"")
+			
+		ClientText[myQuad + 1].Cus = atoi(ADR(SqlRequest[mySql].Parameters[3].Param_String))
+		strcpy(ADR(ClientText[myQuad + 1].CusLong),ADR(SqlRequest[mySql].OutputData[14]))
+		strcpy(ADR(ClientText[myQuad + 1].CusName),ADR(SqlRequest[mySql].OutputData[15]))
+	
+		strcpy(ADR(ClientText[myQuad + 1].ImagePath),ADR(SqlRequest[mySql].OutputData[16]))
+	
+		WaitReply 	= FALSE
+						
+	ENDIF
+	
+	
+	
+	IF SqlRequest[mySql].Request AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+		SqlWriteActive = TRUE				
+		SqlRequest[mySql].SQLType = cSQLType_ReadWrite
+		SqlRequest[mySql].SQL_usp = cSQLReq_zzGetMultiNames 
+		SqlRequest[mySql].NoOfParams = 4
+	
+		SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input ;
+		strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(myCatString))
+		SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input ;
+		strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(myCusString))
+		SqlRequest[mySql].Parameters[2].Type = cSQLParam_Input ; 
+		strcpy(ADR(SqlRequest[mySql].Parameters[2].Param_String),ADR(myCatString1))	
+		SqlRequest[mySql].Parameters[3].Type = cSQLParam_Input ;
+		strcpy(ADR(SqlRequest[mySql].Parameters[3].Param_String),ADR(myCusString1))	
+	ENDIF	
+
+
+	IF SqlRequest[mySql].Complete THEN ; ClearRequest
+		;Copy Out Reply Done in step.!
+		SqlRequest[mySql] = cEmptySQlReq	
+		SqlWriteActive = FALSE	
+	ELSE IF SqlRequest[mySql].Fail THEN
+		WaitReply = FALSE ; Move to next and try and again
+		SqlWriteActive = FALSE ; Reload Parameters	
+		SqlRequest[mySql].Fail = FALSE		
+	ENDIF
+END_PROGRAM

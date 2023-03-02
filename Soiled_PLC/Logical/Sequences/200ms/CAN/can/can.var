@@ -1,0 +1,17 @@
+VAR RETAIN
+	CAN_enable : BOOL;
+END_VAR
+VAR
+	CANdftab_01 : CANdftab;
+	CANOK : BOOL;
+	CANopen_01 : CANopen;
+	CANrwtab_01 : CANrwtab;
+	data_adr : UDINT;
+	DOInfo : DatObjInfo;
+	error_var : UDINT;
+	LastError : UINT;
+	n : UINT;
+	MAX_CAN_CONNS : UINT;
+	CAN_DRY_Send : ARRAY[0..19] OF DRYCAN_comm_typ;
+	x : UINT;
+END_VAR

@@ -1,0 +1,114 @@
+﻿@import "mixins.scss";
+#content_Dialog_mpbYes {
+	@include elemAutoWidth(100);
+}
+#content_Dialog_mpbYes {
+	@include elemAutoHeight(30);
+}
+#content_Dialog_mpbYes {
+	@include elemTop(99);
+}
+#content_Dialog_mpbYes {
+	@include elemLeft(75);
+}
+#content_Dialog_mpbYes {
+		z-index: 1;
+}
+#content_Dialog_mpbNo {
+	@include elemAutoWidth(100);
+}
+#content_Dialog_mpbNo {
+	@include elemAutoHeight(30);
+}
+#content_Dialog_mpbNo {
+	@include elemTop(99);
+}
+#content_Dialog_mpbNo {
+	@include elemLeft(325);
+}
+#content_Dialog_mpbNo {
+		z-index: 2;
+}
+#content_Dialog_tpRemoteStatus {
+	@include elemTop(5);
+}
+#content_Dialog_tpRemoteStatus {
+	@include elemLeft(10);
+}
+#content_Dialog_tpRemoteStatus {
+	@include elemWidth(480);
+}
+#content_Dialog_tpRemoteStatus {
+	@include elemHeight(79);
+}
+#content_Dialog_tpRemoteStatus {
+		z-index: 3;
+}
+#content_Dialog_tpRemoteStatus {
+		border-style: none;
+}
+#content_Dialog_tpRemoteStatus {
+	#textWheel div.itemFragment div span{
+		font-size: 14px;
+	}
+}
+#content_Dialog_tpRemoteStatus {
+	#textWheel div.itemFragment div span{
+	@include font-weight-bold(true);
+	}
+}
+#content_Dialog_tpRemoteStatus {
+	&:not(.disabled) #textWheel div.itemFragment div:not(.selected) span{
+		color: rgba(0, 0, 0, 1);
+	}
+}
+#content_Dialog_tpRemoteStatus {
+	&.disabled #textWheel div.itemFragment div.selected span{
+		color: rgba(0, 0, 0, 1);
+	}
+}
+#content_Dialog_tpRemoteStatus {
+	#textWheel div.itemFragment div:not(.selected){
+		border-width: 0px;
+	}
+}
+#content_Dialog_tpRemoteStatus {
+	#textWheel div.itemFragment div.selected{
+		border-width: 0px;
+	}
+}
+#content_Dialog_tpRemoteStatus {
+	&.disabled #textWheel div.itemFragment div.selected{
+		background-color: rgba(255, 255, 255, 1);
+	}
+}
+#content_Dialog_Rectangle1 {
+	@include elemTop(90);
+}
+#content_Dialog_Rectangle1 {
+	@include elemLeft(0);
+}
+#content_Dialog_Rectangle1 {
+	@include elemWidth(500);
+}
+#content_Dialog_Rectangle1 {
+	@include elemHeight(48);
+}
+#content_Dialog_Rectangle1 {
+		z-index: 0;
+}
+#content_Dialog_Rectangle1 {
+		border-style: none;
+}
+#content_Dialog_Rectangle1 {
+	@include border-radius(0px 0px 8px 8px);
+}
+#content_Dialog_Rectangle1 {
+		border-color: rgba(128, 128, 128, 1);
+}
+#content_Dialog_Rectangle1 {
+		background-color: rgba(7, 124, 197, 1);
+}
+#content_Dialog_Rectangle1 {
+	@include backGroundGradient('linear-gradient(to top, #c5deea 0%,#8abbd7 31%,#67a6e4 100%)');
+}

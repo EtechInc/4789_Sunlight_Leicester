@@ -1,0 +1,10 @@
+{
+  global:
+    FC302_WriteParam;
+    FC302_ReadSTW;
+    FC302_WriteCTW;
+    FC302_ReadParamTbl;
+    FC302_ReadParam;
+  local:
+    *;
+ };

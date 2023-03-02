@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File" Description="Global data types">SQL.typ</Object>
+    <Object Type="File" Description="Global variables">SQL.var</Object>
+    <Object Type="Program" Language="IEC" Description="*Driver to Handle SQL Requests">zzSQLDriver</Object>
+    <Object Type="Program" Language="IEC" Description="Text From TrackView">zzTvText</Object>
+    <Object Type="Library" Language="IEC" Description="SQL_Function_Blocks">zzSQL_Lib</Object>
+    <Object Type="Program" Language="IEC" Description="Program">SQLReadWriteTest</Object>
+    <Object Type="Program" Language="IEC" Description="Program">SQLSpeedTest</Object>
+    <Object Type="Package" Description="Display Code">zzGetNamesSQL</Object>
+    <Object Type="Program" Language="IEC" Description="Program">Test_bagMaint</Object>
+  </Objects>
+</Package>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingsSet id="AlarmPageBinding" xmlns="http://www.br-automation.com/iat2015/binding/engineering/v2" xmlns:bt="http://www.br-automation.com/iat2015/bindingListTypes/engineering/v2" xmlns:be="http://www.br-automation.com/iat2015/bindingListEmbedded/engineering/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+		
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXListUIConnect.AcknowledgeAll" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="PushButtonAcknAll" attribute="value" />
+</Binding>
+
+<!--<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXHistoryUIConnect.AlarmList.Name" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="TableItemHistName" attribute="stringValue" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXHistoryUIConnect.AlarmList.Message" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="TableItemHistMessage" attribute="stringValue" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXHistoryUIConnect.AlarmList.OldState" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="TableItemHistOldState" attribute="stringValue" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXHistoryUIConnect.AlarmList.NewState" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="TableItemHistNewState" attribute="stringValue" />
+</Binding>-->
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXHistory.Export" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="PushButtonSaveHist" attribute="value" />
+</Binding>
+
+
+ <Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Alarm.MpAlarmXListUIConnect.Acknowledge" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentAlarm" widgetRefId="PushButtonAckn" attribute="value" />
+</Binding>
+</Bindings>
+</BindingsSet>

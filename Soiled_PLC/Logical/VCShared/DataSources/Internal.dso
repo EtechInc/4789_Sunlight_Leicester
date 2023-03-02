@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?AutomationStudio Version="3.0.81.18"?>
+<DataSource xmlns="http://br-automation.co.at/AS/VC/Project" Name="Internal">
+  <Property Name="AutoRefresh" Value="False" />
+  <Property Name="DefaultUpdateTime" Value="200" />
+  <Property Name="Description" Value="" />
+  <Property Name="IsIntern" Value="True" />
+  <Property Name="TextGroup" Value="Source[embedded].TextGroup" />
+  <DataPoints>
+    <Folder Name="Display">
+      <Property Name="Description" Value="" />
+      <Property Name="FolderType" Value="Struct" />
+      <DataPoint Name="Brightness">
+        <Property Name="Description" Value="" />
+        <Property Name="PLCType" Value="USINT" />
+        <Property Name="UpdateTime" Value="Default" />
+        <Property Name="UserID" Value="None" />
+        <Property Name="VCType" Value="INTEGER" />
+        <Property Name="ConnectingVisus" Value="Displays\PCT04,Displays\PCT04hhh,Displays\CT11" />
+        <Property Name="ConnectedBySharedResource" Value="False" />
+      </DataPoint>
+      <DataPoint Name="Contrast">
+        <Property Name="Description" Value="" />
+        <Property Name="PLCType" Value="USINT" />
+        <Property Name="UpdateTime" Value="Default" />
+        <Property Name="UserID" Value="None" />
+        <Property Name="VCType" Value="INTEGER" />
+        <Property Name="ConnectingVisus" Value="Displays\PCT04,Displays\PCT04hhh,Displays\CT11" />
+        <Property Name="ConnectedBySharedResource" Value="False" />
+      </DataPoint>
+    </Folder>
+  </DataPoints>
+</DataSource>

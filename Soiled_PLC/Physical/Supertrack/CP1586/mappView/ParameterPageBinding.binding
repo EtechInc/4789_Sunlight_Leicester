@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingsSet id="ParameterPageBinding" xmlns="http://www.br-automation.com/iat2015/binding/engineering/v2" xmlns:bt="http://www.br-automation.com/iat2015/bindingListTypes/engineering/v2" xmlns:be="http://www.br-automation.com/iat2015/bindingListEmbedded/engineering/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Bindings>
+		
+	<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_1" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_2" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime1" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_3" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime2" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_4" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime3" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_5" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime4" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_6" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime5" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_7" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime6" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_8" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime7" attribute="node" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.SettleTime_9" attribute="node" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="NumericInputSetSettleTime8" attribute="node" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition1" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_1" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition2" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_2" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition3" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_3" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition4" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_4" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition5" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_5" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition6" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_6" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition7" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_7" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition8" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_8" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Structure.TextSetupPosition9" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="to_positionName_9" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+	<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Conf.Recipe.MpRecipeCsv_FUB.Save" attribute="value" />
+	<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="ToggleButtonSavePos" attribute="value" />
+</Binding>		
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="chk_TS_clientEnable" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Timezone" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="DropDownBox1" attribute="selectedValue" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="DropDownBox1" attribute="visible" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="LabeldiElecFuse" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="Rectangle22" attribute="visible" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="LabeldiElecFuse2" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput2" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput3" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="LabeldiElecFuse4" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="LabeldiElecFuse3" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput4" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="LabeldiElecFuse1" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.Enabled" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput1" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.ServerIP[0]" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput1" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.ServerIP[3]" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput4" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.ServerIP[2]" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput3" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.ServerIP[1]" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="TextInput2" attribute="value" />
+</Binding>
+
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:syncStatusVisible" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="Rectangle21" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:ntpClientInfo.DaylightSaving" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="chk_TS_clientEnable1" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:manualTimeSet" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="DateTimeInput1" attribute="visible" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:daylightSavingVisible" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="chk_TS_clientEnable1" attribute="visible" />
+</Binding>
+				
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::TimeSync:setTimestamp" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentParameter" widgetRefId="DateTimeInput1" attribute="value" />
+</Binding>
+<Binding mode="twoWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:gHoist.Axis.ErrorText" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentMotorDiag" widgetRefId="to_Axis1_ErrorMsg" attribute="value" />
+</Binding>
+
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:mc_BR_ReadError.ErrorID" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentMotorDiag" widgetRefId="NumericOutput3" attribute="value" />
+</Binding>
+<Binding mode="oneWay">
+<Source xsi:type="opcUa" refId="::AsGlobalPV:mc_BR_ReadError.ErrorRecordAvailable" attribute="value" />
+<Target xsi:type="brease" contentRefId="ContentMotorDiag" widgetRefId="GroupBox1" attribute="visible" />
+</Binding>
+</Bindings>
+</BindingsSet>

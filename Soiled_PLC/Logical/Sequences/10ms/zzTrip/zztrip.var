@@ -1,0 +1,8 @@
+VAR
+	CountOld : ARRAY[0..59] OF UINT;
+	TripPLS : ARRAY[0..59] OF R_TRIG;
+	Timer : ARRAY[0..59] OF TON_10ms;
+	CountTrip : ARRAY[0..59] OF BOOL;
+	n : UINT;
+	Start : BOOL;
+END_VAR

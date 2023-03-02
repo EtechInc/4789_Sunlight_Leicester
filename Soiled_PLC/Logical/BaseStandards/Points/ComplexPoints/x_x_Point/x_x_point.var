@@ -1,0 +1,62 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	destCheck : ARRAY[0..MAX_LINES_IN] OF destCheck_typ;
+END_VAR
+VAR CONSTANT
+	MAX_LINES_IN : USINT := 2;
+	MAX_LINES_OUT : USINT := 2;
+END_VAR
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myRelLine : ARRAY[0..MAX_LINES_OUT] OF UINT;
+	i_bagAtBuffer : ARRAY[0..MAX_LINES_IN] OF BOOL;
+	i_bagAtBufferOut : ARRAY[0..MAX_LINES_OUT] OF BOOL;
+	i_bufferOutOpen : ARRAY[0..MAX_LINES_OUT] OF BOOL;
+	o_openBuffer : ARRAY[0..MAX_LINES_IN] OF BOOL;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	bufferSettleTime : UDINT;
+	myOutBag : ARRAY[0..MAX_LINES_OUT] OF UINT;
+	myBuffBag : ARRAY[0..MAX_LINES_IN] OF UINT;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_buff : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	line_release : REFERENCE TO Line_Typ;
+	queue : getWaitingLongest;
+	o_select : ARRAY[0..MAX_LINES_OUT] OF BOOL;
+	buffer : UINT;
+	o_reset : BOOL;
+	ton_reset : TON_10ms;
+	n : UINT;
+	destQueue : getWaitingLongest;
+	lineReadyToRecieve : ARRAY[0..MAX_LINES_OUT] OF BOOL;
+	x : UINT;
+	d : USINT;
+	selectedLine : UINT;
+	line : UINT;
+END_VAR
+VAR CONSTANT
+	EMPTY_BAG : USINT := 255; (**Const used to send empty bags to a line when tracking*)
+END_VAR
+VAR
+	lineBagRecieved : ARRAY[0..MAX_LINES_OUT] OF BOOL;
+	releaseValid : BOOL;
+END_VAR

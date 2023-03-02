@@ -1,0 +1,10 @@
+VAR
+	WeightRaw : ARRAY[0..99] OF Wieght_typ;
+	AI261Raw : ARRAY[0..19] OF DINT;
+	AI1223 : ARRAY[0..17] OF INT := [18(0)];
+	OK : ARRAY[0..450] OF BOOL;
+	StnOK : ARRAY[0..128] OF BOOL;
+	X : ARRAY[0..399] OF CardInputs;
+	Y : ARRAY[0..399] OF CardOutputs;
+	YForceDisable : ARRAY[0..399] OF CardOutputs;
+END_VAR

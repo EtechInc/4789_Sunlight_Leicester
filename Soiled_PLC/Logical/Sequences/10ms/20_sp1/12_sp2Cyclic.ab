@@ -1,0 +1,116 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 8 - SP8 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+O_SelectSVC1              = FALSE ;YB11
+O_SelectSVC2              = FALSE ;YB10
+
+
+Alarm[20].Name 			= 0
+Alarm[20].Bag			= 221
+Alarm[20].Beacon		= TRUE
+Alarm[20].Extra			= 0
+Alarm[20].Time			= 5000
+
+;Setup Sequence
+STEP = D[920]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;clear data
+TON_10ms((STEP = 1),100,Reset,ResetET)
+IF (STEP = 1) THEN
+	IF (Reset = TRUE)and (Bag[221].Cat = 0) THEN
+		D[920] = 2
+	ENDIF
+ENDIF
+
+
+;Wait SLU1 request and destination clear
+TON_10ms(I_BagatBuffer,300,BagAtBuffer,BagAtBufferET)
+IF (STEP = 2) THEN
+	IF (Request.LU[1] = TRUE) THEN
+	IF (Alernate > 2) THEN
+		Alernate = 0
+	ENDIF
+	Alernate = Alernate + 1
+			IF ((Alernate = 1)AND Line[30].Clear AND (Bag[223].Cat =0) AND NOT I_BagAtSVC1BufferStop AND NOT O_SVC1BufferStop) THEN  
+				C[30]  = 0
+				D[45]  = 1
+				D[920] = 3
+			ELSE IF ((Alernate = 2)AND Line[18].Clear AND (Bag[222].Cat =0) AND NOT I_BagAtSVC2BufferStop AND NOT O_SVC2BufferStop) THEN
+				C[18]  = 0
+				D[45]  = 2
+				D[920] = 4
+			ENDIF				
+	ENDIF		
+ENDIF		
+
+;enable slu1 to release 
+IF ((STEP = 3) OR (STEP = 4)) THEN
+	Enable.LU[1] = TRUE
+	ELSE
+	Enable.LU[1] = FALSE
+ENDIF
+
+
+;Open buffer to release a bag to svc 1
+IF (STEP = 3) THEN
+	
+	O_SelectSVC1 = TRUE
+	
+	IF Line[30].Trip THEN
+		IF (Bag[221].Cat > 0) AND (Bag[223].Cat= 0) THEN
+			Bag[223] = Bag[221]
+			Bag[221] = Bag[0]
+		ENDIF
+			D[920] = 1
+	ENDIF
+	Alarm[20].Name 	= almBagNotArrived
+ENDIF
+
+;select svc 2 point
+IF (STEP = 4) THEN
+O_SelectSVC2 = TRUE
+	
+	IF Line[18].Trip THEN
+		IF (Bag[221].Cat > 0) AND (Bag[222].Cat= 0) THEN
+			Bag[222] = Bag[221]
+			Bag[221] = Bag[0]
+		ENDIF
+		D[920] = 1
+	ENDIF
+	Alarm[20].Name 	= almBagNotArrived
+ENDIF
+
+
+
+;Outputs
+
+Y[9].Y07 = O_SelectSVC1
+Y[9].Y12 = O_SelectSVC2
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[20].Name > 0)
+TimerAlarm.PT 	= Alarm[20].Time
+TimerAlarm FUB TON_10ms()
+Alarm[20].On 	= TimerAlarm.Q
+Alarm[20].ET 	= TimerAlarm.ET
+
+;Outputs
+;Y[6].Y07 = O_SelectPointSVC1
+;Y[6].Y08 = O_SelectPointSVC2
+END_PROGRAM
+

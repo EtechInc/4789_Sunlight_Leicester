@@ -1,0 +1,88 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBuffer[1]		= FALSE ;X[11].X07
+I_BagAtBuffer[2]		= X[11].X08
+
+O_OpenBuffer[1]			= FALSE
+O_OpenBuffer[2]			= FALSE
+
+Enable.SDC[3]			= FALSE
+
+Alarm[12].Name 			= 0
+Alarm[12].Bag			= 10012
+Alarm[12].Beacon		= TRUE
+Alarm[12].Extra			= 0
+Alarm[12].Time			= 3000
+
+;Setup Sequence
+STEP = D[912]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - decide where to take bag from
+TON_10ms(I_BagAtBuffer[1],300,SettledBuffer[1],SettledBufferET[1])
+TON_10ms(I_BagAtBuffer[2],300,SettledBuffer[2],SettledBufferET[2])
+TON_10ms(Line[18].Full,2000,SDC2BufferFull,SDC2BufferFullET)
+IF (STEP = 1) THEN
+	IF (Line[19].Clear AND NOT Std.HaltSys) THEN
+		IF (SDC2BufferFull AND SettledBuffer[2]) THEN
+			D[912] = 3 ;SDC2 Proirity if SPI1 buffer full
+		ELSE IF Request.SDC[3] THEN
+			D[912] = 2 ;SDC3
+		ELSE IF SettledBuffer[2] THEN
+			D[912] = 3 ;SDC2
+		ENDIF
+	ENDIF
+ENDIF
+
+;Step 2 - Transfer empty from SDC3
+IF (STEP = 2) THEN
+	O_OpenBuffer[1]	= TRUE
+	Enable.SDC[3]	= TRUE
+	IF PLS THEN
+		C[19] = 0
+	ENDIF
+	IF Line[19].Trip THEN
+		D[912] = 1
+	ENDIF
+	Alarm[12].Name = almBagNotArrived
+ENDIF
+
+;Step 3 - Transfer empty from SPI1 empty bag buffer
+IF (STEP = 3) THEN
+	O_OpenBuffer[2]	= TRUE
+	IF PLS THEN
+		C[19] = 0
+	ENDIF
+	IF Line[19].Trip THEN
+		D[912] = 1
+	ENDIF
+	Alarm[12].Name = almBagNotArrived
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[12].Name > 0)
+TimerAlarm.PT 	= Alarm[12].Time
+TimerAlarm FUB TON_10ms()
+Alarm[12].On 	= TimerAlarm.Q
+Alarm[12].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[11].Y07 = O_OpenBuffer[1]
+Y[11].Y08 = O_OpenBuffer[2]
+END_PROGRAM
+

@@ -1,0 +1,190 @@
+
+;------------------------------------------------
+;Version 1.00 01/05/2001 D.J. First Issue
+;Version 2.00 24/06/2009 D.J. 32bit Added MaxProg
+;------------------------------------------------
+
+PROGRAM _INIT
+
+Std.MaxSeq = 49
+Std.PLCStn = 0
+itoa(Std.PLCStn,ADR(Std.PLCStnString))		
+
+
+Std.AutoLineAllocation	= FALSE		;Use Automatic Line Allocation? 
+
+Std.AutoMaticRelease   	= TRUE		;Set to TRUE for AutoMatic Release using setpoints. FALSE for Push-Button Release
+Std.StationReports  	= TRUE 		;Transfer reports to PC
+
+Std.PairingLoop   		= FALSE
+Std.CustomerFIFO		= TRUE		;Use Customer FIFO Table
+
+Std.MaxIO				= 39		;Max PLC I/O Cards - check X and Y array size
+
+Std.AutoPurge 			= TRUE	
+
+Std.MaxProg				= 99		;Max Program / Classification (Old Category) - Should be 99 or less Max = 255
+Std.MaxCats           	= 99		;Max Categories 
+Std.MaxCust           	= 99		;Max Customers
+Std.MaxDischargers    	= 9			;Total Dischargers
+Std.MaxLines          	= 17		;Max Storage Lines
+Std.MaxAreas			= 11			;Max Storage Areas
+Std.MaxLinesBuffers   	= 49		;Storage lines + Buffers
+Std.MaxWeighstations  	= MAX_WEIGHSTATIONS			;Total Weighstations
+Std.MaxStationBanks		= 2 		;Total Banks of sorting Stations
+Std.MaxSearch			= 1   		;Include all station banks and Loading VC's etc
+
+Std.MinReleaseWeight  	= 30		;Include 10ths
+Std.MinPurgeWeight		= 15;10	
+
+Std.StationBagsStart	= 201		;Bag Number of first bank of sorting stations						
+Std.StationBagDisplay 	= 201		;Bag Number of second bank of sorting stations
+
+Std.StationBankReg 		= 0 ; Start of D reg where releasing station is stored + 900 i.e to use 901 for bank 1 set to 0.		
+
+//SET MAX_WEIGHSTATIONS
+
+Ldg[1].NoStations = 7	
+LOOP n = 1 TO Ldg[1].NoStations DO	
+	Ldg[1].Stations[n]	= n		
+ENDLOOP	
+
+;;Stns 2-22 even numbers
+Ldg[2].NoStations = 14	
+;x = 1 	
+LOOP x = 8 TO Ldg[2].NoStations DO	
+;	IF (n MOD 2 = 0) THEN // Even Number	
+		Ldg[2].Stations[x]		= x	
+;		INC x
+;	ENDIF
+ENDLOOP
+
+Ldg[3].NoStations 	= 0		
+Ldg[3].Stations[1]	= 0
+
+Ldg[4].NoStations 	= 0	
+Ldg[4].Stations[1]	= 0
+
+;Enter the First and Last bag for all the Storage lines including buffers
+Line[1].FirstBag = 1
+Line[1].LastBag  = 6
+
+Line[2].FirstBag = 7
+Line[2].LastBag  = 12
+
+Line[3].FirstBag = 13
+Line[3].LastBag  = 18
+	
+
+Line[4].FirstBag = 19
+Line[4].LastBag  = 24
+
+Line[5].FirstBag = 25
+Line[5].LastBag  = 30
+
+Line[6].FirstBag = 31
+Line[6].LastBag  = 36
+
+Line[7].FirstBag = 0
+Line[7].LastBag  = 0
+
+Line[8].FirstBag = 0
+Line[8].LastBag  = 0
+
+Line[9].FirstBag = 110
+Line[9].LastBag  = 118 ; BUFFER AFTER CLU1\2
+
+	Line[10].FirstBag = 0
+	Line[10].LastBag  = 0
+
+	Line[11].FirstBag = 51
+	Line[11].LastBag  = 55
+
+	Line[12].FirstBag = 61
+	Line[12].LastBag  = 65
+
+	Line[13].FirstBag = 71 ;SVC 4 High level buffer
+	Line[13].LastBag  = 73
+
+	Line[14].FirstBag = 77
+	Line[14].LastBag  = 79
+
+	Line[15].FirstBag = 81
+	Line[15].LastBag  = 82
+
+	Line[16].FirstBag = 86
+	Line[16].LastBag  = 87
+
+	Line[17].FirstBag = 91 
+	Line[17].LastBag  = 92 ;Pair loop
+
+	Line[18].FirstBag = 96 
+	Line[18].LastBag  = 97 
+
+	Line[19].FirstBag = 101 ;Pair loop
+	Line[19].LastBag  = 102 ;Pair loop
+
+	Line[20].FirstBag = 136
+	Line[20].LastBag  = 144
+
+	Line[21].FirstBag = 0
+	Line[21].LastBag  = 0
+
+	Line[22].FirstBag = 0
+	Line[22].LastBag  = 0
+
+	Line[23].FirstBag = 123 ;SVC 4 Low level buffer
+	Line[23].LastBag  = 134 
+
+	Line[24].FirstBag = 146
+	Line[24].LastBag  = 149
+
+	Line[25].FirstBag = 0
+	Line[25].LastBag  = 0
+
+	Line[26].FirstBag = 0
+	Line[26].LastBag  = 0
+
+	Line[27].FirstBag = 0
+	Line[27].LastBag  = 0
+
+	Line[28].FirstBag = 0
+	Line[28].LastBag  = 0
+
+	Line[29].FirstBag = 0
+	Line[29].LastBag  = 0
+
+	Line[30].FirstBag = 301
+	Line[30].LastBag  = 308
+;	Line[31].FirstBag = 261
+;Line[31].LastBag  = 261
+
+;Line[32].FirstBag = 231
+;Line[32].LastBag  = 231
+
+;Line[33].FirstBag = 229
+;Line[33].LastBag  = 229
+
+;Line[34].FirstBag = 226
+;Line[34].LastBag  = 227
+
+
+
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+Std.EnableOverUnderRelease = FALSE ;X6C 	;Override KeySwitch - See Stn_Q
+Bag[0]
+;Storage Area transfer to TrackView
+D[250] = Std.MaxAreas
+;Ensure reply is sent to trackview for Weigh calib to stop mutilpe writes to sql
+IF (Std.MaxWeighstations = 0) THEN
+	IF (D32[230] >= 0) THEN
+		D32[231] = D32[230]
+	ELSE		
+		D32[230] = 1
+	ENDIF	
+ENDIF
+END_PROGRAM
+

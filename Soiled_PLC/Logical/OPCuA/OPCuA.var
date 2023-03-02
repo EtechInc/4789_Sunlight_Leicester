@@ -1,0 +1,5 @@
+(*OPCUa Tag Vars*)
+VAR
+	OPCuA_Display : ARRAY[0..MAX_DISPLAYS] OF OPCuA_Display_typ;
+	OPCuA_Bag : ARRAY[0..MAX_BAGS] OF EncodedBag_typ;
+END_VAR

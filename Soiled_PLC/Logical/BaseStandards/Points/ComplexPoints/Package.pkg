@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">Standard Sequence 1_x_Point V2.00.2 ENG.docx</Object>
+    <Object Type="File">Standard Sequence x_1_Point V2.00.4 ENG.docx</Object>
+    <Object Type="Program" Language="IEC" Description="*Point control for 1 line into x buffers">1_x_Point</Object>
+    <Object Type="Program" Language="IEC" Description="*Standard Point multi lines into 1">x_1_Point</Object>
+    <Object Type="Program" Language="IEC" Description="*Standard point for many to many MAX 9 buffer &amp; MAX 9 Lines">x_x_Point</Object>
+  </Objects>
+</Package>

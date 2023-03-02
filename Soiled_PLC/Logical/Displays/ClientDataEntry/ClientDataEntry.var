@@ -1,0 +1,14 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: ClientDataEntry
+ * File: ClientDataEntry.var
+ * Author: Dave
+ * Created: October 17, 2011
+ ********************************************************************
+ * Local variables of program ClientDataEntry
+ ********************************************************************)
+VAR
+	ClientDataLocal : ARRAY[0..3] OF ClientDataEntry_typ;
+	n : UINT;
+END_VAR

@@ -1,0 +1,68 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;System Status and Halting
+;-------------------------
+
+Std.StopSystem 				= (D[100] <> 0)
+
+;Std.EStop 					= NOT X[3].X01
+;Std.MotorOverload   		= X[3].X01 AND NOT X[3].X03
+;Std.SafetyOn				= X[6].X16
+;Std.HaltSys 				= NOT Std.SafetyOn ;OR Std.StopSystem)
+;
+;;Std.SafetyHighLevel			= TRUE	
+
+;MaxZones = 4	
+;Std.SafetyOnZone[0]			= Std.SafetyOn
+;Std.SafetyOnZone[1]			= FALSE;Guarded area	
+;Std.SafetyOnZone[2]			= FALSE	
+;Std.SafetyOnZone[3]			= FALSE	
+;Std.SafetyOnZone[4]			= FALSE
+;	
+;LOOP n = 0 TO MaxZones DO	
+;	Std.HaltSysZone[n] =  NOT Std.SafetyOnZone[n]
+
+;ENDLOOP	
+Std.EStop 					= NOT X[11].X16 
+
+Std.MotorOverload   		= X[9].X15 AND NOT X[9].X16
+Std.SafetyOn				=  X[11].X16 ;X[6].X16 OR TestSystem ;(SafetyZone[0].Zone_Status AND NOT SafetyZone[0].Disable) OR TestSystem;
+Std.HaltSys					= NOT Std.SafetyOn OR TEST
+Std.HaltSysZone[0]	        = Std.HaltSys
+LOOP n = 0 TO MAX_SAFE_ZONES DO	
+;	Std.SafetyOnZone[n]	= (SafetyZone[n].Zone_Status AND NOT SafetyZone[n].Disable) OR TestSystem;
+;	Std.HaltSysZone[n] =  NOT Std.SafetyOnZone[n]
+ENDLOOP	
+	
+
+;set to TRUE if not required
+LoadingStopped 	= TRUE ;(Bag[220].Prg = 0)
+OngoingStopped 	= TRUE ;(Bag[224].Prg = 0)
+OffgoingStopped = TRUE ;(Bag[225].Prg = 0)
+
+;If no Bag In Transit and stop requested then set system to stopped D[100] = 2
+IF Std.StopSystem THEN
+	IF LoadingStopped AND OngoingStopped AND OffgoingStopped THEN
+		D[100] = 2
+	ENDIF
+ENDIF
+
+
+	
+	
+;Force I/O Enable - Max ? Minutes
+ForceEnable = FALSE
+
+tmrForce.IN = ForceEnable
+tmrForce.PT = 90000 ;6000 = 1 Minute
+tmrForce FUB TON_10ms()
+
+IF ForceEnable AND NOT tmrForce.Q THEN
+	D[319] = 1
+ELSE
+	D[319] = 0
+ENDIF
+
+END_PROGRAM
+

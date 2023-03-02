@@ -1,0 +1,17 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=36_cic6 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=136 Type=0 Scope=0 Force=0 Index=3 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       X                       CardInputs[0..399]    0 "                                                               *"    0   24  400    0    0    1         
+                                    X[2]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X16                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                     X09                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                    X[4]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X09                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                     X10                                     BOOL    2 "                                                            TRUE"    2    1    1    2    0    0         
+                                     X12                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                   X[10]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X13                                     BOOL    2 "                                                            TRUE"    2    1    1    2    0    0         
+                                     X12                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                   X[29]                               CardInputs    0 "                                                               *"    1   24    1    0    0    0         
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                  D[936]                                     UINT    0 "                                                               2"    1    6    1   10    0    0         

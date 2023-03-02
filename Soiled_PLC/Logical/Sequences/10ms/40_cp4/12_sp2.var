@@ -1,0 +1,44 @@
+VAR RETAIN
+	STEP : UINT;
+	PLS : BOOL;
+	LASTSTEP : UINT;
+END_VAR
+VAR
+	TimerAlarm : TON_10ms;
+	I_BagAtBuffer : BOOL;
+	O_OpenBuffer : BOOL;
+	SDC2BufferFullET : TIME;
+	SDC2BufferFull : BOOL;
+	SettledBufferET : TIME;
+	SettledBuffer : BOOL;
+	O_OpenSP2BufferStop : BOOL;
+	O_SelectPoint : BOOL;
+	SP2BufferFull : BOOL;
+	SP2BufferFullET : UDINT;
+	ParingLoopEnabled : BOOL;
+	BagInLoopHasDest : BOOL;
+	BagAtBuffer : BOOL;
+	SettledBufferSVC1 : BOOL;
+	SettledBufferSVC1ET : UDINT;
+	SettledBufferSVC2 : BOOL;
+	SettledBufferSVC2ET : UDINT;
+	O_SelectPointSVC1 : BOOL;
+	O_SelectPointSVC2 : BOOL;
+	Reset : BOOL;
+	ResetET : UDINT;
+	I_BagatBuffer : BOOL;
+	BagAtBufferET : UDINT;
+	Alernate : USINT;
+	I_BagAtSVC1BufferStop : BOOL;
+	O_SVC1BufferStop : BOOL;
+	I_BagAtSVC2BufferStop : BOOL;
+	O_SVC2BufferStop : BOOL;
+	O_SelectSVC1 : BOOL;
+	O_SelectSVC2 : BOOL;
+	MySeq : USINT;
+	MyBag : USINT;
+	MyTransBag : INT;
+	Dest : INT;
+	O_SelectLine : ARRAY[0..13] OF BOOL;
+	O_Reset : BOOL;
+END_VAR

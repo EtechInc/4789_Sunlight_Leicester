@@ -1,0 +1,61 @@
+VAR
+	mySeq : UINT;
+END_VAR
+VAR CONSTANT
+	MY_VC : USINT := 1;
+END_VAR
+VAR
+	myZone : USINT;
+	myBag : UINT;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	myHoistID : USINT;
+	returnStep : REFERENCE TO UINT;
+	pHoist : REFERENCE TO OpcUa_VC_type;
+	position_BagOut : USINT;
+	position_Loading : USINT;
+	position_BagIn : USINT;
+	position_Service : USINT;
+	o_guardMoveUp : REFERENCE TO BOOL;
+	o_guardMoveDown : REFERENCE TO BOOL;
+	o_safeStopB : REFERENCE TO BOOL;
+	o_safeStopA : REFERENCE TO BOOL;
+	autoMode : BOOL;
+	step : UINT;
+	permission_Move : BOOL;
+	pls : BOOL;
+	lastStep : UINT;
+	timerAlarm : TON_10ms;
+	reqPosition : USINT;
+	readyToRecieve : BOOL;
+	okToRelease : BOOL;
+	requestRelease : BOOL;
+	releaseBag : BOOL;
+	f_trig_Released : F_TRIG;
+	r_trig_Released : R_TRIG;
+	guardMoveDown : BOOL;
+	permission_GetBag : BOOL;
+	permission_ReleaseBag : BOOL;
+	bulkLoaded : BOOL;
+	moveGuardDown : BOOL;
+	unloadFinished : BOOL;
+	myPrg : USINT;
+	myCat : UDINT;
+	myCus : UDINT;
+	myWgt : UINT;
+	myMis : UDINT;
+	myCnt : UINT;
+	myBid : UDINT;
+	myDst : UINT;
+	myTime : DATE_AND_TIME;
+	requestPrgCode : UINT;
+	myReportStn : UINT;
+	allowFullBagsInServicePos : BOOL; (*Option to allow full bags into service position*)
+	fullBagOnHoist : BOOL;
+	bagOnCarriage : BOOL;
+	lastAlarm : UINT;
+	i_bagReleased : REFERENCE TO BOOL;
+	bagReleased : BOOL;
+	wieghtCheck : BOOL;
+END_VAR

@@ -1,0 +1,14 @@
+VAR
+	display : ARRAY[0..MAX_DISPLAYS] OF Display_typ;
+	n : UINT;
+	i : UINT;
+	layout : REFERENCE TO DispLayout_typ;
+	backcolour : UINT;
+	stnName : STRING[5];
+	stnIndex : STRING[5];
+	index : UINT;
+	encodeDisplay : OPCuA_DisplayEncode_Bin;
+	decodeDisplay : OPCuA_DisplayDecode;
+	testTim : BOOL;
+	sizeBag : UDINT;
+END_VAR

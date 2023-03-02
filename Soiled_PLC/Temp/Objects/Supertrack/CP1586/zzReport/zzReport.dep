@@ -1,0 +1,9 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var
+$(AS_PROJECT_PATH)/Logical/Sequences/200ms/Reports/Reports.var
+$(AS_PROJECT_PATH)/Logical/Sequences/200ms/Reports/Reports.typ
+$(AS_PROJECT_PATH)/Logical/Sequences/200ms/Reports/zzReport/zzreport.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.typ
+$(AS_PROJECT_PATH)/Logical/Timestamp/Timestamp.var

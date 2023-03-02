@@ -1,0 +1,132 @@
+﻿@import "mixins.scss";
+@import "../../../../../types/MessageBox_base";
+.system_brease_MessageBox_style_Kannegiesser1 {
+@include system_brease_MessageBox_base; 
+.breaseMessageBoxHeader {
+	background-image: linear-gradient(to bottom, #c5deea 0%,#8abbd7 31%,#67a6e4 100%);
+}
+.breaseMessageBoxContentBox div.content {
+	font-size: 20px;
+}
+&.breaseMessageBox.breaseWindow header.breaseMessageBoxHeader > div {
+	color: #055d94;
+}
+.breaseMessageBoxContentBox div.content {
+	color: #474747;
+}
+.breaseMessageBoxHeader {
+	border-radius: 8px 8px 8px 8px;
+}
+.messageBoxFooter {
+	border-radius: 8px 8px 8px 8px;
+}
+.breaseMessageBoxContentBox {
+	border-width: 1px;
+}
+.breaseMessageBoxContentBox {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+@include box-shadow(5px 5px 20px 0px rgba(62, 79, 92, 0.75));
+.messageBoxButton {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+.messageBoxButton {
+	border-width: 0px 0px 0px 0px;
+}
+.messageBoxButton {
+@include border-radius(5px);
+}
+.messageBoxButton span {
+	color: #474747;
+}
+.messageBoxButton:not(.disabled) span {
+	color: #474747;
+}
+.messageBoxButton.disabled span {
+	color: #474747;
+}
+.messageBoxButton {
+	background-image: linear-gradient(to bottom, rgba(247,247,247,1) 0%,rgba(229,229,229,1) 100%);
+}
+
+}
+@import "../../../../../types/Dialog_base";
+.system_brease_Dialog_style_Kannegiesser1 {
+@include system_brease_Dialog_base; 
+.breaseDialogWindowHeader {
+	background-image: linear-gradient(to bottom, #c5deea 0%,#8abbd7 31%,#67a6e4 100%);
+}
+.breaseDialogWindowHeader {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+.breaseDialogWindowHeader {
+	border-width: 1px;
+}
+.breaseDialogWindowHeader .textDiv {
+	font-size: 20px;
+}
+.breaseDialogWindowHeader .textDiv {
+	color: #474747;
+}
+.breaseDialogWindowContentBox > .breaseLayout {
+	background-color: #FFFFFF;
+}
+@include border-radius(8px 8px 8px 8px);
+.breaseDialogWindowContentBox {
+@include border-bottom-right-radius(8px 8px 8px 8px);
+}
+.breaseDialogWindowContentBox {
+@include border-bottom-left-radius(8px 8px 8px 8px);
+}
+.breaseDialogWindowHeader {
+@include border-radius(8px 8px 8px 8px);
+}
+.breaseDialogWindowContentBox {
+	border-width: 1px;
+}
+.breaseDialogWindowContentBox {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+@include box-shadow(5px 5px 20px 0px rgba(62, 79, 92, 0.75));
+
+}
+@import "../../../../../types/Dialog_base";
+.system_brease_Dialog_style_KgLoginDialog {
+@include system_brease_Dialog_base; 
+.breaseDialogWindowHeader {
+	background-image: linear-gradient(to bottom, #c5deea 0%,#8abbd7 31%,#67a6e4 100%);
+}
+.breaseDialogWindowHeader {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+.breaseDialogWindowHeader {
+	border-width: 1px;
+}
+.breaseDialogWindowHeader .textDiv {
+	font-size: 5px;
+}
+.breaseDialogWindowHeader .textDiv {
+	color: #474747;
+}
+.breaseDialogWindowContentBox > .breaseLayout {
+	background-color: #FFFFFF;
+}
+@include border-radius(8px 8px 8px 8px);
+.breaseDialogWindowContentBox {
+@include border-bottom-right-radius(8px 8px 8px 8px);
+}
+.breaseDialogWindowContentBox {
+@include border-bottom-left-radius(8px 8px 8px 8px);
+}
+.breaseDialogWindowHeader {
+@include border-radius(8px 8px 8px 8px);
+}
+.breaseDialogWindowContentBox {
+	border-width: 1px;
+}
+.breaseDialogWindowContentBox {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+@include box-shadow(5px 5px 20px 0px rgba(62, 79, 92, 0.75));
+
+}

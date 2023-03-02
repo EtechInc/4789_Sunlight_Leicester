@@ -1,0 +1,648 @@
+
+;Unloading Programs 4 - Search and give Destination (Using Bag)
+
+	;-----------------------------------------------------------
+	;Version 1.00 03/12/2005 D.J. First Issue
+	;Version 2.00 30/08/2007 D.J. BagRemaining changed to INT
+	;Version 3.00 25/06/2009 D.J. Use .Prg Instead of .Cat
+	;Version 4.00 09/11/2009 D.J. Allow multiple destination
+	;Version 4.10 08/06/2011 D.J. Addes Start/Stop for each line
+	;-----------------------------------------------------------
+
+PROGRAM _INIT
+	
+	;Constants
+	;---------
+	
+	UnloadingMaxDepth 	= 1 ;Set with Batch Size and Scan Time in mind 8 = Standard MAX BAG AMT CALL OFF
+
+	StartDischarger 	= 1
+	EndDischarger   	= 2 ;Allowed for 3rd future discharger so recirc takes dest 24
+	
+
+	
+	StartLineSearch 	= 1
+	EndLineSearch 		= 7 ;Include Lines A-C
+	
+	SkipLineStart		= 0
+	SkipLineEnd			= 0
+	
+	RegOffset[1]    	= 1000
+	RegOffset[2]    	= 1200
+	RegOffset[3]    	= 1400
+	RegOffset[4]    	= 1600
+	RegOffset[5]    	= 1800
+	RegOffset[6]    	= 2000
+	RegOffset[7]    	= 2200
+	RegOffset[8]    	= 2400
+	
+	;Enter Line Number for Discharger buffers - Recirc is after last Discharger
+	;Destination Code bag will be allocated
+	BufferLineNum[1]	= 11
+	BufferLineNum[2]	= 12
+	BufferLineNum[3]	= 13
+	BufferLineNum[4]	= 14
+	BufferLineNum[5]	= 15
+	BufferLineNum[6]	= 16
+	BufferLineNum[7]	= 17
+	BufferLineNum[8]	= 18
+	
+	RecircDest			= 10
+
+	
+	PriorityLine		= 0		;Always Search this line first then use the Uld[n].DischargerStartLine Set to 0 if not required
+	
+	StartStopOffset		= 40;200	;Offset for D register for each lines Start / Stop ie D201 to D2xx - Set to Zero if no Start / Stops
+	
+END_PROGRAM
+
+PROGRAM _CYCLIC
+
+	;Spare Step
+	IF (UldStep = 0) THEN
+		UldStep = 1
+	ENDIF
+
+	;UldStep 1	- Check no bags in Storage are allocated with a destination
+	IF (UldStep = 1) THEN
+
+		;Set ScanCount as alternating Value 25 is about 5 seconds
+		IF (ScanCount = 1) THEN
+			Discharger 	= (Discharger + 1)
+			ScanCount 	= 0
+		ENDIF
+
+		ScanCount = (ScanCount + 1)
+
+		IF ((Discharger > EndDischarger) OR (Discharger < StartDischarger))  THEN
+			Discharger 	= StartDischarger
+		ENDIF
+
+		;Set discharger number in TestDischarger if required
+		IF (TestDischarger > 0) THEN
+			Discharger = TestDischarger
+		ENDIF
+
+		;Read Program Variables
+		n = RegOffset[Discharger]
+
+		ProgramStep 			= D[1 + n]
+		ProgQtyComplete			= D[2 + n]
+		AutoRecirculation 		= (D[1003] = 1)		;Use if Re-cirulation or Offgoing Batching Loop
+		RecirculationMaxDepth 	= D[1004]
+
+		ManualLine       		= D[7 + n]
+		ManualBags       		= D[8 + n]
+		StepsSearched			= D[9 + n]
+		SkipIncompleteStep 		= (D[10 + n] = 1)
+		AutoRepeat				= (D[11 + n] = 1)
+		MixPrograms 			= (D[12 + n] = 1)	;Batch must be same Program?
+		MixCustomers 			= (D[13 + n] = 1) 	;Batch must be same Customer?
+		NoBagAvailable			= (D[14 + n] = 1)	;Alarm 'No Bag Available'
+		ProgramFinished			= (D[15 + n] = 1)	;Alarm 'Finished Program'
+		ManualLineRecirc 		= D[1016]
+		ManualBagsRecirc 		= D[1017]
+		ProgramRunning			= (D[19 + n] = 1)	;Run from TrackView
+		ExpressLine 			= D[20 + n]
+		CustomerMode			= D[21 + n]			;Customer Mode 0 = Normal Manual, 1 = Reset Pointer on every step, 2 = Check all steps before changing
+		ProgramReset			= (D[22 + n] = 1)	;Customer FIFO Reset
+
+		DischargerReady			= Uld[Discharger].SDCReady
+		
+		DischargerSpaces 		= Line[BufferLineNum[Discharger]].SpaceBIT
+		
+		;Calculate RecircSpaces
+		RecircSpaces  		= (DestCountSystem[RecircDest] - DestCountStorage[RecircDest])
+		IF (RecircSpaces < 0) THEN ; Keep value positive
+			RecircSpaces = 0
+		ENDIF	
+		BagsWithDest 			= DestCountStorage[BufferLineNum[Discharger]]
+		
+				
+		IF ((BagsWithDest = 0) AND (Discharger > 0)) THEN
+			UldStep = 2
+		ELSE
+			;Allow program to skip blank steps when Bags Have Destinations
+			UnusedStep		= (D[40 + n + ProgramStep] = 0) ;Bags = 0
+			IF UnusedStep THEN
+				UldStep = 15
+			ENDIF
+		ENDIF
+
+		;If program is new then Clear Search Values
+		IF ProgramReset THEN
+			Uld[Discharger].FIFOCustomer 		= 0	;Clear Current Customer - FIFO Will allocate next
+			Uld[Discharger].LastCustQtyComplete = 0	;Clear Last Quantity
+			StepsSearched 						= 0	;Clear Steps Searched / Failed
+			D[22 + n]	 						= 0 ;Clear Program Reset
+			UldStep 							= 0	;Keep Unloading Step at 0 to allow Customer FIFO to allocate next Customer
+		ENDIF
+
+	ENDIF
+
+	;UldStep 2	- Check for a Manual Re-circulation regardless of Discharger
+	;			- Note will stop all unloading progrms if not ready
+	IF (UldStep = 2) THEN
+		IF ((ManualLineRecirc >= StartLineSearch) AND (ManualLineRecirc <= EndLineSearch) AND (ManualBagsRecirc > 0)) THEN
+			IF Uld[EndDischarger + 1].SDCReady THEN
+				UldStep = 21
+			ELSE
+				UldStep = 0
+			ENDIF
+		ELSE
+			UldStep = 3
+		ENDIF
+	ENDIF
+
+	;UldStep 3	- Check Discharger is Ready
+	IF (UldStep = 3) THEN
+		IF (DischargerReady AND ProgramRunning) THEN; AND (DischargerSpaces > 0)) THEN
+			UldStep = 4
+		ELSE
+			;If not ready then clear steps searched
+			UldStep = 0
+		ENDIF
+	ENDIF
+
+	;UldStep 4	- Check for a Manual Bags
+	IF (UldStep = 4) THEN
+		IF ((ManualLine >= StartLineSearch) AND (ManualLine <= EndLineSearch) AND (ManualBags > 0)) THEN
+			UldStep = 22
+		ELSE
+			UldStep = 5
+		ENDIF
+	ENDIF
+
+	;STEP 5	- Check Express Line
+	IF (UldStep = 5) THEN
+		IF (ExpressLine > 0) THEN
+			ExpressBag  = Line[ExpressLine].FirstBag
+		ENDIF
+		IF ((Bag[ExpressBag].Cat > 0) AND (ExpressLine > 0) AND (Line[BufferLineNum[Discharger]].SpaceBIT > 0)) THEN
+			UldStep = 23
+		ELSE
+			UldStep = 6
+		ENDIF
+	ENDIF
+
+	;UldStep 6	- Check Program step
+	IF (UldStep = 6) THEN
+
+		;Check if UldStep Valid
+		IF (ProgramStep < 1) OR (ProgramStep > 20) THEN
+			ProgramStep = 1 					;Set to UldStep 1
+			ProgQtyComplete = 0 				;Clear Qty Completed
+			IF (CustomerMode = 1) THEN
+				Uld[Discharger].FIFOCustomer = 0
+			ENDIF
+		ENDIF
+
+		UldStep = 7
+
+	ENDIF
+
+	;UldStep 7 - Check for remaining bags on the current Step
+	IF (UldStep = 7) THEN
+
+		BatchSize 		= D[80 + n + ProgramStep]
+		Quantity 		= D[40 + n + ProgramStep] ;* BatchSize ;Take bags * BatchSize
+		BagsRemaining 	= INT(Quantity - ProgQtyComplete)
+
+
+		IF ((BagsRemaining > 0) AND (BagsRemaining >= INT(BatchSize))) THEN
+			UldStep = 8
+		ELSE
+			UldStep = 15 ;Step Not Complete Or No Qty
+		ENDIF
+
+	ENDIF
+
+	;UldStep 8 - Check the 'Batch' Will fit onto the Buffer
+	IF (UldStep = 8) THEN
+
+		BatchSize 		= D[80 + n + ProgramStep]
+
+		IF (DischargerSpaces >= BatchSize) THEN
+			UldStep = 9
+		ELSE
+			UldStep = 0
+		ENDIF
+
+	ENDIF
+
+	;UldStep 9 - Set Search Values
+	IF (UldStep = 9) THEN
+
+		IF (PriorityLine = 0) THEN
+			StartLine = (Uld[Discharger].DischargerStartLine + 1)
+			IF ((StartLine < StartLineSearch) OR (StartLine > EndLineSearch)) THEN
+				StartLine = StartLineSearch
+			ENDIF
+		ELSE
+			StartLine = PriorityLine
+		ENDIF
+
+		SearchLine   = D[60 + n + ProgramStep]
+		BatchSize    = D[80 + n + ProgramStep]
+
+		SearchPrg[1] = D[100 + n + ProgramStep]
+		SearchPrg[2] = D[120 + n + ProgramStep]
+		SearchPrg[3] = D[140 + n + ProgramStep]
+
+		IF (CustomerMode = 0) THEN
+			SearchCus[1] = D32[20 + Discharger]					;Manually Selected Customer
+		ELSE
+			SearchCus[1] = Uld[Discharger].FIFOCustomer ;Automatic FIFO Customer Selection
+		ENDIF
+
+		SearchSpaces = 0 ;Search Always starts with no spaces on the recirc
+
+		UldStep = 10
+
+	ENDIF
+
+	;UldStep 10 - Search for Bag(s) could be modified to run over several scans to reduce its load on the PLC
+	;			  To find the best pos using set RecircSpaces low increasing to max.
+	IF (UldStep = 10) THEN
+
+		LOOP FindBest = 1 TO 3 DO
+
+			;Clear the Search Array and Set Depth Allowed 1 for upto 49 storage lines
+			FoundLine = 0
+			memset(ADR(FoundBag[0]),0,10)
+			memset(ADR(LineDepthAllowed[0]),1,50)
+
+			RecircSpacesRemain = SearchSpaces
+			
+			;Can the 1st, 2nd or 3rd Program be mixed with each other? 'Mix Programs'
+			IF (FindBest = 1) THEN
+				MatchPrg1 = TRUE
+				MatchPrg2 = FALSE
+				MatchPrg3 = FALSE
+			ELSE IF (FindBest = 2) THEN
+				MatchPrg1 = MixPrograms
+				MatchPrg2 = TRUE
+				MatchPrg3 = FALSE
+			ELSE
+				MatchPrg1 = MixPrograms
+				MatchPrg2 = MixPrograms
+				MatchPrg3 = TRUE
+			ENDIF
+
+			;Loop around all the storage lins row by row.
+			LOOP CurrentDepth = 1 TO UnloadingMaxDepth DO ;Always search to max depth to check scan time
+
+				;CurrentLine = StartLine
+
+				LOOP LinesSearched = StartLineSearch TO EndLineSearch DO ;Loop around each line
+				 
+					CurrentLine = LongestTime[LinesSearched]
+					CurrentBag = (Line[CurrentLine].FirstBag + (CurrentDepth - 1))
+
+					;Search / Add
+					;------------
+					;For Unloading by line - If there is a bag on the line and the 1st Program = 0 then check Customer valid
+					;eg if the 1st Prg and 1st Cus are set to 0 then this would set "CatCusValid" to TRUE but the line must also match
+					;Unloading by Customer only cannot be done.
+					
+					CatValid = (Bag[CurrentBag].Cat > 0)
+					CusValid = FALSE
+					PrgValid = FALSE
+					DstValid = FALSE
+					
+					;Check the Destination is valid (allow dischargers to take recirc bags)
+					IF ((Bag[CurrentBag].Dst = 0) OR (Bag[CurrentBag].Dst = RecircDest)) THEN
+						DstValid = TRUE
+					ENDIF
+					
+					;Check the Customer is valid
+					IF (Bag[CurrentBag].Cus = SearchCus[1]) THEN
+						CusValid = TRUE
+					ELSE IF ((SearchCus[1] = 0) AND (CustomerMode = 0)) THEN ;Only Valid If Manual Customer Selection
+						CusValid = TRUE
+					ENDIF
+
+					;Check the Category is valid
+					IF (MatchPrg1 AND (Bag[CurrentBag].Prg = SearchPrg[1]) AND (SearchPrg[1] > 0)) THEN
+						PrgValid = TRUE
+					ENDIF
+					IF (MatchPrg2 AND (Bag[CurrentBag].Prg = SearchPrg[2]) AND (SearchPrg[2] > 0)) THEN
+						PrgValid = TRUE
+					ENDIF
+					IF (MatchPrg3 AND (Bag[CurrentBag].Prg = SearchPrg[3]) AND (SearchPrg[3] > 0)) THEN
+						PrgValid = TRUE
+					ENDIF
+					;If Unloading by line and no Category is set then Set Valid
+					IF ((Bag[CurrentBag].Cat > 0) AND (SearchPrg[1] = 0) AND (SearchLine > 0)) THEN
+						PrgValid = TRUE 
+					ENDIF
+					
+					BagValid = (CurrentBag >= Line[CurrentLine].FirstBag) AND (CurrentBag <= Line[CurrentLine].LastBag)
+					
+					LineValid 	= ((SearchLine = CurrentLine) OR (SearchLine = 0))
+					LineValid2 	= ((CurrentLine < SkipLineStart) OR (CurrentLine > SkipLineEnd))
+					IF (StartStopOffset < 100) THEN
+						LineValid3	= ((StartStopOffset = 0) OR (D[StartStopOffset + CurrentLine] > 0))
+					ELSE
+						LineValid3	= (D[StartStopOffset + 7600 + CurrentLine] > 0) ;Start / Stop 100 -299 D7700 to D7899
+					ENDIF
+									
+					DepthValid	= ((LineDepthAllowed[CurrentLine] + RecircSpacesRemain) >= CurrentDepth)
+					DepthValid2	= ((CurrentDepth <= RecirculationMaxDepth) OR NOT AutoRecirculation)
+
+					IF (BagValid AND DstValid AND CatValid AND PrgValid AND CusValid AND LineValid AND LineValid2 AND LineValid3 AND DepthValid AND DepthValid2) THEN
+
+						IF (FoundBag[0] < BatchSize)  THEN
+							FoundBag[0] = FoundBag[0] + 1
+							x 			= FoundBag[0]
+							FoundBag[x] = CurrentBag
+							FoundLine	= CurrentLine
+
+							;If bags need to go to recirc then dec
+							IF (LineDepthAllowed[CurrentLine] < USINT(CurrentDepth)) THEN
+								SpacesUsed 			= USINT(CurrentDepth) - LineDepthAllowed[CurrentLine]
+								RecircSpacesRemain 	= (RecircSpacesRemain - SpacesUsed)
+							ENDIF
+
+							LineDepthAllowed[CurrentLine] = USINT(CurrentDepth + 1)
+
+						ENDIF
+
+					ENDIF
+
+					;-------------
+					;End of Search
+					;-------------
+
+					;If searching using priority line then start from the Discharger Start Line
+					IF CurrentLine = PriorityLine THEN
+						CurrentLine = (Uld[Discharger].DischargerStartLine)
+					ENDIF
+
+					;Set Next Line
+					CurrentLine = (CurrentLine + 1)
+					IF CurrentLine > EndLineSearch THEN
+						CurrentLine = StartLineSearch
+					ENDIF
+
+					;If the new line = priority line then skip as its already been searched
+					IF CurrentLine = PriorityLine THEN
+						CurrentLine = (CurrentLine + 1)
+						IF CurrentLine > EndLineSearch THEN
+							CurrentLine = StartLineSearch
+						ENDIF
+					ENDIF
+
+				ENDLOOP
+
+			ENDLOOP
+
+			EXITIF FoundBag[0] = BatchSize
+
+		ENDLOOP				;Find Best
+
+		;Check if the bags were found
+		IF FoundBag[0] = BatchSize THEN
+			UldStep = 14 	;Action Results
+		ELSE IF (AutoRecirculation AND (RecircSpaces > SearchSpaces) AND (RecircSpaces > 0)) THEN
+			;If recirculation - to find the best possible result inc the search spaces each scan
+			;until total spaces searched
+			SearchSpaces = (SearchSpaces + 1)
+			UldStep = 10	;Try with more recirculation space
+		ELSE
+			UldStep = 15	;Search Failed
+		ENDIF
+
+	ENDIF
+
+
+	;UldStep 14 - Search Valid give bags destinations, inc qty taken by batchsize
+	IF (UldStep = 14) THEN
+
+		LOOP Dest = 1 TO BatchSize DO
+			Bag[FoundBag[Dest]].Dst = USINT(BufferLineNum[Discharger])
+		ENDLOOP
+		ProgQtyComplete = ProgQtyComplete + BatchSize	;Inc Qty Completed
+		StepsSearched = 0 								;Clear the search failed UldStep counter
+		NoBagAvailable = FALSE 							;No Bags Alarm (OFF)
+		LastDischarger = Discharger
+
+		IF AutoRecirculation THEN
+			UldStep = 24		;Set Any Bags for Auto-Reirculation
+		ELSE
+			UldStep = 0
+		ENDIF
+
+		;Mode 2 Needs to keep the Qty completed for the next customer
+		Uld[Discharger].LastCustQtyComplete = ProgQtyComplete
+
+	ENDIF
+
+	;UldStep 15 - Search Failed
+	IF (UldStep = 15) THEN
+
+		BatchSize 		= D[80 + n + ProgramStep]
+		;Quantity 		= D[40 + n + ProgramStep] * BatchSize ;Take bags * BatchSize
+		Quantity		= (D[40 + n + ProgramStep])
+		BagsRemaining 	= INT(Quantity - ProgQtyComplete)
+		UnusedStep		= (D[40 + n + ProgramStep] = 0) ;Bags = 0
+
+		;Inc Steps searched counter
+		IF (StepsSearched < 21) THEN
+			StepsSearched = (StepsSearched + 1)
+		ENDIF
+
+		IF (CustomerMode = 0) THEN
+			IF (BagsRemaining <= 0) THEN
+				UldStep = 16			;Try Next Step
+			ELSE IF (SkipIncompleteStep OR UnusedStep) THEN
+				UldStep = 16			;Try Next Step
+			ELSE
+				NoBagAvailable = TRUE 	;Set Alarm and Wait for Operator to change Program or More Bags
+				UldStep = 0
+			ENDIF
+		ENDIF
+
+		IF (CustomerMode = 1) THEN
+			IF (BagsRemaining <= 0) THEN
+				UldStep = 16			;Try Next Step
+			ELSE IF (NOT UnusedStep) THEN
+				IF (Uld[Discharger].FIFONextCustomer > 0) THEN
+					;Mode 1 Search again with the Next Customer Without Changing Step
+					Uld[Discharger].FIFOCustomer = Uld[Discharger].FIFONextCustomer
+					UldStep = 0
+				ELSE
+					;Last customer was not found reset FIFO position to 1 and keep searching
+					Uld[Discharger].FIFOCustomer = 0 ;Reset the First Customer
+					NoBagAvailable = TRUE
+					UldStep = 0
+				ENDIF
+			ELSE IF (SkipIncompleteStep OR UnusedStep) THEN
+				UldStep = 16			;Try Next Step
+			ELSE
+				NoBagAvailable = TRUE	;Set Alarm and Wait for Operator to change Program or More Bags
+				UldStep = 0
+			ENDIf
+		ENDIF
+
+		IF (CustomerMode = 2) THEN
+			IF (BagsRemaining <= 0) THEN
+				UldStep = 16			;Try Next Step
+			ELSE IF (StepsSearched = 21) THEN
+				IF (Uld[Discharger].FIFONextCustomer > 0) THEN
+					;Mode 2 Customer Change Only After 21 Steps Searched
+					Uld[Discharger].FIFOCustomer = Uld[Discharger].FIFONextCustomer
+					ProgQtyComplete = Uld[Discharger].LastCustQtyComplete
+					StepsSearched = 0 ;FREI Use -1 to go to next step
+					UldStep = 0
+				ELSE
+					;Last customer was not found reset FIFO position to 1 and keep searching
+					Uld[Discharger].FIFOCustomer = 0 ;Reset the First Customer
+					NoBagAvailable = TRUE
+					StepsSearched = 0
+					UldStep = 0
+				ENDIF
+			ELSE IF (SkipIncompleteStep OR UnusedStep) THEN
+				UldStep = 16			;Try Next Step
+			ELSE
+				NoBagAvailable = TRUE	;Set Alarm and Wait for Operator to change Program or More Bags
+				UldStep = 0
+			ENDIF
+		ENDIF
+
+	ENDIF
+
+
+	;Skip Program Step or Set to 1
+	IF (UldStep = 16) THEN
+		IF (ProgramStep = 20) THEN
+			IF AutoRepeat THEN
+				ProgramStep = 1
+				IF (CustomerMode = 1) THEN
+					Uld[Discharger].FIFOCustomer = 0 ;Start Search With First Customer
+				ENDIF
+			ELSE
+				ProgramFinished = TRUE
+			ENDIF
+		ELSE
+			ProgramStep = ProgramStep + 1
+			IF (CustomerMode = 1) THEN
+				Uld[Discharger].FIFOCustomer = 0 ;Start Search With First Customer
+			ENDIF
+		ENDIF
+		ProgQtyComplete = 0
+		UldStep = 0
+	ENDIF
+
+	;UldStep 21 -	Manual Bags Recirc
+	IF (UldStep = 21) THEN
+		
+		LOOP RecircBag = 0 TO (ManualBagsRecirc - 1) DO	
+		
+			CurrentBag = (Line[ManualLineRecirc].FirstBag + RecircBag)
+	
+			IF Bag[CurrentBag].Cat > 0 THEN
+				Bag[CurrentBag].Dst = USINT(RecircDest)	;Set Destination
+				;ManualBagsRecirc    = (ManualBagsRecirc - 1)					;Dec manual bags by 1
+			ENDIF
+		ENDLOOP
+		ManualBagsRecirc = 0
+		UldStep = 0
+	
+	ENDIF
+
+	;UldStep 22 - Manual Bags to Discharger
+	IF (UldStep = 22) THEN
+
+		CurrentBag = Line[ManualLine].FirstBag
+
+		IF Bag[CurrentBag].Cat > 0 THEN
+			Bag[CurrentBag].Dst = USINT(BufferLineNum[Discharger])
+			ManualBags 			= (ManualBags - 1)				;Dec manual bags by 1
+		ENDIF
+
+		UldStep = 0
+
+	ENDIF
+
+	;UldStep 23 - Express Line
+	IF (UldStep = 23) THEN
+
+		Bag[ExpressBag].Dst = USINT(BufferLineNum[Discharger])
+
+		UldStep = 0
+
+	ENDIF
+
+	;UldStep 24 - Set Bags to re-circulation line if they need to move out of the way of bags with destinations
+	IF (UldStep = 24) THEN
+
+		LOOP CurrentLine = StartLineSearch to EndLineSearch DO
+			LOOP CurrentBag = Line[CurrentLine].LastBag DOWNTO Line[CurrentLine].FirstBag DO
+
+				IF (Bag[CurrentBag].Dst > 0) AND (Bag[CurrentBag - 1].Dst = 0) AND (CurrentBag > Line[CurrentLine].FirstBag) THEN
+					Bag[CurrentBag - 1].Dst = USINT(RecircDest)
+				ENDIF
+
+			ENDLOOP
+		ENDLOOP
+
+		UldStep = 0
+
+	ENDIF
+
+
+
+
+
+	;Outputs
+	;-------
+
+	D[1 + n] 		= ProgramStep
+	D[2 + n]		= ProgQtyComplete
+	D[8 + n] 		= ManualBags
+	D[9 + n]		= StepsSearched
+
+	;No bag available is displayed if 20 steps have been searched and program is running
+	IF (NoBagAvailable AND ProgramRunning) THEN
+		D[14 + n] = 1
+		Alarm[Discharger + 200].On		= TRUE
+		Alarm[Discharger + 200].Bag 	= 0
+		Alarm[Discharger + 200].Name 	= almUldNoBag
+		Alarm[Discharger + 200].Beacon	= FALSE
+	ELSE
+		D[14 + n]	= 0
+	ENDIF
+
+	;Program is only finished if on step 20 and Program Running
+	IF (ProgramFinished AND ProgramRunning AND (ProgramStep = 20)) THEN
+		D[15 + n]	= 1
+		Alarm[Discharger + 200].On		= TRUE
+		Alarm[Discharger + 200].Bag 	= 0
+		Alarm[Discharger + 200].Name 	= almUldProgFinished
+		Alarm[Discharger + 200].Beacon	= FALSE
+	ELSE
+		D[15 + n]	= 0
+	ENDIF
+
+	;If no unloading alarms then clear unloading alarm
+	IF (D[14 + n] = 0) AND (D[15 + n] = 0) THEN
+		Alarm[Discharger + 200].On		= FALSE
+		Alarm[Discharger + 200].Bag 	= 0
+		Alarm[Discharger + 200].Name 	= almNoAlarm
+		Alarm[Discharger + 200].Beacon	= FALSE
+	ENDIF
+
+	D[1017]		= ManualBagsRecirc
+
+	IF ProgramRunning THEN
+		D[18 + n]	= 1
+	ELSE
+		D[18 + n]	= 0
+	ENDIF
+
+	D32[30 + Discharger] 	= Uld[Discharger].FIFOCustomer
+	;D[187 + n] 		= Uld[Discharger].FIFONextCustomer
+
+END_PROGRAM
+

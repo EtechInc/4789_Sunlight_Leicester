@@ -1,0 +1,31 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzGetNames
+ * File: zzGetNames.var
+ * Author: Dave
+ * Created: November 19, 2010
+ ********************************************************************
+ * Local variables of program zzGetNames
+ ********************************************************************)
+VAR
+	MaxDisplays : UINT := 4;
+	OwnerID : UDINT;
+	TviewReplyOwnerID : UDINT;
+	WaitReply : BOOL;
+	myBag : UINT;
+	CommsID : UDINT;
+	Timer2Q : BOOL;
+	Timer1Q : BOOL;
+	Timer1ET : UDINT;
+	Timer2ET : UDINT;
+	result : DINT;
+	TestTim : UDINT;
+	mySql : UINT;
+	myPrgString : STRING[24];
+	myCatString : STRING[24];
+	myCusString : STRING[24];
+	SqlWriteActive : BOOL;
+	RefreshDataTest : BOOL;
+	n : INT;
+END_VAR

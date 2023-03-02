@@ -1,0 +1,102 @@
+﻿@import "mixins.scss";
+@import "../../../../widgets/brease/TextOutput/meta/TextOutput_base";
+.widgets_brease_TextOutput_style_Kannegiesser1 {
+@include widgets_brease_TextOutput_base; 
+& span {
+	color: #ffffff;
+}
+	border-style: solid;
+&:before {
+	border-style: solid;
+}
+&:after {
+	border-style: solid;
+}
+	border-width: 1px;
+	border-color: #ffffff;
+&:before {
+	border-color: #ffffff;
+}
+&:after {
+	border-color: #ffffff;
+}
+	font-size: 12px;
+	background-color: #099bf6;
+
+}
+@import "../../../../widgets/brease/Label/meta/Label_base";
+.widgets_brease_Label_style_Kannegiesser1 {
+@include widgets_brease_Label_base; 
+& span {
+	color: #ffffff;
+}
+	border-style: solid;
+&:before {
+	border-style: solid;
+}
+&:after {
+	border-style: solid;
+}
+	border-width: 1px;
+	border-color: #ffffff;
+&:before {
+	border-color: #ffffff;
+}
+&:after {
+	border-color: #ffffff;
+}
+	font-size: 12px;
+	background-color: #099bf6;
+
+}
+@import "../../../../widgets/brease/TextPicker/meta/TextPicker_base";
+.widgets_brease_TextPicker_style_Kannegiesser1 {
+@include widgets_brease_TextPicker_base; 
+&:not(.disabled) {
+	background-color: rgba(255, 255, 255, 1);
+}
+#textWheel div.itemFragment div span {
+@include font-weight-bold(false);
+}
+	border-width: 1px;
+&:not(.disabled) {
+	border-color: #A899A0 #5F5F5F #5F5F5F #A899A0;
+}
+#textWheel div.itemFragment div span {
+	font-size: 12px;
+}
+&:not(.disabled) #textWheel div.itemFragment div:not(.selected) span {
+	color: rgba(0, 0, 0, 1);
+}
+#textWheel div.itemFragment div.selected {
+	border-width: 0px;
+}
+&:not(.disabled) #textWheel div.itemFragment div.selected {
+	background-color: rgba(255, 255, 255, 1);
+}
+#textWheel div.itemFragment div {
+@include box-shadow(none);
+}
+&.disabled #textWheel div.itemFragment div.selected {
+	background-color: rgba(255, 255, 255, 1);
+}
+&.disabled #textWheel div.itemFragment div.selected span {
+	color: rgba(0, 0, 0, 1);
+}
+&:not(.disabled) #textWheel div.itemFragment div.selected span {
+	color: rgba(0, 0, 0, 1);
+}
+&.disabled #textWheel div.marker {
+	background-color: rgba(255, 255, 255, 1);
+}
+&:not(.disabled) #textWheel div.marker {
+	background-color: rgba(255, 255, 255, 1);
+}
+&.disabled #textWheel div.itemFragment div:not(.selected) span {
+	color: rgba(0, 0, 0, 1);
+}
+#textWheel div.itemFragment div:not(.selected) {
+	border-width: 0px;
+}
+
+}

@@ -1,0 +1,111 @@
+
+(* COPYRIGHT -- HP
+********************************************************************
+* PROGRAM: zzModuleLog
+* File: zzModuleLog.ab
+* Author: treamsbottom
+* Created: September 14, 2016
+********************************************************************
+* Implementation OF PROGRAM zzModuleLog
+	********************************************************************)
+
+;** V1.00.1 -- T.R -- First Release.. Logs and module OK fail to logbook.. The IO data is stored.. the first 8bits are X the last 8 bits are Y. 
+PROGRAM _INIT
+	pLoggerName = ADR("W_sta") ; Name of Logger module
+END_PROGRAM	
+
+PROGRAM _CYCLIC
+	
+	//Monitor any changes in OK bits
+	comp =	memcmp(ADR(WeighStatus),ADR(lastState),SIZEOF(lastState))		
+	
+	IF (comp <> 0) THEN // State Change detected... Log for difference and write log
+		LOOP n = 0 TO MAX_MODULE_LOGS DO	
+			IF  (WeighStatus[n] <> lastState[n]) AND (WeighStatus[n] > 0) THEN
+				itoa(n,ADR(modNumString))
+				strcpy(ADR(errorString[n]),ADR("Weight Error - ")) 	
+				strcat(ADR(errorString[n]),ADR(modNumString)) 		
+				//Find next log position
+				nextPos = 0
+				LOOP x = 0 TO MAX_MODULE_LOGS DO
+					IF ModuleLog[x].ErrorNo = 0 THEN	
+						nextPos = x		
+					ENDIF	
+					EXITIF 	(nextPos > 0)
+				ENDLOOP	
+				ModuleLog[nextPos].ErrorNo = 402	
+				ModuleLog[nextPos].Level = arlogLEVEL_WARNING
+				ModuleLog[nextPos].pAsciiString = ADR(errorString[n])
+				ModuleLog[nextPos].lenBinaryData = SIZEOF(WeighStatus[n])
+				ModuleLog[nextPos].pBinaryData = ADR(WeighStatus[n])
+			ENDIF		
+		ENDLOOP	
+		//Set the last state the same as current state..
+		memcpy(ADR(lastState),ADR(WeighStatus),SIZEOF(lastState))	
+	ENDIF
+
+	;Write log to logger..	
+	CASE CustomLogger OF
+
+		ACTION e0_Idle:
+			LocalLog = ModuleLog[1]	
+			IF (LocalLog.ErrorNo > 0) THEN
+				CustomLogger = e1_CheckIfLogExists
+			ENDIF	
+		ENDACTION
+	
+		ACTION e1_CheckIfLogExists:
+			GetLogInfo.enable = TRUE
+			GetLogInfo.pName = pLoggerName
+			GetLogInfo FUB AsArLogGetInfo()
+			IF GetLogInfo.status = ERR_OK THEN
+				LoggerModule.ident = GetLogInfo.ident	
+				LoggerModule.len = GetLogInfo.len	
+				LoggerModule.memType = GetLogInfo.memType	
+				LoggerModule.ActIndex = GetLogInfo.actualIndex	
+				LoggerModule.FormatVer = GetLogInfo.FormatVer	
+				CustomLogger = e3_WriteLog	
+			ELSE IF GetLogInfo.status = arlogERR_NOTEXISTING THEN	
+				CustomLogger = e2_CreateLog	
+			ENDIF		
+		ENDACTION
+  
+		ACTION e2_CreateLog:
+			CreateLog.enable = TRUE
+			CreateLog.pName = pLoggerName	
+			CreateLog.len = 204800	
+			CreateLog.memType = arlogUSRROM	
+			CreateLog FUB AsArLogCreate()	
+			IF CreateLog.status = ERR_OK THEN	
+				CustomLogger = e1_CheckIfLogExists
+			ENDIF	
+		ENDACTION
+
+		ACTION e3_WriteLog:			
+		
+			WriteLog.enable = (LoggerModule.ident > 0)
+			WriteLog.ident = LoggerModule.ident	
+			WriteLog.logLevel = LocalLog.Level
+			WriteLog.errornr = LocalLog.ErrorNo
+			WriteLog.mem = LocalLog.pBinaryData	
+			WriteLog.len = LocalLog.lenBinaryData		
+			WriteLog.asciiString = LocalLog.pAsciiString
+			WriteLog FUB AsArLogWrite()
+			IF (WriteLog.status = ERR_OK) THEN
+				//LocalLog = EmptyLog
+				//ModuleLog[0] = EmptyLog
+				//Shuffle Logs
+				memcpy(ADR(ModuleLog[0]),ADR(ModuleLog[1]),(SIZEOF(ModuleLog[0]) * (MAX_MODULE_LOGS - 1)))
+				CustomLogger = e0_Idle
+			ELSE IF (LoggerModule.ident	 = 0) THEN
+				CustomLogger = e0_Idle
+				memcpy(ADR(ModuleLog[0]),ADR(ModuleLog[1]),(SIZEOF(ModuleLog[0]) * (MAX_MODULE_LOGS - 1)))
+			ELSE IF WriteLog.status = arlogERR_ILL_LOGLEVEL THEN
+				LocalLog.Level = arlogLEVEL_INFO		
+			ENDIF	
+		ENDACTION	
+	
+	ENDCASE
+
+
+END_PROGRAM

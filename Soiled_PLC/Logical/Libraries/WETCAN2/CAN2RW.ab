@@ -1,0 +1,516 @@
+FUNCTION_BLOCK CAN2RW
+;********************************************************************************************************
+; * Implementation of CAN2RW
+;********************************************************************************************************
+; * version 		3.2.1
+; * last change		111007
+; * by				H.O.
+;********************************************************************************************************
+; * history:
+;***********
+; V3.2.1 - ###hcs/HO - 101007
+; 	COB_ID130und140 und COB_ID131und141 entfernt - stattdessen Neudefinition:
+; 		* COB 130 und COB140 wie COB120
+;		* COB131 und COB141 wie COB121
+; 	* V2.0.0:
+;		* InPara 'p_InitCAN2Protocol' replaced by DO 'AdrIC2Prot'
+; 		* Communication-globalPara 'CAN2Init.iMode' replaced by COB-individual-parameter 'InitCAN2PV.iMode'
+; 		* mode by that telegrams have been sent within cycletime changed:
+;		* 200ms - exclusively between tels with identical CANID
+; 		* all tels of WETCAN2Tel are sent immediately
+; 	* V2.1.0
+;		* DO "AdrIC2Prot" replaced by pCAN2Init_ident
+; 		* enable added
+; 	* V3.1.0 - 141206 ###HO
+;		* COB126+128 bei COB120 verodert
+;********************************************************************************************************
+;********************************************************************************************************
+
+if (enable = 0) then
+	goto ENDE
+endif
+
+
+uiStatusEvVar 	= 105 ; never return 105..
+uiStatus		= 105
+;***************************************************************************
+; check for target platform - motorola or intel ..
+TARGETInfo_0.enable		= 1
+TARGETInfo_0.pOSVersion	= ADR(pOSVersion)
+TARGETInfo_0 FUB TARGETInfo()
+
+if(TARGETInfo_0.DataFormat = 1) then
+	bIntel 		= TRUE
+	bMotorola 	= FALSE
+else
+	bIntel 		= FALSE
+	bMotorola 	= TRUE
+endif
+;***************************************************************************
+; as no pointer has been passed in - get ID of AdressDO again..
+; ###HO 080404 handle reactivated..
+p_InitCAN2Protocol = pCAN2Init_ident
+(*
+DatObjInfo(1, "AdrIC2Prot", DO_StatInfo, DO_IDAdrInitCan2Prot, DO_StartAdr, DO_Len, DO_Memtype, DO_Option, DO_ChangeDat )
+; get address for initdata..
+DatObjRead_AdrIC2Prot.enable			= 1
+DatObjRead_AdrIC2Prot.ident			= DO_IDAdrInitCan2Prot
+DatObjRead_AdrIC2Prot.Offset			= 0
+DatObjRead_AdrIC2Prot.pDestination	= adr(p_InitCAN2Protocol)
+DatObjRead_AdrIC2Prot.len			= 4
+DatObjRead_AdrIC2Prot FUB DatObjRead()
+*)
+; get local structure with initdata..
+memcpy(adr(Local_InitCAN2Protocol),p_InitCAN2Protocol,sizeof(Local_InitCAN2Protocol))
+
+;***************************************************************************
+; prepare reading from InitDO (type '_InitCAN2PV' )..
+DatObjRead_fromInitDO.enable	= 1 												; enable is always "1"
+DatObjRead_fromInitDO.ident		= Local_InitCAN2Protocol.AccessInitDO.DO_us_ident 	; user ID of DO..
+DatObjRead_fromInitDO.len		= sizeof(Local_InitCAN2PV)  						; size of a single data record..
+
+; prepare reading from DORead..
+DatObjRead_fromDORead.enable 	= 1
+DatObjRead_fromDORead.ident		= Local_InitCAN2Protocol.DOAccessCAN2Read.DO_us_ident
+
+; prepare writing to DORead..
+DatObjWrite_toDORead.enable		= 1
+DatObjWrite_toDORead.ident		= Local_InitCAN2Protocol.DOAccessCAN2Read.DO_us_ident
+
+; prepare reading from DOWrite..
+DatObjRead_fromDOWrite.enable	= 1
+DatObjRead_fromDOWrite.ident	= Local_InitCAN2Protocol.DoAccessCAN2Write.DO_us_ident
+
+; prepare writing to DOWrite..
+DatObjWrite_toDOWrite.enable	= 1
+DatObjWrite_toDOWrite.ident		= Local_InitCAN2Protocol.DoAccessCAN2Write.DO_us_ident
+;***************************************************************************
+
+
+loop iLoopIdx = 0 to (Local_InitCAN2Protocol.CAN2DObCount -1) do
+	; get COB specific data from InitDO..
+	DatObjRead_fromInitDO.Offset		= iLoopIdx * sizeof(Local_InitCAN2PV)
+	DatObjRead_fromInitDO.len			= sizeof(Local_InitCAN2PV)
+	DatObjRead_fromInitDO.pDestination	= adr(Local_InitCAN2PV)
+	DatObjRead_fromInitDO FUB DatObjRead()
+	if(uiStatus = 105) then
+		uiStatus = DatObjRead_fromInitDO.status
+	endif
+;---write---write---write---write---write---write---write---write---write---write---write---write
+	if(Local_InitCAN2PV.usCommDirection) = 1 then 	; write COB
+		; read from DOWrite to decide if write operation is necessary ..
+		; read from DO -> necessary to get time when last tel has been sent..
+		DatObjRead_fromDOWrite.Offset		= iLoopIdx * sizeof(LocalCAN2Write)
+		DatObjRead_fromDOWrite.len			= sizeof(LocalCAN2Write)
+		DatObjRead_fromDOWrite.pDestination	= adr(LocalCAN2Write)
+		DatObjRead_fromDOWrite FUB DatObjRead()
+		if(uiStatus = 0) then
+			uiStatus = DatObjRead_fromDOWrite.status
+		endif
+;---write-auto mode---write-auto mode--- write-auto modewrite-auto mode---write-auto mode---
+
+		; V2.0.0 -> Local_InitCAN2Protocol.iMode replaced by Local_InitCAN2PV.iMode..
+		if(Local_InitCAN2PV.iMode = 0 ) then ; '0' -> cyclic mode
+
+			tActTime = GetTime()
+			tDiffTime = DiffT(tActTime, LocalCAN2Write.tTimeLastTelSent)
+			if ( tDiffTime > 187 ) then ; 200ms has been elapsed..
+				; read PV..
+				_SetCAN2COBTypeToCAN2Type_0.p_InitCAN2PV = adr(Local_InitCAN2PV)
+				_SetCAN2COBTypeToCAN2Type_0 FUB _SetCAN2COBTypeToCAN2Type()
+				; now - LocalCAN2Copy contains data to send..
+				memcpy (adr(LocalCAN2Copy), _SetCAN2COBTypeToCAN2Type_0.pCAN2Data, sizeof(LocalCAN2Copy))
+
+				_GetCANIDFromObjNr_0.udObjNr =  UDINT(Local_InitCAN2PV.uiObjNr)
+				_GetCANIDFromObjNr_0 FUB _GetCANIDFromObjNr()
+
+				; ###HO - 110205 - Steuerung #Tels zur Laufzeit (bislang in Init festgelegt !)
+				; (!) (hierein gehören eigentlich keine COB-spezifischen Dinge)
+				iTempNumberOfTels = 0
+				;###HO -141206 126,128 added..
+				if ((Local_InitCAN2PV.uiObjNr = 120)or(Local_InitCAN2PV.uiObjNr = 126)or(Local_InitCAN2PV.uiObjNr = 128)\
+					or(Local_InitCAN2PV.uiObjNr = 130)or(Local_InitCAN2PV.uiObjNr = 140)) then ;###HO 111007
+					if Bit_Tst (LocalCAN2Copy.T1_By0,3) then ; #tels =4
+						iTempNumberOfTels = 5
+					else ; #tels= 2
+						iTempNumberOfTels = 3
+					endif
+				else
+					iTempNumberOfTels = LocalCAN2Write.iNumberOfTels
+				endif
+
+				loop iTelsSendIdx = 1 to iTempNumberOfTels do
+					; send 1st telegram now..
+
+					CANquwr_1.enable	= 1
+					CANquwr_1.us_ident	= Local_InitCAN2Protocol.CANAccess.CANopen_us_ident
+					CANquwr_1.can_id	= _GetCANIDFromObjNr_0.udObjNr
+					if (bMotorola = TRUE) then
+						_SetCAN2TypeToCAN1Type_0.pCAN2Data		= adr(LocalCAN2Copy)
+						_SetCAN2TypeToCAN1Type_0.iTelegramIndex	= iTelsSendIdx
+						_SetCAN2TypeToCAN1Type_0 FUB _SetCAN2TypeToCAN1Type()
+						CANquwr_1.data_adr	= _SetCAN2TypeToCAN1Type_0.pCAN1Data
+					else if (bIntel = TRUE) then
+						_Seti386CAN2TypeToCAN1Type_0.pCAN2Data		= adr(LocalCAN2Copy)
+						_Seti386CAN2TypeToCAN1Type_0.iTelegramIndex	= iTelsSendIdx
+						_Seti386CAN2TypeToCAN1Type_0 FUB _Seti386CAN2TypeToCAN1Type()
+						CANquwr_1.data_adr	= _Seti386CAN2TypeToCAN1Type_0.pCAN1Data
+					else
+						uiStatus = TARGETInfo_0.status
+					endif
+					CANquwr_1.data_lng	= 8
+					CANquwr_1 FUB CANquwr()
+					if(CANquwr_1.status = 0) then 	; sending tel succeeded
+						LocalCAN2Write.tTimeLastTelSent = GetTime()
+					else 							; sending tel failed
+						LocalCAN2Write.tTimeLastTelSent = TIME(0)
+					endif 							; CANquwr_1.status = 0 ?
+				endloop
+				; return last status of CANquwr() to EvVar..
+				uiStatusEvVar = CANquwr_1.status
+				memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+			else	; 200ms has not been elapsed yet..
+				; do nothing -> wait..
+			endif
+
+;---write-EvControlled---write-EvControlled--- write-EvControlledwrite-EvControlled---write-EvControlled---
+
+		; V2.0.0 -> Local_InitCAN2Protocol.iMode replaced by Local_InitCAN2PV.iMode
+		else if (Local_InitCAN2PV.iMode = 1) then ; '1' -> manually mode
+				; always check EvVar to decide about WriteOperation..
+				memcpy (adr(uiLocalEvVar),Local_InitCAN2PV.pEvVar,sizeof(uiLocalEvVar))
+				if(uiLocalEvVar = 1) then ; user defines writing to CAN..
+
+					tActTime = GetTime()
+					tDiffTime = DiffT(tActTime, LocalCAN2Write.tTimeLastTelSent)
+					if ( tDiffTime > 187 ) then ; 200ms has been elapsed..
+						; expected behavior ? process image should be read whether user decides - save and send if time expired..
+						; read PV..
+						_SetCAN2COBTypeToCAN2Type_0.p_InitCAN2PV = adr(Local_InitCAN2PV)
+						_SetCAN2COBTypeToCAN2Type_0 FUB _SetCAN2COBTypeToCAN2Type()
+						; now - LocalCAN2Copy contains data to send..
+						memcpy (adr(LocalCAN2Copy), _SetCAN2COBTypeToCAN2Type_0.pCAN2Data, sizeof(LocalCAN2Copy))
+
+						_GetCANIDFromObjNr_0.udObjNr =  UDINT(Local_InitCAN2PV.uiObjNr)
+						_GetCANIDFromObjNr_0 FUB _GetCANIDFromObjNr()
+
+						; ###HO - 110205 - Steuerung #Tels zur Laufzeit (bislang in Init festgelegt !)
+						; (!) (hierein gehören eigentlich keine COB-spezifischen Dinge)
+						iTempNumberOfTels = 0
+						if ((Local_InitCAN2PV.uiObjNr = 120)or(Local_InitCAN2PV.uiObjNr = 126)or(Local_InitCAN2PV.uiObjNr = 128)\
+							or(Local_InitCAN2PV.uiObjNr = 130)or(Local_InitCAN2PV.uiObjNr = 140)) then ;###HO -111007
+							if Bit_Tst (LocalCAN2Copy.T1_By0,3) then ; #tels =4
+								iTempNumberOfTels = 5
+							else ; #tels= 2
+								iTempNumberOfTels = 3
+							endif
+						else
+							iTempNumberOfTels = LocalCAN2Write.iNumberOfTels
+						endif
+
+						loop iTelsSendIdx = 1 to iTempNumberOfTels do ;LocalCAN2Write.iNumberOfTels
+							; send 1st telegram now..
+
+							CANquwr_1.enable	= 1
+							CANquwr_1.us_ident	= Local_InitCAN2Protocol.CANAccess.CANopen_us_ident
+							CANquwr_1.can_id	= _GetCANIDFromObjNr_0.udObjNr
+							if (bMotorola = TRUE) then
+								_SetCAN2TypeToCAN1Type_0.pCAN2Data		= adr(LocalCAN2Copy)
+								_SetCAN2TypeToCAN1Type_0.iTelegramIndex	= iTelsSendIdx
+								_SetCAN2TypeToCAN1Type_0 FUB _SetCAN2TypeToCAN1Type()
+								CANquwr_1.data_adr	= _SetCAN2TypeToCAN1Type_0.pCAN1Data
+							else if (bIntel = TRUE) then
+								_Seti386CAN2TypeToCAN1Type_0.pCAN2Data		= adr(LocalCAN2Copy)
+								_Seti386CAN2TypeToCAN1Type_0.iTelegramIndex	= iTelsSendIdx
+								_Seti386CAN2TypeToCAN1Type_0 FUB _Seti386CAN2TypeToCAN1Type()
+								CANquwr_1.data_adr	= _Seti386CAN2TypeToCAN1Type_0.pCAN1Data
+							else
+								uiStatus = TARGETInfo_0.status
+							endif
+							CANquwr_1.data_lng	= 8
+							CANquwr_1 FUB CANquwr()
+							if(CANquwr_1.status = 0) then 	; sending tel succeeded
+								LocalCAN2Write.tTimeLastTelSent = GetTime()
+							else 							; sending tel failed
+								LocalCAN2Write.tTimeLastTelSent = TIME(0)
+							endif 							; CANquwr_1.status = 0 ?
+						endloop
+						; return last status of CANquwr() to EvVar..
+						uiStatusEvVar = CANquwr_1.status
+						memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+					else	; 200ms has not been elapsed yet..
+						; do nothing -> wait..
+					endif
+				else ; EvVar <> 'WriteNow!'
+					; do nothing -> wait and goto next COB..
+				endif	; EvVar defined as 'WriteNow!'
+			endif
+
+;***********read operation*************	read operation*************read operation*****************
+
+	else if(Local_InitCAN2PV.usCommDirection) = 0 then	; read COB ,
+;---read-EvControlled---read-EvControlled--- read-EvControlledread-EvControlled---read-EvControlled---
+
+		; V2.0.0 -> Local_InitCAN2Protocol.iMode replaced by Local_InitCAN2PV.iMode
+		if(Local_InitCAN2PV.iMode = 1 ) then ; '1' -> manually mode
+			; to do read operation.. auto mode/man mode: same procedure as..
+
+			; for new COB -> delete LocalCAN1Data
+			LocalCAN1Data.T_By0 	= 0
+			LocalCAN1Data.T_By1 	= 0
+			LocalCAN1Data.T_By2_By3 = 0
+			LocalCAN1Data.T_By4_By5 = 0
+			LocalCAN1Data.T_By6_By7 = 0
+
+			bOverwritePV = FALSE
+
+			; reset local CAN2 buffer before reding from queue..
+			loop iIdx = 0 to 49 do		; ###HO - 02.09.2005
+				LocalCAN2Read.ab_ByteArray[iIdx] 	= 0
+				LocalCAN2ReadBak.ab_ByteArray[iIdx] = 0
+			endloop
+
+			memcpy (adr(uiLocalEvVar),Local_InitCAN2PV.pEvVar,sizeof(uiLocalEvVar))
+			if (uiLocalEvVar = 1 ) then ; uiLocalEvVar = 1 -> user decided to read from queue
+
+				loop	; check queue for received telegrams and reassemble them..
+
+					CANrd_0.enable		= 1
+					CANrd_0.q_ident		= Local_InitCAN2PV.udCAN_q_ident
+					CANrd_0.data_adr	= ADR(LocalCAN1Data)
+					CANrd_0 FUB CANrd()
+
+					if(CANrd_0.status = 0) then ; CAN tel found in queue .. ; CANrd_0.status == 0 ?
+						; one tel could be read successfully -> reading from queue is running..
+
+						; set actual tel to can2 struct
+						_GetCANIDFromObjNr_0.udObjNr	= UDINT(Local_InitCAN2PV.uiObjNr)
+						_GetCANIDFromObjNr_0 FUB _GetCANIDFromObjNr()
+
+						_SetCAN1TypeToByteArray_0.a_usInByteArray	= LocalCAN2Read.ab_ByteArray
+						_SetCAN1TypeToByteArray_0.udCanID			= _GetCANIDFromObjNr_0.udCANID
+						_SetCAN1TypeToByteArray_0.CAN1Data			= LocalCAN1Data
+						_SetCAN1TypeToByteArray_0 FUB _SetCAN1TypeToByteArray()
+
+						; save OutArray to local array - in dependency of target platform
+	 					LocalCAN2Read.ab_ByteArray = _SetCAN1TypeToByteArray_0.a_usOutByteArray
+						; dont convert platform dependent ! convert when overwrite PV !
+
+						uiStatusEvVar = 710
+						memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+						if(_SetCAN1TypeToByteArray_0.bDataValid = TRUE ) then ;_SetCAN1TypeToByteArray_0.bDataValid == TRUE ?
+							LocalCAN2ReadBak.ab_ByteArray = LocalCAN2Read.ab_ByteArray
+							bOverwritePV = TRUE
+
+						else 	;_SetCAN1TypeToByteArray_0.bDataValid == TRUE ?
+							; do nothing - continue reading from queue..
+						endif	;_SetCAN1TypeToByteArray_0.bDataValid == TRUE ?
+
+					else if(CANrd_0.status = 8877) then  	; CANrd_0.status == 0 ?
+							if(bOverwritePV = TRUE )then  ; bOverwritePV == TRUE ?
+								; complete CAN2 tel has been found in queue - return '1' to EvVar..
+								uiStatusEvVar = 0
+								memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+								loop iResIdx = 0 to 49 do ;###HO -020905
+									ab_ByteArrayi386Temp[iResIdx] = 0
+								endloop
+
+								; now- it's time to overwrite PV
+								_GetPVSize_0.uiObjNr = Local_InitCAN2PV.uiObjNr
+								_GetPVSize_0 FUB _GetPVSize()
+
+								if (bMotorola = TRUE) then
+									ab_ByteArrayi386Temp = LocalCAN2ReadBak.ab_ByteArray
+								else if (bIntel = TRUE) then
+									_ConvertDataToi386_1.uiObjNr			= Local_InitCAN2PV.uiObjNr
+									_ConvertDataToi386_1.ByteArrayMotorola	= LocalCAN2ReadBak.ab_ByteArray
+									_ConvertDataToi386_1 FUB _ConvertDataToi386()
+
+									ab_ByteArrayi386Temp = _ConvertDataToi386_1.ByteArrayi386
+
+									else
+										uiStatus = TARGETInfo_0.status
+									endif
+
+							 	memcpy(	Local_InitCAN2PV.pPVData, adr(ab_ByteArrayi386Temp), _GetPVSize_0.iCobLength)
+							 										; LocalCAN2ReadBak.ab_ByteArray
+								bOverwritePV = FALSE
+
+								; exit loop..
+								exitif (TRUE = TRUE)
+							else	; bOverwritePV == TRUE ?
+								; return errcode - less tels as necessary for complete CAN2 tel has been found in queue..
+								uiStatusEvVar = 8877
+								memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+								; exit loop..
+								exitif (TRUE = TRUE)
+							endif	; bOverwritePV == TRUE ?
+
+					else ; CANrd_0.status neither 0 nor 8877
+						uiStatusEvVar = CANrd_0.status
+						memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+						; exit loop..
+						exitif (TRUE = TRUE)
+					endif	; CANrd_0.status == 0 ?
+
+				endloop	; reading whole queue..
+
+			else ; all other states of EvVar except '1'
+				; do nothing..
+			endif ; uiLocalEvVar == 1 ?,
+
+;---read-auto mode---read-auto mode--- read-EvControlledread-auto mode---read-auto mode---
+
+		; V2.0.0 -> Local_InitCAN2Protocol.iMode replaced by Local_InitCAN2PV.iMode ..
+		else if (Local_InitCAN2PV.iMode = 0) then	 ; auto mode
+		; be aware: reading in auto mode is faster than tels have to be set in queue by write operation..
+		; -> use DORead..
+			; for new COB -> delete LocalCAN1Data
+			LocalCAN1Data.T_By0 	= 0
+			LocalCAN1Data.T_By1 	= 0
+			LocalCAN1Data.T_By2_By3 = 0
+			LocalCAN1Data.T_By4_By5 = 0
+			LocalCAN1Data.T_By6_By7 = 0
+
+			bOverwritePV = FALSE
+
+			; reset local CAN2 buffer before reding from queue..
+			loop iIdx = 0 to 49 do	; ###HO - 020905
+				LocalCAN2Read.ab_ByteArray[iIdx] 	= 0
+				LocalCAN2ReadBak.ab_ByteArray[iIdx] = 0
+			endloop
+
+			loop	; check queue for received telegrams and reassemble them..
+
+				CANrd_0.enable		= 1
+				CANrd_0.q_ident		= Local_InitCAN2PV.udCAN_q_ident
+				CANrd_0.data_adr	= ADR(LocalCAN1Data)
+				CANrd_0 FUB CANrd()
+
+				if(CANrd_0.status = 0) then ; CAN tel found in queue .. ; CANrd_0.status == 0 ?
+					; one tel could be read successfully -> reading from queue is running..
+
+					DatObjRead_fromDORead.enable 		= 1
+					DatObjRead_fromDORead.ident			= Local_InitCAN2Protocol.DOAccessCAN2Read.DO_us_ident
+					DatObjRead_fromDORead.Offset		= iLoopIdx * sizeof(LocalCAN2Read)
+					DatObjRead_fromDORead.pDestination	= adr(LocalCAN2Read)
+					DatObjRead_fromDORead.len			= sizeof(LocalCAN2Read)
+					DatObjRead_fromDORead FUB DatObjRead()
+
+					; set actual tel to can2 struct
+					_GetCANIDFromObjNr_0.udObjNr	= UDINT(Local_InitCAN2PV.uiObjNr)
+					_GetCANIDFromObjNr_0 FUB _GetCANIDFromObjNr()
+
+					_SetCAN1TypeToByteArray_0.a_usInByteArray	= LocalCAN2Read.ab_ByteArray
+					_SetCAN1TypeToByteArray_0.udCanID			= _GetCANIDFromObjNr_0.udCANID
+					_SetCAN1TypeToByteArray_0.CAN1Data			= LocalCAN1Data
+					_SetCAN1TypeToByteArray_0 FUB _SetCAN1TypeToByteArray()
+
+					LocalCAN2Read.ab_ByteArray = _SetCAN1TypeToByteArray_0.a_usOutByteArray
+
+					; status 'running' doesn't match -> why ?
+
+					; last telegram has been read ?
+					if(_SetCAN1TypeToByteArray_0.bDataValid = TRUE ) then ;_SetCAN1TypeToByteArray_0.bDataValid == TRUE ?
+						LocalCAN2ReadBak.ab_ByteArray = LocalCAN2Read.ab_ByteArray
+						bOverwritePV = TRUE
+
+						; reset buffer to write back to DORead..
+						loop iIdx = 0 to 49 do
+							LocalCAN2Read.ab_ByteArray[iIdx] 	= 0
+						endloop
+
+					else 	;_SetCAN1TypeToByteArray_0.bDataValid == TRUE ?
+						; do nothing - continue reading from queue..
+					endif	;_SetCAN1TypeToByteArray_0.bDataValid == TRUE ?
+
+					; tel has been read successfully -> set to DORead
+					DatObjWrite_toDORead.Offset		= iLoopIdx * sizeof(LocalCAN2Read)
+					DatObjWrite_toDORead.pSource	= adr(LocalCAN2Read)
+					DatObjWrite_toDORead.len		= sizeof(LocalCAN2Read)
+					DatObjWrite_toDORead FUB DatObjWrite()
+
+				else if(CANrd_0.status = 8877) then  	; CANrd_0.status == 0 ?
+						if(bOverwritePV = TRUE )then  ; bOverwritePV == TRUE ?
+							; complete CAN2 tel has been found in queue - return '1' to EvVar..
+							uiStatusEvVar = 0
+							memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+							loop iResIdx = 0 to 49 do ;###HO -020905
+								ab_ByteArrayi386Temp[iResIdx] = 0
+							endloop
+
+							; now- it's time to overwrite PV
+							_GetPVSize_0.uiObjNr = Local_InitCAN2PV.uiObjNr
+							_GetPVSize_0 FUB _GetPVSize()
+
+							if (bMotorola = TRUE) then
+								ab_ByteArrayi386Temp = LocalCAN2ReadBak.ab_ByteArray
+							else if (bIntel = TRUE) then
+								_ConvertDataToi386_1.uiObjNr			= Local_InitCAN2PV.uiObjNr
+								_ConvertDataToi386_1.ByteArrayMotorola	= LocalCAN2ReadBak.ab_ByteArray
+								_ConvertDataToi386_1 FUB _ConvertDataToi386()
+
+								ab_ByteArrayi386Temp = _ConvertDataToi386_1.ByteArrayi386
+
+								else
+									uiStatus = TARGETInfo_0.status
+							endif
+						 	memcpy(	Local_InitCAN2PV.pPVData, adr(ab_ByteArrayi386Temp), _GetPVSize_0.iCobLength)
+
+							bOverwritePV = FALSE
+
+							; exit loop..
+							exitif (TRUE = TRUE)
+						else	; bOverwritePV == TRUE ?
+							; return errcode - less tels as necessary for complete CAN2 tel has been found in queue..
+							uiStatusEvVar = 8877
+							memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+							; exit loop..
+							exitif (TRUE = TRUE)
+						endif	; bOverwritePV == TRUE ?
+
+				else ; CANrd_0.status neither 0 nor 8877
+					uiStatusEvVar = CANrd_0.status
+					memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatusEvVar), sizeof(uiStatusEvVar))
+
+					; exit loop..
+					exitif (TRUE = TRUE)
+				endif	; CANrd_0.status == 0 ?
+
+			endloop	; reading whole queue..
+
+		else	; iMode neither '0' nor '1'
+			; uiStatus = 560
+			; don't copy to EvVar -> this is a 'global problem'
+			; -> from V2.0.0 -> no global problem any more..
+			memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatus),sizeof(uiStatus))
+		endif
+	else ; CommDirection neither 0 nor 1 passed by user
+		uiStatus = 520
+		; don't copy to EvVar -> this is a 'global problem'
+		; memcpy(Local_InitCAN2PV.pEvVar,adr(uiStatus),sizeof(uiStatus))
+	endif ; CommDirection 0 or 1 or error
+
+	; always write back to DOWrite..
+	DatObjWrite_toDOWrite.Offset		= iLoopIdx * sizeof(LocalCAN2Write)
+	DatObjWrite_toDOWrite.pSource		= adr(LocalCAN2Write)
+	DatObjWrite_toDOWrite.len			= sizeof(LocalCAN2Write)
+	DatObjWrite_toDOWrite FUB DatObjWrite()
+
+	if(uiStatus = 0) then
+		uiStatus = DatObjWrite_toDOWrite.status
+	endif
+
+endloop ; reading all COBs..
+
+;********************************************************************************************************
+ENDE:
+;********************************************************************************************************
+END_FUNCTION_BLOCK

@@ -1,0 +1,48 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: x_1_Point
+ * File: x_1_Point.var
+ * Author: treamsbottom
+ * Created: July 9, 2015
+ ********************************************************************
+ * Local variables of program x_1_Point
+ ********************************************************************)
+VAR CONSTANT
+	LOCAL_MAX_BUFFERS : UINT := 2;
+END_VAR
+VAR
+	mySeq : UINT;
+	myRelLine : UINT;
+	myPoint : UINT;
+	myZone : UINT;
+	myIO : UINT;
+	myBag : ARRAY[0..LOCAL_MAX_BUFFERS] OF UINT;
+	i_bagAtBuffer : ARRAY[0..LOCAL_MAX_BUFFERS] OF BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	myOutBag : UINT;
+	o_reset : BOOL;
+	n : UINT;
+	o_openBuffer : ARRAY[0..LOCAL_MAX_BUFFERS] OF BOOL;
+	o_select : ARRAY[0..LOCAL_MAX_BUFFERS] OF BOOL;
+	step : UINT;
+	ton_10ms_reset : TON_10ms;
+	pls : BOOL;
+	laststep : UINT;
+	ton_10ms_settledbuffer : ARRAY[0..LOCAL_MAX_BUFFERS] OF TON_10ms;
+	lineValid : ARRAY[0..LOCAL_MAX_BUFFERS] OF BOOL;
+	waitTime : ARRAY[0..LOCAL_MAX_BUFFERS] OF UDINT;
+	timerAlarm : TON_10ms;
+	waitingLongest : UINT;
+	bufferClear : BOOL;
+	myLine : UINT;
+	releaseValid : BOOL;
+	bagArrived : BOOL;
+	bufferSettleTime : ARRAY[0..LOCAL_MAX_BUFFERS] OF UDINT;
+	useDestinations : BOOL;
+	mySelectedBag : UINT;
+	myDest : UINT;
+	myTransitBag : UINT;
+	destValid : BOOL;
+END_VAR

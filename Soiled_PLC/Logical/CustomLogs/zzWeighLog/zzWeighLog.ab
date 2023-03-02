@@ -1,0 +1,104 @@
+
+(* COPYRIGHT -- HP
+********************************************************************
+* PROGRAM: zzLogger
+* File: zzLogger.ab
+* Author: treamsbottom
+* Created: November 06, 2014
+********************************************************************
+* Implementation OF PROGRAM zzLogger
+	********************************************************************)
+PROGRAM _INIT
+	pLoggerName = ADR("Weigh") ; Name of Logger module
+END_PROGRAM	
+
+PROGRAM _CYCLIC
+			
+	LOOP n = 0 TO MAX_WEIGH_LOGS DO	
+		ftrig_OK[n].CLK = StnOK[n]
+		ftrig_OK[n] FUB F_TRIG()
+		IF ftrig_OK[n].Q AND (weighLog[n].ErrorNo = 0) THEN
+			itoa(n,ADR(modNumString))
+			strcpy(ADR(errorString[n]),ADR("WeighModule Failed - ")) 	
+			strcat(ADR(errorString[n]),ADR(modNumString)) 		
+			weighLog[n].ErrorNo = 400	
+			weighLog[n].Level = arlogLEVEL_WARNING
+			weighLog[n].pAsciiString = ADR(errorString[n])
+			weighLog[n].lenBinaryData = SIZEOF(X[n])
+			weighLog[n].pBinaryData = ADR(X[n])	
+			shuffle = TRUE	
+		ENDIF		
+	ENDLOOP	
+
+	;Shuffle Logs...	
+	//IF shuffle THEN
+	LOOP n = 0 TO (dec_C_MaxCustomLogs - 1) DO
+		IF (weighLog[n + 1].ErrorNo > 0) AND (weighLog[n].ErrorNo = 0) THEN 	
+			weighLog[n] = weighLog[n + 1]
+			weighLog[n + 1] = EmptyLog
+		ENDIF		
+	ENDLOOP	
+	//ENDIF	
+
+	;Write log to logger..	
+	CASE CustomLogger OF
+
+		ACTION e0_Idle:
+			LocalLog = weighLog[0]	
+			IF (LocalLog.ErrorNo > 0) THEN
+				CustomLogger = e1_CheckIfLogExists
+			ENDIF	
+		ENDACTION
+	
+		ACTION e1_CheckIfLogExists:
+			GetLogInfo.enable = TRUE
+			GetLogInfo.pName = pLoggerName
+			GetLogInfo FUB AsArLogGetInfo()
+			IF GetLogInfo.status = ERR_OK THEN
+				LoggerModule.ident = GetLogInfo.ident	
+				LoggerModule.len = GetLogInfo.len	
+				LoggerModule.memType = GetLogInfo.memType	
+				LoggerModule.ActIndex = GetLogInfo.actualIndex	
+				LoggerModule.FormatVer = GetLogInfo.FormatVer	
+				CustomLogger = e3_WriteLog	
+			ELSE IF GetLogInfo.status = arlogERR_NOTEXISTING THEN	
+				CustomLogger = e2_CreateLog	
+			ENDIF		
+		ENDACTION
+  
+		ACTION e2_CreateLog:
+			CreateLog.enable = TRUE
+			CreateLog.pName = pLoggerName	
+			CreateLog.len = 204800	
+			CreateLog.memType = arlogUSRROM	
+			CreateLog FUB AsArLogCreate()	
+			IF CreateLog.status = ERR_OK THEN	
+				CustomLogger = e1_CheckIfLogExists
+			ENDIF	
+		ENDACTION
+
+		ACTION e3_WriteLog:			
+		
+			WriteLog.enable = (LoggerModule.ident > 0)
+			WriteLog.ident = LoggerModule.ident	
+			WriteLog.logLevel = LocalLog.Level
+			WriteLog.errornr = LocalLog.ErrorNo
+			WriteLog.mem = LocalLog.pBinaryData	
+			WriteLog.len = LocalLog.lenBinaryData		
+			WriteLog.asciiString = LocalLog.pAsciiString
+			WriteLog FUB AsArLogWrite()
+			IF (WriteLog.status = ERR_OK) THEN
+				LocalLog = EmptyLog
+				weighLog[0] = EmptyLog
+				CustomLogger = e0_Idle
+			ELSE IF (LoggerModule.ident	 = 0) THEN
+				CustomLogger = e0_Idle
+			ELSE IF WriteLog.status = arlogERR_ILL_LOGLEVEL THEN
+				LocalLog.Level = arlogLEVEL_INFO		
+			ENDIF	
+		ENDACTION	
+	
+	ENDCASE
+
+
+END_PROGRAM

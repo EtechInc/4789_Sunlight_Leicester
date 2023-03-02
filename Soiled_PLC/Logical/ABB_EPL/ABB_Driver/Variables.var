@@ -1,0 +1,17 @@
+VAR
+	abb_packData : ABB_PackData; (*Decodes status word and encodes some parameters*)
+	drive : REFERENCE TO ABB_EPL_typ; (*ref var to drive structure*)
+	controlWord : UINT; (*control word for drive*)
+	n : USINT; (*used to hold loop state*)
+	write : REFERENCE TO ABB_EPL_Param_Write_typ; (*ref var to write structutre within drive structure*)
+	testDrive : UINT; (*set this to drive number you want to test*)
+	i : USINT;
+	state : state_enum;
+	count : USINT;
+	test : UINT;
+	newNode : UINT;
+	saveNewNode : BOOL;
+	saveVar : UINT;
+	factoryReset : UINT;
+	setNodeNumber : EplSDOWrite;
+END_VAR

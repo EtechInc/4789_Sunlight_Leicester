@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?AutomationStudio Version="4.2.4.149"?>
+<PanelMap xmlns="http://br-automation.co.at/AS/VC/Project">
+  <Property Name="Description" Value="Key mapping for 4PP065.0571-K05"/>
+  <Property Name="HwFile" Value="4PP065.0571-K05.hwx"/>
+  <Property Name="Name" Value="4PP065.0571-K05"/>
+  <Property Name="NumLevel" Value="6"/>
+  <Property Name="Type" Value="4PP065.0571-K05"/>
+  <PanelItems>
+    <PanelItem Index="1">
+      <KeyLevels>
+        <KeyLevel Level="0" VirtualKey="pgSetup"/>
+        <KeyLevel Level="1" VirtualKey="pgSetup"/>
+        <KeyLevel Level="2" VirtualKey="pgSetup"/>
+        <KeyLevel Level="3" VirtualKey="pgSetup"/>
+        <KeyLevel Level="4" VirtualKey="pgSetup"/>
+        <KeyLevel Level="5" VirtualKey="pgSetup"/>
+      </KeyLevels>
+    </PanelItem>
+    <PanelItem Index="2">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="3">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="4">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="5">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="6">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="7">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="8">
+      <KeyLevels>
+        <KeyLevel Level="0" VirtualKey="cmdChangeLanguage"/>
+        <KeyLevel Level="1" VirtualKey="cmdChangeLanguage"/>
+        <KeyLevel Level="2" VirtualKey="cmdChangeLanguage"/>
+        <KeyLevel Level="3" VirtualKey="cmdChangeLanguage"/>
+        <KeyLevel Level="4" VirtualKey="cmdChangeLanguage"/>
+        <KeyLevel Level="5" VirtualKey="cmdChangeLanguage"/>
+      </KeyLevels>
+    </PanelItem>
+    <PanelItem Index="9">
+      <KeyLevels/>
+    </PanelItem>
+    <PanelItem Index="10">
+      <KeyLevels/>
+    </PanelItem>
+  </PanelItems>
+</PanelMap>

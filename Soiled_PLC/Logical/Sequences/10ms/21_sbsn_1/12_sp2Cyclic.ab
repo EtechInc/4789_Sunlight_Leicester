@@ -1,0 +1,151 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_OnLineA		  		= X[7].X01
+I_TiltA					= X[7].X02
+I_TiltB					= X[7].X03
+I_Bagout				= X[7].X04
+
+O_OpenBufferStop		= FALSE 
+O_SelectLineA			= FALSE 
+O_SelectLineB			= FALSE 
+O_OpenStops				= FALSE 
+O_TiltCylinder			= FALSE 
+O_OperatePusher			= FALSE 
+O_Pusher                = FALSE
+
+Request.BSN[1]			= FALSE
+Enable.SP[5]            = FALSE
+
+Alarm[21].Name 			= 0
+Alarm[21].Bag			= 10010
+Alarm[21].Beacon		= TRUE
+Alarm[21].Extra			= 0
+Alarm[21].Time			= 3000
+
+;Setup Sequence
+STEP = D[921]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Select Line 'A'
+TON_10ms((STEP = 1),100,PointReset,PointResetET)
+IF (STEP = 1) THEN
+	O_SelectLineA = NOT PointReset 
+	IF PointReset AND NOT Std.HaltSys THEN
+		D[921] = 2
+	ENDIF
+ENDIF
+
+;give request to SP5 
+IF ((STEP = 2) OR (STEP = 3)) THEN
+	Request.BSN[1] = TRUE
+ENDIF
+
+
+;give request to SP5
+;TON_10ms(I_BagAtBuffer,300,BagAtBuffer,BagAtBufferET)
+IF (STEP = 2) THEN
+	
+	IF Enable.BSN[1] THEN
+		D[921] = 3
+	ENDIF
+ENDIF
+
+;Open buffer stop 
+IF (STEP = 3) THEN
+	O_SelectLineA 		= TRUE
+	;O_OpenBufferStop 	= TRUE
+	;Enable.SP[5]		= NOT I_OnLineA
+	IF I_OnLineA THEN
+		D[921] = 4
+	ENDIF
+	Alarm[21].Name = almBagNotArrived
+ENDIF
+
+;Select Line 'B' and Wait for bag in Tilt position
+TON_10ms((I_TiltA AND I_TiltB),300,BagAtTilt,BagAtTiltET)
+IF (STEP = 4) THEN
+	O_SelectLineB = TRUE
+	IF BagAtTilt THEN
+		D[921] = 5
+	ENDIF
+	Alarm[21].Name = almBagNotSettled
+ENDIF
+
+;Tilt down
+TON_10ms((STEP = 5),500,TiltDown,TiltDownET)
+TON_10ms(TiltDown,300,Pusher,PusherET)
+IF (STEP = 5) THEN
+	O_TiltCylinder = TRUE
+	O_Pusher       = TiltDown
+	IF Pusher THEN
+		D[921] = 6
+	ENDIF
+ENDIF
+
+;Tilt up
+TON_10ms((STEP = 6),500,TiltUp,TiltUpET)
+IF (STEP = 6) THEN
+	IF TiltUp THEN
+		D[921] = 7
+	ENDIF
+	Alarm[21].Time			= 1000
+	Alarm[21].Name = almDestinationNotValid
+ENDIF
+
+;Check not full
+TON_10ms(NOT I_Bagout,300,NotFull,NotFullET)
+IF (STEP = 7) THEN
+	IF NotFull THEN
+		D[921] = 8
+	ENDIF
+	Alarm[21].Name = almBagNotReleased
+ENDIF
+
+;Open stops to release bag
+IF (STEP = 8) THEN
+	O_OpenStops = TRUE
+	IF I_Bagout THEN
+		D[921] = 1
+	ENDIF
+	Alarm[21].Name = almBagNotReleased
+ENDIF
+
+;Pusher Cylinder
+TON_10ms(I_Bagout AND NOT Pushed,200,SBSN1,SBSN1ET)
+TON_10ms((STEP = 8)  AND NOT Pushed,500,O_OperatePusher,RequirePusherET)
+TON_10ms(O_OperatePusher,500,Pushed,PushedET)
+
+;ton_10ms_o_operatePusher(IN:= (step = 8) AND NOT ton_10ms_Pushed.Q, PT:= 500);
+;ton_10ms_Pushed(IN:= o_operatePusher, PT:= 500);
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[21].Name > 0)
+TimerAlarm.PT 	= Alarm[21].Time
+TimerAlarm FUB TON_10ms()
+Alarm[21].On 	= TimerAlarm.Q
+Alarm[21].ET 	= TimerAlarm.ET
+
+;Outputs
+;Y[7].Y01 = O_OpenBufferStop
+Y[7].Y01 = O_SelectLineA
+Y[7].Y02 = O_SelectLineB
+Y[7].Y04 = O_TiltCylinder
+Y[7].Y05 = O_OpenStops
+Y[7].Y03 = O_OperatePusher
+Y[7].Y14 = O_Pusher
+END_PROGRAM
+

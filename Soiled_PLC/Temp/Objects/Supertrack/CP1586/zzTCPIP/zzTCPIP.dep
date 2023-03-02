@@ -1,0 +1,15 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsIecCon/AsIecCon.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/Ethernet/Ethernet.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/Ethernet/Ethernet.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Sequences/10ms/zzTCPIP/zztcpip.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Data/Data.var
+$(AS_PROJECT_PATH)/Physical/Supertrack/CP1586/Cpu.per
+$(AS_PROJECT_PATH)/Logical/Robo_Drive_Control/FC302/FC302.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Machine/Machine.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Machine/Machine.typ
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.typ
+$(AS_PROJECT_PATH)/Logical/Robo_Drive_Control/Robo_Drive.var
+$(AS_PROJECT_PATH)/Logical/Robo_Drive_Control/FC302/FC302.typ

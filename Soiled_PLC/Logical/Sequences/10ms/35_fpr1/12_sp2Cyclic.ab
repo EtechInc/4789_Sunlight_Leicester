@@ -1,0 +1,58 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBuffer        = X[10].X13
+
+O_OpenBufferStop     = FALSE
+
+
+STEP = D[935]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Alarm
+Alarm[35].Name 			= 0
+Alarm[35].Bag			= 310
+Alarm[35].Beacon		= TRUE
+Alarm[35].Extra			= 0
+Alarm[35].Time			= 3000
+
+
+TON_10ms(I_BagAtBuffer,300,SettledAtBuffer,SettledAtBufferET)
+IF (STEP = 1) THEN
+    IF ((SettledAtBuffer) AND (I_BagAtBuffer = TRUE) AND (Line[43].Clear = TRUE)) THEN 
+    D[935] = 2
+  ENDIF
+ENDIF	
+
+;Wait For Bag Out 
+IF (STEP = 2) THEN
+ O_OpenBufferStop = TRUE
+   IF PLS THEN
+      C[43] = 0      
+ENDIF
+   IF (C[43]>= 1) THEN
+   D[935] = 1   
+  ENDIF
+
+ 	Alarm[35].Name = almBagNotArrived
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[35].Name > 0)
+TimerAlarm.PT 	= Alarm[35].Time
+TimerAlarm FUB TON_10ms()
+Alarm[35].On 	= TimerAlarm.Q
+Alarm[35].ET 	= TimerAlarm.ET
+
+Y[10].Y13 = O_OpenBufferStop
+
+END_PROGRAM
+

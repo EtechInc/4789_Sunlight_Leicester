@@ -1,0 +1,51 @@
+(********************************************************************
+ * COPYRIGHT -- Bernecker + Rainer
+ ********************************************************************
+ * Package: LibAsTCP
+ * File: LibAsTCP.var
+ * Author: Bernecker + Rainer
+ * Created: February 21, 2008
+ ********************************************************************
+ * Variables of package LibAsTCP
+ ********************************************************************)
+VAR
+	data_buffer : ARRAY[0..100] OF UDINT;
+END_VAR
+VAR CONSTANT
+	sckClosed : USINT := 0;
+	sckConnecting : USINT := 1;
+	sckConnected : USINT := 2;
+	sckError : USINT := 3;
+	sckListening : USINT := 4;
+	sckReceive : USINT := 5;
+	sckSend : USINT := 6;
+	sckSetLinger : USINT := 7;
+END_VAR
+VAR
+	Server : ARRAY[0..19] OF Server_typ; (*Data for Server Task*)
+	ServerOpen : ServerOpen_typ;
+END_VAR
+VAR RETAIN
+	IdentRetain : UDINT;
+END_VAR
+VAR
+	n : UINT;
+	ServerSize : UDINT;
+	mySize : UINT;
+	myMaxConns : UINT;
+	myMonitor : Monitor_typ;
+	TON_10ms_0 : TON_10ms;
+	Index : UINT;
+	IoctlOpenIdents : ARRAY[0..49] OF UDINT;
+	IoctlTotalOpenIdents : UDINT;
+	IoctlMaxIdents : UDINT;
+	IoctlStatus : UINT;
+	ID_List_get : UINT := 0;
+	ID_Max_Get : UINT := 1;
+	ClientNode : UDINT;
+	Status : UINT;
+	ClientIP : UDINT;
+	Node : UDINT;
+	ClientConnectCount : ARRAY[0..255] OF UINT;
+	ClearConnectCount : BOOL;
+END_VAR

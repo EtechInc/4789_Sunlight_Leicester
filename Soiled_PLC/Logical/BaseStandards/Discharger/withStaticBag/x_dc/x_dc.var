@@ -1,0 +1,73 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: 6_x_Dc
+ * File: 6_x_Dc.var
+ * Author: zmclaren
+ * Created: May 14, 2015
+ ********************************************************************
+ * Local variables of program 6_x_Dc
+ ********************************************************************)
+VAR
+	myIO : UINT;
+	myStartStop : UINT;
+	mySeq : UINT;
+	myDC : UINT;
+	myBuffBag : UINT;
+	myBag : UINT;
+	myDst : USINT;
+	myRelCounter : UINT;
+	myZone : UINT;
+	myBagCloser : BOOL;
+	myCodesStrobe : BOOL;
+	myPushButtonControl : BOOL;
+	myPickerControl : BOOL;
+	myCan : UINT;
+	i_bagAtEmptyBuffer : BOOL;
+	o_emptyBagBufferOpen : BOOL;
+	i_bagAtBuffer : BOOL;
+	i_bagAtDischarger : BOOL;
+	i_openBag : BOOL;
+	i_loadDropped : BOOL;
+	i_bagReleased : BOOL;
+	i_bagEmpty : BOOL;
+	o_bagReady : BOOL;
+	o_openBuffer : BOOL;
+	o_steadys : BOOL;
+	o_closer : BOOL;
+	o_openBag : BOOL;
+	o_openStop : BOOL;
+	step : UINT;
+	pls : BOOL;
+	lastStep : UINT;
+	myDCBatch : BOOL;
+	n : UINT;
+	ton_10ms_SettledBuffer : TON_10ms;
+	ton_10ms_SettledAtDischarger : TON_10ms;
+	ton_10ms_SteadysDown : TON_10ms;
+	ton_10ms_MinOpen : TON_10ms;
+	ton_10ms_CloserDown : TON_10ms;
+	ton_10ms_CloserUp : TON_10ms;
+	ton_10ms_SteadyUp : TON_10ms;
+	timerAlarm : TON_10ms;
+	dischargerEnable : BOOL;
+	batchSizeSet : UINT;
+	batchWeightSet : UINT;
+	matchCus : BOOL;
+	temp_BatchSize : UINT;
+	searchDepth : UINT;
+	useBuffer : BOOL;
+	ExitLoop : BOOL;
+	BatchValue : UINT;
+	CodeStep : BOOL;
+	TestDischarger : BOOL;
+	LoadDropped : BOOL;
+	TestDrop : BOOL;
+	UseCounter : BOOL;
+	alarm : REFERENCE TO Alm;
+	ton_10ms_CloserDelay : TON_10ms;
+	myOutBag : UINT;
+	outBag : REFERENCE TO Bag_typ;
+	bag : REFERENCE TO Bag_typ;
+	bagsPassThroughDC : BOOL;
+END_VAR

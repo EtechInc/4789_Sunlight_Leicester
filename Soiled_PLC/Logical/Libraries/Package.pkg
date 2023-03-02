@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Library" Language="Binary" Description="IEC 61131-3 Standard Functions">standard</Object>
+    <Object Type="Library" Language="Binary" Description="Internal support library">runtime</Object>
+    <Object Type="Library" Language="Binary" Description="The FileIO library provides function blo">FileIO</Object>
+    <Object Type="Library" Language="Binary" Description="The Ethernet library establishes an efficient connection between the 2005 and 2010 systems and specific ethernet networks using TCP/IP and UDP. (obsolete)">Ethernet</Object>
+    <Object Type="Library" Language="Binary" Description="The DVFrame library and the frame driver can be used to exchange data with external devices.">dvframe</Object>
+    <Object Type="Library" Language="Binary" Description="The DataObj library can be used to dynamically create, dynamically delete and copy data objects, etc. ">DataObj</Object>
+    <Object Type="Library" Language="Binary" Description="Built-in IEC 61131-3 standard functions">OPERATOR</Object>
+    <Object Type="Library" Language="Binary" Description="The AsTime Library supports DATE_AND_TIME and TIME data types.">AsTime</Object>
+    <Object Type="Library" Language="Binary" Description="The AsString Library contains FBKs for memory and character string handling.">AsString</Object>
+    <Object Type="Library" Language="Binary" Description="The AsCANopen library provides functions for integrating CANopen services.">AsCANopen</Object>
+    <Object Type="Library" Language="IEC" Description="Supertrack Systems Functions 4">SupLib4</Object>
+    <Object Type="Library" Language="Binary" Description="The SYS_LIB library contains functions f">sys_lib</Object>
+    <Object Type="Library" Language="Binary" Description="This library contains FBKs for exchangin">AsTCP</Object>
+    <Object Type="Library" Language="Binary" Description="String-Umwandlungen">KGstring</Object>
+    <Object Type="Library" Language="Binary" Description="Functions are available in the CAN Library for accessing the CAN bus on the B&amp;R 2000 system. ">CAN_Lib</Object>
+    <Object Type="Library" Language="Binary" Description="The Visapi library provides support to access and control visualizations at runtime.">Visapi</Object>
+    <Object Type="Library" Language="Binary" Description="The AsARCfg library supports reading and writing Automation Runtime configurations.">AsARCfg</Object>
+    <Object Type="Library" Language="Binary" Description="This library contains FBKs to evaluate statistics and can be used for system generation device statistics.">AsETH</Object>
+    <Object Type="Library" Language="Binary" Description="The AsDb library supports access to Sybase und MS SQL databases.">AsDb</Object>
+    <Object Type="Library" Language="Binary" Description="The BRSystem library provides the user with a number of system functions for e.g. handling permanent memory, accessing exception information, etc.">brsystem</Object>
+    <Object Type="Library" Language="Binary" Description="This library contains function blocks to">AsUSB</Object>
+    <Object Type="Library" Language="IEC">WETCAN2</Object>
+    <Object Type="Library" Language="Binary" Description="The AsMem library makes it possible to m">AsMem</Object>
+    <Object Type="Library" Language="Binary" Description="The AsArLog library can be used to colle">AsArLog</Object>
+    <Object Type="Library" Language="Binary" Description="The AsBrWStr library allows 8-bit charac">AsBrWStr</Object>
+    <Object Type="Library" Language="Binary" Description="This library contains FBKs for exchangin">AsUDP</Object>
+    <Object Type="Library" Language="Binary" Description="The AsIODiag library provides functions ">AsIODiag</Object>
+    <Object Type="Library" Language="Binary" Description="The AsBrStr Library contains FBKs for me">AsBrStr</Object>
+    <Object Type="Library" Language="Binary" Description="This library contains function interfaces for IEC 1131-3 conversion functions.">AsIecCon</Object>
+    <Object Type="Library" Language="IEC" Description="A library implementing IEC check functions">IecCheck</Object>
+    <Object Type="Library" Language="Binary" Description="The AsXml library supports reading and writing of XML files.">AsXml</Object>
+    <Object Type="Library" Language="Binary" Description="The AsPciStr Library contains FBKs for memory and character string handling.">AsPciStr</Object>
+    <Object Type="Library" Language="binary" Description="This library provides read and write access to non-cyclic I/O data points.">AsIOAcc</Object>
+    <Object Type="Library" Language="binary" Description="This library integrates mathematical functions such as angle functions, rounding off, etc. into the program.">AsBrMath</Object>
+    <Object Type="Library" Language="Binary" Description="Communication library for mappView widgets">MpServer</Object>
+  </Objects>
+</Package>

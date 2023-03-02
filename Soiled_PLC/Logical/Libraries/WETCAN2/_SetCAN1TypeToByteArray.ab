@@ -1,0 +1,3399 @@
+FUNCTION_BLOCK _SetCAN1TypeToByteArray
+;********************************************************************************************************
+; * Implementation of _SetCAN1TypeToByteArray
+;********************************************************************************************************
+; * set PV for READ operation.. *
+;********************************************************************************************************
+; * version 		3.6.0
+; * last change		120210
+; * by				H.O.
+;********************************************************************************************************
+; History:
+; --------
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191 
+; V3.4.0 - ###HO - 211209
+;	* COB ID 110 + 111 
+; V3.3.1 - ###HO - 130509
+;	* SetCAN1TypeToByteArray::Korrektur 4x Compilerwarnung durch BuR UM 
+; V3.3.0 - ###HO - 140409
+;	* LocalCOB_Typ_311.bStartPresse
+; 	* pv211.bSicherheitstuerPTPP 
+; 	* pv211.bStartbefehlAnPT
+; V3.2.3 - ###HO - 070308
+;	* COB252.bSperreBereich
+;	* COB301.bLichtschrankeBandende
+; V3.2.2 - ###HO - 111007
+; 	* _SetCAN2COBTypeToCAN2Type::COB211.usFehlerZweiteEW
+; 	* _SetCAN1TypeToByteArray:: Korrektur Lesen von 211.bStartDesinfektion, 211.bStartSpuelen, 211.bEndeSpuelen
+; V3.2.1 - ###hcs/HO - 101007
+; 	COB_ID130und140 und COB_ID131und141 entfernt - stattdessen Neudefinition:
+; 		* COB 130 und COB140 wie COB120
+;		* COB131 und COB141 wie COB121
+; * V3.2.0 ###HO - 040907
+; 	* _SetCAN1TypeToByteArray::COB251.bStartBeladung
+;	* COBs 261+262 neu
+; V3.1.2 ###HO - 250107
+; 	* Sprung > 32k (MyCheck) korrigiert
+; V3.1.1 ###HO - 110107
+; 	* COB351
+; V3.1.0 ###HO - 260106
+; 	*COBs 126+127, 128+129 hinzugefügt
+; V3.0.9 ###HO - 260106
+; 	* COB231::Reserve1+Reserve2
+; V3.0.7 ###HO - 171105
+;	* COB251=253=255=257
+;	* COB252=254=256=258
+; V3.0.5 ###HO - 141005
+; 	* COB201.uiProgrammKategorie - Alignmentbyte auf xx[5]..
+; V3.0.4 ###HO - 071005
+;	* a_usCustomize[7] für COBs 311,301,221,201,211,209,219
+; V3.0.0 ###HO - 070905
+; 	* 120,121,401,421,441,251
+;	* 307 + 317
+; V2.1.5 ###HO - 310805
+;	* Ergänzung COB401 + COB441 für CTT -> OK
+; todo: Wrt441m68k ok ?
+; V2.1.3 ###HO - 100205
+;	* Autoerkennung: Lesen COB120::2oder4Tels
+; V2.1.0 HO 060404
+;		* COB122 (komplett) korrigiert
+;		* COB120
+;			*usAuslaufAusSpeibahnNr
+;			*usAEinlaufInSpeibahnNr
+;		* COB211 bSchiebeimpuls umbenannt in bSchiebeimpulsWETShuttle
+; 			* bStartDesinfektion hinzugefügt
+; 			* bStartSpuelen hinzugefügt
+; 			* bEndeSpuelen hinzugefügt
+;		* COB231
+;			* usTransferZBEntwäss ersetzt durch usTransferZBvorTrockner
+;			* usTransferZBHFB umbenannt in usTransferZBvorHFB
+;		* COB441..459 hinzugefügt
+;		* COB401
+;			* bProgrammabbruch entfernt
+;			* bVorsignal + bKippsperre hinzugefügt
+; V 2.0.0 HO		-> COBs 123,251,252,480,481 added
+; 					-> 251,252 modified
+; 					-> 121 modified
+; V 1.0.0
+;********************************************************************************************************
+; this function performs the following:
+;   -> sets in dependency of CANID single CAN1 telegram to byte oriented structure
+;   -> ByteArray that will be passed out has to be set in motorola order here
+; 	-> returns bDataValid-flag to sign reassembled last CAN1 telegram (last telegram as defined in WETCAN2 standard)
+;********************************************************************************************************
+; supported CANIDs: 120,121,122,130,140,131,141,201,209,211,219,221,231,251,252
+; 					301,306,311,316,351,361..369,371..379,401..419,421..439,441..459,480,481
+;********************************************************************************************************
+
+; assign empty Byte array..
+a_usOutByteArray = a_usInByteArray
+
+uiStatus = 0
+
+; necessary for COB 211+ 371
+; -> and whether USINT shall be extracted from CAN1-WORD (e.g. CAN1_bx_by)
+TARGETInfo_0.enable		= 1
+TARGETInfo_0.pOSVersion	= adr(szOSVersion)
+TARGETInfo_0 FUB TARGETInfo()
+
+; check for telnr + CANID to identify individual PV..
+case udCanID of
+
+;******CANID110************CANID110************CANID110************CANID110************CANID110************
+action 110:
+	;******CANID110******T1******CANID110******T1******CANID110******T1******CANID110******T1******CANID110******T1******
+	; ID 110 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit				1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[12] = 1
+		else
+			a_usOutByteArray[12] = 0
+		endif
+;	bEntladesignal				1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[13] = 1
+		else
+			a_usOutByteArray[13] = 0
+		endif
+;	bEntladebereit
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[14] = 1
+		else
+			a_usOutByteArray[14] = 0
+		endif
+;	bUebergabestoerung
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[15] = 1
+		else
+			a_usOutByteArray[15] = 0
+		endif
+;	udPostennummer
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[2] = USINT(uiShr8)
+		a_usOutByteArray[3] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[0] = USINT(uiShr8)
+		a_usOutByteArray[1] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+
+	endif
+;******CANID110******T2******CANID110******T2******CANID110******T2******CANID110******T2******CANID110******
+
+	;§ CANID110 - T2 identified -mandatories..
+	if ((BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bProgrammOderKategorie		2
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[17] = 1
+		else
+			a_usOutByteArray[17] = 0
+		endif
+;	bNotAusEntsander
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[16] = 1
+		else
+			a_usOutByteArray[16] = 0
+		endif
+;	uiProgrammKatgorie			2
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer				2
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[4] = USINT(uiShr8)
+		a_usOutByteArray[5] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif	
+	
+	;******CANID110******T2******CANID110******T2******CANID110******T2******CANID110******T2******CANID110******
+	;§ ID 110 - T3 identified
+	if ((BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[20]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[21]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[23]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[25]) , adr(CAN1Data.T_By6_By7), 2)
+
+	bDataValid = TRUE 	; return data's validity status..
+	endif	
+endaction	; 110
+
+
+;******CANID111************CANID111************CANID111************CANID111************CANID111************
+action 111:
+	;******CANID111******T1******CANID111******T1******CANID111******T1******CANID111******T1******CANID111*
+	;§ ID 111 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then	
+
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bEntladefreigabe
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bUebernahmestoerungVerbET
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bNotAusBeladeband
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+		
+	;******CANID111******T2******CANID111******T2******CANID111******T2******CANID111******T2******CANID111******
+	;§ ID 111 - T5 identified
+	if ((BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 ))then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[4]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[5]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[7]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[9]) , adr(CAN1Data.T_By6_By7), 2)
+
+	bDataValid = TRUE 	; return data's validity status..
+	endif
+		
+endaction ; 111
+
+;******CANID120************CANID120************CANID120************CANID120**********CANID120*******
+action 120:
+action 126:
+action 128:
+action 130:
+action 140:
+action 150:
+action 160:
+action 170:
+action 180:
+action 190:
+	;******CANID120******T1******CANID120******T1******CANID120******T1******CANID120******T1******CANID120*
+	; § ID 120 - T1 identified
+	if (	NOT(BIT_TST(CAN1Data.T_By0,4)) AND NOT(BIT_TST(CAN1Data.T_By0,5))\
+		AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7) ) then
+	;= 120.Bereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+
+	;= 120.bAuftragskennzeichen
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[13] = 1
+		else
+			a_usOutByteArray[13] = 0
+		endif
+	;	= 120.usFehlernummer
+		a_usOutByteArray[12] = CAN1Data.T_By1
+
+		; convert from motorola: MSByte to lowest address of byteArray !
+	; 120.udPostennummer
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+	; 120.uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[32] = USINT(uiShr8)
+		a_usOutByteArray[33] = USINT(CAN1Data.T_By6_By7)
+
+		bDataValid = FALSE 	; return data's validity status..
+
+		; ###HO - 100205
+		bAKZ = FALSE
+		if BIT_TST(CAN1Data.T_By0,3) then
+			bAKZ = TRUE
+		else
+			bAKZ = FALSE
+		endif
+	endif
+;******CANID120******T2******CANID120******T2******CANID120******T2******CANID120******T2******CANID120******
+
+	; § CANID120 - T2 identified
+	if (		BIT_TST(CAN1Data.T_By0,4) AND NOT(BIT_TST(CAN1Data.T_By0,5))\
+		AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then
+		; = 120.bProgrammOderKategorie
+			if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+				a_usOutByteArray[2] = 1
+			else
+				a_usOutByteArray[2] = 0
+			endif
+		; Alignment byte
+			a_usOutByteArray[3] = 0
+		; bNotAusHF
+			if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+				a_usOutByteArray[34] = 1
+			else
+				a_usOutByteArray[34] = 0
+			endif
+		; bSchiebeVorposition
+			if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+				a_usOutByteArray[36] = 1
+			else
+				a_usOutByteArray[36] = 0
+			endif
+		; usEinlaufInSpeibahnNr == T2_By1_Bit0-3
+			a_usOutByteArray[37] =	shr(CAN1Data.T_By1,4)
+		; usAuslaufAusSpeibahnNr == T2_By1_Bit4-7
+			a_usOutByteArray[38] =	shr(shl(CAN1Data.T_By1,4),4) ; =LOWERbyte entfernen
+		; 120.uiProgrammKategorie
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[4] = USINT(uiShr8)
+			a_usOutByteArray[5] = USINT(CAN1Data.T_By2_By3)
+		; 120.udKundennummer
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[28] = USINT(uiShr8)
+			a_usOutByteArray[29] = USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[30] = USINT(uiShr8)
+			a_usOutByteArray[31] = USINT(CAN1Data.T_By6_By7)
+
+		bDataValid = FALSE 	; return data's validity status..
+	endif
+;******CANID120******T3******CANID120******T3******CANID120******T3******CANID120******T3******CANID120******
+
+	;§ ID 120 - T3 identified
+	if (	NOT(BIT_TST(CAN1Data.T_By0,4)) AND BIT_TST(CAN1Data.T_By0,5)\
+		AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	;= 120.bContainerUeberBeladetrichter
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	;= 120.bPostennummer
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+	; Alignment byte..
+		a_usOutByteArray[7] = 0
+	; bDatenuebernahmeLift
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[35] = 1
+		else
+			a_usOutByteArray[35] = 0
+		endif
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[41]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[42]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[44]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[46]) , adr(CAN1Data.T_By6_By7), 2)
+	; ###HO - 100205
+		if  bAKZ = TRUE then ;(= 5 Telegramme: weitermachen..)
+			bDataValid = FALSE 		; return data's validity status..
+		else ; (= 3 Telegramme: hier aufhören!)
+			bDataValid = TRUE
+		endif
+	endif
+;******CANID120******T4******CANID120******T4******CANID120******T4******CANID120******T4******CANID120******
+	;§ ID 120 - T4 identified
+	if (	BIT_TST(CAN1Data.T_By0,4) AND BIT_TST(CAN1Data.T_By0,5)\
+	AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7))then
+
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[14]		= USINT(uiShr8)
+		a_usOutByteArray[15]    	= USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[16]		= USINT(uiShr8)
+		a_usOutByteArray[17]    	= USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[18]		= USINT(uiShr8)
+		a_usOutByteArray[19]    	= USINT(CAN1Data.T_By6_By7)
+
+		bDataValid = FALSE 	; return data's validity status..
+	endif
+	;******CANID120******T5******CANID120******T5******CANID120******T5******CANID120******T5******CANID120******
+	;§ ID 120 - T5 identified
+	if (NOT(BIT_TST(CAN1Data.T_By0,4)) AND NOT(BIT_TST(CAN1Data.T_By0,5)) \
+		AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7) )then
+
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[20]		= USINT(uiShr8)
+		a_usOutByteArray[21]    	= USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[22]		= USINT(uiShr8)
+		a_usOutByteArray[23]    	= USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[24]		= USINT(uiShr8)
+		a_usOutByteArray[25]    	= USINT(CAN1Data.T_By6_By7)
+
+		; a_usOutByteArray[26]	 is 'Nullbyte'
+		a_usOutByteArray[27]    	= 0
+
+		bDataValid = TRUE 	; return data's validity status..
+	endif
+endaction ; CanID 120
+
+;******CANID121************CANID121******T******CANID121************CANID121************CANID121************
+action 121:		; V3.0.0
+action 127:		; V3.1.0
+action 129:		; V3.1.0
+action 131:	 ; V3.2.1
+action 141:	 ; V3.2.1
+action 151: ; V3.6.0
+action 161:
+action 171:
+action 181:
+action 191:
+	;******CANID121******T1******CANID121******T1******CANID121******T1******CANID121******T1******
+	; §		ID 121 - no -mandatories..
+	; no telNumber defined in TIS..
+	if ( NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7) ) then
+
+	; bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	; bSackOeffnen
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	; bSackLeerWeiter
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+	; bFreigLiftBeschickungSpeibahn
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+	; bSchiebesignalPT
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[12] = 1
+		else
+			a_usOutByteArray[12] = 0
+		endif
+	; bNotAusPT
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 			; return data's validity status..
+	endif
+
+	;******CANID121******T2******CANID121******T2******CANID121******T2******CANID121******T2******CANID121******
+	;§ ID 121 - T2 identified
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then	;  AND NOT
+
+		memcpy (adr(a_usOutByteArray[13]), adr(CAN1Data.T_By1), 1)
+		memcpy (adr(a_usOutByteArray[14]), adr(CAN1Data.T_By2_By3), 2)
+		memcpy (adr(a_usOutByteArray[16]), adr(CAN1Data.T_By4_By5), 2)
+		memcpy (adr(a_usOutByteArray[18]), adr(CAN1Data.T_By6_By7), 2)
+
+		; return data's validity status..
+		bDataValid = TRUE ; reassembling ready - as ID122 consists only of two telegrams
+	endif
+
+endaction ; CanID 121
+
+;******CANID122************CANID122************CANID122************CANID122************CANID122******
+action 122:
+	;******CANID122******T1******CANID122******T1******CANID122******T1******CANID122******T1******
+	;§ ID 122 - T1 identified
+	if ( NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then 	 ; NOT(BIT_TST(CAN1Data.T_By0,5)) AND
+	;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	;	bPostenAufBelband
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[30] = 1
+		else
+			a_usOutByteArray[30] = 0
+		endif
+	;	bPostendatenGueltig
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[31] = 1
+		else
+			a_usOutByteArray[31] = 0
+		endif
+	;	bPostennummer
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[10] = 1
+		else
+			a_usOutByteArray[10] = 0
+		endif
+	;	bAuftrKennz
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[16] = 1
+		else
+			a_usOutByteArray[16] = 0
+		endif
+;		udPostennummer
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[12]		= USINT(uiShr8)
+		a_usOutByteArray[13]    	= USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[14]		= USINT(uiShr8)
+		a_usOutByteArray[15]    	= USINT(CAN1Data.T_By4_By5)
+	;	usFehlerNr
+		a_usOutByteArray[33] = CAN1Data.T_By1
+	;	uiGewicht
+		uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[8]		= USINT(uiShr8)
+		a_usOutByteArray[9]    	= USINT(CAN1Data.T_By6_By7)
+
+
+		bDataValid = FALSE 			; 	return data's validity status..
+
+	endif
+;******CANID122******T2******CANID122******T2******CANID122******T2******CANID122******T2******CANID122******
+	;§ ID 122 - T2 identified
+	if ((BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then	; BIT_TST(CAN1Data.T_By0,5) AND NOT
+
+	;usZaehler
+		a_usOutByteArray[34] = CAN1Data.T_By1
+	;uiProgKat
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[2]		= USINT(uiShr8)
+		a_usOutByteArray[3]    	= USINT(CAN1Data.T_By2_By3)
+	;udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[4]		= USINT(uiShr8)
+		a_usOutByteArray[5]    	= USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[6]		= USINT(uiShr8)
+		a_usOutByteArray[7]    	= USINT(CAN1Data.T_By6_By7)
+	;bProgKat
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	; bNotAusSackbeladung
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[32] = 1
+		else
+			a_usOutByteArray[32] = 0
+		endif
+
+		; return data's validity status..
+		bDataValid = TRUE ; reassembling ready - as ID122 consists only of two telegrams
+	endif
+
+;******CANID122******T3******CANID122******T3******CANID122******T3******CANID122******T3******CANID122******
+
+	;§ ID 122 - T3 identified
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6 )AND BIT_TST(CAN1Data.T_By0,7)) then
+			; 122.szAuftragskennzeichen
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[17]		= USINT(uiShr8)
+			a_usOutByteArray[18]    	= USINT(CAN1Data.T_By2_By3)
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[19]		= USINT(uiShr8)
+			a_usOutByteArray[20]    	= USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[21]		= USINT(uiShr8)
+			a_usOutByteArray[22]    	= USINT(CAN1Data.T_By6_By7)
+
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID122******T4******CANID122******T4******CANID122******T4******CANID122******T4******CANID122******
+	;§ ID 122 - T4 identified
+	if (BIT_TST(CAN1Data.T_By0,5) AND BIT_TST(CAN1Data.T_By0,6 )AND BIT_TST(CAN1Data.T_By0,7) )then
+
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[23]		= USINT(uiShr8)
+			a_usOutByteArray[24]    	= USINT(CAN1Data.T_By2_By3)
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[25]		= USINT(uiShr8)
+			a_usOutByteArray[26]    	= USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[27]		= USINT(uiShr8)
+			a_usOutByteArray[28]    	= USINT(CAN1Data.T_By6_By7)
+
+		bDataValid = TRUE 	; return data's validity status..
+	endif
+endaction ; CanID 122
+
+
+;******CANID123************CANID123************CANID123************CANID123************CANID123******
+action 123:
+	;******CANID123******T1******CANID123******T1******CANID123******T1******CANID123******T1******
+	;§ ID 123 - T1 identified
+	if (BIT_TST(CAN1Data.T_By0,7)) then
+
+	; bBereit
+	if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+		a_usOutByteArray[0] = 1
+	else
+		a_usOutByteArray[0] = 0
+	endif
+
+	; bDatenBereitstellen
+	if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+		a_usOutByteArray[1] = 1
+	else
+		a_usOutByteArray[1] = 0
+	endif
+
+	; bBeladesignal
+	if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+		a_usOutByteArray[2] = 1
+	else
+		a_usOutByteArray[2] = 0
+	endif
+
+	; bNotAusPT
+	if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+		a_usOutByteArray[3] = 1
+	else
+		a_usOutByteArray[3] = 0
+	endif
+
+	bDataValid = TRUE 	; 	return data's validity status..
+
+	endif
+endaction ; CanID 123
+
+(*
+;******CANID130_140************CANID130_140******T******CANID130_140************CANID130_140************
+action 1130:	; 08.10.2007 - (hcs) DEAKTIVIERT
+	;******CANID130_140******T1******CANID130_140******T1******CANID130_140******T1******CANID130_140******
+	;§ ID 130_140 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6) )AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;	bBereit			1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bPostenAufBeladeband	1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bPostendatenGueltig		1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bPostennummer			1
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+		; AlignmentByte
+		a_usOutByteArray[9] = 0
+;	bAuftragskennzeichen	1
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[15] = 1
+		else
+			a_usOutByteArray[15] = 0
+		endif
+;	usFehlernummer			1
+		a_usOutByteArray[14] = CAN1Data.T_By1
+;	udPostennummer			1
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht				1
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[34] = USINT(uiShr8)
+		a_usOutByteArray[35] = USINT(CAN1Data.T_By6_By7)
+
+		; bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+
+	endif
+;******CANID130_140******T2******CANID130_140******T2******CANID130_140******T2******CANID130_140******T2******CANID130_140******
+
+	;§ CANID130_140 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;	bProgrammOderKategorie	2
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	bNotAusBSEnts
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[36] = 1
+		else
+			a_usOutByteArray[36] = 0
+		endif
+;	usPositionszaehler
+		a_usOutByteArray[3] = CAN1Data.T_By1
+;	uiProgrammKategorie
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[30] = USINT(uiShr8)
+		a_usOutByteArray[31] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[32] = USINT(uiShr8)
+		a_usOutByteArray[33] = USINT(CAN1Data.T_By6_By7)
+
+		; AlignmentByte
+		a_usOutByteArray[5] = 0
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID130_140******T3******CANID130_140******T3******CANID130_140******T3******CANID130_140******T3******CANID130_140******
+
+	;§ ID 130_140 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6)AND BIT_TST(CAN1Data.T_By0,7)) then
+		;AKZ as STRING-> :
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[16]		= USINT(uiShr8)
+			a_usOutByteArray[17]    	= USINT(CAN1Data.T_By2_By3)
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[18]		= USINT(uiShr8)
+			a_usOutByteArray[19]    	= USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[20]		= USINT(uiShr8)
+			a_usOutByteArray[21]    	= USINT(CAN1Data.T_By6_By7)
+
+			;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+			bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID130_140******T4******CANID130_140******T4******CANID130_140******T4******CANID130_140******T4******CANID130_140******
+	;§ ID 130_140 - T4 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND BIT_TST(CAN1Data.T_By0,6)AND BIT_TST(CAN1Data.T_By0,7))then
+		;AKZ as STRING-> :
+;		if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[22]		= USINT(uiShr8)
+			a_usOutByteArray[23]    	= USINT(CAN1Data.T_By2_By3)
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[24]		= USINT(uiShr8)
+			a_usOutByteArray[25]    	= USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[26]		= USINT(uiShr8)
+			a_usOutByteArray[27]    	= USINT(CAN1Data.T_By6_By7)
+		;NULLBYTE used to close String..
+			a_usOutByteArray[28]    	= 0
+
+			;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+			bDataValid = TRUE 	; return data's validity status..
+	endif
+endaction ; 130
+*)
+(*
+;******CANID131_141************CANID131_141******T******CANID131_141************CANID131_141************
+action 1131:		; 08.10.2007 - (hcs) DEAKTIVIERT
+
+	;******CANID131_141******T1******CANID131_141******T1******CANID131_141******T1******CANID131_141******
+	;§ ID 131_141 - T1 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,7))  then 	; AND NOT(BIT_TST(CAN1Data.T_By0,6))
+
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bDatenBereitstellen
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bBeladesignal
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; 	bNotAusWM
+		if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+
+		; bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 			; return data's validity status..
+	endif
+endaction ; 131 -> CanID 131_141
+*)
+(*
+;******CANID130_140************CANID130_140******T******CANID130_140************CANID130_140************
+action 140:
+
+;******CANID130_140******T1******CANID130_140******T1******CANID130_140******T1******CANID130_140******T1******CANID130_140******T1******
+;§ ID 130_140 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6) )AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;	bBereit			1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bPostenAufBeladeband	1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bPostendatenGueltig		1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bPostennummer			1
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+		; AlignmentByte
+		a_usOutByteArray[9] = 0
+;	bAuftragskennzeichen	1
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[15] = 1
+		else
+			a_usOutByteArray[15] = 0
+		endif
+;	usFehlernummer			1
+		a_usOutByteArray[14] = CAN1Data.T_By1
+;	udPostennummer			1
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht				1
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[32] = USINT(uiShr8)
+		a_usOutByteArray[33] = USINT(CAN1Data.T_By6_By7)
+
+		; bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+
+	endif
+;******CANID130_140******T2******CANID130_140******T2******CANID130_140******T2******CANID130_140******T2******CANID130_140******
+
+	;§ CANID130_140 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;	bProgrammOderKategorie	2
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	bNotAusBSEnts
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[34] = 1
+		else
+			a_usOutByteArray[34] = 0
+		endif
+;	usPositionszaehler
+		a_usOutByteArray[3] = CAN1Data.T_By1
+;	uiProgrammKategorie
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[28] = USINT(uiShr8)
+		a_usOutByteArray[29] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[30] = USINT(uiShr8)
+		a_usOutByteArray[31] = USINT(CAN1Data.T_By6_By7)
+
+		; AlignmentByte
+		a_usOutByteArray[5] = 0
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID130_140******T3******CANID130_140******T3******CANID130_140******T3******CANID130_140******T3******CANID130_140******
+
+	;§ ID 130_140 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6)AND BIT_TST(CAN1Data.T_By0,7)) then
+		;AKZ as STRING-> :
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+	;	if(TARGETInfo_0.DataFormat = 2) then ; motorola..
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[16]		= USINT(uiShr8)
+			a_usOutByteArray[17]    	= USINT(CAN1Data.T_By2_By3)
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[18]		= USINT(uiShr8)
+			a_usOutByteArray[19]    	= USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[20]		= USINT(uiShr8)
+			a_usOutByteArray[21]    	= USINT(CAN1Data.T_By6_By7)
+;		else ; intel..
+;				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+;			a_usOutByteArray[18]		= USINT(uiShr8)
+;			a_usOutByteArray[19]    	= USINT(CAN1Data.T_By2_By3)
+;				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+;			a_usOutByteArray[20]		= USINT(uiShr8)
+;			a_usOutByteArray[21]    	= USINT(CAN1Data.T_By4_By5)
+;				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+;			a_usOutByteArray[22]		= USINT(uiShr8)
+;			a_usOutByteArray[23]    	= USINT(CAN1Data.T_By6_By7)
+;		endif
+
+			;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+			bDataValid = FALSE 		; return data's validity status..
+	endif
+	*)
+	(*
+;******CANID130_140******T4******CANID130_140******T4******CANID130_140******T4******CANID130_140******T4******CANID130_140******
+	;§ ID 130_140 - T4 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND BIT_TST(CAN1Data.T_By0,6)AND BIT_TST(CAN1Data.T_By0,7))then
+		;AKZ as STRING-> :
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[22]		= USINT(uiShr8)
+			a_usOutByteArray[23]    	= USINT(CAN1Data.T_By2_By3)
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[24]		= USINT(uiShr8)
+			a_usOutByteArray[25]    	= USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[26]		= USINT(uiShr8)
+			a_usOutByteArray[27]    	= USINT(CAN1Data.T_By6_By7)
+		;NULLBYTE used to close String..
+			a_usOutByteArray[28]    	= 0
+
+			;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+			bDataValid = TRUE 	; return data's validity status..
+	endif
+endaction ; 140
+*)
+(*
+;******CANID131_141************CANID131_141******T******CANID131_141************CANID131_141************
+action 141:
+	;******CANID131_141******T1******CANID131_141******T1******CANID131_141******T1******
+	;§ ID 131_141 - T1 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,7)) then ; NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6) )
+
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bDatenBereitstellen
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bBeladesignal
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bNotAusWM
+		if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+
+;		bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 								; return data's validity status..
+	endif
+endaction ; 141 -> CanID 131_141
+*)
+;******CANID201************CANID201************CANID201************CANID201************CANID201******
+action 201 :
+
+	;******CANID201******T1******CANID201******T1******CANID201******T1******CANID201******T1******
+	;§ ID 201 - T1 identified
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then
+	; Bereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	; bVorsignal
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	; bEntladesignal
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+	; bKeineRueckgewinnung
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+		; Alignment byte..
+		a_usOutByteArray[7] = 0
+; 		bFreigabeDesinfektion
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[19] = 1
+		else
+			a_usOutByteArray[19] = 0
+		endif
+; 		bTankIstLeer
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[20] = 1
+		else
+			a_usOutByteArray[20] = 0
+		endif
+;		bFreigabeSpuelen
+		if(BIT_TST(CAN1Data.T_By1,2) = 1) then
+			a_usOutByteArray[21] = 1
+		else
+			a_usOutByteArray[21] = 0
+		endif
+;		bEndeDesinfektion
+		if(BIT_TST(CAN1Data.T_By1,3) = 1) then
+			a_usOutByteArray[22] = 1
+		else
+			a_usOutByteArray[22] = 0
+		endif
+
+	; convert from motorola: MSByte to lowest address of byteArray !
+	; udPostennummer
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+	; uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+		; return data's validity status..
+		bDataValid = FALSE
+	endif
+;******CANID201******T2******CANID201******T2******CANID201******T2******CANID201******T2******CANID201******T2******
+
+	;§ CANID201 - T2 identified
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6))AND BIT_TST(CAN1Data.T_By0,7)) then
+		; bProgrammOderKategorie
+			if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+				a_usOutByteArray[4] = 1
+			else
+				a_usOutByteArray[4] = 0
+			endif
+		; bNotAusWM
+			if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+				a_usOutByteArray[18] = 1
+			else
+				a_usOutByteArray[18] = 0
+			endif
+		; Alignment byte
+			a_usOutByteArray[5] = 0
+		; uiProgrammKategorie
+		; ###HO - 141005 - UINTs beginnen nie auf ungeraden Adressen !
+				uiShr8 = shr(CAN1Data.T_By2_By3,8)
+			a_usOutByteArray[6] = USINT(uiShr8)
+			a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+		; udKundennummer
+				uiShr8 = shr(CAN1Data.T_By4_By5,8)
+			a_usOutByteArray[12] = USINT(uiShr8)
+			a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+				uiShr8 = shr(CAN1Data.T_By6_By7,8)
+			a_usOutByteArray[14] = USINT(uiShr8)
+			a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+			bDataValid = FALSE 		; return data's validity status..
+	endif
+
+;******CANID201******T3******CANID201******T3******CANID201******T3******CANID201******T3******CANID201******T3******
+
+	;§ CANID201 - T3 identified
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[24]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[25]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[27]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[29]) , adr(CAN1Data.T_By6_By7), 2)
+
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+
+	; ID 201 - T3 + T4 not defined by CAN2 standard
+endaction ; CanID 201
+
+; ###HO-250107 case mittig aufgeteilt -
+elseaction:
+   	uiStatus = 110
+endaction
+endcase
+if uiStatus = 110 then
+	; hier weitermachen: zweiten Teil des case durchgehen
+else
+	; es wurde bereits ein case gefunden - raus hier..
+	goto RAUS_HIER1
+endif
+case udCanID of
+
+
+;******CANID209************CANID209************CANID209************CANID209************
+action 209:
+
+	;******CANID209******T1******CANID209******T1******CANID209******T1******CANID209******T1******
+	;§ ID 209 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+; bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+; pv209.bVorsignal
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+; pv209.bEntladesignal
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; pv209.bKeineRueckgewinnung
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+; pv209.udPostennummer
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+; pv209.uiGewicht
+		a_usOutByteArray[16] = USINT(shr(CAN1Data.T_By6_By7,8))
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID209******T2******CANID209******T2******CANID209******T2******CANID209******T2******CANID209******
+
+	;§ CANID209 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+; pv209.bProgrammOderKategorie
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+; pv209.bNotAusWetShuttle
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[18] = 1
+		else
+			a_usOutByteArray[18] = 0
+		endif
+; pv209.uiProgrammKategorie
+		a_usOutByteArray[6] = USINT(shr(CAN1Data.T_By2_By3,8))
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+; pv209.udKundennummer
+		a_usOutByteArray[12] = USINT(shr(CAN1Data.T_By4_By5,8))
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+		a_usOutByteArray[14] = USINT(shr(CAN1Data.T_By6_By7,8))
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+			;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+;******CANID209******T3******CANID209******T3******CANID209******T3******CANID209******T3******CANID209******
+
+	;§ CANID209 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[21]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[22]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[24]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[26]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; CanID 209
+
+
+
+
+;******CANID211***********CANID211***********CANID211**********CANID211***********CANID211*****
+action 211:
+	;§ ******CANID211******T1******CANID211******T1******CANID211******T1******CANID211******T1******
+	; ID 211 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+	;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	;	bBeladebereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	;	bSchiebeimpulsWETShuttle
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+	;	bSchiebeimpulsErsteEntwaess
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+	; 	bAblassventilZwangsoeffnen	1.EW
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+	; 	bFehlerBeladegewicht 1.EW
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[7] = 1
+		else
+			a_usOutByteArray[7] = 0
+		endif
+	; 	bFehlerBeladegewicht 2.EW
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+	; 	bAblassventilZwangsoeffnen	2.EW
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+	;	bSchiebeimpuls	2.EW
+		if(BIT_TST(CAN1Data.T_By1,2) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+	; 	bNotAUsEWWetShuttle
+		if(BIT_TST(CAN1Data.T_By1,3) = 1) then
+			a_usOutByteArray[12] = 1
+		else
+			a_usOutByteArray[12] = 0
+		endif				
+	; 	pv211.bSicherheitstuerPTPP 
+		if(BIT_TST(CAN1Data.T_By1,4) = 1) then
+			a_usOutByteArray[33] = 1
+		else
+			a_usOutByteArray[33] = 0
+		endif
+	; 	pv211.bStartbefehlAnPT
+		if(BIT_TST(CAN1Data.T_By1,5) = 1) then
+			a_usOutByteArray[34] = 1
+		else
+			a_usOutByteArray[34] = 0
+		endif
+				
+		 if TARGETInfo_0.DataFormat = 2 then ; motorola
+			; 	usFehler1.EW	-> T1By2
+			a_usOutByteArray[9] = USINT(shr(CAN1Data.T_By2_By3,8))
+			; 	usFehler2.EW	-> T1By4
+			a_usOutByteArray[10] = USINT(shr(CAN1Data.T_By4_By5,8))
+			; 	usFehler WetShuttle	-> T1By3
+			a_usOutByteArray[11] = USINT(CAN1Data.T_By2_By3)
+		else if TARGETInfo_0.DataFormat = 1 then ; intel
+				; 	usFehler1.EW		-> T1By2
+				a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+				; 	usFehler2.EW		-> T1By4
+				a_usOutByteArray[10] = USINT(CAN1Data.T_By4_By5) ; ###HO/UM 130509 V3.3.1
+				; 	usFehlerWetShuttle	-> T1By3
+				a_usOutByteArray[11] = 	USINT(shr(CAN1Data.T_By2_By3,8))
+			else
+			 	uiStatus = TARGETInfo_0.status
+		endif
+
+		; fetch LOWERByte..
+		if TARGETInfo_0.DataFormat = 1 then ; i386
+			uiTemp211 = (shr(CAN1Data.T_By4_By5,8)) ; ###HO - 101007 - shr -> shl	, zum Debuggen ..211
+			usTemp211 = USINT(uiTemp211)
+		else if TARGETInfo_0.DataFormat = 2 then ; m68k
+			usTemp211 = USINT(CAN1Data.T_By4_By5) ; ###HO/UM 130509 V3.3.1
+		endif
+	; bStartDesinfektion
+		if(BIT_TST(usTemp211,0) = 1) then 	  ; ###HO - 101007
+			a_usOutByteArray[13] = 1
+		else
+			a_usOutByteArray[13] = 0
+		endif
+	; bStartSpuelen
+		if(BIT_TST(usTemp211,1) = 1) then 	  ; ###HO - 101007
+			a_usOutByteArray[14] = 1
+		else
+			a_usOutByteArray[14] = 0
+		endif
+	; bEndeSpuelen
+		if(BIT_TST(usTemp211,2) = 1) then 	  ; ###HO - 101007
+			a_usOutByteArray[15] = 1
+		else
+			a_usOutByteArray[15] = 0
+		endif
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+;§ ******CANID211******T2******CANID211******T2******CANID211******T2******CANID211******T2******
+	; ID 211 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+		; a_usCustomize
+		memcpy(adr(a_usOutByteArray[26]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[27]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[29]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[31]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;	bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 211
+
+;******CANID219************CANID219************CANID219************CANID219************
+action 219:
+	;******CANID219******T1******CANID219******T1******CANID219******T1******CANID219******T1******
+	; ID 219 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;pv219.bBereitEntwWetShuttle	= 1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;pv219.bBereitEntw	= 1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;pv219.bBeladebereit	= 1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;pv219.bSchiebeimpuls	= 1
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;pv219.bHANDWetShuttleEntladen	= 1
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;pv219.bFehlerBeladegewicht	= 1
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+;pv219.usFehlerEntw
+		a_usOutByteArray[6] = USINT(shr(CAN1Data.T_By2_By3,8))
+;pv219.usFehlerWetShuttle
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+
+		;bDataValidFlag->
+		bDataValid = FALSE
+	endif
+	;******CANID219******T1******CANID219******T1******CANID219******T1******CANID219******T1******
+	; ID 219 - T1 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+	;pv219.bNotAUsEntw
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+
+endaction ; CanID 219
+
+;******CANID221************CANID221************CANID221************CANID221************CANID221************
+action 221:
+	;******CANID221******T1******CANID221******T1******CANID221******T1******CANID221******T1******
+	;§ ID 221 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;	bBereit					1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bPostendatenGueltig				1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bUnglPostenKeineDPBelAmTrockner	1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	udPostennummer					1
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht						1
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 			; return data's validity status..
+
+	endif
+;******CANID221******T2******CANID221******T2******CANID221******T2******CANID221******T2******CANID221******
+
+	;§ CANID221 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+;	bTrocknerprogOderKategorie
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;	bNotAUsWM
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[16] = 1
+		else
+			a_usOutByteArray[16] = 0
+		endif
+;	uiTrocknerprogKategorie			2
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[4] = USINT(uiShr8)
+		a_usOutByteArray[5] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer					2
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID221******T3******CANID221******T3******CANID221******T3******CANID221******T3******CANID221******
+
+	;§ CANID221 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[19]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[20]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[22]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[24]) , adr(CAN1Data.T_By6_By7), 2)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 221
+
+
+;******CANID231************CANID231************CANID231************CANID231************CANID231************
+action 231:
+
+	;§ ******CANID231******T1******CANID231******T1******CANID231******T1******CANID231******T1******
+	; ID 231 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	;	bBereit						1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	;	bNotAusVerbET
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+	;	usBeladungTrockner
+		a_usOutByteArray[1] = CAN1Data.T_By1
+	; fetch By2 - the LOWERByte..
+	if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+		uiTemp = CAN1Data.T_By2_By3
+		usTemp =  USINT(shr(uiTemp,8))
+	else ; i386
+		usTemp = USINT(CAN1Data.T_By2_By3)
+	endif
+	;	usEntladungTrockner
+		a_usOutByteArray[2] = usTemp
+	; fetch By3 - the UPPERByte..
+	if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+		usTemp = USINT(CAN1Data.T_By2_By3)
+	else ; i386
+		uiTemp = CAN1Data.T_By2_By3
+		usTemp  = USINT(shr(uiTemp ,8))
+	endif
+	;	usTransferZBvorHFB
+		a_usOutByteArray[4] = usTemp
+
+	; fetch By4 - the LOWERByte..
+	if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+		uiTemp = CAN1Data.T_By4_By5
+		usTemp = USINT(shr(uiTemp,8))
+	else ; i386
+		usTemp = USINT(CAN1Data.T_By4_By5)
+	endif
+	;	usFehlernummer
+		a_usOutByteArray[5] = usTemp
+
+	; fetch By5 - the UPPERByte..
+	if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+		usTemp = USINT(CAN1Data.T_By4_By5)
+	else ; i386
+		uiTemp = CAN1Data.T_By4_By5
+		usTemp = USINT(shr(uiTemp,8))
+	endif
+;	usTransferZBvorTrockner
+		a_usOutByteArray[3] = usTemp
+
+	; ###HO - 260106 - R::Reserve1+Reserve2
+	; fetch By6 - the LOWERByte..
+	if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+		uiTemp = CAN1Data.T_By6_By7
+		usTemp = USINT(shr(uiTemp,8))
+	else ; i386
+		usTemp = USINT(CAN1Data.T_By6_By7)
+	endif
+	;	usReserve1
+		a_usOutByteArray[7] = usTemp
+	; fetch By7 - the UPPERByte..
+	if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+		usTemp = USINT(CAN1Data.T_By6_By7)
+	else ; i386
+		uiTemp = CAN1Data.T_By6_By7
+		usTemp = USINT(shr(uiTemp,8))
+	endif
+	;	usReserve2
+	a_usOutByteArray[8] = usTemp
+
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 			; return data's validity status..
+	endif
+
+;§ ******CANID231******T2******CANID231******T2******CANID231******T2******CANID231******T2******
+	; ID 231 - T1 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[9]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[10]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[12]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[14]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 			; return data's validity status..
+	endif
+endaction ; 231
+
+;******CANID251************CANID251************CANID251************CANID251************CANID251************
+action 251:
+action 253:
+action 255:
+action 257:
+;******CANID251******T1******CANID251******T1******CANID251******T1******CANID251******T1******CANID251****
+; ID 251 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	; udPostennummer
+		; convert from motorola: MSByte to lowest address of byteArray
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By4_By5)
+	; uiGewicht
+		uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+	; usZiel
+		a_usOutByteArray[16] = CAN1Data.T_By1
+	; bBeladeende
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[17] = 1
+		else
+			a_usOutByteArray[17] = 0
+		endif
+	; bSperreBereich
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[19] = 1
+		else
+			a_usOutByteArray[19] = 0
+		endif
+	; bStartBeladung ###HO - 040907
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[27] = 1
+		else
+			a_usOutByteArray[27] = 0
+		endif
+
+;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 								; return data's validity status..
+
+	endif
+;******CANID251******T2******CANID251******T2******CANID251******T2******CANID251******T2******CANID251******
+
+	; CANID251 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; bProgKat
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+	; bNotAusVerbund
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	; uiProgKat
+		uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[4] = USINT(uiShr8)
+		a_usOutByteArray[5] = USINT(CAN1Data.T_By2_By3)
+	; udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By6_By7)
+
+;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+;******CANID251******T3******CANID251******T3******CANID251******T3******CANID251******T3******CANID251******
+
+	; CANID251 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6)AND BIT_TST(CAN1Data.T_By0,7)) then
+
+		memcpy (adr(a_usOutByteArray[20]), adr(CAN1Data.T_By1), 1)
+		memcpy (adr(a_usOutByteArray[21]), adr(CAN1Data.T_By2_By3), 2)
+		memcpy (adr(a_usOutByteArray[23]), adr(CAN1Data.T_By4_By5), 2)
+		memcpy (adr(a_usOutByteArray[25]), adr(CAN1Data.T_By6_By7), 2)
+
+;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 251
+
+action 252:
+action 254:
+action 256:
+action 258:
+;******CANID252******T1******CANID252******T1******CANID252******T1******CANID252******T1******CANID252******
+; ID 252 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+; bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+; bSackBereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; bSperreBereich
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[17] = 1
+		else
+			a_usOutByteArray[17] = 0
+		endif
+; bNotAusSackbeladung
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 	; return data's validity status..
+	endif
+
+	;******CANID252******T2******CANID252******T2******CANID252******T2******CANID252******T2******
+	; ID 252 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[10]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[11]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[13]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[15]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 			; return data's validity status..
+	endif
+endaction ; 252
+
+action 261:		 ; ###HO 040907
+;******CANID261******T1******CANID261******T1******CANID261******T1******CANID261******T1******CANID261******
+; ID 261 - T1 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,7)) then
+; bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+; bBeladungBeendet
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+; bBeladungAktiv
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; bSaugboxBelegt
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+; bNotHaltSaugbox
+		if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+; uiMeldung
+		uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+; uiGewicht
+		uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 			; return data's validity status..
+	endif
+endaction ; 261
+
+action 262:		 ; ###HO 040907
+;******CANID262******T1******CANID262******T1******CANID262******T1******CANID262******T1******CANID262******
+; ID 262 - T1 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,7)) then
+; bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+; bSackBereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+; bEntladefreigabe
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; bNotHaltSackspeicher
+		if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 			; return data's validity status..
+	endif
+endaction ; 262
+
+
+; ###HO-250107 case mittig aufgeteilt -
+elseaction:
+   	uiStatus = 110
+endaction
+endcase
+RAUS_HIER1:
+if uiStatus = 110 then
+	; hier weitermachen: zweiten Teil des case durchgehen
+else
+	; es wurde bereits ein case gefunden - raus hier..
+	goto RAUS_HIER2
+endif
+case udCanID of
+
+
+;******CANID301************CANID301************CANID301************CANID301************CANID301************
+action 301:
+action 302:
+action 303:
+action 304:
+	;******CANID301******T1******CANID301******T1******CANID301******T1******CANID301******T1******CANID301
+	;§ ID 301 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5))and NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7) ) then
+
+;	bBereit					1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bEntwaesserungEntlaedt			1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bPostenInEntwaesserung			1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bEntladestoerungAnPresse		1
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;	bSperreFahrbandVonZentrifuge	1
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	bVorsignal
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[19] = 1
+		else
+			a_usOutByteArray[19] = 0
+		endif
+;	bBandlaufELB
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[18] = 1
+		else
+			a_usOutByteArray[18] = 0
+		endif
+;	bLichtschrankeBandende
+		if(BIT_TST(CAN1Data.T_By1,2) = 1) then
+			a_usOutByteArray[29] = 1
+		else
+			a_usOutByteArray[29] = 0
+		endif
+;	bEntladeueberwachung 
+		if(BIT_TST(CAN1Data.T_By1,3) = 1) then
+			a_usOutByteArray[30] = 1
+		else
+			a_usOutByteArray[30] = 0
+		endif
+;	udPostennummer					1
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht						1
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE		; return data's validity status..
+
+	endif
+;******CANID301******T2******CANID301******T2******CANID301******T2******CANID301******T2******CANID301******
+
+	;§ CANID301 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7) ) then
+
+;	bProgrammOderKategorie			2
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+;	bNotAusEW
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[20] = 1
+		else
+			a_usOutByteArray[20] = 0
+		endif
+;	uiProgrammKategorie				2
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer					2
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+	;******CANID301******T3******CANID301******T3******CANID301******T3******CANID301******T3******CANID301******
+
+	;§ CANID301 - T3 identified -mandatories..
+	if ( NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7) ) then
+
+		memcpy (adr(a_usOutByteArray[22]), adr(CAN1Data.T_By1), 1)
+		memcpy (adr(a_usOutByteArray[23]), adr(CAN1Data.T_By2_By3), 2)
+		memcpy (adr(a_usOutByteArray[25]), adr(CAN1Data.T_By4_By5), 2)
+		memcpy (adr(a_usOutByteArray[27]), adr(CAN1Data.T_By6_By7), 2)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 301,302,303,304
+
+;******CANID306************CANID306************CANID306************CANID306************CANID306************
+action 306:
+	;******CANID306******T1******CANID306******T1******CANID306******T1******CANID306******T1******CANID306******T1******
+	; ID 306 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit				1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bAeroEntlaedt				1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bPostenInAero
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bUebergabestoerung 
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[28] = 1
+		else
+			a_usOutByteArray[28] = 0
+		endif		
+;	bSperreFahrbandVonAero
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;	udPostennummer
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+
+	endif
+;******CANID306******T2******CANID306******T2******CANID306******T2******CANID306******T2******CANID306******
+
+	;§ CANID306 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bProgrammOderKategorie		2
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	bNotAusAero
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[18] = 1
+		else
+			a_usOutByteArray[18] = 0
+		endif
+;	uiProgrammKatgorie			2
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer				2
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif	
+;******CANID306******T3******CANID306******T3******CANID306******T3******CANID306******T3******CANID306******
+
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7 )) then
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[21]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[22]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[24]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[26]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction	; 306
+
+;******CANID307************CANID307************CANID307************CANID307************CANID307************
+action 307:
+	;******CANID307******T1******CANID307******T1******CANID307******T1******CANID307******T1******CANID307******T1******
+	; ID 307 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bEntladesignal
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bPostenAufBand
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bEntladestoerungBand
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;	bKundenwechsel
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	udPostennummer
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By6_By7)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID307******T2******CANID307******T2******CANID307******T2******CANID307******T2******CANID307******
+
+	;§ CANID307 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bProgrammOderKategorie
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+;	bBandlaufEntladeband
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+;	bNotAusVerbund
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[7] = 1
+		else
+			a_usOutByteArray[7] = 0
+		endif
+;	uiProgrammKatgorie
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[18] = USINT(uiShr8)
+		a_usOutByteArray[19] = USINT(CAN1Data.T_By6_By7)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID307******T3******CANID307******T3******CANID307******T3******CANID307******T3******CANID307******
+
+	;§ CANID307 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[20]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[21]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[23]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[25]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction	; 307
+
+;******CANID311************CANID311************CANID311************CANID311************CANID311************
+action 311:
+action 312:
+action 313:
+action 314:
+	;******CANID311******T1******CANID311******T1******CANID311******T1******CANID311******T1******
+	;§ ID 311 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit					0
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bBeladebereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif				
+;	bUebernahmestoerungVerbETAero
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; 	bEntladelichtschrZentrifuge
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+; 	bNotAusVerbEtZF
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+; 	bSchutzgitterOffen
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[19] = 1
+		else
+			a_usOutByteArray[19] = 0
+		endif
+;	bStartPresse
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[20] = 1
+		else
+			a_usOutByteArray[20] = 0
+		endif
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+	;******CANID311******T2******CANID311******T2******CANID311******T2******CANID311******T2******CANID311******
+
+	;§ CANID311 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[12]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[13]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[15]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[17]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+
+endaction ; 311,312,313,314
+
+;******CANID316************CANID316************CANID316************CANID316************CANID316************
+action 316:
+	;******CANID316******T1******CANID316******T1******CANID316******T1******CANID316******T1******CANID316*
+	;§ ID 316 - T1 identified -mandatories..
+		if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bBeladebereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bUebernahmestoerungVerbET
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bNotAusVerbET
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE		; return data's validity status..
+	endif
+		
+	;******CANID316******T2******CANID316******T2******CANID316******T2******CANID316******T2******CANID316******
+
+		if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[11]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[12]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[14]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[16]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+	
+	
+	
+endaction ; 316
+
+;******CANID317************CANID317************CANID317************CANID317************CANID317************
+action 317:
+
+	;******CANID317******T1******CANID317******T1******CANID317******T1******CANID317******T1******CANID317******T1******
+	; ID 317 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit				1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bBeladebereit				1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bBeladeunterbrechung
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bUebernahmestoerung
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;	bQuittierungKundenwechsel
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	bNotAusAero
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+
+;******CANID317******T2******CANID317******T2******CANID317******T2******CANID317******T2******CANID317******
+
+	;§ CANID317 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[6]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[7]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[9]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[11]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction	; 317
+
+;******CANID351************CANID351************CANID351************CANID351************CANID351******
+action 351:
+action 352:
+action 353:
+action 354:
+	;§******CANID351******T1******CANID351******T1******CANID351******T1******CANID351******T1******
+	; ID 351 - T1 identified -mandatories..
+	; ###HO -110107
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bBereit				1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bAktPosFehler				1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	;	bIdxPostenspeicher_1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[26] = 1
+		else
+			a_usOutByteArray[26] = 0
+		endif
+	;	bIdxPostenspeicher_2
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[27] = 1
+		else
+			a_usOutByteArray[27] = 0
+		endif
+	;	bIdxPostenspeicher_1
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[28] = 1
+		else
+			a_usOutByteArray[28] = 0
+		endif
+;	usAktPos					1
+		a_usOutByteArray[4] = CAN1Data.T_By1
+;	udPostennummer				1
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht					1
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 								; return data's validity status..
+	endif
+;******CANID351******T2******CANID351******T2******CANID351******T2******CANID351******T2******CANID351******
+
+	;§ CANID351 - T2 identified -mandatories..
+	; ###HO -110107
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bProgrammOderKategorie
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+	;	bNotAusAero
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[29] = 1
+		else
+			a_usOutByteArray[29] = 0
+		endif
+;	uiProgrammKategorie
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+	;******CANID351******T3******CANID351******T3******CANID351******T3******CANID351******T3******CANID351******
+
+	;§ CANID351 - T3 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+	;	bAktPosGesperrt				1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+	;	bAktPosWarnung				1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[19]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[20]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[22]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[24]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+
+	endif
+endaction ; 351,352,353,354
+
+;******CANID361..369************CANID361..369************CANID361..369************CANID361..369************
+action 361..369:
+
+	;******CANID361..369******T1******CANID361..369******T1******CANID361..369******T1******CANID361..369******
+	;§ CANID361..369 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[22] = 1
+		else
+			a_usOutByteArray[22] = 0
+		endif
+;	usStation
+		a_usOutByteArray[0] = CAN1Data.T_By1
+;	udPostennummer
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[4] = USINT(uiShr8)
+		a_usOutByteArray[5] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+
+	endif
+;******CANID361..369******T2******CANID361..369******T2******CANID361..369******T2******CANID361..369******
+
+	;§ CANID361..369 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7 )) then
+
+;	bProgrammOderKategorie
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	uiProgrammKategorie
+		a_usOutByteArray[2] = USINT(shr(CAN1Data.T_By2_By3,8))
+		a_usOutByteArray[3] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID361..369******T3******CANID361..369******T3******CANID361..369******T3******CANID361..369******	
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+ 	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[15]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[16]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[18]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[20]) , adr(CAN1Data.T_By6_By7), 2)
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 		; return data's validity status..
+	endif
+	
+endaction ; 361..369
+
+;******CANID371..379************CANID371..379************CANID371..379************CANID371..379******
+action 371..379:
+
+	;******CANID371..379******T1******CANID371..379******T1******CANID371..379******T1******CANID371..379******
+	;§ CANID371..379 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+;	bDruckstatus					1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif		
+;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[15] = 1
+		else
+			a_usOutByteArray[15] = 0
+		endif
+;	usDruckerfehler					1
+		a_usOutByteArray[1] = CAN1Data.T_By1
+;	usStation
+	if TARGETInfo_0.DataFormat = 2 then ; motorola
+		a_usOutByteArray[2] = USINT(shr(CAN1Data.T_By2_By3,8))
+	else if TARGETInfo_0.DataFormat = 1 then ; intel
+		a_usOutByteArray[2] = USINT(CAN1Data.T_By2_By3)  ; ###HO/UM 130509 V3.3.1
+		else
+		 	uiStatus = TARGETInfo_0.status
+	endif
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 	; return data's validity status..
+	endif
+	;******CANID371..379******T2******CANID371..379******T2******CANID371..379******T2******CANID371..379******
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+ 	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[8]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[9]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[11]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[13]) , adr(CAN1Data.T_By6_By7), 2)
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 		; return data's validity status..
+	endif			
+endaction ; 371..379
+
+;******CANID401..419************CANID401..419************CANID401..419************CANID401..419************
+action 401..419:
+	;§******CANID401..419******T1******CANID401..419******T1******CANID401..419******T1******
+	; ID 401..419 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	;	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+	;	bBeladeanforderung
+			if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+	;	bEntladefreigabe
+			if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+	;	bAnsteuerungSpeicherband
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+	;	bVorsignal
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[19] = 1
+		else
+			a_usOutByteArray[19] = 0
+		endif
+	;	udPostennummer
+			; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[8] = USINT(uiShr8)
+		a_usOutByteArray[9] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By4_By5)
+	;	uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 			; return data's validity status..
+
+	endif
+;******CANID401..419******T2******CANID401..419******T2******CANID401..419******T2******
+
+	;§ CANID401..419 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	;	bProgrammOderKategorie
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+	;	###HO - 310805 - bFreigabeFlusen
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[23] = 1
+		else
+			a_usOutByteArray[23] = 0
+		endif
+	;	bKippsperre
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[20] = 1
+		else
+			a_usOutByteArray[20] = 0
+		endif
+	;	bNotAusVS
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[18] = 1
+		else
+			a_usOutByteArray[18] = 0
+		endif
+	;	uiProgrammKategorie
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[6] = USINT(uiShr8)
+		a_usOutByteArray[7] = USINT(CAN1Data.T_By2_By3)
+	; 	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+	;******CANID401..419******T3******CANID401..419******T3******CANID401..419******T3******
+
+	;§ CANID401..419 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+ 	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[24]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[25]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[27]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[29]) , adr(CAN1Data.T_By6_By7), 2)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 401..419
+
+;******CANID421..439************CANID421..439************CANID421..439************CANID421..439************
+action 421..439:
+	;§******CANID421..439******T1******CANID421..439******T1******CANID421..439******T1******CANID421..439******
+	; ID 421..439 - T1 identified -mandatories..
+	if ( NOT(BIT_TST(CAN1Data.T_By1,3)) AND NOT(BIT_TST(CAN1Data.T_By1,4))AND BIT_TST(CAN1Data.T_By1,5) ) then
+
+;	bBereit					1
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+;	bBeladebereit					1
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bBelaedt						1
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+;	bEntladebereit					1
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+;	bEntlaedt						1
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+;	bStoerung						1
+		if(BIT_TST(CAN1Data.T_By0,5) = 1) then
+			a_usOutByteArray[15] = 1
+		else
+			a_usOutByteArray[15] = 0
+		endif
+;	bHauptgeblaese					1
+		if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+;	bFlusenabsaugung				1
+		if(BIT_TST(CAN1Data.T_By0,7) = 1) then
+			a_usOutByteArray[7] = 1
+		else
+			a_usOutByteArray[7] = 0
+		endif
+;	bEIN							1
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[14] = 1
+		else
+			a_usOutByteArray[14] = 0
+		endif
+;	bTrocknet						1
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+;	bAbkuehlung						1
+		if(BIT_TST(CAN1Data.T_By1,2) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+;	bLichtschrSpeicherbandHinten	1
+		if(BIT_TST(CAN1Data.T_By1,6) = 1) then
+			a_usOutByteArray[9] = 1
+		else
+			a_usOutByteArray[9] = 0
+		endif
+;	bLichtschrSpeicherbandVorne		1
+		if(BIT_TST(CAN1Data.T_By1,7) = 1) then
+			a_usOutByteArray[10] = 1
+		else
+			a_usOutByteArray[10] = 0
+		endif
+;	udPostennummer					1
+		; convert from motorola: MSByte to lowest address of byteArray !
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[22] = USINT(uiShr8)
+		a_usOutByteArray[23] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[24] = USINT(uiShr8)
+		a_usOutByteArray[25] = USINT(CAN1Data.T_By4_By5)
+;	uiGewicht						1
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[30] = USINT(uiShr8)
+		a_usOutByteArray[31] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+
+	endif
+;******CANID421..439******T2******CANID421..439******T2******CANID421..439******T2******CANID421..439******
+
+	;§ CANID421..439 - T2 identified -mandatories..
+	if ( BIT_TST(CAN1Data.T_By1,3) AND NOT(BIT_TST(CAN1Data.T_By1,4))AND BIT_TST(CAN1Data.T_By1,5) ) then
+
+;	bHand
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[33] = 1
+		else
+			a_usOutByteArray[33] = 0
+		endif
+;	bNotAusTrockner
+		if(BIT_TST(CAN1Data.T_By0,6) = 1) then
+			a_usOutByteArray[32] = 1
+		else
+			a_usOutByteArray[32] = 0
+		endif
+;	bProgrammOderKategorie
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[18] = 1
+		else
+			a_usOutByteArray[18] = 0
+		endif
+;	uiProgrammKategorie
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[20] = USINT(uiShr8)
+		a_usOutByteArray[21] = USINT(CAN1Data.T_By2_By3)
+;	udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[26] = USINT(uiShr8)
+		a_usOutByteArray[27] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[28] = USINT(uiShr8)
+		a_usOutByteArray[29] = USINT(CAN1Data.T_By6_By7)
+
+		;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+		bDataValid = FALSE 		; return data's validity status..
+	endif
+
+;******CANID421..439******T3******CANID421..439******T3******CANID421..439******T3******CANID421..439******
+
+	;§ ID 421..439 - T3 identified -mandatories..
+	if ( NOT(BIT_TST(CAN1Data.T_By1,3)) AND BIT_TST(CAN1Data.T_By1,4)AND BIT_TST(CAN1Data.T_By1,5)) then
+
+;	bTemperatureinheit
+		if(BIT_TST(CAN1Data.T_By1,7) = 1) then
+			a_usOutByteArray[11] = 1
+		else
+			a_usOutByteArray[11] = 0
+		endif
+;	uiRestzeit		-> check if ok $$
+		a_usOutByteArray[16] = USINT(shr(CAN1Data.T_By2_By3,8))
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By2_By3)
+
+	if TARGETInfo_0.DataFormat = 2 then ; motorola
+	;	uiAbluftTemp
+			a_usOutByteArray[12] = USINT(shr(CAN1Data.T_By4_By5,8))	; take LOWER byte
+			a_usOutByteArray[13] = USINT(CAN1Data.T_By4_By5) 		; .. extract UPPERByte and write to byte
+	; 	uiIRTemp
+			a_usOutByteArray[34] = USINT(shr(CAN1Data.T_By6_By7,8))	; take LOWER byte
+			a_usOutByteArray[35] = USINT(CAN1Data.T_By6_By7) 		; .. extract UPPERByte and write to byte
+	else if TARGETInfo_0.DataFormat = 1 then ; intel
+	;	uiAbluftTemp
+			a_usOutByteArray[13] = USINT(shr(CAN1Data.T_By4_By5,8))	; take LOWER byte
+			a_usOutByteArray[12] = USINT(CAN1Data.T_By4_By5) 		; .. extract UPPERByte and write to byte
+	; 	uiIRTemp
+			a_usOutByteArray[35] = USINT(shr(CAN1Data.T_By6_By7,8))	; take LOWER byte
+			a_usOutByteArray[34] = USINT(CAN1Data.T_By6_By7) 		; .. extract UPPERByte and write to byte
+	else
+		 uiStatus = TARGETInfo_0.status
+	endif
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID421..439******T4******CANID421..439******T4******CANID421..439******T4******CANID421..439******
+
+	;§ ID 421..439 - T4 identified -mandatories..
+	if ( BIT_TST(CAN1Data.T_By1,3) AND BIT_TST(CAN1Data.T_By1,4)AND BIT_TST(CAN1Data.T_By1,5)) then
+
+ 	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[37]) , adr(CAN1Data.T_By0), 1)
+			; im By1 liegt das Steuerbyte..
+		memcpy(adr(a_usOutByteArray[38]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[40]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[42]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction	; 421..439
+
+;******CANID441..459************CANID441..459************CANID441..459************CANID441..459******
+action 441..459:
+
+;******CANID441..459******T1******CANID441..459******T1******CANID441..459******T1******CANID441..459******
+	;§ CANID441 - T1 identified -mandatories..
+; fetch By2 to get controlByte - the LOWERByte..
+if(TARGETInfo_0.DataFormat = 2)then ; motorola..
+	uiTemp = CAN1Data.T_By2_By3
+	usTemp =  USINT(shr(uiTemp,8))
+else ; i386
+	usTemp = USINT(CAN1Data.T_By2_By3)
+endif
+	; WETCANII stamp identified.. + TelNo.1
+	if ( NOT(BIT_TST(usTemp,6))AND BIT_TST(usTemp,7) ) then
+;	bVorsignalFlusen
+		if(BIT_TST(usTemp,0) = 1) then
+			a_usOutByteArray[7] = 1
+		else
+			a_usOutByteArray[7] = 0
+		endif
+;	bSaugbeladungAktiv					1
+		if(BIT_TST(usTemp,1) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+;	bAnforderungFlusen					1
+		if(BIT_TST(usTemp,2) = 1) then
+			a_usOutByteArray[9] = 1
+		else
+			a_usOutByteArray[9] = 0
+		endif
+	;	uiTrocknerrestzeit
+		if TARGETInfo_0.DataFormat = 2 then ; motorola
+			a_usOutByteArray[0] = CAN1Data.T_By0
+			a_usOutByteArray[1] = CAN1Data.T_By1
+		else if TARGETInfo_0.DataFormat = 1 then ; intel
+			a_usOutByteArray[0] = CAN1Data.T_By1
+			a_usOutByteArray[1] = CAN1Data.T_By0
+		else
+		 	uiStatus = TARGETInfo_0.status
+		endif
+	bDataValid = FALSE ; return data's validity status..
+	endif
+;******CANID441..459******T2******CANID441..459******T2******CANID441..459******T2******CANID441..459******
+	;§ CANID441 - T2 identified -mandatories..
+
+	; WETCANII stamp identified.. + TelNo.2
+	if (BIT_TST(usTemp,6)AND BIT_TST(usTemp,7) ) then
+
+		memcpy(adr(a_usOutByteArray[10]), adr(CAN1Data.T_By0),2)
+		memcpy(adr(a_usOutByteArray[13]), adr(CAN1Data.T_By4_By5),4)
+
+		usTemp2 =  0
+		if TARGETInfo_0.DataFormat = 2 then ; motorola
+			usTemp2 = USINT(CAN1Data.T_By2_By3) ; ###HO/UM 130509 V3.3.1
+ 			memcpy(adr(a_usOutByteArray[12]), adr(usTemp2),1)
+		else if TARGETInfo_0.DataFormat = 1 then ; intel
+			usTemp2 = USINT(shr(CAN1Data.T_By2_By3,8))
+			memcpy(adr(a_usOutByteArray[12]), adr(usTemp2),1)
+		else
+		 	uiStatus = TARGETInfo_0.status
+		endif
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 			; return data's validity status..
+	endif
+endaction ; 441..459
+
+; ###HO-250107 case mittig aufgeteilt -
+elseaction:
+   	uiStatus = 110
+endaction
+endcase
+RAUS_HIER2:
+if uiStatus = 110 then
+	; hier weitermachen: zweiten Teil des case durchgehen
+else
+	; es wurde bereits ein case gefunden - raus hier..
+	goto RAUS_HIER3
+endif
+case udCanID of
+
+
+action 480:
+;******CANID480******T1******CANID480******T1******CANID480******T1******CANID480******T1******CANID480******T1******
+; ID 480 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+;------------------By 0-----------------------------
+; 	bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+; 	bBeladebereit
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; 	bBeladungAktiv
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+; 	bStoerung
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+; 	bBeladeanfHalbauto
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+;------------------By 1-----------------------------
+;	bBeladeabbruch
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[7] = 1
+		else
+			a_usOutByteArray[7] = 0
+		endif
+; 	bFreigabeBeladung
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+; 	bDurchschleusenStart
+		if(BIT_TST(CAN1Data.T_By1,2) = 1) then
+			a_usOutByteArray[9] = 1
+		else
+			a_usOutByteArray[9] = 0
+		endif
+;	bNotAusAero
+		if(BIT_TST(CAN1Data.T_By1,3) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+;	bBeladepause
+		if(BIT_TST(CAN1Data.T_By1,4) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+; Redundanzen b1-4
+		if(BIT_TST(CAN1Data.T_By1,5) = 1) then
+			a_usOutByteArray[25] = 1
+		else
+			a_usOutByteArray[25] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By1,6) = 1) then
+			a_usOutByteArray[26] = 1
+		else
+			a_usOutByteArray[26] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By1,7) = 1) then
+			a_usOutByteArray[27] = 1
+		else
+			a_usOutByteArray[27] = 0
+		endif
+; udPostennummer
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By4_By5)
+; uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[22] = USINT(uiShr8)
+		a_usOutByteArray[23] = USINT(CAN1Data.T_By6_By7)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 								; return data's validity status..
+	endif
+;******CANID480******T2******CANID480******T2******CANID480******T2******CANID480******T2******CANID480******
+
+	; CANID480 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+; bProgKat
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[10] = 1
+		else
+			a_usOutByteArray[10] = 0
+		endif
+
+; Redundanzen -> T2-By0 - bit1..4
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[28] = 1
+		else
+			a_usOutByteArray[28] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[29] = 1
+		else
+			a_usOutByteArray[29] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[30] = 1
+		else
+			a_usOutByteArray[30] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[31] = 1
+		else
+			a_usOutByteArray[31] = 0
+		endif
+; usReserve1
+		a_usOutByteArray[24] = CAN1Data.T_By1
+
+; uiProgKat
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By2_By3)
+; udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[18] = USINT(uiShr8)
+		a_usOutByteArray[19] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[20] = USINT(uiShr8)
+		a_usOutByteArray[21] = USINT(CAN1Data.T_By6_By7)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+;******CANID480******T3******CANID480******T3******CANID480******T3******CANID480******T3******CANID480******
+
+	; CANID480 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; Redundanzen -> T3-By0 - bit1..2 - bit3..4 nicht verwendet..
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[32] = 1
+		else
+			a_usOutByteArray[32] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[33] = 1
+		else
+			a_usOutByteArray[33] = 0
+		endif
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[34]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[35]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[37]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[39]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 480
+
+action 481:
+;******CANID481******T1******CANID481******T1******CANID481******T1******CANID481******T1******CANID481******T1******
+; ID 481 - T1 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+; bBereit
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[0] = 1
+		else
+			a_usOutByteArray[0] = 0
+		endif
+; bBeladeanfAuto
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[2] = 1
+		else
+			a_usOutByteArray[2] = 0
+		endif
+; bStoerung
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[3] = 1
+		else
+			a_usOutByteArray[3] = 0
+		endif
+; bAnlagenstrgHalbauto
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[4] = 1
+		else
+			a_usOutByteArray[4] = 0
+		endif
+; bAnlagenStrgAuto
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[5] = 1
+		else
+			a_usOutByteArray[5] = 0
+		endif
+; Redundanzen b1-4
+		if(BIT_TST(CAN1Data.T_By1,4) = 1) then
+			a_usOutByteArray[23] = 1
+		else
+			a_usOutByteArray[23] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By1,5) = 1) then
+			a_usOutByteArray[24] = 1
+		else
+			a_usOutByteArray[24] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By1,6) = 1) then
+			a_usOutByteArray[25] = 1
+		else
+			a_usOutByteArray[25] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By1,7) = 1) then
+			a_usOutByteArray[26] = 1
+		else
+			a_usOutByteArray[26] = 0
+		endif
+; bDurchschleusen
+		if(BIT_TST(CAN1Data.T_By1,0) = 1) then
+			a_usOutByteArray[7] = 1
+		else
+			a_usOutByteArray[7] = 0
+		endif
+; bFreigabeDurchschl
+		if(BIT_TST(CAN1Data.T_By1,1) = 1) then
+			a_usOutByteArray[8] = 1
+		else
+			a_usOutByteArray[8] = 0
+		endif
+; bNotAusAnlagenStrg
+		if(BIT_TST(CAN1Data.T_By1,2) = 1) then
+			a_usOutByteArray[1] = 1
+		else
+			a_usOutByteArray[1] = 0
+		endif
+; bPauseAktiv
+		if(BIT_TST(CAN1Data.T_By1,3) = 1) then
+			a_usOutByteArray[6] = 1
+		else
+			a_usOutByteArray[6] = 0
+		endif
+; udPostennummer
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[18] = USINT(uiShr8)
+		a_usOutByteArray[19] = USINT(CAN1Data.T_By2_By3)
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[20] = USINT(uiShr8)
+		a_usOutByteArray[21] = USINT(CAN1Data.T_By4_By5)
+; uiGewicht
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[12] = USINT(uiShr8)
+		a_usOutByteArray[13] = USINT(CAN1Data.T_By6_By7)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 								; return data's validity status..
+
+	endif
+;******CANID481******T2******CANID481******T2******CANID481******T2******CANID481******T2******CANID481******
+
+	; CANID481 - T2 identified -mandatories..
+	if (BIT_TST(CAN1Data.T_By0,5) AND NOT(BIT_TST(CAN1Data.T_By0,6)) AND BIT_TST(CAN1Data.T_By0,7)) then
+; bProgKat
+		if(BIT_TST(CAN1Data.T_By0,0) = 1) then
+			a_usOutByteArray[9] = 1
+		else
+			a_usOutByteArray[9] = 0
+		endif
+; Redundanzen T2By0 /b6-10
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[27] = 1
+		else
+			a_usOutByteArray[27] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[28] = 1
+		else
+			a_usOutByteArray[28] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,3) = 1) then
+			a_usOutByteArray[29] = 1
+		else
+			a_usOutByteArray[29] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,4) = 1) then
+			a_usOutByteArray[30] = 1
+		else
+			a_usOutByteArray[30] = 0
+		endif
+; usReserve1
+		a_usOutByteArray[22] = CAN1Data.T_By1
+; uiProgKat
+			uiShr8 = shr(CAN1Data.T_By2_By3,8)
+		a_usOutByteArray[10] = USINT(uiShr8)
+		a_usOutByteArray[11] = USINT(CAN1Data.T_By2_By3)
+; udKundennummer
+			uiShr8 = shr(CAN1Data.T_By4_By5,8)
+		a_usOutByteArray[14] = USINT(uiShr8)
+		a_usOutByteArray[15] = USINT(CAN1Data.T_By4_By5)
+			uiShr8 = shr(CAN1Data.T_By6_By7,8)
+		a_usOutByteArray[16] = USINT(uiShr8)
+		a_usOutByteArray[17] = USINT(CAN1Data.T_By6_By7)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = FALSE 		; return data's validity status..
+	endif
+
+;******CANID481******T3******CANID481******T3******CANID481******T3******CANID481******T3******CANID481******
+
+	; CANID481 - T3 identified -mandatories..
+	if (NOT(BIT_TST(CAN1Data.T_By0,5)) AND BIT_TST(CAN1Data.T_By0,6) AND BIT_TST(CAN1Data.T_By0,7)) then
+
+	; Redundanzen bR9..10
+		if(BIT_TST(CAN1Data.T_By0,1) = 1) then
+			a_usOutByteArray[31] = 1
+		else
+			a_usOutByteArray[31] = 0
+		endif
+		if(BIT_TST(CAN1Data.T_By0,2) = 1) then
+			a_usOutByteArray[32] = 1
+		else
+			a_usOutByteArray[32] = 0
+		endif
+
+	; a_usCustomize
+		memcpy(adr(a_usOutByteArray[33]) , adr(CAN1Data.T_By1), 1)
+		memcpy(adr(a_usOutByteArray[34]) , adr(CAN1Data.T_By2_By3), 2)
+		memcpy(adr(a_usOutByteArray[36]) , adr(CAN1Data.T_By4_By5), 2)
+		memcpy(adr(a_usOutByteArray[38]) , adr(CAN1Data.T_By6_By7), 2)
+
+	;bDataValidFlag-> mandatory - TRUE only for last telegram as defined in CAN2 standard..
+	bDataValid = TRUE 		; return data's validity status..
+	endif
+endaction ; 481
+
+;********************************************************************************************************
+;********************************************************************************************************
+; add new Obj types here..
+;********************************************************************************************************
+;********************************************************************************************************
+
+elseaction:
+	uiStatus = 110
+endaction
+
+endcase ; udCanID
+
+RAUS_HIER3:
+
+
+END_FUNCTION_BLOCK

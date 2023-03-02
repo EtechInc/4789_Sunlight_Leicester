@@ -1,0 +1,136 @@
+FUNCTION_BLOCK _version
+;******************************************************************
+(* Implementation of _version *)
+;******************************************************************
+strcpy(adr(szVersion ),"V3.6.2")
+uiBuild = 00000 ;  - 170112 - 1230
+;******************************************************************
+; History
+; -------
+; V3.6.2 - ###HO - 170112
+;	*  Korrektur COB306.uiGew /.bUebergabest /.bNotAusAero
+;	*  Korrektur COB316.bBereit
+;	*  Korrektur COB371.a_usCustom /.bBereit
+; V3.6.1 - ###HO - 160112
+;	*  Korrektur: Letztes Einzeltel. 306,316,361..,371.. ohne Inhalt 
+;		* COB306 Uebergabestörung++ / a_usCustomize++ lt. TIS 2003-07g V1.1.0 
+;		* COB316 a_usCustomize++ lt. TIS 2003-07g V1.1.0 
+;		* 361..369 a_uscustomize++ / bBereit ++ lt. TIS 2003-07k V1.1.0 
+;		* 371..379 a_uscustomize++ / bBereit ++ lt. TIS 2003-07k V1.1.0 
+; V3.6.0 - ###HO - 120210
+;	* COB120 auch für ID 150,160,170,180,190 
+;	* COB121 auch für ID 151,161,171,181,191  
+; V3.5.0 - ###HO - 050210
+;	* COB301.Entladeueberwachung ++
+; V3.4.0 - ###HO - 211209
+;	* COB 110 + 111 neu (Test i386 ok, todo: m68k)
+; V3.3.2 - ###HO - 130509
+;	* WARNUNGEN nicht verw. Var entfernt
+; V3.3.1 - ###HO - 130509
+;	* SetCAN1TypeToByteArray::Korrektur 4x Compilerwarnung durch BuR UM 
+; V3.3.0 - ###HO - 140409
+;	* COB311.StartPresse
+;	* COB211.SicherhTuer
+;	* COB211.StartbefAnPT
+; V3.2.3 - ###HO - 070308
+; 	* COB301.LS_Bandende ++
+; 	* COB301.bNotAus --
+; 	* COB311.SchutzgitterOffen ++
+; 	* COB252.SperreBereich ++
+; V3.2.2 - ###HO - 111007
+; 	* _SetCAN2COBTypeToCAN2Type::COB211.usFehlerZweiteEW
+; 	* _SetCAN1TypeToByteArray:: Korrektur Lesen von 211.bStartDesinfektion, 211.bStartSpuelen, 211.bEndeSpuelen
+; V3.2.1 - ###hcs/HO - 101007
+; 	COB_ID130und140 und COB_ID131und141 entfernt - stattdessen Neudefinition:
+; 		* COB 130 und COB140 wie COB120
+;		* COB131 und COB141 wie COB121
+; V3.2.0 - ###HO - 040907
+;	* COB251.bBeladestart
+;		* _SetCAN2COBTypeToCAN2Type
+;		* _SetCAN1TypeToByteArray
+;		* _ConvertDataToi386
+;	* COBs 261,262 hinzugefügt
+; 	* neu: COB301bis304, COB311bis314, COB251u253u255, COB252u254u256, COB351bis354
+;	* obsolet/umbenannt (s.o.): COB301, COB351, COB251, COB252
+; V3.1.2 - ###HO - 250107
+;	* _SetCAN2COBTypeToCAN2Type + _SetCAN1TypeToByteArray ::Sprung >32k (MyCheck) beseitigt
+; V3.1.1 - ###HO - 110107
+;	* _SetCAN2COBTypeToCAN2Type:351 lt. TIS 07j)-V1.4.3
+; V3.1.0 - ###HO - 141206
+;	* COBs 126,128 (=COB120) und 127,129 (=COB121) hinzugefügt
+; V3.0.9 - ###HO - 260106
+;	* _SetCAN2COBTypeToCAN2Type + _SetCAN1TypeToByteArray::COB231.Reserve1+2
+; V3.0.8 - ###HO - 21.11.2005
+;	* _SetCAN2COBTypeToCAN2Type::LocalCOB_Typ_251 -> LocalCOB_Typ_253,LocalCOB_Typ_255,LocalCOB_Typ_257
+; V3.0.7 - ###HO - 17.11.2005
+;	* Read:COB251=253=255=257
+;	* Wrt: COB252=254=256=258
+;	* _GetNumberOfCan1Tels::COB254,256,258:: 2->3
+;	* _SetCAN2COBTypeToCAN2Type::COB253,255,257::LocalCAN2Data.T2_By0,4
+; V3.0.6 - ###HO - 21.10.2005
+;	* _SetCAN2COBTypeToCAN2Type::COB_ID421bis439 erweitert für IDs 422..439
+; V3.0.5 - ###HO - 14.10.2005
+;	* _SetCAN1TypeToByteArray::COB201.uiProgrammKategorie - Alignmentbyte auf xx[5]..
+; V3.0.4 - ###HO - 06.10.2005
+; 	* a_usCustomize für COBs 301,311,221,231,201,211,209,219
+; V3.0.3 - ###HO - 05.10.2005
+;	* COB_ID211.bSchiebeimpulsWETShuttle ersetzt durch bSchiebeimpSpbPreXOR_WETShuttle lt. TIS 2003_07c) V1.1.1
+; V3.0.2 - ###HO - 19.09.2005
+;	* Can2Init().doMemType
+; V3.0.0 - ###HO - 12.09.2005
+;	* COBxxx.a_usCustomize[0..6] hinzugefügt
+;	* COBs 307+317 neu
+; V2.1.5 - ###HO - 31.08.2005
+;	* Ergänzung Hilfe COB441
+;	* Aktualisierung Datentypen ‚COB_ID401bis419’ + ‚COB_ID441bis459’ TIS2003-7h nach V1.2.2b
+;V2.1.4 ###HO - 17.02.2005
+;·      CAN2Init(): ‚20613’ für ‚usUniqueIDCAN2Init’ > 9
+; V2.1.3 ###HO - 110205
+; 	* '_SetCAN1TypeToByteArray':: Autoerkennung: Lesen COB120::2oder4Tels
+; 	* 'CAN2RW':: Autoerkennung: Schreiben COB120::2oder4Tels
+; V2.1.2 ###HO - 070205
+;	* V2.1.1 auch für m68k
+; V2.1.1 ###HO
+; 	* Korrektur Bezeichner szCAN2Write/ReadDO für DatObjCreate() - sonst status '20601'
+;	* Speicher für DOs nach Warmstart wurde nicht wieder freigegeben
+;		-> Instanzenabhängige Generierung von DOs anhand UniqueCAN2Init-Handle
+; V2.1.0 ###HO	150404
+;	* Redundancy support done for COBs: 480,481
+; 	* COB130.udKundenummer korrigiert
+;	* COB201 Desinfektion ergänzt
+;		* bFreigabeDesinfektion, bTankIstLeer, bFreigabeSpuelen, EndeDesinfektion
+;	* COB211 Desinfektion ergänzt + bSchiebeimpuls in bSchiebeimpulsWETShuttle umbenannt
+;		* bSchiebeimpulsZweiteEntwaess korrigiert
+;		* bStartDesinfektion,bEndeSpuelen,bStartSpuelen	hinzugefügt
+;	* COB401..419
+;		* bProgrammabbruch umbenannt in bVorsignal
+;		* bKippsperre ergänzt
+;	* COB 421..439
+;		* 'bEntlaedt' umbenannt in 'bEntlade'
+;		* 'bNotAus' umbenannt in 'bNotAusTrockner
+; 	* COB231
+;		* usEntladungTrockner 	-> By2 + usTransferZBvorHFB			-> By3
+;		* usFehlernummer 		-> By4 +  usTransferZBvorTrockner 	-> By5
+;	* COB441..459 hinzugefügt
+;	* DO "AdrIC2Prot" replaced by pCAN2Init_ident
+;	* enable added
+;	* Instance individual DOs generated (!)- mandatory for support of same CANIDs on different CANIFs..
+; V 2.0.0 ###HO
+;		* COBs 123, 251,252,480,481 added
+; 		* COB 122 replaced
+; 		* COBs 120,121 modified
+; 		* COB 122 number of tels changed from two to four
+;		* manually passed size of CANQueue removed - Queuesize always is four now..
+; 		* DO "AdrIC2Prot" added to replace OutPara 'p_InitCAN2Protocol'
+;		* InPara 'p_InitCAN2Protocol' replaced by DO 'AdrIC2Prot'
+; 		* Communication-globalPara 'CAN2Init.iMode' replaced by COB-individual-parameter 'InitCAN2PV.iMode'
+; 		* mode by that telegrams have been sent within cycletime changed:
+;		* 200ms - exclusively between tels with identical CANID
+; 		* all tels of WETCAN2Tel are sent immediately
+; V1.00 ###HO -	071003
+;		* erste Version
+;******************************************************************
+
+
+
+END_FUNCTION_BLOCK

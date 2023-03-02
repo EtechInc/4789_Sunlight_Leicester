@@ -1,0 +1,53 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: udp
+ * File: udp.var
+ * Author: flender
+ * Created: November 05, 2009
+ ********************************************************************
+ * Local variables of program udp
+ ********************************************************************)
+VAR
+	send_buffer : ARRAY[0..3] OF buffer_UDP_CTT;
+	Remainder_a : UINT;
+END_VAR
+VAR RETAIN
+	Start : BOOL;
+	Start2 : BOOL;
+END_VAR
+VAR CONSTANT
+	udpConnectionOk : USINT := 1;
+END_VAR
+VAR RETAIN
+	UDPopen_1 : UDPopen;
+	UDPsend_1 : UDPsend;
+END_VAR
+VAR
+	Daten_senden : BOOL;
+	pBaga : STRING[11];
+	pBagb : STRING[11];
+	pBagc : STRING[11];
+	pBagd : STRING[11];
+	pBaga_w : STRING[11];
+	pBagb_w : STRING[11];
+	pBagc_w : STRING[11];
+	pBagd_w : STRING[11];
+	unit : STRING[2];
+	Maximum_PCTs : USINT;
+	stat_index : UINT;
+	buff_index : UINT;
+	Maximum_CTTs : USINT;
+	RX : BOOL;
+	UDPrecv_1 : UDPrecv;
+	IP_Adress_client : UDINT;
+	bufferRX : RX_Buffer_CCT_PLC;
+	show_long_id : BOOL;
+	Remainder_b : UINT;
+	WgtRound_a : UINT;
+	WgtRound_b : UINT;
+	Remainder_c : UINT;
+	WgtRound_c : UINT;
+	Remainder_d : UINT;
+	WgtRound_d : UINT;
+END_VAR

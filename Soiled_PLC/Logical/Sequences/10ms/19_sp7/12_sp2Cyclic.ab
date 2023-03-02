@@ -1,0 +1,98 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtSVC1BufferStop   = X[9].X05
+I_BagAtSVC2BufferStop   = X[9].X06
+
+O_OpenSDC1BufferStop	= FALSE 
+O_SelectPoint       	           = FALSE 
+O_SelectSVC1                      = FALSE
+O_SelectSVC2                      = FALSE
+
+Alarm[19].Name 			= 0
+Alarm[19].Bag			= 10012
+Alarm[19].Beacon	    = TRUE
+Alarm[19].Extra			= 0
+Alarm[19].Time			= 3000
+
+;Setup Sequence
+STEP = D[919]
+;Setup Pulse contact 
+
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - decide where to take bag from
+TON_10ms((STEP = 1),300,Reset,ResetET)
+IF (STEP = 1) THEN
+	
+	IF Reset THEN
+		D[919] = 2
+	ENDIF
+ENDIF
+
+;Wait for Bag at buffer and destination clear
+TON_10ms(I_BagAtSVC1BufferStop,300,BagAtSVC1BufferStop,BagAtSVC1BufferStopET)
+TON_10ms(I_BagAtSVC2BufferStop,300,BagAtSVC2BufferStop,BagAtSVC2BufferStopET)
+IF (STEP = 2) THEN
+	IF (Request.SP[7] = TRUE) THEN
+	IF (Alernate > 2) THEN
+		Alernate = 0
+	ENDIF
+	Alernate = Alernate + 1
+			IF ((Alernate = 1)AND BagAtSVC1BufferStop) THEN  
+				D[919] = 3
+			ELSE IF ((Alernate = 2)AND BagAtSVC2BufferStop) THEN
+				D[919] = 4
+			ENDIF				
+	ENDIF		
+ENDIF
+		
+;Enable release
+IF ((STEP = 3) OR (STEP = 4)) THEN
+		Enable.SP[7] = TRUE
+	ELSE
+		Enable.SP[7] = FALSE
+ENDIF
+
+;Open buffer stop and point
+IF (STEP = 3) THEN
+	O_SelectSVC1 = TRUE
+	IF (NOT Request.SP[7]) THEN
+		D[919] = 1
+	ENDIF
+	Alarm[19].Name = almBagNotArrived
+ENDIF
+
+;select svc 2 point and stop
+IF (STEP = 4) THEN
+	O_SelectSVC2 = TRUE
+	IF (NOT Request.SP[7]) THEN
+		D[919] = 1
+	ENDIF
+	Alarm[9].Name = almBagNotArrived
+ENDIF
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[19].Name > 0)
+TimerAlarm.PT 	= Alarm[19].Time
+TimerAlarm FUB TON_10ms()
+Alarm[19].On 	= TimerAlarm.Q
+Alarm[19].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[9].Y05 = O_SelectSVC1
+Y[9].Y06 = O_SelectSVC2
+END_PROGRAM
+

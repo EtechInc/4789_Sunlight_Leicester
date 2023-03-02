@@ -1,0 +1,132 @@
+PROGRAM _CYCLIC
+	;Reports To Graphics  - No changes required!
+
+	;--------------------------------------------------
+	;Revision 1.00 19/01/2006 First Issue D.J.
+	;Revision 2.00 24/06/2009 32Bit Version D.J.
+	;Revision 3.00 09/11/2011 Added Mis (Batch ID) D.J.
+	;--------------------------------------------------
+
+	;ReportBuffer 0 used to clear report all Zero
+	ReportBuffer[0].Cat = 0
+	ReportBuffer[0].Cus = 0
+	ReportBuffer[0].Mis = 0
+	ReportBuffer[0].Bid = 0
+	ReportBuffer[0].Wgt = 0
+	ReportBuffer[0].Cnt = 0
+	ReportBuffer[0].Stn = 0
+	ReportBuffer[0].Mcn = 0
+	ReportBuffer[0].Prg = 0
+	ReportBuffer[0].Dst = 0
+	
+	
+	;Report array sizes - see declerations
+	MaxReportBuffer		= 198	;1 less than array allocation as Array 0 is used as Zero values
+	MaxReportLoading 	= 59	;Normally at least MaxStations
+	MaxReportUnloading 	= 9		;Normally at least MaxDischargers
+
+	;Shuffle reports buffer
+	ReportPointer		= 0 	;Reports Pointer
+
+	LOOP n = 1 TO MaxReportBuffer DO
+
+		IF ((ReportBuffer[n].Cat = 0) AND (n < MaxReportBuffer)) THEN
+			ReportBuffer[n] 		= ReportBuffer[n + 1]
+			ReportBuffer[n + 1] 	= ReportBuffer[0]
+		ENDIF
+
+		;Inc Reports Pointer
+		IF (ReportBuffer[n].Cat > 0) THEN
+			ReportPointer = (ReportPointer + 1)
+		ENDIF
+
+	ENDLOOP
+
+	;Put loaded reports into reports buffer
+	LOOP n = 1 TO MaxReportLoading DO
+		IF ((ReportBuffer[ReportPointer + 1].Cat = 0) AND (ReportPointer < MaxReportBuffer)) THEN
+			IF (ReportLoading[n].Cat > 0) THEN
+				ReportBuffer[ReportPointer + 1] = ReportLoading[n]
+				ReportLoading[n] 				= ReportBuffer[0]
+				ReportPointer 					= (ReportPointer + 1)
+			ENDIF
+		ENDIF
+	ENDLOOP
+
+	;Put unloaded reports into reports buffer
+	LOOP n = 1 TO MaxReportUnloading DO
+		IF ((ReportBuffer[ReportPointer + 1].Cat = 0) AND (ReportPointer < MaxReportBuffer)) THEN
+			IF ReportUnloading[n].Cat > 0 THEN
+				ReportBuffer[ReportPointer + 1] = ReportUnloading[n]
+				ReportUnloading[n] 				= ReportBuffer[0]
+				ReportPointer 					= (ReportPointer + 1)
+			ENDIF
+		ENDIF
+	ENDLOOP
+
+
+	;Reports Read from Graphics D32[20]
+	;Generate Unique Report ID
+	IF (D32[20] = ReportID) THEN
+		;Clear first report
+		ReportBuffer[1] = ReportBuffer[0]
+		;Inc Report ID
+		ReportID = ReportID + 1
+	ENDIF
+
+	;Set Report ID to Valid Range
+	IF ((ReportID < 1) OR (ReportID > 9999)) THEN
+		ReportID = 1
+	ENDIF
+
+	;Make Report at front of Q ready for Graphics
+	IF (ReportBuffer[1].Cat > 0) THEN	;Reports Waiting
+		D32[1] = 1
+	ELSE
+		D32[1] = 0
+	ENDIF
+	D32[2] 	= ReportBuffer[1].Cus 			;D2 = Reports Customer
+	D32[3] 	= ReportBuffer[1].Cat 			;D3 = Reports Category
+	D32[4] 	= UDINT(ReportBuffer[1].Wgt) 	;D4 = Reports Weight
+	D32[5] 	= UDINT(ReportBuffer[1].Cnt) 	;D5 = Reports Count
+	D32[6] 	= UDINT(ReportBuffer[1].Stn) 	;D6 = Reports Station
+	D32[7] 	= UDINT(ReportBuffer[1].Mcn) 	;D7 = Reports Machine
+	D32[8] 	= ReportBuffer[1].Cat //UDINT(ReportBuffer[1].Prg)	;D8 = Reports Program (New)
+	D32[9] 	= ReportBuffer[1].Bid			;D9 = Reports Bag ID
+	D32[10] = ReportBuffer[1].Dst			;D10 = Reports Destination
+	
+	D32[13] = ReportBuffer[1].Mis			;D13 = Reports Mis Server (Batch ID)
+	D32[14] = ReportBuffer[1].Act			;D14 = Reports Action - ie Release / Mix
+	D32[15] = ReportBuffer[1].Ur1			;D15 = User 1
+	D32[16] = ReportBuffer[1].Ur2			;D16 = User 2
+	D32[17]	= ReportBuffer[1].Rkg			;D17 = Bag release weight
+	
+	D32[19] = ReportID
+
+
+	;---------------
+	;Reports testing
+	;---------------
+
+	;Add report
+	IF (AddReport AND (Bag[1].Cat > 0)) THEN
+		IF (ReportUnloading[1].Cat = 0) THEN
+			ReportUnloading[1].Cat = AddCat				;Category
+			ReportUnloading[1].Cus = AddCus				;Customer
+			ReportUnloading[1].Wgt = UINT(AddWgt)				;Weight
+			ReportUnloading[1].Cnt = 0					;Count
+			ReportUnloading[1].Stn = UINT(AddStn)		;Station
+			ReportUnloading[1].Mcn = UINT(AddMcn)		;Machine
+			ReportUnloading[1].Mis = AddMis				;MIS ID
+			ReportUnloading[1].Bid = AddBid
+			ReportUnloading[1].Act = UINT(AddAct)
+			ReportUnloading[1].Ur1 = UINT(AddUr1)
+			ReportUnloading[1].Ur2 = AddUr2
+			ReportUnloading[1].Rkg = UINT(AddRkg)
+			;ReportUnloading[1].TimeStamp = myTimeStamp
+			ReportUnloading[1].TimeStamp = CurrentTimestamp
+	ENDIF
+		AddReport = FALSE
+	ENDIF
+END_PROGRAM
+

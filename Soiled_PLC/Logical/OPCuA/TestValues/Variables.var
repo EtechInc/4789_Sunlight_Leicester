@@ -1,0 +1,5 @@
+VAR
+	ton_Change : TON_10ms;
+	n : INT;
+	ChangeIndex : USINT;
+END_VAR

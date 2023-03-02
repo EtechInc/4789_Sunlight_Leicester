@@ -1,0 +1,17 @@
+{
+  global:
+    _GetNumberOfCan1Tels;
+    _SetCAN2COBTypeToCAN2Type;
+    _SetCAN2TypeToCAN1Type;
+    _GetCANIDFromObjNr;
+    _GetPVSize;
+    _SetCAN1TypeToByteArray;
+    _Seti386CAN2TypeToCAN1Type;
+    _ConvertDataToi386;
+    CAN2RW;
+    CAN2Init;
+    _version;
+    _swapUINT;
+  local:
+    *;
+ };

@@ -1,0 +1,66 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+;Transmit I/O Status to PC Graphics up-to 400 I/O Modules
+
+;----------------------------------------
+;Version 1.00 10/12/2007 D.J. First Issue
+;----------------------------------------
+
+Module = Module + 1
+
+IF (Module > 3 ) THEN
+	Module = 0
+ENDIF
+
+n = (Module * 16)
+
+ModuleEncode.Input[0] 	= OK[n + 1]
+ModuleEncode.Input[1] 	= OK[n + 2]
+ModuleEncode.Input[2] 	= OK[n + 3]
+ModuleEncode.Input[3] 	= OK[n + 4]
+ModuleEncode.Input[4] 	= OK[n + 5]
+ModuleEncode.Input[5] 	= OK[n + 6]
+ModuleEncode.Input[6] 	= OK[n + 7]
+ModuleEncode.Input[7] 	= OK[n + 8]
+ModuleEncode.Input[8] 	= OK[n + 9]
+ModuleEncode.Input[9] 	= OK[n + 10]
+ModuleEncode.Input[10] 	= OK[n + 11]
+ModuleEncode.Input[11] 	= OK[n + 12]
+ModuleEncode.Input[12] 	= OK[n + 13]
+ModuleEncode.Input[13] 	= OK[n + 14]
+ModuleEncode.Input[14] 	= OK[n + 15]
+ModuleEncode.Input[15] 	= OK[n + 16]
+ModuleEncode FUB BIT_ENCODE()
+
+D[320 + Module] 	= ModuleEncode.Output
+
+StnModule = StnModule + 1
+
+IF (StnModule > 3) THEN
+	StnModule = 0
+ENDIF
+
+n = (StnModule * 16)
+
+StnModuleEncode.Input[0] 	= StnOK[n + 1]
+StnModuleEncode.Input[1] 	= StnOK[n + 2]
+StnModuleEncode.Input[2] 	= StnOK[n + 3]
+StnModuleEncode.Input[3] 	= StnOK[n + 4]
+StnModuleEncode.Input[4] 	= StnOK[n + 5]
+StnModuleEncode.Input[5] 	= StnOK[n + 6]
+StnModuleEncode.Input[6] 	= StnOK[n + 7]
+StnModuleEncode.Input[7] 	= StnOK[n + 8]
+StnModuleEncode.Input[8] 	= StnOK[n + 9]
+StnModuleEncode.Input[9] 	= StnOK[n + 10]
+StnModuleEncode.Input[10] 	= StnOK[n + 11]
+StnModuleEncode.Input[11] 	= StnOK[n + 12]
+StnModuleEncode.Input[12] 	= StnOK[n + 13]
+StnModuleEncode.Input[13] 	= StnOK[n + 14]
+StnModuleEncode.Input[14] 	= StnOK[n + 15]
+StnModuleEncode.Input[15] 	= StnOK[n + 16]
+StnModuleEncode FUB BIT_ENCODE()
+
+D[350 + StnModule] 	= StnModuleEncode.Output
+END_PROGRAM
+

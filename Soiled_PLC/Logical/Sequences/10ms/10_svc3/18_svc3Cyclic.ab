@@ -1,0 +1,165 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------------------
+;Sequence 13 - SIC2 Soiled Incline Conveyor 2 D[913]
+;---------------------------------------------------
+mySeq                   = 10
+;Inputs
+I_CarrAtTop				= X[10].X01
+I_CarrAtBottom			= X[10].X02
+
+
+I_BagAtBuffer           = X[10].X05
+I_BagOnCarr				= X[10].X03
+
+O_MoveCarrUp			= FALSE 
+O_MoveCarrDown			= FALSE 
+
+O_OpenCarrStop			= FALSE 
+O_BufferStop            = FALSE
+
+Request.VC[3]          = FALSE
+
+
+Alarm[10].Name 			= 0
+Alarm[10].Bag			= 231
+Alarm[10].Beacon		= TRUE
+Alarm[10].Extra			= 0
+Alarm[10].Time			= 3000
+;Setup Sequence
+STEP = D[910]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	IF I_BagOnCarr	THEN
+		Alarm[10].Time			= 3
+		Alarm[mySeq].Name = ALM_SWITCH_FAULT 
+	ENDIF
+ENDIF
+
+;Move carriage down to bottom
+IF (STEP = 1) THEN
+	O_MoveCarrDown = TRUE
+	IF (I_CarrAtBottom  = TRUE) THEN
+		D[910] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[10].Time			= 1000
+		Alarm[mySeq].Name = ALM_CARRIAGE_MOVE_FAULT
+	ENDIF
+	IF I_BagOnCarr	THEN
+		Alarm[10].Time			= 3
+		Alarm[mySeq].Name = ALM_SWITCH_FAULT
+		D[910] = 0
+	ENDIF
+ENDIF
+
+;bag at buffer stop
+TON_10ms(I_BagAtBuffer,300,BagSettledAtBuffer,BagSettledAtBufferET)
+IF (STEP = 2) THEN
+	IF (BagSettledAtBuffer AND (Bag[230].Cat > 0) AND NOT I_BagOnCarr) THEN
+		D[910] = 3
+	ENDIF
+ENDIF
+
+
+;open buffer stop
+IF (STEP = 3) THEN
+	O_BufferStop = TRUE
+	IF I_BagOnCarr THEN
+		D[910] = 4
+	ENDIF
+	Alarm[10].Time			= 900
+	Alarm[mySeq].Name = almBagNotArrived
+ENDIF
+
+
+;bag settles on carriage
+TON_10ms(I_BagOnCarr,300,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 4) THEN
+	IF (Bag[230].Cat>0) AND (Bag[231].Cat = 0) THEN
+		Bag[231] = Bag[230]
+		Bag[230] = Bag[0]
+	ENDIF
+	IF (BagSettledOnCarr = TRUE) THEN
+		D[910] = 5
+	ENDIF
+	Alarm[mySeq].Time		= 1600
+	Alarm[mySeq].Name = almBagNotSettled
+ENDIF
+
+;move carriage up
+IF (STEP = 5) THEN
+	O_MoveCarrUp 	= TRUE
+								  ;enable from SP3 off    trans bag
+	IF ((I_CarrAtTop = TRUE) AND NOT Enable.VC[3] AND (Bag[232].Cat = 0)) THEN
+			
+		D[910] = 6
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[mySeq].Time		= 1000
+		Alarm[mySeq].Name = ALM_CARRIAGE_MOVE_FAULT
+	ENDIF
+ENDIF
+
+;check SP3 is clear
+IF (STEP = 6) THEN
+	Request.VC[3] = TRUE
+	IF Enable.VC[3] THEN
+		C[36]  = 0
+		D[910] = 7
+	ENDIF
+ENDIF
+
+;Open carr stop 
+IF (STEP = 7) THEN
+	IF PLS THEN
+		C[36] =0
+	ENDIF
+	O_OpenCarrStop = I_CarrAtTop
+	IF (Bag[231].Cat>0) AND (Bag[232].Cat = 0) THEN
+		Bag[232] = Bag[231]
+		Bag[231] = Bag[0]
+	ENDIF
+	
+	IF ((Line[36].Clear = TRUE) AND NOT PLS) THEN
+		D[910] = 1
+	ENDIF
+	Alarm[mySeq].Time		= 600
+	Alarm[mySeq].Name = ALM_BAG_NOT_RELEASED
+
+ENDIF
+
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[10].Name > 0)
+TimerAlarm.PT 	= Alarm[10].Time
+TimerAlarm FUB TON_10ms()
+Alarm[10].On 	= TimerAlarm.Q
+Alarm[10].ET 	= TimerAlarm.ET
+
+
+
+;PLC Outputs
+;-----------
+;Outputs
+Y[13].Y11 = (O_MoveCarrUp AND NOT I_CarrAtTop)
+Y[13].Y12 = (O_MoveCarrDown AND NOT I_CarrAtBottom)
+Y[10].Y05 = (O_BufferStop AND  I_CarrAtBottom)
+
+Y[13].Y13 = (O_OpenCarrStop AND I_CarrAtTop)
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[13].Y11 = TRUE
+YForceDisable[13].Y12 = TRUE
+
+
+
+END_PROGRAM
+

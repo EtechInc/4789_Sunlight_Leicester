@@ -1,0 +1,9 @@
+VAR
+	PSU : ARRAY[0..MAX_PSU] OF psu_typ;
+END_VAR
+(*Constants*)
+VAR CONSTANT
+	MAX_CHANNELS : USINT := 8;
+	PSU_ALM_INDEX : USINT := 20; (*Index alarm text starts at for PSU errors*)
+	MAX_PSU : USINT := 2;
+END_VAR

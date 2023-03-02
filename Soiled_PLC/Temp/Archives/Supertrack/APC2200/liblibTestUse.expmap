@@ -1,0 +1,8 @@
+{
+  global:
+    TestUser_SetMode;
+    TestUser_RunTest;
+    TestUser_StopTask;
+  local:
+    *;
+ };

@@ -1,0 +1,136 @@
+
+FUNCTION_BLOCK stUINT_ASC
+	VAR_INPUT
+		Input : UINT;
+		Enable : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		Output : ARRAY[0..3] OF USINT;
+	END_VAR
+	VAR
+		Value : ARRAY[0..3] OF UINT;
+		n : UINT;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK DIS4
+	VAR_INPUT
+		RegisterIN : UINT;
+		Enable : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		Out1s : UINT;
+		Out10s : UINT;
+		Out100s : UINT;
+		Out1000s : UINT;
+	END_VAR
+	VAR
+		a : UINT;
+		b : UINT;
+		c : UINT;
+		d : UINT;
+		remain : UINT;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK stUNI5
+	VAR_INPUT
+		DataIN : ARRAY[0..4] OF USINT;
+		Enable : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		DataOUT : UINT;
+	END_VAR
+	VAR
+		Data : UDINT;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK stASC_UINT
+	VAR_INPUT
+		Enable : BOOL;
+		Input : ARRAY[0..3] OF USINT;
+	END_VAR
+	VAR_OUTPUT
+		Output : UINT;
+	END_VAR
+	VAR
+		Internal : UINT;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK BCD_BIN_OUTPUT
+	VAR_INPUT
+		RegisterIN : UDINT;
+		Enable : BOOL;
+		BIN : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		Output1 : BOOL;
+		Output2 : BOOL;
+		Output4 : BOOL;
+		Output8 : BOOL;
+		Output10 : BOOL;
+		Output20 : BOOL;
+		Output40 : BOOL;
+		Output80 : BOOL;
+		Output100 : BOOL;
+		Output200 : BOOL;
+		Output400 : BOOL;
+		Output800 : BOOL;
+		Output1000 : BOOL;
+		Output2000 : BOOL;
+		Output4000 : BOOL;
+		Output8000 : BOOL;
+		Output10000 : BOOL;
+		Output20000 : BOOL;
+		Output40000 : BOOL;
+		Output80000 : BOOL;
+		Output100000 : BOOL;
+		Output200000 : BOOL;
+		Output400000 : BOOL;
+		Output800000 : BOOL;
+	END_VAR
+	VAR
+		BCDCode : UDINT;
+		zzBIN_TO_BCD00000 : BIN_TO_BCD;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK BIN_TO_BCD
+	VAR_INPUT
+		RegisterIN : UDINT;
+		Enable : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		RegisterOUT : UDINT;
+	END_VAR
+	VAR
+		remain : UDINT;
+		f : UDINT;
+		e : UDINT;
+		d : UDINT;
+		c : UDINT;
+		b : UDINT;
+		a : UDINT;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK stUNI4
+	VAR_INPUT
+		DataIN : ARRAY[0..3] OF USINT;
+		Enable : BOOL;
+	END_VAR
+	VAR_OUTPUT
+		DataOUT : UINT;
+	END_VAR
+END_FUNCTION_BLOCK
+
+FUNCTION_BLOCK BIT_ENCODE
+	VAR_INPUT
+		Input : ARRAY[0..15] OF BOOL;
+	END_VAR
+	VAR_OUTPUT
+		Output : UINT;
+	END_VAR
+END_FUNCTION_BLOCK

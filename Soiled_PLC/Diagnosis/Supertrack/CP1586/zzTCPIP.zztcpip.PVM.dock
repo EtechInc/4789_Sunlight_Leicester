@@ -1,0 +1,5 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=zzTCPIP 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=275 Type=234 Scope=187 Force=48 Index=1 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                    STEP                                     UINT    0 "                                                               3"    0    6    1   10    1    0         
+                         ResetConnection                                     BOOL    0 "                                                           FALSE"    0    1    1    2    1    0         

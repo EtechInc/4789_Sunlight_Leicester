@@ -1,0 +1,11 @@
+VAR
+	SafetyZone : ARRAY[0..MAX_SAFE_ZONES] OF SafeZoneType;
+	Safety_Master_Reset : BOOL;
+	Safety_Module_Fault : BOOL;
+	Hoist_Safety : ARRAY[0..MAX_HOIST] OF Safety_Hoist_type;
+END_VAR
+VAR CONSTANT
+	MAX_SAFE_ZONES : USINT := 3;
+	MAX_DUAL_CHANNELS : USINT := 1;
+	MAX_HOIST : USINT := 1;
+END_VAR

@@ -1,0 +1,22 @@
+VAR RETAIN
+	n	:UINT;	
+	OpenBag	:ARRAY [0..99] OF BOOL;	
+	STEP	:UINT;	
+	PLS	:ARRAY [0..99] OF BOOL;	
+	LASTSTEP	:ARRAY [0..99] OF UINT;	
+	BagClosed	:ARRAY [0..99] OF BOOL;	
+	BagClosedET	:ARRAY [0..99] OF TIME;	
+	OpenTime	:UINT;	
+	BagOpenedET	:ARRAY [0..99] OF TIME;	
+	BagOpened	:ARRAY [0..99] OF BOOL;	
+	CloseTime	:UINT;	
+END_VAR
+
+
+VAR
+	Bank	:UINT;	
+	TimerOpen	:ARRAY [0..49] OF TON_10ms;	
+	TimerClosed	:ARRAY [0..49] OF TON_10ms;	
+	TimerAlarm	:ARRAY [0..49] OF TON_10ms;	
+	StnBag	:UINT;	
+END_VAR

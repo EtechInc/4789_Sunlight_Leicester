@@ -1,0 +1,5 @@
+(*Constants*)
+VAR CONSTANT
+	MAX_DISPLAYS : USINT := 8; (*Maximum number of displays*)
+	MAX_LAYOUTS : USINT := 9; (*Maximum number of layouts per display*)
+END_VAR

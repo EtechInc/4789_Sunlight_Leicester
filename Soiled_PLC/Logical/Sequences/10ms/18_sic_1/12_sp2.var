@@ -1,0 +1,38 @@
+VAR RETAIN
+	STEP : UINT;
+	PLS : BOOL;
+	LASTSTEP : UINT;
+END_VAR
+VAR
+	TimerAlarm : TON_10ms;
+	I_BagAtBuffer : BOOL;
+	O_OpenBuffer : BOOL;
+	SDC2BufferFullET : TIME;
+	SDC2BufferFull : BOOL;
+	SettledBufferET : TIME;
+	SettledBuffer : BOOL;
+	O_OpenSP2BufferStop : BOOL;
+	O_SelectPoint : BOOL;
+	SP2BufferFull : BOOL;
+	SP2BufferFullET : UDINT;
+	ParingLoopEnabled : BOOL;
+	BagInLoopHasDest : BOOL;
+	O_OpenSDC1BufferStop : BOOL;
+	BagSettledAtBuffer : BOOL;
+	BagSettledAtBufferET : UDINT;
+	Alternator : USINT;
+	I_PaddleInPosition : BOOL;
+	I_BagInIncline : BOOL;
+	O_OpenBufferStop : BOOL;
+	O_RunMotor : BOOL;
+	I_BagAtOutgoingBuffer : BOOL;
+	O_OutgoingBufferOpen : BOOL;
+	BagSettled : BOOL;
+	BagSettledET : UDINT;
+	BagNearTop : BOOL;
+	BagNearTopET : UDINT;
+	CloseBufferStop : BOOL;
+	CloseBufferStopET : UDINT;
+	RunOn : BOOL;
+	RunOnET : UDINT;
+END_VAR

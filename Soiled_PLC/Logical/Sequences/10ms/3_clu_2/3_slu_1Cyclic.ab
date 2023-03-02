@@ -1,0 +1,193 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------
+;Sequence 3 - Loading Unit D[903]
+;--------------------------------
+
+;Inputs / Ouputs
+
+;I_BagOutLoadingUnit     = X904		
+;I_BagSLU1Trip			= X903
+;I_BaginLoadingUnit		= X902
+
+EnableRel.TransferBelt[1]	= FALSE
+Request.LU[1]                      = FALSE
+;Request.SP[7]                      = FALSE
+
+I_BagAtBuffer			= X[3].X08
+I_BagFrontPast		  = X[3].X09
+I_BagInLoadingUnit	= X[3].X10
+I_BagOutCLU2          = X[3].X11
+
+
+
+O_MoveCompressorUp		= FALSE
+O_MoveCompressorDn		= FALSE
+
+I_BagAtSVC1Buffer		= FALSE ;X[12].X11
+O_SVC1BufferOpen		= FALSE ;Y[12].Y11
+
+O_OpenBufferStop		= FALSE
+O_SteadyCylinders		= FALSE
+O_OpenStop	 			= FALSE
+
+
+RequestRel.LU[1]		= FALSE;
+Alarm[32].Name 			= 0
+Alarm[32].Bag			= 161
+Alarm[32].Beacon			= FALSE
+Alarm[32].Extra			= 0
+Alarm[32].Time			= 3000
+
+;Setup Sequence
+;--------------
+STEP = D[932]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Wait for Empty bag at buffer
+SwitchFault = ((STEP = 1) AND (I_BagFrontPast OR I_BagInLoadingUnit))
+TON_10ms(NOT SwitchFault,200,LoadingUnitClear,LoadingUnitClearET)
+TON_10ms(I_BagAtBuffer,300,BagSettledBuffer,BagSettledBufferET)
+IF (STEP = 1) THEN
+	IF BagSettledBuffer AND LoadingUnitClear AND NOT Std.HaltSys THEN
+	;IF LoadingUnitClear AND NOT Std.HaltSys THEN
+				;Request.SP[7] = TRUE
+		;IF Enable.SP[7] THEN
+			D[932] = 2
+		;ENDIF
+	ENDIF
+	IF SwitchFault THEN
+		Alarm[32].Name = almSwitchFault
+	ELSE
+		Alarm[32].Name = almNoAlarm
+	ENDIF
+ENDIF
+
+
+
+;Open stops let bag in Loading Unit
+IF (STEP = 2) THEN
+	O_OpenStop 			= TRUE
+	O_OpenBufferStop 	= TRUE
+	;Enable.LU[1]		= NOT I_BagFrontPast
+	IF I_BagFrontPast THEN
+		D[932] = 3
+	ENDIF
+	Alarm[32].Name = almBagNotArrived
+ENDIF
+
+;Wait for bag to settle
+TON_10ms(I_BagInLoadingUnit,300,EBagSettled,EBagSettledET)
+IF (STEP = 3) THEN
+	IF EBagSettled THEN
+		D[932] = 4
+	ENDIF
+	Alarm[32].Name = almBagNotSettled
+	;Special for Banbury - SVC1 is also a loading hoist
+	;IF SVC1RequestEmpty THEN
+	;	Bag[221].Cat 	= 99
+	;	D[903] 			= 9
+	;ENDIF
+ENDIF
+
+;Steady cylinders on from steps 4 - 5
+O_SteadyCylinders = ((STEP = 4) OR (STEP = 5))
+
+;Move Steady Cylinders down
+TON_10ms((STEP = 4),300,SteadysDown,SteadysDownET)
+IF (STEP = 4) THEN
+	IF (SteadysDown AND (Bag[161].Cat = 0)) THEN
+		D[932] = 5
+	ENDIF
+	IF (Bag[161].Cat <> 0) THEN
+		Alarm[32].Name = almBagDataError
+	ELSE
+		Alarm[32].Name = almNoAlarm
+	ENDIF
+ENDIF
+
+
+;Wait for bag to be loaded
+IF (STEP = 5) THEN
+	EnableRel.TransferBelt[1] = TRUE
+	IF (Bag[161].Cat > 0) THEN
+		D[932] = 6
+	ENDIF
+	Alarm[32].Name = almNoAlarm ;Transfer belt should alarm
+ENDIF
+
+;Allow Steady Cylinders to move up
+TON_10ms((STEP = 6),300,SteadysUp,SteadysUpET)
+IF (STEP = 6) THEN
+	IF SteadysUp AND NOT Enable.LU[1] THEN
+		
+			D[932] = 7
+		
+	ENDIF
+	IF Enable.LU[1] THEN
+		Alarm[32].Name = almReceiveSwitchFault
+	ENDIF
+ENDIF
+
+;
+
+
+;Check for space at Buffer
+TON_10ms((STEP = 7),300,SteadysUp,SteadysUpET)
+IF (STEP = 7) THEN
+	IF NOT Std.HaltSys AND SteadysUp AND (Bag[221].Cat = 0) THEN
+		Request.LU[1] = TRUE
+		IF Enable.LU[1] THEN
+			IF (Bag[161].Cat>0) AND (Bag[164].Cat = 0) THEN
+							Bag[164] = Bag[161]
+							Bag[161] = Bag[0]
+			ENDIF
+			;C[34]   = 0
+			D[932] 	= 8
+			;ELSE
+			;Alarm[3].Name = almSwitchFault	
+		ENDIF
+		;ENDIF
+	ENDIF
+ENDIF
+
+;Open stop - Unitl bag out
+IF (STEP = 8) THEN
+	O_OpenStop = TRUE
+	;IF PLS THEN
+	;	C[16] = 0
+	;ENDIF
+	;IF Line[16].Trip THEN
+	IF I_BagOutCLU2  THEN
+		
+		D[932] = 1
+	ENDIF
+	Alarm[32].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[32].Name > 0)
+TimerAlarm.PT = Alarm[32].Time
+TimerAlarm FUB TON_10ms()
+Alarm[32].On = TimerAlarm.Q
+Alarm[32].ET = TimerAlarm.ET
+
+;Outputs
+;-------
+
+Y[3].Y06 = O_OpenBufferStop
+Y[3].Y08 = O_SteadyCylinders
+Y[3].Y09 = O_OpenStop
+
+;Y[8].Y10 = O_MoveDownTop
+;Y[8].Y09 = O_MoveDownBottom
+;Y[8].Y15 = O_ElephantsFoot
+END_PROGRAM
+

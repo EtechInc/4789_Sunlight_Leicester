@@ -1,0 +1,13 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: CustomerChange
+ * File: CustomerChange.var
+ * Author: treamsbottom
+ * Created: November 26, 2014
+ ********************************************************************
+ * Variables of package CustomerChange
+ ********************************************************************)
+VAR
+	CustomerChangeDisplay : ARRAY[0..9] OF CustChangeDisp_Typ;
+END_VAR

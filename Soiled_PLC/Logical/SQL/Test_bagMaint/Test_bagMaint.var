@@ -1,0 +1,18 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: Test_bagMaint
+ * File: Test_bagMaint.var
+ * Author: treamsbottom
+ * Created: May 05, 2015
+ ********************************************************************
+ * Local variables of program Test_bagMaint
+ ********************************************************************)
+VAR
+	TEST_STATE : INT;
+	mySql : UINT;
+	SqlWriteActive : BOOL;
+	myBagNumber : STRING[5];
+	myBagState : UINT;
+	WaitReply : BOOL;
+END_VAR

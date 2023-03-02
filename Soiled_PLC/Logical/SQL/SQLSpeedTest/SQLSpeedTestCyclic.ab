@@ -1,0 +1,89 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: SQLSpeedTest
+ * File: SQLSpeedTestCyclic.ab
+ * Author: treamsbottom
+ * Created: October 03, 2013
+ ********************************************************************
+ * Implementation of program SQLSpeedTest
+ ********************************************************************)
+PROGRAM _INIT
+Sql = 0
+
+END_PROGRAM
+PROGRAM _CYCLIC
+
+pServer = ADR("10.8.4.200:1433")	
+pDatabaseName = ADR("SUPDB1")
+pUserName = ADR("SUP")	
+pPassword = ADR("1234")
+;	IF pServer <> TestVar THEN 
+;		INC Break
+;		strcpy(ADR(ErrorString),pServer)
+;	ENDIF	
+	
+CASE Sql OF
+
+	ACTION 0:	
+		SqlConnect.enable = TRUE	
+		SqlConnect.pServerName = ADR("10.8.4.200:1433")	
+		SqlConnect.pDatabaseName = ADR("SUPDB1")
+		SqlConnect.pUserName = ADR("SUP")
+		SqlConnect.pPassword = ADR("1234")
+		SqlConnect.databaseSystem = DB_SYSTEM_MS_SQL
+		SqlConnect FUB dbConnect()	
+			
+
+		IF SqlConnect.status = ERR_OK THEN	
+			
+			Ident = SqlConnect.connectionIdent
+			IF Ident > 0 THEN
+				Sql = 1
+				INC ConnectionCount	
+			ENDIF		
+		ELSE IF SqlConnect.status <> ERR_FUB_BUSY THEN
+			IF SqlConnect.connectionIdent <> 0 THEN	
+				Ident = SqlConnect.connectionIdent	
+				Sql = 3	
+			ENDIF					
+		ELSE IF Ident <> 0 THEN; Connection already made disconnect
+			Sql = 2 	
+		ENDIF
+	ENDACTION
+	
+	ACTION 1:			
+		SqlExecute.enable = TRUE			
+		SqlExecute.connectionIdent = Ident		
+		SqlExecute.pSqlStatement = ADR("EXEC Supertrack.uspWriteSequenceCount 0 , 2 ,1584")	
+		SqlExecute FUB dbExecuteSql()
+		IF SqlExecute.status = ERR_OK THEN		
+			Sql = 2			
+		ENDIF			
+	ENDACTION			
+				
+	ACTION 2:
+		SqlDisconnect.enable = TRUE	
+		SqlDisconnect.connectionIdent = Ident
+		SqlDisconnect FUB dbDisconnect()				  
+		IF SqlDisconnect.status =  ERR_OK THEN	
+			Ident = 0
+			Sql = 0
+		ENDIF
+	ENDACTION	
+
+	ACTION 3: 				
+		SqlError.enable = TRUE
+		SqlError.connectionIdent = Ident	
+		SqlError.pErrorMessage = ADR(ErrorString)			
+		SqlError.errorMessageSize = SIZEOF(ErrorString)			
+		SqlError FUB dbGetErrorMessage()			
+		IF SqlError.status = ERR_OK THEN					
+			Sql = 2			
+		ENDIF			
+	ENDACTION			
+ENDCASE	
+	
+
+
+END_PROGRAM

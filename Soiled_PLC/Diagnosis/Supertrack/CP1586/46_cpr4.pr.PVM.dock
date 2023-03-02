@@ -1,0 +1,10 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=46_cpr4 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=250 Type=0 Scope=0 Force=0 Index=3 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       X                       CardInputs[0..399]    0 "                                                               *"    0   24  400    0    0    1         
+                                   X[11]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X10                                     BOOL    1 "                                                           FALSE"    2    1    1    2    0    0         
+                                     X09                                     BOOL    1 "                                                           FALSE"    2    1    1    2    0    0         
+                                   X[12]                               CardInputs    0 "                                                               *"    1   24    1    0    0    0         
+                                    step                                     UINT    0 "                                                               1"    0    6    1   10    1    0         
+                                    myIO                                     UINT    0 "                                                             220"    0    6    1   10    1    0         

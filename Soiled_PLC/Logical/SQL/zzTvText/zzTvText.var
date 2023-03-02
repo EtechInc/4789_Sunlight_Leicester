@@ -1,0 +1,29 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzTviewText
+ * File: zzTviewText.var
+ * Author: Dave
+ * Created: January 30, 2013
+ ********************************************************************
+ * Local variables of program zzTviewText
+ ********************************************************************)
+VAR CONSTANT
+	SendSUPDBServer : UDINT := 1;
+	SendSUPDBName : UDINT := 2;
+	SendSUPDBLogin : UDINT := 3;
+	SendSUPDBPword : UDINT := 4;
+	StartSQLServerDataRead : UDINT := 101;
+	StartReadTextwords : UDINT := 102;
+	SendTextWord : UDINT := 1000;
+END_VAR
+VAR
+	myTviewString : STRING[64];
+	myRequest : UDINT;
+	StartRequest : BOOL;
+	TviewRequest : UDINT;
+	StartSQLServerRead : BOOL;
+	StartTextwords : BOOL;
+	Login : STRING[6];
+	result : DINT;
+END_VAR

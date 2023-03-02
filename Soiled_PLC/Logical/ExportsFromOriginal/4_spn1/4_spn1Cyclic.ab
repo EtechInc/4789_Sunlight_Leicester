@@ -1,0 +1,207 @@
+PROGRAM _CYCLIC
+; 	(* cyclic program *)
+
+;Sequence 4 - Ongoing To Storage D[904]
+
+;-----------------------------------------
+;Revision 1.00 09/12/2005 D.J. First Issue
+;-----------------------------------------
+
+;Inputs
+OnGoingEnable 		= ((D[14] > 0) AND NOT Std.HaltSys)
+
+I_BagatBuffer[1]	= Request.SVC[1] ;X[7].X13
+;I_BagatBuffer[2]	= FALSE
+;I_BagatBuffer[3]	= FALSE
+;I_BagatBuffer[4]	= FALSE
+
+O_Reset 		  	= FALSE
+O_OpenSelect[1]		= FALSE
+;O_OpenSelect[2]	= FALSE
+;O_OpenSelect[3]	= FALSE
+;O_OpenSelect[4]	= FALSE
+
+Enable.SPN[1]		= FALSE
+
+Alarm[4].Name 		= 0
+Alarm[4].Bag		= 224
+Alarm[4].Beacon		= TRUE
+Alarm[4].Extra	 	= 0
+Alarm[4].Time		= 3000
+
+;Setup Sequence
+;--------------
+STEP = D[904]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Check if Recirculation bag needs a destination
+;IF ((Bag[107].Cat > 0) AND (Bag[107].Dst = 0) AND (D[1005] > 0) AND (D[1005] <= 6) AND (D[1006] > 0)) THEN
+;	Bag[107].Dst 	= D[1005]
+;	D[1006] 		= (D[1006] - 1)
+;ENDIF
+
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - Reset Ongoing Points
+TON_10ms((STEP = 1),300,ResetPoints,ResetPointsET)
+IF (STEP = 1) THEN
+	Dest  	= 0
+	Buff 	= 0
+	O_Reset = NOT ResetPoints
+	IF (ResetPoints AND OnGoingEnable) THEN
+		D[904] = 2
+	ENDIF
+ENDIF
+
+;Set Max Buffers to search
+MaxBuffers = 1
+
+;Bag Settles at each buffer
+;TON_10ms(I_BagatBuffer[1],300,SettledBuffer[1],SettledBufferET[1])
+SettledBuffer[1] = I_BagatBuffer[1] ;SVC1
+;TON_10ms(I_BagatBuffer[2],300,SettledBuffer[2],SettledBufferET[2])
+
+BufferBagNum[1]		= 222
+;BufferBagNum[2]	= 250
+
+;Step 2 - Search for a valid Bag at one of the buffers
+IF (STEP = 2) THEN
+
+	Buff 	= 0
+	Dest 	= 0
+
+	IF OnGoingEnable THEN
+
+		Alarm[4].Name 	= almNoAlarm
+		Alarm[4].Time	= 2000
+
+		LOOP Bfr = 1 TO MaxBuffers DO
+
+			;Set Test Value for Monitoring
+			IF TestBuffer > 0 THEN
+				Buffer = TestBuffer
+			ELSE
+				Buffer = Bfr
+			ENDIF
+
+			BufferBag		= BufferBagNum[Buffer]
+			BufferSettled 	= SettledBuffer[Buffer]
+			BufferCat 		= Bag[BufferBag].Cat
+			BufferDst 		= Bag[BufferBag].Dst
+
+			DestValid = ((BufferDst >= 1) AND (BufferDst <= Std.MaxLines))
+
+			IF (BufferSettled AND (BufferCat > 0) AND DestValid AND (Bag[224].Cat = 0)) THEN
+				n = BufferDst
+				IF ((Line[n].Space > 0) AND Line[n].Clear) THEN
+					Dest = n
+					Buff = Buffer
+					;IF (Buffer = 1) THEN
+						D[904] 	= 3
+					;ELSE
+					;	D[904]  = 4
+					;ENDIF
+				ELSE
+					Alarm[4].Name 	= almDestinationNotValid
+					Alarm[4].Bag	= BufferBag
+				ENDIF
+			ENDIF
+
+			;Buffer Alarms
+			;IF (BufferCat > 0) AND NOT BufferSettled THEN
+			;	Alarm[4].Name 	= almBagNotAtProx
+			;	Alarm[4].Bag	= BufferBag
+			;ELSE IF (BufferCat = 0) AND BufferSettled THEN
+			;	Alarm[4].Name 	= almBagNotShownOnScreen
+			;	Alarm[4].Bag	= BufferBag
+			;ENDIF
+
+		ENDLOOP
+
+	ENDIF
+
+ENDIF
+
+;Clear Line Selections
+LOOP n = 1 TO Std.MaxLines DO
+	LineSelect[n] = FALSE
+ENDLOOP
+
+;Step 3 - Enable VC1 to Release a bag
+IF (STEP = 3) THEN
+	Enable.SPN[1] = TRUE
+
+	IF PLS THEN
+		C[Dest] = 0
+	ENDIF
+
+	LineSelect[Dest] = TRUE
+	IF NOT Request.SVC[1] THEN
+		D[904] = 4
+	ENDIF
+ENDIF
+
+
+;Step 4 - Select line / open buffer stop
+IF (STEP = 4) THEN
+
+	LineSelect[Dest] 	= TRUE
+	O_OpenSelect[Buff] 	= TRUE
+
+	IF PLS THEN
+		;C[Dest] = 0
+		IF (Bag[224].Cat = 0) AND (Bag[BufferBagNum[Buff]].Cat > 0) THEN
+			Bag[224]				 	= Bag[BufferBagNum[Buff]]
+			Bag[BufferBagNum[Buff]]	 	= Bag[0]
+		ENDIF
+	ENDIF
+
+	;Bag arrived on selected line
+	IF Line[Dest].Trip THEN
+		D[498] 						= Bag[224].Cus	;Set Customer for Customer FIFO
+		Bag[224].Dst 				= 0 		    ;Clear Destination
+		Bag[Line[Dest].LastBag] 	= Bag[224]
+		Bag[224] 					= Bag[0]
+		D[904] 						= 1
+	ENDIF
+
+	Alarm[4].Name = almBagNotArrived
+
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[4].Name > 0) AND (AlarmOld = Alarm[4].Name)
+TimerAlarm.PT = Alarm[4].Time
+TimerAlarm FUB TON_10ms()
+Alarm[4].On = TimerAlarm.Q
+Alarm[4].ET = TimerAlarm.ET
+
+AlarmOld = Alarm[4].Name ;Need to ensure alarm changes as may be multiple alarms on step 2
+
+;Outputs
+Y[4].Y01 = LineSelect[1] OR LineSelect[2]
+Y[4].Y02 = LineSelect[3]
+Y[4].Y03 = LineSelect[3]
+Y[4].Y04 = LineSelect[4]
+Y[4].Y05 = LineSelect[5]
+Y[4].Y06 = LineSelect[6]
+Y[4].Y07 = LineSelect[7]
+Y[4].Y08 = LineSelect[8]
+Y[4].Y09 = LineSelect[9]
+Y[4].Y10 = LineSelect[10]
+Y[4].Y11 = LineSelect[11]
+Y[4].Y12 = LineSelect[12]
+Y[4].Y13 = LineSelect[13]
+Y[4].Y14 = LineSelect[14] OR O_Reset
+
+Y[3].Y15 = LineSelect[1]
+Y[3].Y14 = LineSelect[2]
+
+
+END_PROGRAM
+

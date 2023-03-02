@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.1.214?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">OPCuA.var</Object>
+    <Object Type="Program" Language="IEC">TestValues</Object>
+    <Object Type="Program" Language="IEC">OPCuA_Test</Object>
+    <Object Type="Program" Language="IEC">OPCuA_BagEncode</Object>
+    <Object Type="Program" Language="IEC">OPCuA_Displays</Object>
+    <Object Type="Library" Language="IEC">OPCuA</Object>
+  </Objects>
+</Package>

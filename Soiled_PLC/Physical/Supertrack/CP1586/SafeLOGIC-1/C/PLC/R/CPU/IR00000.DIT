@@ -1,0 +1,202 @@
+(*
+T: RESOURCE CPU
+FW: NO
+CI#: 0
+QSL: 32
+QVE: 32
+QVPC: 32
+QPar: 0
+QFBI: 0
+*)
+@V 1 2 0
+SI_2_OK	1	VAR_GLOBAL	@TYP:43
+%SIX 24.0		     
+
+;
+
+@V 1 3 0
+SO_3_OK	2	VAR_GLOBAL	@TYP:43
+%SIX 24.1		     
+
+;
+
+@V 1 4 0
+Safety_Module_Fault	3	VAR_GLOBAL	@TYP:1
+%NSQX 1.7		     
+
+;
+
+@V 1 5 0
+SafetyZone_0_Zone_Status	4	VAR_GLOBAL	@TYP:1
+%NSQX 0.0		     
+
+;
+
+@V 1 6 0
+SafetyZone_0_ResetReady	5	VAR_GLOBAL	@TYP:1
+%NSQX 1.0		     
+
+;
+
+@V 1 7 0
+SafetyZone_0_Main_Reset	6	VAR_GLOBAL	@TYP:1
+%NSIX 0.0		     
+
+;
+
+@V 1 8 0
+Safety_Master_Reset	7	VAR_GLOBAL	@TYP:1
+%NSIX 1.7		     
+
+;
+
+@V 1 9 0
+SafetyZone_0_EDM	8	VAR_GLOBAL	@TYP:1
+%NSIX 1.0		     
+
+;
+
+@V 1 10 0
+ESTOPS	9	VAR_GLOBAL	@TYP:43
+%SIX 60.0		     
+
+;
+
+@V 1 11 0
+SafetyZone_3_Main_Reset	10	VAR_GLOBAL	@TYP:1
+%NSIX 0.3		     
+
+;
+
+@V 1 12 0
+SafetyZone_3_EDM	11	VAR_GLOBAL	@TYP:1
+%NSIX 1.3		     
+
+;
+
+@V 1 13 0
+SafetyZone_3_Zone_Status	12	VAR_GLOBAL	@TYP:1
+%NSQX 0.3		     
+
+;
+
+@V 1 14 0
+SafetyZone_3_ResetReady	13	VAR_GLOBAL	@TYP:1
+%NSQX 1.3		     
+
+;
+
+@V 1 15 0
+SafetyZone_2_ResetReady	14	VAR_GLOBAL	@TYP:1
+%NSQX 1.2		     
+
+;
+
+@V 1 16 0
+SafetyZone_2_Zone_Status	15	VAR_GLOBAL	@TYP:1
+%NSQX 0.2		     
+
+;
+
+@V 1 17 0
+SafetyZone_2_EDM	16	VAR_GLOBAL	@TYP:1
+%NSIX 1.2		     
+
+;
+
+@V 1 18 0
+SafetyZone_1_Main_Reset	17	VAR_GLOBAL	@TYP:1
+%NSIX 0.1		     
+
+;
+
+@V 1 19 0
+SafetyZone_1_EDM	18	VAR_GLOBAL	@TYP:1
+%NSIX 1.1		     
+
+;
+
+@V 1 20 0
+SafetyZone_1_ResetReady	19	VAR_GLOBAL	@TYP:1
+%NSQX 1.1		     
+
+;
+
+@V 1 21 0
+SafetyZone_1_Zone_Status	20	VAR_GLOBAL	@TYP:1
+%NSQX 0.1		     
+
+;
+
+@V 1 22 0
+ZONE_1_INPUT	21	VAR_GLOBAL	@TYP:43
+%SIX 60.1		     
+
+;
+
+@V 1 23 0
+ZONE_3_INPUT	22	VAR_GLOBAL	@TYP:43
+%SIX 60.3		     
+
+;
+
+@V 1 24 0
+ZONE_2_GS	23	VAR_GLOBAL	@TYP:43
+%SIX 65.0		     
+
+;
+
+@V 1 25 0
+ZZone_2_Interlock_Reset	24	VAR_GLOBAL	@TYP:1
+%NSIX 22.0		     
+
+;
+
+@V 1 26 0
+SM3_SafeDigitalOutput01	25	VAR_GLOBAL	@TYP:43
+%SQX 14.0		     
+
+;
+
+@V 1 27 0
+SM3_ReleaseOutput01	26	VAR_GLOBAL	@TYP:1
+%NSQX 20.0		     
+
+;
+
+@V 1 28 0
+SM3_SafeDigitalOutput02	27	VAR_GLOBAL	@TYP:43
+%SQX 14.1		     
+
+;
+
+@V 1 29 0
+SM3_ReleaseOutput02	28	VAR_GLOBAL	@TYP:1
+%NSQX 20.1		     
+
+;
+
+@V 1 30 0
+SM3_SafeDigitalOutput03	29	VAR_GLOBAL	@TYP:43
+%SQX 14.2		     
+
+;
+
+@V 1 31 0
+SM3_ReleaseOutput03	30	VAR_GLOBAL	@TYP:1
+%NSQX 20.2		     
+
+;
+
+@V 1 32 0
+SM3_SafeDigitalOutput04	31	VAR_GLOBAL	@TYP:43
+%SQX 14.3		     
+
+;
+
+@V 1 33 0
+SM3_ReleaseOutput04	32	VAR_GLOBAL	@TYP:1
+%NSQX 20.3		     
+
+;
+

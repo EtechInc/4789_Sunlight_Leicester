@@ -1,0 +1,99 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;-----------------------------------------------------
+;Sequence 10 - EBT Empty bag transfer from SDC2 D[910]
+;-----------------------------------------------------
+
+;Inputs
+
+I_BagAtBuffer			= X[6].X13
+
+O_OpenBufferStop		= FALSE
+Enable.SDC[1]           = FALSE
+O_SelectPoint           = FALSE
+
+I_BagAtSPI1BufferStop	= X[8].X12
+O_SPI1BufferStopOpen	= Y[8].Y12
+
+
+Alarm[10].Name 			= 0
+Alarm[10].Bag			= 266
+Alarm[10].Beacon		= TRUE
+Alarm[10].Extra			= 0
+Alarm[10].Time			= 3000
+
+;Setup Sequence
+STEP = D[910]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - Wait for space at SPI1 buffer
+IF (STEP = 1) THEN
+	IF (Line[17].Clear AND NOT I_BagAtSPI1BufferStop AND NOT O_SPI1BufferStopOpen AND NOT Std.HaltSys) THEN
+		D[910] = 2
+	ENDIF
+ENDIF
+
+;Step 2 - Wait for bag at SDC2 empty bag buffer and enable from offgoing
+TON_10ms(I_BagAtBuffer,300,SettledAtBuffer,SettledAtBufferET)
+IF (STEP = 2) THEN
+	IF EnableSDC2Empty THEN
+		IF (Request.SDC[1] AND EnableSDC2Empty) THEN
+			D[910] = 3
+
+		ELSE IF (SettledAtBuffer AND EnableSDC2Empty) THEN
+			D[910] = 4
+		ENDIF
+	ENDIF
+ENDIF
+
+;Enable SDC1
+IF (STEP = 3) THEN
+	Enable.SDC[1] = (D[905] <= 2)
+	O_SelectPoint = (D[905] <= 2)
+	IF PLS THEN
+		C[17] = 0
+		Bag[266].Cat = 99
+	ENDIF
+	IF Line[17].Trip THEN
+		D[910] 		= 1
+		Bag[266] 	= Bag[0]
+	ENDIF
+	Alarm[10].Name = almBagNotArrived
+ENDIF
+
+
+;Step 3 - Transfer empty from SDC2
+IF (STEP = 4) THEN
+	O_OpenBufferStop = (D[905] <= 2)
+	IF PLS THEN
+		C[17] = 0
+		Bag[266].Cat = 99
+	ENDIF
+	IF Line[17].Trip THEN
+		D[910] 		= 1
+		Bag[266] 	= Bag[0]
+	ENDIF
+	Alarm[10].Name = almBagNotArrived
+ENDIF
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[10].Name > 0)
+TimerAlarm.PT 	= Alarm[10].Time
+TimerAlarm FUB TON_10ms()
+Alarm[10].On 	= TimerAlarm.Q
+Alarm[10].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[6].Y13 = O_OpenBufferStop
+Y[8].Y02 = O_SelectPoint
+END_PROGRAM
+

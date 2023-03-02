@@ -1,0 +1,3 @@
+VAR RETAIN
+	Uld : ARRAY[0..20] OF Uld_Vars;
+END_VAR

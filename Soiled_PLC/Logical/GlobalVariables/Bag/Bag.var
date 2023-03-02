@@ -1,0 +1,13 @@
+VAR RETAIN
+	Bag : ARRAY[0..MAX_BAGS] OF Bag_typ;
+	pBag : UDINT;
+END_VAR
+VAR CONSTANT
+	MAX_BAGS : UINT := 499;
+END_VAR
+(*CONSTANTS*)
+VAR CONSTANT
+	CAT_EMPTY_BAG : UDINT := 999; (**Category code for Empty bag*)
+	CAT_MIXED_LINEN : UDINT := 998; (**Category code for mixed linen*)
+	CAT_MIXED_GARMENTS : UDINT := 997; (**Category code for mixed garments (Ullmer)*)
+END_VAR

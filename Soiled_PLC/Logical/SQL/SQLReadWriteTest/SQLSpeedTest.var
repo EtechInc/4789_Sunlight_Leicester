@@ -1,0 +1,35 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: SQLSpeedTest
+ * File: SQLSpeedTest.var
+ * Author: treamsbottom
+ * Created: October 03, 2013
+ ********************************************************************
+ * Local variables of program SQLSpeedTest
+ ********************************************************************)
+VAR
+	Sql : INT;
+	SqlConnect : dbConnect;
+	Ident : UDINT;
+	SqlDisconnect : dbDisconnect;
+	ConnectionCount : UINT;
+	pServer : UDINT;
+	pDatabaseName : UDINT;
+	pUserName : UDINT;
+	pPassword : UDINT;
+	SqlError : dbGetErrorMessage;
+	ErrorString : STRING[100];
+	SqlExecute : dbExecuteSql;
+	pServerName : UDINT;
+	Break : UDINT;
+	TestVar : UDINT;
+	SqlColumnCount : dbGetColumnCount;
+	ColumnCount : UDINT;
+	SqlGetData : dbGetData;
+	OutputDataRow : ARRAY[0..19] OF STRING[25];
+	Row : INT;
+	Col : INT;
+	ReadData : USINT;
+	SqlGetRow : dbFetchNextRow;
+END_VAR

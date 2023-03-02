@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EventBindingDefinition xmlns="http://www.br-automation.com/iat2014/eventbinding/runtime/v2">
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbClearData" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="32768" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbFWAck" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbModEx1" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="96" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbModEx2" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="80" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbModEx3" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="64" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbModEx4" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="48" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbModExN" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="32" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbReset" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="28672" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbSKExchange" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="512" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbSKFormat" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="24576" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbScan" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="8192" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:executeRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <EventBinding>
+      <Source type="widgets.brease.MomentaryPushButton.Event" event="Click" refId="content_RemoteControl_mpbTest" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="256" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data">
+                <Method type="opcUa.NodeAction.SetValueNumber"><Parameter name="value" xsi:type="ANY_REAL" value="4096" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target type="opcUa.NodeAction" refId="::SafetyUI:executeRemoteCmd">
+                <Method type="opcUa.NodeAction.SetValueBool"><Parameter name="value" xsi:type="BOOL" value="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+  </Content>
+  <Visualization>
+    <EventBinding>
+      <Source type="opcUa.Event" refId="::SafetyUI:statusDialog" event="ValueChanged" />
+      <EventHandler condition="newValue=0">
+        <Action>
+          <Target type="clientSystem.Action">
+            <Method type="clientSystem.Action.OpenDialog"><Parameter name="dialogId" xsi:type="ANY_STRING" value="dialog_AsSafetySolution" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /><Parameter name="mode" xsi:type="ANY_STRING" value="modal" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /><Parameter name="headerText" xsi:type="ANY_STRING" value="Remote Control" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+          </Target>
+        </Action>
+      </EventHandler>
+      <EventHandler condition="newValue=1">
+        <Action>
+          <Target type="clientSystem.Action">
+            <Method type="clientSystem.Action.CloseDialog"><Parameter name="dialogId" xsi:type="ANY_STRING" value="dialog_AsSafetySolution" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" /></Method>
+          </Target>
+        </Action>        
+      </EventHandler>     
+    </EventBinding>
+  </Visualization>
+</EventBindingDefinition>

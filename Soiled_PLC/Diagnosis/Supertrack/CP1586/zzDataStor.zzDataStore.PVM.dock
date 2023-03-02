@@ -1,0 +1,17 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=zzDataStor 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=248 Type=215 Scope=26 Force=27 Index=10 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                  Backup                         Backup_typ[0..9]    0 "                                                               *"    0   24   10    0    1    1         
+                               Backup[7]                               Backup_typ    0 "                                                               *"    1   24    1    0    0    1         
+                              DataLength                                    UDINT    0 "                                                             260"    2    7    1   10    0    0         
+                                  MemTyp                                    USINT    0 "                                                               0"    2    5    1   10    0    0         
+                                   pData                                    UDINT    0 "                                                        66298068"    2    7    1   10    0    0         
+                               pFileName                                    UDINT    0 "                                                    16#0509_49D1"    2    7    1   16    0    0         
+                                   ident                                    UDINT    0 "                                                               0"    2    7    1   10    0    0         
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                  D[209]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
+                                  D[290]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
+                                  D[291]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
+                                  D[292]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
+                                 eBackup                                     DINT    0 "                                                               0"    0    4    1   10    1    0 e,0,eNul
+

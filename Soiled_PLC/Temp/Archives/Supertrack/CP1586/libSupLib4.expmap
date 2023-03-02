@@ -1,0 +1,13 @@
+{
+  global:
+    stUINT_ASC;
+    DIS4;
+    stUNI5;
+    stASC_UINT;
+    BCD_BIN_OUTPUT;
+    BIN_TO_BCD;
+    stUNI4;
+    BIT_ENCODE;
+  local:
+    *;
+ };

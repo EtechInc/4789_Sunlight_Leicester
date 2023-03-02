@@ -1,0 +1,51 @@
+(*State Constants*)
+VAR CONSTANT
+	XML_READER_IDLE : UINT := 0;
+	XML_READER_READ_FROM_HTTP : UINT := 1;
+	XML_READER_DECODE_FILE : UINT := 2;
+	XML_READER_DECODE_ERROR : UINT := 99;
+END_VAR
+(**Local Vars*)
+VAR
+	state : UINT;
+	error : UINT;
+	pTempMem : UDINT;
+	sizeTempMem : UDINT;
+	pFileName : UDINT;
+	pFileDevice : UDINT;
+	pDevLinkParameter : UDINT;
+	pMemCard : UDINT;
+	fileCopyFromDev : FileCopyFromDev;
+	pUSB : UDINT;
+	n : UINT;
+	xmlReader : UINT;
+	lineCount : UINT;
+	xmlName : STRING[100];
+	xmlValue : STRING[100];
+	xmlIndex : UDINT;
+	xmlProperty : STRING[100];
+	xmlPropertyIndex : DINT;
+	fiToMem : fileToMem;
+	xmlReadCreate : xmlCreateMemoryReader;
+	xmlReadNode : xmlReadNextNode;
+	xmlReadAttNum : xmlReadAttributeNr;
+	xmlCloseReader : xmlCloseMemoryReader;
+	pHost : UDINT;
+	URL : STRING[30];
+	pResponseHeader : UDINT;
+	responseHeader : httpResponseHeader_t;
+	pRequestHeader : UDINT;
+	requestHeader : httpRequestHeader_t;
+	pStatistics : UDINT;
+	Statistics : httpStatistics_t;
+	pSendData : UDINT;
+	sendData : STRING[100];
+	pResponseData : UDINT;
+	responseData : ARRAY[0..99] OF USINT;
+	pUri : UDINT;
+	testAbort : BOOL;
+	http_Client : httpClient;
+	testSend : BOOL;
+	fileWrite : fileReadWrite;
+	fiLength : UDINT;
+END_VAR

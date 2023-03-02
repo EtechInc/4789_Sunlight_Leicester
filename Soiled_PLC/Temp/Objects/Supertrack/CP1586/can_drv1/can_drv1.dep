@@ -1,0 +1,6 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/CAN_Lib/CAN_Lib.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/DataObj/DataObj.fun
+$(AS_PROJECT_PATH)/Logical/Sequences/200ms/CAN/can_drv1/can_drv2.var
+$(AS_PROJECT_PATH)/Logical/Sequences/200ms/CAN/CAN.typ
+$(AS_PROJECT_PATH)/Logical/Sequences/200ms/CAN/CAN.var

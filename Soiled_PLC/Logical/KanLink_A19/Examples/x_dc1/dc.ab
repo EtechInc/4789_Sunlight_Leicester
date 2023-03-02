@@ -1,0 +1,409 @@
+
+;Standard Discharger Sequence
+
+;--------------------------------------------------------------
+;Version 1.00 22/04/2011 D.J. First Issue
+;Version 1.10 16/08/2011 D.J. Change CodeStep to 4-6 for PT JET
+;--------------------------------------------------------------
+
+;Note: the CAN DataType is used for all washing machine interface types CAN bus, BCD / Binary digital and Strobing data.
+
+PROGRAM _CYCLIC
+
+;Configuration
+myIO					= 153 	;Discharger IO module number
+myStartStop				= 8		;Start / Stop used on TrackView display (Traffic Light)
+mySeq					= 8		;Sequence number
+myDC					= 3		;Discharger number
+myBuffBag				= 376	;Buffer bag number - set to 0 to use Request / Enable
+myBag					= 375	;Discharger bag number 	
+myDst					= 33	;Destination number for bags to be opened at this discharger (destination 0 will also be opened)
+myRelCounter			= 0 	;Bag released counter number - set to 0 to use RequestRel / EnableRel
+myZone					= 0
+myBagCloser				= TRUE	;Bag closer is fitted?
+myCodesStrobe			= FALSE ;Use Jensen (Senking) strobe method for transfer of codes to CBW
+myPushButtonControl		= FALSE ;Bag is opened by pressing a pushbutton and confirmed empty with a second press.
+myPickerControl			= FALSE	;Bag is opened by a picker (only open bag signal which goes off when load has dropped
+IF myPushButtonControl OR myPickerControl THEN
+	CAN[myDC].DropLoad		= X[0].X01 ;Input to open bag?
+ENDIF
+
+;Single bag buffer after discharger - enter input and output for the proximity switch and buffer stop.
+I_BagAtEmptyBuffer		= FALSE
+O_EmptyBagBufferOpen	= FALSE
+			
+;/Configuration
+
+DischargerEnable 		= ((D[myStartStop] > 0) AND NOT Std.HaltSysZone[myZone])
+	
+
+I_BagAtBuffer			= X[myIO].X01
+I_BagAtDischarger		= X[myIO].X02
+I_OpenBag				= CAN[myDC].DropLoad
+I_LoadDropped			= CAN[myDC].LoadDropped
+;I_BagReleased			= X[myIO].X03
+I_BagEmpty			  	= TRUE
+
+
+
+O_BagReady				= FALSE
+O_OpenBuffer 			= FALSE
+O_Steadys				= FALSE
+O_Closer				= FALSE
+O_OpenBag				= FALSE
+O_OpenStop				= FALSE
+
+Request.DC[myDC]		= FALSE
+RequestRel.DC[myDC] 	= FALSE
+
+;Alarm
+Alarm[mySeq].Name 		= almNoAlarm ;Clear sequence alarm name
+Alarm[mySeq].Bag 		= myBag
+Alarm[mySeq].Beacon		= TRUE
+Alarm[mySeq].Extra		= 0
+Alarm[mySeq].Time		= 3000
+
+;Setup Sequence
+STEP = D[900 + mySeq]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+	
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+;*************************************************Batch Calculation**************************************************************	
+BatchSizeSet	= D[2800 + Bag[myBuffBag].Prg]
+BatchQty_Remain = 980 ; D Registers.
+BatchWeight 	= 981
+MatchCus 		= TRUE
+
+	
+;Calculate buffer data to send to PT - note even 2nd bag of batch will have different weight.
+IF (STEP = 1) AND (BatchSizeSet > 1) AND (Bag[myBuffBag].Cat > 0) THEN		
+	LOOP n = 0 TO 5 DO	
+		CAN[myDC].Batchpart[n].Customer = 0
+		CAN[myDC].Batchpart[n].Wgt = 0
+	ENDLOOP	
+	D[BatchWeight] = Bag[myBuffBag].Wgt	
+	CAN[myDC].Batchpart[0].Customer = Bag[myBuffBag].Cus
+	CAN[myDC].Batchpart[0].Wgt = Bag[myBuffBag].Wgt	
+	Temp_BatchSize = 1
+	ExitLoop = FALSE
+	
+	IF (D[BatchQty_Remain] < 1) THEN
+		BatchValue = BatchSizeSet
+	ELSE
+		BatchValue	= D[BatchQty_Remain]
+	ENDIF	
+	IF (BatchValue > 1) THEN
+		SearchDepth = 0
+		LOOP n = 1 TO (BatchValue - 1)DO
+			IF (Bag[myBuffBag + n].Cat > 0) THEN
+				SearchDepth = n + 1 ; Add 1 to allow for position 0
+			ENDIF
+			IF ((Bag[myBuffBag + n].Cat = Bag[myBuffBag].Cat) AND ((Bag[myBuffBag + n].Cus = Bag[myBuffBag].Cus) OR NOT MatchCus))THEN 	
+				D[BatchWeight] = D[BatchWeight] + Bag[myBuffBag + n].Wgt ; Sum Wieghts				
+				CAN[myDC].Batchpart[n].Customer = Bag[myBuffBag + n].Cus
+				CAN[myDC].Batchpart[n].Wgt = Bag[myBuffBag + n].Wgt	
+				Temp_BatchSize = n + 1
+			ELSE		
+				ExitLoop = TRUE		
+			ENDIF				
+		EXITIF ExitLoop
+		ENDLOOP
+		IF (D[BatchQty_Remain] = 0) AND ((Temp_BatchSize = BatchSizeSet) OR (SearchDepth >= BatchSizeSet)) THEN	; Check we have searched all bags required.
+			D[BatchQty_Remain] = Temp_BatchSize
+		ENDIF		
+	ENDIF
+ELSE IF (STEP = 1) AND (BatchSizeSet <= 1) AND (Bag[myBuffBag].Cat > 0) THEN		
+	D[BatchQty_Remain] = 1			
+	D[BatchWeight] = Bag[myBuffBag].Wgt	
+	CAN[myDC].Batchpart[0].Customer = Bag[myBuffBag].Cus
+	CAN[myDC].Batchpart[0].Wgt = Bag[myBuffBag].Wgt	
+ENDIF	
+		
+CAN[myDC].Batch_QtyRemaining = D[BatchQty_Remain] 	
+;*******************************************************END BATCHING CALC****** SEE step 6 from Batch decrement**********************************	
+	
+	
+;Check Status - Bag settled at buffer, no bag at discharger, bag at buffer on screen and no bag at discharger on the screen
+UseBuffer = (myBuffBag > 0)
+TON_10ms(I_BagAtBuffer,300,SettledAtBuffer,SettledAtBufferET)
+IF (STEP = 1) THEN
+	;Disable sequence if input made
+	IF (DischargerEnable AND NOT I_BagAtDischarger AND (Bag[myBag].Cat = 0) AND NOT Std.HaltSysZone[myZone]) THEN
+		IF UseBuffer THEN
+			IF (SettledAtBuffer AND (Bag[myBuffBag].Cat > 0) AND (D[BatchQty_Remain] > 0)) THEN ; Make sure batch size has arrived in buffer.
+				D[900 + mySeq] = 2
+				INC Count[mySeq]	
+			ENDIF
+			
+			;Alarm - Buffer bag detection error
+			IF (Bag[myBuffBag].Cat > 0) AND NOT I_BagAtBuffer THEN
+				Alarm[mySeq].Name 	= almBagNotAtProx
+				Alarm[mySeq].Bag	= myBuffBag
+			ELSE IF (Bag[myBuffBag].Cat = 0) AND I_BagAtBuffer THEN
+				Alarm[mySeq].Name 	= almBagNotShownOnScreen
+				Alarm[mySeq].Bag	= myBuffBag
+			ENDIF
+			
+		ELSE
+			D[900 + mySeq] = 2
+			INC Count[mySeq]	
+		ENDIF
+	ENDIF
+		
+	;Alarm - Bag detected at discharger
+	IF (Bag[myBag].Cat > 0) THEN
+		Alarm[mySeq].Name = almBagDataError
+	ELSE IF I_BagAtDischarger THEN
+		Alarm[mySeq].Name = almSwitchFault
+	ENDIF
+
+ENDIF
+
+;Wait for bag in discharger
+IF (STEP = 2) THEN
+	O_OpenBuffer 		= UseBuffer
+	Request.DC[myDC] 	= NOT UseBuffer
+	IF I_BagAtDischarger THEN
+		D[900 + mySeq] = 3
+	ENDIF
+	IF UseBuffer THEN
+		Alarm[mySeq].Name = almBagNotArrived
+	ENDIF
+ENDIF
+
+;Let bag settle in discharger
+TON_10ms(I_BagAtDischarger,300,SettledAtDischarger,SettledAtDischargerET)
+IF (STEP = 3) THEN
+	IF UseBuffer THEN
+		IF ((Bag[myBag].Cat = 0) AND (Bag[myBuffBag].Cat > 0)) THEN
+			Bag[myBag] 		= Bag[myBuffBag]
+			Bag[myBuffBag] 	= Bag[0]
+		ENDIF
+	ENDIF
+	IF ((Bag[myBag].Dst <> myDst) AND (Bag[myBag].Dst <> 0)) THEN
+		D[900 + mySeq] = 11 ;Bag is for another destination then go-to release bag
+	ENDIF
+	IF SettledAtDischarger THEN
+		D[900 + mySeq] = 4
+	ENDIF
+	Alarm[mySeq].Name = almBagNotSettled
+ENDIF
+
+;Allow steadys to move down
+TON_10ms((STEP = 4),400,SteadysDown,SteadysDownET)
+IF (STEP = 4) THEN
+	IF SteadysDown AND NOT I_SSHC1Closed THEN
+		IF (Bag[myBag].Prg = Std.MaxProg) THEN
+			D[900 + mySeq] = 8 ;Empty bag then go-to close
+		ELSE
+			IF myCodesStrobe THEN
+				IF CAN[myDC].StrobeComplete THEN
+					D[900 + mySeq] = 5
+				ENDIF
+			ELSE IF myPushButtonControl THEN
+				IF NOT I_OpenBag THEN
+					D[900 + mySeq] = 5
+				ENDIF  
+				Alarm[mySeq].Name = almSwitchFault
+			ELSE 
+				D[900 + mySeq] = 5
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+;Steady cylinders on from steps 4 - 9
+O_Steadys = ((STEP >= 4) AND (STEP <= 9))
+
+;Bag opener on from step 5 - 8
+O_OpenBag = ((STEP >= 6) AND (STEP <= 8))
+
+CodeStep  = ((STEP >= 5) AND (STEP <= 6)) 
+
+;Wash Codes
+
+IF CodeStep THEN
+	CAN[myDC].Program		= Bag[myBag].Prg
+	CAN[myDC].Category 		= Bag[myBag].Cat
+	CAN[myDC].Customer 		= Bag[myBag].Cus
+	CAN[myDC].Weight   		= D[BatchWeight];Bag[myBag].Wgt  ;(WgtRound / 10) ;rounded up weight divide by 10
+	CAN[myDC].BatchID		= Bag[myBag].Mis	
+	CAN[myDC].DoubleLoad 	= FALSE
+ELSE
+	CAN[myDC].Program 		= 0
+	CAN[myDC].Category 		= 0
+	CAN[myDC].Customer 		= 0
+	CAN[myDC].Weight   		= 0
+	CAN[myDC].BatchID		= 0
+	CAN[myDC].DoubleLoad 	= FALSE
+ENDIF
+
+	
+;Bag Ready to Washing Machine
+IF (STEP = 5) THEN
+	;O_BagReady 			= TRUE
+	CAN[myDC].BagReady 	= NOT I_SSHC1Closed
+	IF I_OpenBag OR TestDischarger THEN
+		D[900 + mySeq] = 6
+	ENDIF
+ELSE
+	CAN[myDC].BagReady	= FALSE
+ENDIF
+
+;Set LoadDropped to False
+IF (STEP <> 6) THEN
+	LoadDropped = FALSE
+ENDIF
+
+;Open Bag Until LoadDropped Received and has been open for 6 seconds
+TON_10ms((STEP = 6),600,MinOpen,MinOpenET) ;ET means Elapsed Time
+IF (STEP = 6) THEN
+	
+	IF (myPushButtonControl OR myPickerControl) THEN 
+		IF (NOT I_OpenBag OR TestDischarger) THEN
+			LoadDropped = TRUE
+		ENDIF
+	ELSE 
+		IF (I_LoadDropped OR TestDischarger) THEN
+			LoadDropped = TRUE	
+		ENDIF
+	ENDIF
+	
+	IF (LoadDropped AND MinOpen) THEN
+		;Write Report
+		;------------
+		IF (ReportUnloading[myDC].Cat = 0) THEN
+			ReportUnloading[myDC].Prg = Bag[myBag].Prg 		;Program
+			ReportUnloading[myDC].Cat = Bag[myBag].Cat		;Category
+			ReportUnloading[myDC].Cus = Bag[myBag].Cus		;Customer
+			ReportUnloading[myDC].Wgt = Bag[myBag].Wgt		;Weight
+			ReportUnloading[myDC].Cnt = 0					;Count
+			ReportUnloading[myDC].Stn = 0					;Station
+			ReportUnloading[myDC].Mcn = myDC				;Machine
+			ReportUnloading[myDC].Mis = Bag[myBag].Mis		;Batch ID
+			D[BatchQty_Remain] = (D[BatchQty_Remain] - 1) 
+			D[900 + mySeq] = 7
+		ENDIF
+	Alarm[mySeq].Time = 60000	
+	Alarm[mySeq].Name = almLoadNotDropped
+	ENDIF
+ENDIF
+;Change display to empty bag - clear all other bag data
+IF (STEP = 7) THEN
+	IF myPushButtonControl THEN
+		O_BagReady 	= Std.Clock200ms
+		IF ((I_OpenBag AND NOT I_LoadDropped AND I_BagEmpty) OR TestDrop) THEN
+			Bag[myBag]		= Bag[0]
+			Bag[myBag].Prg 	= Std.MaxProg
+			Bag[myBag].Cat	= Std.MaxCats
+			D[900 + mySeq] 		= 8
+		ENDIF
+		IF (I_LoadDropped OR I_BagEmpty) THEN
+			Alarm[mySeq].Name = almSwitchFault
+		ENDIF
+	ELSE
+		IF ((NOT I_OpenBag AND NOT I_LoadDropped AND I_BagEmpty) OR TestDrop) THEN
+			Bag[myBag]		= Bag[0]
+			Bag[myBag].Prg 	= Std.MaxProg
+			Bag[myBag].Cat	= Std.MaxCats
+			D[900 + mySeq] 		= 8
+		ENDIF
+		IF (I_OpenBag OR I_LoadDropped OR I_BagEmpty) THEN
+			Alarm[mySeq].Name = almSwitchFault
+		ENDIF
+	ENDIF
+ENDIF
+
+;Close bag
+TON_10ms((STEP = 8),700,CloserDown,CloserDownET)
+IF (STEP = 8) THEN
+	IF myBagCloser THEN
+		O_Closer = TRUE
+		IF CloserDown THEN
+			D[900 + mySeq] = 9
+		ENDIF
+	ELSE
+		D[900 + mySeq] = 10
+	ENDIF
+ENDIF
+
+;Allow closer to go back up
+TON_10ms((STEP = 9),700,CloserUp,CloserUpET)
+IF (STEP = 9) THEN
+	IF CloserUp THEN
+		D[900 + mySeq] = 10
+	ENDIF
+ENDIF
+
+;Allow steadys to go up
+TON_10ms((STEP = 10),400,SteadyUp,SteadyUpET)
+IF (STEP = 10) THEN
+	IF SteadyUp AND NOT EnableRel.DC[myDC] THEN
+		D[900 + mySeq] = 11
+	ENDIF
+ENDIF
+
+;Check for space on empty bag buffer / Request release
+UseCounter = (myRelCounter > 0)
+IF (STEP = 11) THEN
+	IF UseCounter THEN
+		IF (Line[myRelCounter].Clear AND NOT I_BagAtEmptyBuffer AND NOT O_EmptyBagBufferOpen) THEN
+			D[900 + mySeq] = 12
+		ENDIF
+		IF (Line[myRelCounter].Clear AND I_BagAtEmptyBuffer AND NOT O_EmptyBagBufferOpen) THEN
+			Alarm[mySeq].Name = almSwitchFault
+		ENDIF
+	ELSE
+		RequestRel.DC[myDC]	= TRUE
+		IF EnableRel.DC[myDC] THEN
+			D[900 + mySeq] = 12
+		ENDIF
+	ENDIF
+ENDIF
+
+;Open buffer stop - unitl bag out
+IF (STEP = 12) THEN
+	O_OpenStop = TRUE
+	Bag[myBag] = Bag[0] ;Clear bag
+
+	IF UseCounter THEN
+		IF PLS THEN
+			C[myRelCounter] = 0
+		ENDIF
+		IF Line[myRelCounter].Trip OR I_BagReleased THEN
+			D[900 + mySeq] = 1
+		ENDIF
+	ELSE
+		IF NOT EnableRel.DC[myDC] THEN
+			D[900 + mySeq] = 1
+		ENDIF
+	ENDIF
+	Alarm[mySeq].Name = almBagNotReleased
+ENDIF
+
+
+;*************************************************
+
+
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[mySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[mySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[mySeq].On 	= TimerAlarm.Q
+Alarm[mySeq].ET 	= TimerAlarm.ET
+
+;Outputs
+;Y[24].Y16 		= O_BagReady
+Y[myIO].Y04 	= O_OpenBuffer
+Y[myIO].Y05 	= O_Steadys
+Y[myIO].Y06 	= O_OpenBag
+Y[myIO].Y07 	= O_Closer
+Y[myIO].Y08 	= O_OpenStop
+
+END_PROGRAM
+

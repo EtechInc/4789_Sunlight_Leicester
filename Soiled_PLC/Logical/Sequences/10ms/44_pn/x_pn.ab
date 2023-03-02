@@ -1,0 +1,209 @@
+PROGRAM _CYCLIC
+
+;--------------------------------------
+;Sequence 4 - Ongoing To Storage D[900 + mySeq]
+;--------------------------------------
+
+;--------------------------------------------------------------------------------
+;Revision 1.00 06/11/2009 D.J. First Issue - Automatic Line Allocation with Areas
+;--------------------------------------------------------------------------------
+OnGoingEnable 		= ((D[14] > 0) AND NOT Std.HaltSys)
+
+I_BagatBuffer[1]	= FALSE
+I_BagatBuffer[2]	= FALSE ;X[7].X14
+I_BagatBuffer[3]	= FALSE
+I_BagatBuffer[4]	= FALSE
+
+O_Reset 		  	= FALSE
+O_OpenSelect[1]		= FALSE
+O_OpenSelect[2]		= FALSE
+O_OpenSelect[3]		= FALSE
+O_OpenSelect[4]		= FALSE
+
+Enable.SVC3HighLevel= FALSE
+Enable.SVC2AtTop    = FALSE
+Request.SP[2] 		= FALSE
+
+Alarm[4].Name 		= 0
+Alarm[4].Bag		= 151
+Alarm[4].Beacon		= TRUE
+Alarm[4].Extra	 	= 0
+Alarm[4].Time		= 3000
+
+;Setup Sequence
+;--------------
+STEP = D[904]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Check if Recirculation bag needs a destination
+;IF ((Bag[107].Cat > 0) AND (Bag[107].Dst = 0) AND (D[1005] > 0) AND (D[1005] <= 6) AND (D[1006] > 0)) THEN
+;	Bag[107].Dst 	= D[1005]
+;	D[1006] 		= (D[1006] - 1)
+;ENDIF
+
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Step 1 - Reset Ongoing Points
+TON_10ms((STEP = 1),300,ResetPoints,ResetPointsET)
+IF (STEP = 1) THEN
+	Dest  	= 0
+	Buff 	= 0 
+	O_Reset = TRUE
+	IF (ResetPoints AND OnGoingEnable) THEN
+		D[904] = 2
+	ENDIF
+ENDIF
+
+;Set Max Buffers to search
+MaxBuffers = 2
+
+;Bag Settles at each buffer
+TON_10ms(Request.SVC2AtTop,100,SettledBuffer[1],SettledBufferET[1]) ;sequence 9 on step 8 and no PairedBag on loop
+TON_10ms(Request.SVC3HighLevel,100,SettledBuffer[2],SettledBufferET[2]);sequence 10 on step 7
+
+BufferBagNum[1]	= 296 ;svc 2 bag
+BufferBagNum[2]	= 310 ;svc 3 bag
+
+;Step 2 - Search for a valid Bag at one of the buffers
+Line[12].Space = PairLoopSpace
+IF (STEP = 2) THEN
+	
+	Buff 	= 0
+	Dest 	= 0
+	
+	IF OnGoingEnable THEN
+		
+		Alarm[4].Name 	= almNoAlarm
+		Alarm[4].Time	= 2000
+		
+		LOOP Bfr = 1 TO MaxBuffers DO
+			
+			;Set Test Value for Monitoring
+			IF TestBuffer > 0 THEN
+				Buffer = TestBuffer
+			ELSE
+				Buffer = Bfr
+			ENDIF
+			
+			BufferBag		= BufferBagNum[Buffer]
+			BufferSettled 	= SettledBuffer[Buffer]
+			BufferCat 		= Bag[BufferBag].Cat
+			BufferDst 		= Bag[BufferBag].Dst
+						
+			DestValid = ((BufferDst >= 6) AND (BufferDst <= 12))
+			
+			IF (BufferSettled AND (BufferCat > 0) AND DestValid AND (Bag[298].Cat = 0)) THEN 
+				n = BufferDst
+				
+				IF ((n >= 6) AND (n <= 11) AND (Line[n].Space > 0) AND Line[n].Clear) THEN
+					Dest 	= n
+					Buff 	= Buffer
+					D[904] 	= 3 
+				ELSE IF (n = 12) THEN
+					Request.SP[2] = TRUE
+					IF Enable.SP[2] THEN
+						Dest 	= n
+						Buff 	= Buffer
+						D[904]  = 3 
+					ENDIF
+				ELSE
+					Alarm[4].Name 	= almDestinationNotValid
+					Alarm[4].Bag	= BufferBag
+				ENDIF
+			ENDIF
+			
+			;Buffer Alarms
+			;IF (BufferCat > 0) AND NOT BufferSettled THEN
+			;	Alarm[4].Name 	= almBagNotAtProx
+			;	Alarm[4].Bag	= BufferBag
+			;ELSE IF (BufferCat = 0) AND BufferSettled THEN
+			;	Alarm[4].Name 	= almBagNotShownOnScreen
+			;	Alarm[4].Bag	= BufferBag
+			;ENDIF
+			
+		ENDLOOP
+		
+	ENDIF	
+	
+ENDIF
+
+;Clear Line Selections
+LOOP n = 6 TO Std.MaxLines DO
+	LineSelect[n] = FALSE	 	
+ENDLOOP
+
+;Step 3 - Enable SVC2 or SVC3 to Release a bag
+IF (STEP = 3) THEN
+	
+	LineSelect[Dest] 		= TRUE
+	Request.SP[2]			= (Dest = 12)
+	
+	Enable.SVC2AtTop 		= (Buff = 1)
+	Enable.SVC3HighLevel 	= (Buff = 2) 
+		
+	IF PLS THEN
+		C[Dest] = 0
+		IF (Bag[298].Cat = 0) AND (Bag[BufferBagNum[Buff]].Cat > 0) THEN
+			Bag[298]				 	= Bag[BufferBagNum[Buff]]
+			Bag[BufferBagNum[Buff]]	 	= Bag[0]
+		ENDIF
+	ENDIF
+	
+	;Bag released from SVC2
+	IF ((Buff = 1) AND NOT Request.SVC2AtTop) THEN
+		D[904] = 4
+	ENDIF
+	
+	;Bag released from SVC3
+	IF ((Buff = 2) AND NOT Request.SVC3HighLevel) THEN
+		D[904] = 4
+	ENDIF
+	
+ENDIF
+
+
+;Step 4 - Select line / open buffer stop
+IF (STEP = 4) THEN
+			
+	LineSelect[Dest] 		= TRUE
+	Request.SP[2]			= (Dest = 12)
+		
+	;Bag arrived on selected line
+	IF Line[Dest].Trip THEN
+		D32[498] 						= Bag[298].Cus	;Set Customer for Customer FIFO
+		Bag[298].Dst 				= 0 		    ;Clear Destination
+		Bag[Line[Dest].LastBag] 	= Bag[298]
+		Bag[298] 					= Bag[0]
+		D[904] 						= 1
+	ENDIF
+	
+	Alarm[4].Name = almBagNotArrived
+
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[4].Name > 0) AND (AlarmOld = Alarm[4].Name)
+TimerAlarm.PT = Alarm[4].Time
+TimerAlarm FUB TON_10ms()
+Alarm[4].On = TimerAlarm.Q
+Alarm[4].ET = TimerAlarm.ET
+
+AlarmOld = Alarm[4].Name ;Need to ensure alarm changes as may be multiple alarms on step 2
+
+;Outputs
+Y[4].Y06 = LineSelect[6]
+Y[4].Y07 = LineSelect[7]
+Y[4].Y08 = LineSelect[8]
+Y[4].Y09 = LineSelect[9]
+Y[4].Y10 = LineSelect[10]
+Y[4].Y11 = LineSelect[11]
+Y[4].Y15 =  O_Reset
+
+
+END_PROGRAM
+

@@ -1,0 +1,54 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR CONSTANT
+	MAX_LOADING_UNITS : USINT := 2;
+END_VAR
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myBag : UINT;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	myOutBag : UINT;
+	myLuBag : ARRAY[0..MAX_LOADING_UNITS] OF UINT;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	ton_10ms_reset : TON_10ms := (0);
+	luWaitingLongest : getWaitingLongest := (0);
+	mySelectedLU_reg : UINT := 0;
+	loadingUnit : UINT := 0;
+	releaseValid : BOOL := 0;
+	o_openStops : ARRAY[0..MAX_LOADING_UNITS] OF BOOL := [0];
+	o_rotate : ARRAY[0..MAX_LOADING_UNITS] OF BOOL := [0];
+	o_straight : BOOL := FALSE;
+	i_bagInRotaryPoint_front : ARRAY[0..MAX_LOADING_UNITS] OF BOOL := [0];
+	i_bagInRotaryPoint_rear : ARRAY[0..MAX_LOADING_UNITS] OF BOOL := [0];
+	ton_SettledInPoint : TON_10ms := (0);
+	ton_rotatePoints : TON_10ms := (0);
+	switchCheck : BOOL := 0;
+	o_release : ARRAY[0..MAX_LOADING_UNITS] OF BOOL := [0];
+	releaseOk : BOOL := FALSE;
+	myRelLine : UINT := 0;
+	bufferSettleTime : UINT := 0;
+	line_release : REFERENCE TO Line_Typ;
+	i_bagAtBufferOut : BOOL := 0;
+	i_bufferOutOpen : BOOL := 0;
+	myPF : UINT := 0;
+	n : UINT := 0;
+END_VAR

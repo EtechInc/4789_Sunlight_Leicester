@@ -1,0 +1,7 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=28_cp16 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=117 Type=0 Scope=0 Force=0 Index=1 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                    STEP                                     UINT    0 "                                                               2"    0    6    1   10    1    0         
+                              RequestRel                              Enable_Vars    0 "                                                               *"    0   24    1    0    0    1         
+                                      DC                               BOOL[0..9]    0 "                                                               *"    1    1   10    0    0    1         
+                                   DC[8]                                     BOOL    0 "                                                           FALSE"    2    1    1    2    0    0         

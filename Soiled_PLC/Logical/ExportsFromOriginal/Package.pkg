@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Program" Language="IEC" Description="* Loading and Sorting belts">0_sbelt</Object>
+    <Object Type="Program" Language="IEC" Description="* Honeycombe Stations 1 - 16">1_stnsa</Object>
+    <Object Type="Program" Language="IEC" Description="* Transfer Belt 1">2_belt1</Object>
+    <Object Type="Program" Language="IEC" Description="* Loading unit SLU1">3_slu_1</Object>
+    <Object Type="Program" Language="IEC" Description="* Soiled Ongoing Transfer Lines 1 - 14">4_spn1</Object>
+    <Object Type="Program" Language="IEC" Description="* Soiled Offgoing Transfer Lines 1 - 14">5_spf1</Object>
+    <Object Type="Program" Language="IEC" Description="* SDC1 Machine 1 BIN/BCD">6_sdc1</Object>
+    <Object Type="Program" Language="IEC" Description="* SDC2 Machine 2 CAN">7_sdc2</Object>
+    <Object Type="Program" Language="IEC" Description="* SVC1 Up from SLU1 &amp; Loading">8_svc1</Object>
+    <Object Type="Program" Language="IEC" Description="* SIC1 Incline Conveyor 1">9_sic1</Object>
+    <Object Type="Program" Language="IEC" Description="* EBT Empty bag transfer from SDC2">10_ebt</Object>
+    <Object Type="Program" Language="IEC" Description="* SPI1 Pneumatic Incline Up 1">11_spi1</Object>
+    <Object Type="Program" Language="IEC" Description="* SP2 Empty bags from SDC1/2">12_sp2</Object>
+    <Object Type="Program" Language="IEC" Description="* SPC1 Empty bag down">13_spc1</Object>
+    <Object Type="Program" Language="IEC" Description="* SBSN1 Bagstacker Ongoing ">14_bson</Object>
+    <Object Type="Program" Language="IEC" Description="* SBSF1 Bagstacker Offgoing">15_bsoff</Object>
+    <Object Type="Program" Language="IEC" Description="* SDC3 Wash-extractors">16_sdc3</Object>
+    <Object Type="Program" Language="IEC" Description="* SVC2 Vertical Conveyor">17_svc2</Object>
+    <Object Type="DataObject" Language="Vc3" Description="Visualization">svc1</Object>
+    <Object Type="DataObject" Language="Simple" Description="* Powertrans 1 &amp; 2">can_cmd</Object>
+    <Object Type="Program" Language="IEC" Description="* PowerTrans 1 SDC2">can_drv2</Object>
+    <Object Type="Program" Language="IEC">can_dis</Object>
+    <Object Type="DataObject" Language="Simple">disp_cmd</Object>
+  </Objects>
+</Package>

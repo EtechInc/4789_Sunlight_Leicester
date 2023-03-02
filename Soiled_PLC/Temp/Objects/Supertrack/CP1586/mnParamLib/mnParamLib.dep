@@ -1,0 +1,12 @@
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_mnParam/mnParamLib/mnParamLib.fun
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_mnParam/mnParamLib/mnParamLib.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTime/astime.typ
+$(AS_PROJECT_PATH)/Logical/KanLink_A19/KGFramework/Pkg_mnParam/mnParamLib/mnParamLib.var
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTime/astime.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/sys_lib/sys_lib.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsString/asstring.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsBrStr/AsBrStr.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsBrWStr/AsBrWStr.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/runtime/runtime.var

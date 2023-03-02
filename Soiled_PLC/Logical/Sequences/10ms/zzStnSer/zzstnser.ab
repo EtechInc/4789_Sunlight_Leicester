@@ -1,0 +1,399 @@
+;-----------------------------------------------------
+;Sorting Station Search Routine - No changes required!
+;-----------------------------------------------------
+
+;----------------------------------------
+;Version 1.00 19/12/2005 First Issue D.J.
+;Version 2.00 03/11/2010 Revised D.J.
+;Version 3.00 19/07/2016 TR... Fix bug so multiple banks can release whilst purging..
+;----------------------------------------
+
+PROGRAM _CYCLIC
+
+;Only one Bank / Loading VC can search in a given scan.
+
+
+	
+myStartStop			= 100 ; Start of Start Stops
+
+IF myStartStop >= 100 THEN
+	myStartStop = myStartStop + 7600
+ENDIF		
+	
+	
+Bank = Bank + 1
+IF (Bank > Std.MaxStationBanks) THEN
+	Bank = 1
+ENDIF
+;Clear arrays
+LOOP n = 0 TO Std.MaxWeighstations DO	
+	BagInList[n] = FALSE
+	SearchBagArray[n] = 0		
+ENDLOOP	
+
+;Clear Array
+LOOP b = 1 TO 4 DO	
+	Std.StnsToPurge[b] = FALSE
+	LOOP n = 1 TO Ldg[b].NoStations DO	
+		x = Ldg[b].Stations[n]
+		IF Stn[x].Purge THEN
+			Std.StnsToPurge[b] = TRUE
+		ENDIF
+	ENDLOOP		
+	TON_Purge[b].IN = Std.StnsToPurge[b]
+	TON_Purge[b].PT = 100
+	TON_Purge[b] FUB TON_10ms()
+	//TON_10ms(Std.StnsToPurge,100,StartPurge,StartPurgeET) ; use a timer to wait for all purge events to be recieved from trackview
+ENDLOOP
+	
+MixCats			= (D[369] > 0)	
+MixCusts		= (D[366] > 0)	;Allow mixing of customers? 
+MixProgs		= (D[367] > 0)	;Allow mixing of Programs?
+MixProgTyp		= (D[368] > 0) 	;Allow mixing of Program Types?
+
+;Mix Options are enforced in Trackview - If we do it in the PLC we cannot turn off Mixing.	
+;IF MixProgTyp THEN
+;	D[367] = 1 //Mix Progs
+;	D[369] = 1 //Mix Cats	
+;ELSE IF MixProgs THEN					;IF mixing programs then category must be mixed also.....
+;	D[369] =  1 // Mix Cats
+;ENDIF
+
+;IF Std.ReversingBelt THEN	
+	MaxReverseWeight	= D[370]			;Max weight to reverse..	
+;ELSE
+;	MaxReverseWeight = 0
+;ENDIF		
+;Send Status to Trackview -- BitWise OR to look at all banks	
+	
+PurgeOn = (Std.PurgeBank[1].PurgeOn OR Std.PurgeBank[2].PurgeOn OR Std.PurgeBank[3].PurgeOn OR Std.PurgeBank[4].PurgeOn)	
+StatusReg[0] = (Std.PurgeBank[1].StationsStatus[0] OR Std.PurgeBank[2].StationsStatus[0] OR Std.PurgeBank[3].StationsStatus[0] OR Std.PurgeBank[4].StationsStatus[0])  	
+StatusReg[1] = (Std.PurgeBank[1].StationsStatus[1] OR Std.PurgeBank[2].StationsStatus[1] OR Std.PurgeBank[3].StationsStatus[1] OR Std.PurgeBank[4].StationsStatus[1])  	
+D[360] = PurgeOn
+memcpy(ADR(D[371]),ADR(StatusReg),4)	
+;Used by other sequences that need to check for Line[x].SpaceBIT direct
+;eg. Loading VC will look for Enable.Search = 3
+Enable.Search = Bank
+
+IF (Bank <= Std.MaxStationBanks) THEN
+	
+	IF (Ldg[Bank].Search = 1) THEN
+		StartPurge = TON_Purge[Bank].Q
+		Ldg[Bank].Found = 0
+		Ldg[Bank].Line  = 0
+
+		SearchFound = 0
+		SearchLine  = 0
+
+		Stn[0].QTime = 0
+
+		LOOP x = 1 TO Ldg[Bank].NoStations DO
+			n = Ldg[Bank].Stations[x]	
+			IF (Std.StnsToPurge[Bank] AND Std.AutoPurge) THEN	;Search through purge Stations to find bags that can be mixed		
+				
+				IF Bank = 1 THEN	
+					Break	
+;					IF NOT TestTim THEN
+;						GOTO Debug
+;					ENDIF		
+				ELSE IF Bank = 2 THEN	
+					Break
+				ENDIF		
+				;Purge doesn;t need to be in x loop so exit if > 1	
+				EXITIF x > 1
+				IF StartPurge THEN
+					PurgeBatchSize	= 0	
+					BatchFound = FALSE
+					; 1st put all bags to be searched into an array to reduce scanning through all stations bags	
+					//LOOP r = 0 TO Std.MaxWeighstations DO	
+					LOOP r = 1 TO Ldg[Bank].NoStations DO
+						Std.PurgeBank[Bank].PurgeBatch[r] = 0
+						n = Ldg[Bank].Stations[r]	
+						IF Stn[n].Purge AND (Stn[n].Weight > 0) AND NOT BagInList[n] THEN //AND (r >= Ldg[Bank].StartStn) AND (r <= Ldg[Bank].EndStn)  THEN	
+							SearchBagArray[Ldg[Bank].NoStations] = LDG_GetBagFromStation(Std.StationBagsStart,n) 		
+							BagInList[n] = TRUE
+						ENDIF
+						;Shuffle array					
+						LOOP s = Ldg[Bank].NoStations DOWNTO 1 DO	
+							IF (SearchBagArray[s-1] = 0) AND (SearchBagArray[s] > 0) THEN		
+								SearchBagArray[s-1] = SearchBagArray[s]
+								SearchBagArray[s] = 0
+								EndofBagArray = (s - 1)
+							ENDIF
+						ENDLOOP
+					ENDLOOP
+					;LOOP r = 0 TO EndofBagArray DO ; Start Searching through bags 
+					r = 0 ;Only search through from 1st bag in array as we already know it is to purge
+					ReSearch = FALSE
+					MisMatchedLoad = FALSE
+					SearchIndex = 0
+					StartSearch: ;Marker to re-search
+					IF ReSearch THEN
+						r = SearchIndex
+					ENDIF		
+					LOOP s = 0 TO Std.MaxWeighstations DO
+						PurgeBags[s] = 0
+					ENDLOOP	
+					LOOP s = EndofBagArray DOWNTO 0 DO
+						myBag_n = SearchBagArray[r]
+						myBag_x = SearchBagArray[s]
+						MatchCust = FALSE
+						MatchCat = FALSE
+						MatchProgType = FALSE
+						MatchProg = FALSE	
+						BankValid = TRUE;((myBag_n >= Ldg[Bank].StartStn) AND (myBag_n <= Ldg[Bank].EndStn) AND (myBag_x >= Ldg[Bank].StartStn) AND (myBag_x <= Ldg[0].EndStn)) 
+						
+						;Check customer 1st
+						IF (Bag[myBag_n].Cus = Bag[myBag_x].Cus) OR MixCusts THEN
+							MatchCust = TRUE	
+						ENDIF	
+						IF (Bag[myBag_n].Cat = Bag[myBag_x].Cat) OR MixCats THEN
+							MatchCat = TRUE							
+						ENDIF
+						IF (Bag[myBag_n].Prg = Bag[myBag_x].Prg) OR MixProgs THEN
+							MatchProg = TRUE							
+						ENDIF 	
+						IF (D[2900 + Bag[myBag_n].Prg] = D[2900 + Bag[myBag_x].Prg]) OR MixProgTyp THEN
+							MatchProgType = TRUE							
+						ENDIF
+						
+						MatchBags = (MatchCust AND MatchCat AND MatchProg AND MatchProgType AND BankValid)
+						IF MatchBags THEN ; Put bag into another array so they can be best matched by weight
+							;PurgeBags[0] = myBag_n	
+							PurgeBags[Std.MaxWeighstations] = myBag_x
+							LOOP t = Std.MaxWeighstations DOWNTO 1 DO	
+								IF (PurgeBags[t] > 0) AND (PurgeBags[t-1] = 0) THEN
+									PurgeBags[t -1] = PurgeBags[t]
+									PurgeBags[t] = 0
+									PurgeBatchSize	= t
+								ENDIF	
+							ENDLOOP
+						ENDIF	
+					ENDLOOP ; Ony research if no matching bags, and the bag searched is to small for a batch
+					//Get Total weight of batch to see if matched bags meet minumum weight criteria.
+					myBatchWgt = 0
+					LOOP t = 0 TO PurgeBatchSize DO	
+						myBatchWgt = myBatchWgt + Bag[PurgeBags[t]].Wgt			
+					ENDLOOP	
+					//IF ((PurgeBatchSize = 1) AND (Bag[PurgeBags[0]].Wgt < MaxReverseWeight)) THEN 
+					IF ((PurgeBatchSize >= 1) AND (myBatchWgt < MaxReverseWeight)) THEN 
+						ReSearch = TRUE		
+						INC SearchIndex 
+						;Check when all bags have been searched... 	
+						IF (SearchBagArray[SearchIndex] = 0) THEN	
+							;INC SearchIndex 
+							;The only bags left cannot be put in the same bag and should be classified as a mixed load.		
+							MisMatchedLoad = (SearchIndex > 1)
+							LOOP y = 0 TO SearchIndex - 1 DO
+								PurgeBags[y] = 	SearchBagArray[y]
+							ENDLOOP	
+							PurgeBatchSize = SearchIndex
+						ELSE	
+							GOTO StartSearch
+						ENDIF			
+					ENDIF		
+							
+					;ENDLOOP
+					;Matching bags are in the array Purge Bags. Try to fit into a load?
+					;Bag 0 in the array is that master.. This is the data that will go into a bag.. so we will get the batch weight from this program code.
+					;Put all bag into wieght order highest first..
+					LOOP r = 0 TO 30 DO
+						BagInList[r] = FALSE
+						PurgeBagsInWgtOrder[r] = 0 
+					ENDLOOP	
+						
+					IF (PurgeBatchSize > 0) THEN
+						//Find the lowest SP3 from all bag in the purge array...
+						MaxBatchWieght = 0
+						LOOP r = 0 TO ((SIZEOF(PurgeBags)/SIZEOF(PurgeBags[0])) - 1) DO
+							EXITIF PurgeBags[r] = 0	
+							GetStn =  (PurgeBags[r] - Std.StationBagsStart + 1)
+							IF (GetStn <= Std.MaxWeighstations) AND (D[4900 + GetStn] > 0) AND ((MaxBatchWieght > D[4900 + GetStn]) OR (MaxBatchWieght = 0))    THEN 
+								MaxBatchWieght = D[4900 + GetStn] ;SP3
+							ENDIF
+						ENDLOOP
+							
+						IF (MaxBatchWieght = 0) OR (MaxBatchWieght <= MaxReverseWeight) THEN
+							 MaxBatchWieght = MaxReverseWeight + 100      
+						ENDIF
+						
+						LOOP r = 0 TO (PurgeBatchSize - 1) DO					
+							BagWgt = 0
+							LOOP s = 0 TO (PurgeBatchSize - 1) DO				
+								IF (Bag[PurgeBags[s]].Wgt > 0) AND (Bag[PurgeBags[s]].Wgt > BagWgt) AND NOT BagInList[s] THEN 
+									BagWgt = Bag[PurgeBags[s]].Wgt 
+									BagNum = PurgeBags[s]
+									Index = s
+								ENDIF
+							ENDLOOP
+							PurgeBagsInWgtOrder[r] = BagNum 
+							BagInList[Index] = TRUE
+						ENDLOOP ;	
+						IF (MaxBatchWieght > MaxReverseWeight) AND (Bag[PurgeBagsInWgtOrder[0]].Wgt > 0)THEN ; Check no errors in batch sizes.. Reverse all loads if fault
+							;Now bags are in weight order make the best by adding the highest values until bag is full
+							BatchWeight = 0
+							PurgeBagsQty = 0
+							;IF (Bag[PurgeBagsInWgtOrder[0]].Wgt  < MaxBatchWieght) THEN
+							BatchWeight = Bag[PurgeBagsInWgtOrder[0]].Wgt 	
+							BatchCount = Bag[PurgeBagsInWgtOrder[0]].Cnt
+							Std.PurgeBank[Bank].PurgeBatch[0] = PurgeBagsInWgtOrder[0]
+							;ENDIF	
+							LOOP r = 1 TO PurgeBatchSize DO ; Start from 1 as index 0 is highest weight so always in the array
+								myBag = PurgeBagsInWgtOrder[r]
+								IF ((Bag[myBag].Wgt + BatchWeight) <= MaxBatchWieght) THEN	
+									BatchWeight = Bag[myBag].Wgt + BatchWeight
+									BatchCount = Bag[myBag].Cnt + BatchCount 
+									Std.PurgeBank[Bank].PurgeBatch[PurgeBatchSize] = myBag
+									PurgeBagsQty = PurgeBagsQty + 1 
+								ENDIF	
+								;Shuffle down array	
+								LOOP s = PurgeBatchSize DOWNTO 1 DO
+									IF (Std.PurgeBank[Bank].PurgeBatch[s] > 0) AND (Std.PurgeBank[Bank].PurgeBatch[s - 1] = 0) THEN 
+										Std.PurgeBank[Bank].PurgeBatch[s - 1] = Std.PurgeBank[Bank].PurgeBatch[s] 	
+										Std.PurgeBank[Bank].PurgeBatch[s] = 0
+									ENDIF
+								ENDLOOP	
+								IF (r = PurgeBatchSize) AND (Std.PurgeBank[Bank].PurgeBatch[0] > 0) THEN
+									BatchFound = TRUE
+								ENDIF
+							EXITIF BatchFound = TRUE
+							ENDLOOP
+						ENDIF
+;					ELSE
+;						GOTO ExitPurge ;Invalid purge..
+					ENDIF		
+					IF BatchFound AND NOT MisMatchedLoad THEN ;Bags found;	
+						IF (BatchWeight >=  MaxReverseWeight) THEN ; Wieght it OK purge into Bag search for destination.
+							
+							IF Std.AutoLineAllocation THEN	
+								SearchFound  		= 99
+								SearchLine   		= 0;LineSearch[Choice]
+								Ldg[Bank].Search   	= 2		
+							ELSE	;
+								;Check line choice 1st to 4th in order if any valid then exit loop	
+								;StnNum = (Std.PurgeBank[Bank].PurgeBatch[0] - (Std.StationBagsStart[Bank] - Ldg[Bank].StartStn)) ; Get station number from Bag number.		
+								StnCat =  Bag[Std.PurgeBank[Bank].PurgeBatch[0]].Prg
+									
+								LineSearch[1]   = D[3000 + StnCat]
+								LineSearch[2]   = D[3100 + StnCat]
+								LineSearch[3]   = D[3200 + StnCat]
+								LineSearch[4]   = D[3300 + StnCat]
+									
+								LOOP Choice = 1 TO 4 DO
+									LineValid = (D[myStartStop + LineSearch[Choice]] > 0) 	
+									IF (LineSearch[Choice] > 0) AND (Line[LineSearch[Choice]].SpaceBIT >= 1) AND LineValid THEN
+										SearchFound  		= 99
+										SearchLine   		= LineSearch[Choice]
+										Ldg[Bank].Search   	= 2	
+									ENDIF
+									EXITIF (SearchFound > 0)
+								ENDLOOP	
+							ENDIF
+						ELSE ; Load/s is to small reverse.		
+
+							SearchFound  		= 98
+							SearchLine   		= 0
+							Ldg[Bank].Search   	= 2			
+						ENDIF	
+					ELSE IF MisMatchedLoad THEN
+						SearchFound  		= 97
+						SearchLine   		= 0
+						Ldg[Bank].Search   	= 2			
+					ENDIF	
+					IF SearchFound > 90 THEN ;If bags are found remove from purging Q
+						Std.PurgeBank[Bank].PurgeBagQty	= PurgeBagsQty
+						
+						Std.PurgeBank[Bank].PurgeBatchWieght = BatchWeight		
+						Std.PurgeBank[Bank].PurgeBatchCount	= BatchCount
+;						LOOP r = 0 TO PurgeBagsQty - 1 DO
+;							IF (Std.PurgeBank[Bank].PurgeBatch[r] > 0) THEN		
+;								StnNum = (Std.PurgeBank[Bank].PurgeBatch[r] - (Std.StationBagsStart[Bank] - Ldg[Bank].StartStn))
+;								;Stn[StnNum].QTime = 0	
+;								;Stn[StnNum].Purge = FALSE
+;							ENDIF		
+;						ENDLOOP
+					ENDIF
+				ENDIF
+			ELSE IF ((Stn[n].QTime > 10) AND (Stn[n].QTime > Stn[0].QTime)) OR (TEST) THEN
+
+				;Destination has been given to bag by operator check
+				LineSearchManual = Stn[n].DestManual
+
+				IF Std.AutoLineAllocation THEN
+					
+					;Automatic Line Allocation - Line Space is never checked even if a destiantion has been edited
+					SearchFound  		= n
+					SearchLine   		= LineSearchManual
+					Stn[0].QTime 		= Stn[n].QTime
+					Ldg[Bank].Search   	= 2
+							
+				ELSE
+					;1st 2nd 3rd and 4th Line choices
+					LineSearch[1]   = D[4000 + n]
+					LineSearch[2]   = D[4100 + n]
+					LineSearch[3]   = D[4200 + n]
+					LineSearch[4]   = D[4300 + n]
+
+					;Always Search for at least 1 space
+					IF (Stn[n].SpacesRequired = 0) THEN
+						Stn[n].SpacesRequired = 1
+					ENDIF
+
+					;When manual is selected then the 1st 2nd 3rd and 4th are not checked
+					IF (LineSearchManual > 0) THEN
+						IF (Line[LineSearchManual].SpaceBIT > 0) THEN
+							SearchFound  		= n
+							SearchLine   		= LineSearchManual
+							Stn[0].QTime 		= Stn[n].QTime
+							Ldg[Bank].Search   	= 2
+						ENDIF
+					ELSE
+							;Check line choice 1st to 4th in order if any valid then exit loop
+						
+						LOOP Choice = 1 TO 4 DO
+							;Choice = 1
+							LineValid = (D[myStartStop + LineSearch[Choice]] > 0) 
+							IF (LineSearch[Choice] > 0) AND (LineSearch[Choice] < 7) AND (Line[LineSearch[Choice]].SpaceBIT >= Stn[n].SpacesRequired) AND LineValid THEN
+								SearchFound  		= n
+								SearchLine   		= LineSearch[Choice]
+								Stn[0].QTime 		= Stn[n].QTime
+								Ldg[Bank].Search   	= 2
+
+							ENDIF
+							EXITIF (SearchFound > 0)
+
+							IF (LineSearch[Choice] > 13) AND (D[LineSearch[Choice]]>0) THEN
+								IF (Line[9].SpaceBIT > 0) THEN
+									SearchFound  		= n
+									SearchLine   		= LineSearch[Choice]
+									Stn[0].QTime 		= Stn[n].QTime
+									Ldg[Bank].Search   	= 2
+								ENDIF
+							ENDIF
+
+						ENDLOOP
+
+					ENDIF
+				
+				ENDIF ;/AutoLineAllocation
+				
+			ENDIF
+
+		ENDLOOP
+		
+		ExitPurge:	
+		IF (Ldg[Bank].Search = 2) THEN
+			Ldg[Bank].Found  = SearchFound
+			Ldg[Bank].Line   = SearchLine
+		ELSE
+			Ldg[Bank].Search = 0 ;Failed
+		ENDIF
+
+	ENDIF
+ENDIF
+Debug:
+
+	
+
+END_PROGRAM
+

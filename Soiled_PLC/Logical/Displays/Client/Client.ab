@@ -1,0 +1,189 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: Client
+ * File: Client.ab
+ * Author: Dave
+ * Created: December 06, 2010
+ ********************************************************************
+ * Implementation of program Client
+ ********************************************************************)
+
+;Version 1.00 12/12/2010 D.J. First Issue
+;Version 2.00 22/07/2011 D.J. Added sckWaitSync - Improve Sync between Slave and Master
+
+PROGRAM _INIT
+	
+	IF ((IdentRetain > 0) AND (Client.TcpOpen_0.ident = 0)) THEN
+		Client.TcpOpen_0.ident = IdentRetain
+	ENDIF
+	
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	ClientText
+	;Sending and Recieving Syc / Speed from Server
+	ScanClock 		= clock_ms()  
+	ScanNow 		= (ScanClock - ScanLastClock)
+	ScanLastClock 	= ScanClock
+	ScanCount 		= (ScanCount + UINT(ScanNow))
+	
+	
+	;Init Ethernet Socket - Pause after any close etc
+	TON_10ms_0.IN = (SocketState = sckClosed)
+	TON_10ms_0.PT = 100
+	TON_10ms_0 FUB TON_10ms()
+	
+	IF TON_10ms_0.Q THEN
+		SocketState = sckConnecting
+	ENDIF
+	
+	;Close Ethernet Socket	
+	IF SocketState = sckError THEN
+		
+		Client.TcpClose_0.enable 	= TRUE
+		Client.TcpClose_0.ident 	= Client.TcpOpen_0.ident
+		Client.TcpClose_0.how 		= 0						;tcpSHUT_RD OR tcpSHUT_WR;
+		Client.TcpClose_0 FUB TcpClose()
+	
+		IF Client.TcpClose_0.status = 0 THEN
+			SocketState = sckClosed
+		ELSE IF Client.TcpClose_0.status = ERR_FUB_BUSY THEN  	
+		 	;Busy	
+		ELSE IF Client.TcpClose_0.status = tcpERR_INVALID_IDENT THEN
+			SocketState = sckClosed
+		ELSE IF Client.TcpClose_0.status = tcpERR_NOT_CONNECTED THEN
+			SocketState = sckClosed
+		ELSE IF Client.TcpOpen_0.status <> ERR_FUB_BUSY THEN
+			SocketState = sckConnecting
+		ENDIF
+	
+	ENDIF
+	
+	;Open Ethernet Socket
+	IF SocketState = sckConnecting THEN
+		Client.TcpOpen_0.enable  	= TRUE	
+		Client.TcpOpen_0.pIfAddr 	= 0					;Which Interface to open 
+		Client.TcpOpen_0.port 		= 12001				;Client Port
+		Client.TcpOpen_0.options 	= 0	
+		Client.TcpOpen_0 FUB TcpOpen() 							
+					
+		IF Client.TcpOpen_0.status = 0 THEN  
+			SocketState = sckSetLinger ;sckConnected
+			IdentRetain = Client.TcpOpen_0.ident
+		ELSE IF Client.TcpOpen_0.status = ERR_FUB_BUSY THEN  		
+		 	;Busy	
+		ELSE IF Client.TcpOpen_0.status = tcpERR_ALREADY_EXIST THEN
+			SocketState = sckError
+		ELSE IF Client.TcpOpen_0.status = tcpERR_SOCKET_BIND THEN
+			SocketState = sckError
+		ELSE  
+			SocketState = sckError	
+		ENDIF	
+	ENDIF
+	
+	;Set Open Linger Options
+	IF SocketState = sckSetLinger THEN
+		
+		Client.linger_opt.lLinger 	= 0 ;Linger Time = 0
+		Client.linger_opt.lOnOff	= 1	;Linger Option On
+		
+		Client.TcpIoctl_0.enable 	= TRUE
+		Client.TcpIoctl_0.ident 	= Client.TcpOpen_0.ident
+		Client.TcpIoctl_0.ioctl		= tcpSO_LINGER_SET
+		Client.TcpIoctl_0.pData		= ADR(Client.linger_opt)
+		Client.TcpIoctl_0.datalen 	= SIZEOF(Client.linger_opt)
+		Client.TcpIoctl_0 FUB TcpIoctl()
+		
+		IF Client.TcpIoctl_0.status = 0 THEN
+			SocketState = sckConnected
+		ELSE IF Client.TcpIoctl_0.status = ERR_FUB_BUSY THEN  (* TcpIoctl not finished -> redo *)			
+			;Busy		
+		ELSE  
+			SocketState = sckError	
+		ENDIF	
+	ENDIF
+	
+	;Connect to server
+	IF SocketState = sckConnected THEN
+		
+		Client.TcpClient_0.enable 	= TRUE
+		Client.TcpClient_0.ident 	= Client.TcpOpen_0.ident 	;Connection Ident from AsTCP.TCP_Open
+		Client.TcpClient_0.portserv = 12000						;Server port number
+		Client.TcpClient_0.pServer 	= ADR(ClientServerIP)			;Server IP Adderss	
+		Client.TcpClient_0 FUB TcpClient()
+		
+		IF Client.TcpClient_0.status = 0 THEN  
+			SocketState = sckSend	
+		ELSE IF Client.TcpClient_0.status = ERR_FUB_BUSY THEN  	
+			;Busy  
+		ELSE IF Client.TcpClient_0.status = tcpERR_INVALID THEN  
+			SocketState = sckError
+		ELSE IF Client.TcpClient_0.status = tcpERR_NOT_CONNECTED THEN
+			SocketState = sckClosed
+		ELSE  
+			SocketState = sckError	
+		ENDIF
+			
+	ENDIF
+	
+	;Send Data
+	IF SocketState = sckSend THEN
+		
+		Client.TcpSend_0.enable 	= TRUE				
+		Client.TcpSend_0.ident 		= Client.TcpOpen_0.ident
+		Client.TcpSend_0.pData 		= ADR(ClientSend)	;Address of send data
+		Client.TcpSend_0.datalen 	= SIZEOF(ClientSend);Length of send data										
+		Client.TcpSend_0.flags 		= 0
+		Client.TcpSend_0 FUB TcpSend()
+			
+		IF Client.TcpSend_0.status = 0 THEN  
+			SocketState = sckReceive
+		ELSE IF Client.TcpSend_0.status = ERR_FUB_BUSY THEN  	
+			;Busy
+		ELSE IF (Client.TcpSend_0.status = tcpERR_SENTLEN) OR (Client.TcpSend_0.status = tcpERR_NOT_CONNECTED) THEN 
+			SocketState = sckError
+		ELSE  
+			SocketState = sckError	
+		ENDIF
+		
+	ENDIF
+	
+	IF SocketState = sckReceive THEN
+		
+		Client.TcpRecv_0.enable 	= TRUE
+		Client.TcpRecv_0.ident 		= Client.TcpOpen_0.ident			;Connection Ident from AsTCP.TCP_Open
+		Client.TcpRecv_0.pData		= ADR(ClientReceive)	;Where to store the incoming data
+		Client.TcpRecv_0.datamax 	= SIZEOF(ClientReceive)	;Lenght of data buffer
+		Client.TcpRecv_0.flags 		= 0
+		Client.TcpRecv_0 FUB TcpRecv()
+	
+		IF Client.TcpRecv_0.status = 0 THEN  (* Data was received sucessfully -> Send next packet *)
+			SocketState 			= sckWaitSync
+		ELSE IF Client.TcpRecv_0.status = tcpERR_NO_DATA THEN  (* No data received - wait *)
+		    IF Client.recv_timeout > 10 THEN
+ 		    	SocketState = sckError	
+		  	ENDIF
+		ELSE IF Client.TcpRecv_0.status = ERR_FUB_BUSY THEN  	
+			;Busy
+		ELSE IF Client.TcpRecv_0.status = tcpERR_NOT_CONNECTED THEN 		
+			SocketState = sckError
+		ELSE  
+			SocketState = sckError	
+		ENDIF
+		
+		Client.recv_timeout = Client.recv_timeout + 1
+	ELSE IF SocketState <> sckReceive THEN	
+		Client.recv_timeout = 0
+	ENDIF
+	
+	;Wait until SyncStart (Master controls the connection communication speed)
+	IF SocketState = sckWaitSync THEN
+		IF (ScanCount >= ClientReceive[0].CycleSync_ms) THEN
+			ScanCount 	= 0
+			SocketState	= sckSend
+		ENDIF
+	ENDIF
+	
+END_PROGRAM

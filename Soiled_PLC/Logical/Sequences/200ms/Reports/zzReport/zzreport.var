@@ -1,0 +1,25 @@
+VAR RETAIN
+	ReportID : UDINT;
+END_VAR
+VAR
+	n : UINT;
+	ReportPointer : UINT;
+	MaxReportBuffer : UINT;
+	MaxReportLoading : UINT;
+	MaxReportUnloading : UINT;
+	TestUnloadingCat : UINT;
+	AddUnloading : BOOL;
+	AddRepport : BOOL;
+	AddReport : BOOL;
+	AddStn : UDINT;
+	AddMcn : UDINT;
+	AddMis : UDINT;
+	AddBid : UDINT;
+	AddCat : UDINT;
+	AddCus : UDINT;
+	AddWgt : UINT;
+	AddAct : UINT;
+	AddUr1 : UDINT;
+	AddUr2 : UDINT;
+	AddRkg : UDINT;
+END_VAR

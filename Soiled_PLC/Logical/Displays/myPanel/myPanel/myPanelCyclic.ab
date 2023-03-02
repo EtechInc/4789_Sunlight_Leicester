@@ -1,0 +1,200 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: myPanel
+ * File: myPanelCyclic.ab
+ * Author: Administrator
+ * Created: February 23, 2009
+ ********************************************************************
+ * Implementation of program myPanel
+ ********************************************************************)
+
+PROGRAM _CYCLIC
+	
+	;----------
+	;SVC6 Panel
+	;----------
+
+	strcpy(ADR(PanelData[1].Text),"Sortierstand")
+	;memcpy(ADR(PanelData[1].Text),ADR(zzGetNamesData[2].CatName),20)
+	
+	PanelData[1].Min 		= 0
+	PanelData[1].Max		= Std.MaxCats
+	PanelData[1].Locking 	= 0 ;0 = Locked
+	
+	IF (PanelData[1].Completion = 1) THEN
+		;D[701] = PanelData[1].Datapoint
+		PanelData[1].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[1].Datapoint = DINT(Bag[199].Cat)
+	ENDIF
+	
+	;strcpy(ADR(PanelData[2].Text),"Category")
+	memcpy(ADR(PanelData[2].Text),ADR(zzGetNamesData[2].CusName),20)	
+	
+	PanelData[2].Min 		= 0
+	PanelData[2].Max		= Std.MaxCust
+	PanelData[2].Locking 	= 0 ; 0 = Locked
+	
+	IF (PanelData[2].Completion = 1) THEN
+		;Bag[399].Cat = UDINT(PanelData[2].Datapoint)
+		PanelData[2].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[2].Datapoint = DINT(Bag[199].Cus)
+	ENDIF
+	
+	
+	
+	strcpy(ADR(PanelData[3].Text),"Beladeband")
+	;memcpy(ADR(PanelData[3].Text),ADR(zzGetNamesData[1].CatName),20)
+	
+	PanelData[3].Min 		= 0
+	PanelData[3].Max		= Std.MaxCats
+	PanelData[3].Locking 	= 1 ; 0 = Locked
+	
+	IF (PanelData[3].Completion = 1) THEN
+		
+		Bag[198].Cat = UDINT(PanelData[3].Datapoint)
+		PanelData[3].Completion = 0
+	ELSE
+		;Show Data Here
+		Bag[198].Prg = USINT(zzGetDBData[2].Prg)
+		PanelData[3].Datapoint = DINT(Bag[198].Cat)
+	ENDIF
+	
+	;strcpy(ADR(PanelData[4].Text),"Destination")
+
+	memcpy(ADR(PanelData[4].Text),ADR(zzGetNamesData[1].CusName),20)	
+
+	PanelData[4].Min 		= 0
+	PanelData[4].Max		= Std.MaxCust
+	PanelData[4].Locking 	= NOT (SB2Status = 2);1 ; 0 = Locked
+	
+	IF (PanelData[4].Completion = 1) THEN
+		Bag[198].Cus = UDINT(PanelData[4].Datapoint)
+		PanelData[4].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[4].Datapoint = DINT(Bag[198].Cus)
+	ENDIF
+	
+	;Weight
+	;Length = itoa(DINT(Bag[399].Wgt / 10),ADR(myString))
+	;strcpy(ADR(myString[Length]),"kg")
+	
+	;strcpy(ADR(PanelData[5].Text),ADR(myString))
+	strcpy(ADR(PanelData[5].Text),"Beladeband")
+	
+	IF EDGEPOS(PanelData[5].Status = 1) AND (D[11] = 0) THEN
+		D[11] = TRUE
+	ELSE IF EDGEPOS(PanelData[5].Status = 0) AND (D[11] = 1) THEN
+		D[11] = FALSE
+	ENDIF
+			PanelData[5].Status = D[11]
+	;Messages
+	IF SB2Status = 0 THEN
+		strcpy(ADR(PanelData[6].Text),"Bereit")		
+	ELSE IF SB2Status = 1 THEN
+		strcpy(ADR(PanelData[6].Text),"Kundenwechsel -Stopp")
+	ELSE IF SB2Status = 2 THEN
+		strcpy(ADR(PanelData[6].Text),"Kundenwechsel")
+	ELSE IF SB2Status = 7 THEN
+		strcpy(ADR(PanelData[6].Text),"Datei nicht gefunden!")
+	ENDIF
+(*	;Messages
+	IF VCStatus[6] = 0 THEN
+		strcpy(ADR(PanelData[6].Text),"")		
+	ELSE IF VCStatus[6] = 1 THEN
+		strcpy(ADR(PanelData[6].Text),"Destination not valid!")
+	ELSE IF VCStatus[6] = 2 THEN
+		strcpy(ADR(PanelData[6].Text),"Category not valid!")
+	ELSE IF VCStatus[6] = 3 THEN
+		strcpy(ADR(PanelData[6].Text),"Customer not valid!")
+	ELSE IF VCStatus[6] = 5 THEN
+		strcpy(ADR(PanelData[6].Text),"No bag on carriage!")
+	ELSE IF VCStatus[6] = 6 THEN
+		strcpy(ADR(PanelData[6].Text),"Destination not valid!")
+	ELSE IF VCStatus[6] = 7 THEN
+		strcpy(ADR(PanelData[6].Text),"Program not valid!")
+	ENDIF
+*)		
+	;----------
+	;SLU1 Panel
+	;----------
+	
+	strcpy(ADR(PanelData[11].Text),"Program")
+	
+	PanelData[11].Min 		= 0
+	PanelData[11].Max		= 99
+	PanelData[11].Locking 	= 0 ;0 = Locked
+	
+	IF (PanelData[11].Completion = 1) THEN
+		;D[701] = PanelData[1].Datapoint
+		PanelData[11].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[11].Datapoint = DINT(Bag[400].Prg)
+	ENDIF
+	
+	strcpy(ADR(PanelData[12].Text),"Category")
+	
+	PanelData[12].Min 		= 0
+	PanelData[12].Max		= Std.MaxCats
+	PanelData[12].Locking 	= 1 ; 0 = Locked
+	
+	IF (PanelData[12].Completion = 1) THEN
+		Bag[400].Cat = UDINT(PanelData[12].Datapoint)
+		PanelData[12].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[12].Datapoint = DINT(Bag[400].Cat)
+	ENDIF
+	
+	
+	
+	strcpy(ADR(PanelData[13].Text),"Customer")
+	
+	PanelData[13].Min 		= 0
+	PanelData[13].Max		= Std.MaxCust
+	PanelData[13].Locking 	= 1 ; 0 = Locked
+	
+	IF (PanelData[13].Completion = 1) THEN
+		Bag[400].Cus = UDINT(PanelData[13].Datapoint)
+		PanelData[13].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[13].Datapoint = DINT(Bag[400].Cus)
+	ENDIF
+	
+	strcpy(ADR(PanelData[14].Text),"Destination")
+	
+	PanelData[14].Min 		= 0
+	PanelData[14].Max		= 99
+	PanelData[14].Locking 	= 1 ; 0 = Locked
+	
+	IF (PanelData[14].Completion = 1) THEN
+		Bag[400].Dst = USINT(PanelData[14].Datapoint)
+		PanelData[14].Completion = 0
+	ELSE
+		;Show Data Here
+		PanelData[14].Datapoint = DINT(Bag[400].Dst)
+	ENDIF
+		
+		;Weight
+	Length = itoa(DINT(Bag[400].Wgt / 10),ADR(myString))
+	strcpy(ADR(myString[Length]),"kg")
+	
+	strcpy(ADR(PanelData[15].Text),ADR(myString))
+	
+	;Messages
+	IF SB2Status = 0 THEN
+		strcpy(ADR(PanelData[16].Text),"")		
+	ELSE IF SB2Status = 1 THEN
+		strcpy(ADR(PanelData[16].Text),"Linen Over-Weight")
+	ELSE IF SB2Status = 7 THEN
+		strcpy(ADR(PanelData[16].Text),"Program not valid!")
+	ENDIF
+	
+END_PROGRAM

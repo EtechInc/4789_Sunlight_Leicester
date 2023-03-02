@@ -1,0 +1,31 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: ClientPanel
+ * File: ClientPanel.var
+ * Author: Dave
+ * Created: December 09, 2010
+ ********************************************************************
+ * Local variables of program ClientPanel
+ ********************************************************************)
+VAR
+	panelStatus : UINT;
+	CfgGetIPAddr_0 : CfgGetIPAddr;
+	CfgGetSubnetMask_0 : CfgGetSubnetMask;
+	CfgGetDefaultGateway_0 : CfgGetDefaultGateway;
+	CfgGetBroadcastAddr_0 : CfgGetBroadcastAddr;
+	TON_10ms_0 : TON_10ms;
+	TimedOut : BOOL;
+	CfgSetIPAddr_0 : CfgSetIPAddr;
+	CfgSetSubnetMask_0 : CfgSetSubnetMask;
+	CfgSetDefaultGateway_0 : CfgSetDefaultGateway;
+	CfgSetBroadcastAddr_0 : CfgSetBroadcastAddr;
+	SysResetStatus : UINT;
+	myVC_Handle : UDINT;
+	myBrightness : UDINT;
+	pnlBrightness : UDINT;
+	length : UINT;
+	IP_Replace_0 : IP_Replace;
+	ColdStart : BOOL;
+	NewIPAddress : STRING[16];
+END_VAR

@@ -1,0 +1,15 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: Data_BackUp
+ * File: Data_BackUp.var
+ * Author: treamsbottom
+ * Created: March 20, 2014
+ ********************************************************************
+ * Variables of package Data_BackUp
+ ********************************************************************)
+VAR CONSTANT
+	cBackUp_FromSYSROM : USINT := 1;
+	cBackUp_FromUSB : USINT := 2;
+	cBackUp_StartWithoutRestore : USINT := 10;
+END_VAR

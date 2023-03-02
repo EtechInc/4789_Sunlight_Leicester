@@ -1,0 +1,4 @@
+VAR
+	n : USINT;
+	x : USINT;
+END_VAR

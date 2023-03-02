@@ -1,0 +1,263 @@
+PROGRAM _CYCLIC
+ 	(* cyclic program *)
+
+;Sequence 2 - Transfer Belt 1 from Stations 1-12
+
+;-----------------------------------------
+;Revision 1.00 18/01/2006 D.J. First Issue
+;-----------------------------------------
+
+;Inputs and Outputs
+;------------------
+
+;Bank 						= 1
+
+I_PhotoBottomSDC1LoadDropped = X[3].X09
+I_PhotoMiddleBelt  			 = X[3].X12
+I_PhotocellAtEnd             = X[5].X16
+I_OpenBag                    = X[3].X05
+I_LoadDropped                = X[3].X06
+
+
+Enable.SDC1Drop          	= FALSE
+
+O_RunBelt 					= FALSE
+O_BagReady                  = FALSE
+
+Alarm[10].Name 				= 0
+Alarm[10].Bag				= 160
+Alarm[10].Beacon			= TRUE
+Alarm[10].Extra				= 0
+Alarm[10].Time				= 5000
+
+
+
+STEP = D[910]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Step 0 - Disabled
+IF STEP = 0 THEN
+	;Disabled
+ENDIF
+
+;Step 1 - Run belt till clear
+TON_10ms(((STEP = 1) AND NOT I_PhotoBottomSDC1LoadDropped AND NOT I_PhotoMiddleBelt AND NOT I_PhotocellAtEnd),500,BeltClear,BeltClearET)
+IF STEP = 1 THEN
+	O_RunBelt = TRUE
+	IF BeltClear THEN
+		
+			D[910] = 2 ;No Bag on belt
+		
+	ENDIF
+	Alarm[10].Time = 10000
+	Alarm[10].Name = almPhotocellBlocked
+ENDIF
+
+;Step 2 - Wait for SDC 1 to request to drop
+IF STEP = 2 THEN
+
+		
+	
+		;------Write Report------
+		IF Std.StationReports  THEN
+
+			IF (ReportLoading[n].Cat = 0) THEN
+
+				;Check if anything has been added and current weight is not less than the previous
+				WeightValue = Stn[n].Weight - INT(StnPrev[n].Wgt)
+				WeightValid = (WeightValue > 0)
+
+				IF WeightValid THEN
+
+					;Ensure valid values as we report on either a weight or count change
+					IF (WeightValue < 0) THEN
+						WeightValue = 0
+					ENDIF
+
+					ReportLoading[n].Cat = UINT(Bag[StnBag].Cat)	;Category
+					ReportLoading[n].Cus = Bag[StnBag].Cus			;Customer
+					ReportLoading[n].Wgt = UINT(WeightValue)		;Weight
+					ReportLoading[n].Cnt = 0						;Count
+					ReportLoading[n].Stn = n         				;Station
+					ReportLoading[n].Mcn = 0						;Machine
+
+				ENDIF
+
+			ENDIF
+
+		ENDIF
+		IF Request.SDC1Drop THEN
+			D[910] = 3
+		ENDIF
+
+		Alarm[10].Name = almNoAlarm
+
+	
+
+ENDIF
+
+;Step 3
+;Open Bag and Release to Belt Conveyor
+IF STEP = 3 THEN
+	Enable.SDC1Drop = TRUE
+	O_RunBelt       = TRUE
+	IF I_PhotoBottomSDC1LoadDropped THEN 
+		Bag[160] = Bag[151]
+		
+	ENDIF
+	IF (Bag[160].Cat > 0) AND NOT Request.SDC1Drop AND I_PhotoBottomSDC1LoadDropped THEN
+		D[910] = 4
+	ENDIF
+	Alarm[10].Name = almLoadNotDropped
+ENDIF
+
+;Step 4 - Run Belt Till middle
+IF STEP = 4 THEN
+	O_RunBelt = TRUE
+	IF I_PhotoMiddleBelt THEN
+		D[910] = 5
+	ENDIF
+	;Alarm[2].Name = almNoAlarm
+ENDIF
+
+;Step 5 - Check second bag is pair
+IF STEP = 5 THEN
+	;O_RunBelt = TRUE
+	IF Request.SDC1Drop AND (Bag[151].Cat = Bag[160].Cat) THEN
+		Bag[160].Wgt = Bag[160].Wgt + Bag[151].Wgt
+		D[910] = 6
+	ELSE IF Request.SDC1Drop AND (Bag[151].Cat <> Bag[160].Cat) THEN
+		D[910] = 7
+	ENDIF
+	;Alarm[2].Name = almPhotocellNotMade
+ENDIF
+
+;Step 6 - oPEN sdc1 bag
+IF STEP = 6 THEN
+	Enable.SDC1Drop = TRUE
+	O_RunBelt       = TRUE
+	IF I_PhotoBottomSDC1LoadDropped AND NOT Request.SDC1Drop THEN
+		D[910] = 7
+	ENDIF
+ENDIF
+
+CodeStep  = ((STEP >= 7) AND (STEP <= 8))
+
+IF CodeStep THEN
+;round up weight to give to wash machine
+;	Remainder = SINT(Bag[280].Wgt MOD 10)
+;	IF (Remainder > 4) THEN
+;		WgtRound = (Bag[280].Wgt + 10)
+;	ELSE
+;		WgtRound = Bag[280].Wgt
+;	ENDIF
+
+BCD_BIN_CAT.RegisterIN 	= Bag[160].Cat
+BCD_BIN_CAT.Enable		= CodeStep
+BCD_BIN_CAT.BIN			= FALSE
+BCD_BIN_CAT FUB BCD_BIN_OUTPUT()
+
+Y[9].Y05 = BCD_BIN_CAT.Output1
+Y[9].Y06 = BCD_BIN_CAT.Output2
+Y[9].Y07 = BCD_BIN_CAT.Output4
+Y[9].Y08 = BCD_BIN_CAT.Output8
+Y[9].Y09 = BCD_BIN_CAT.Output10
+Y[9].Y10 = BCD_BIN_CAT.Output20
+Y[9].Y11 = BCD_BIN_CAT.Output40
+Y[9].Y12 = BCD_BIN_CAT.Output80
+
+;BCD_BIN_CUS.RegisterIN 	= Bag[160].Cus
+;BCD_BIN_CUS.Enable		= CodeStep
+;BCD_BIN_CUS.BIN			= false
+;BCD_BIN_CUS FUB BCD_BIN_OUTPUT()
+;
+;Y[23].Y09 = BCD_BIN_CUS.Output1
+;Y[23].Y10 = BCD_BIN_CUS.Output2
+;Y[23].Y11 = BCD_BIN_CUS.Output4
+;Y[23].Y12 = BCD_BIN_CUS.Output8
+;Y[23].Y13 = BCD_BIN_CUS.Output10
+;Y[23].Y14 = BCD_BIN_CUS.Output20
+;Y[23].Y15 = BCD_BIN_CUS.Output40
+;Y[23].Y16 = BCD_BIN_CUS.Output80
+;Y[24].Y01 = BCD_BIN_CUS.Output100
+;Y[24].Y02 = BCD_BIN_CUS.Output200
+;Y[24].Y03 = BCD_BIN_CUS.Output400
+;Y[24].Y04 = BCD_BIN_CUS.Output800
+
+BCD_BIN_WGT.RegisterIN 	= (Bag[160].Wgt )
+BCD_BIN_WGT.Enable		= CodeStep
+BCD_BIN_WGT.BIN			= false
+BCD_BIN_WGT FUB BCD_BIN_OUTPUT()
+
+Y[9].Y13 = BCD_BIN_WGT.Output1
+Y[9].Y14 = BCD_BIN_WGT.Output2
+Y[9].Y15 = BCD_BIN_WGT.Output4
+Y[9].Y16 = BCD_BIN_WGT.Output8
+Y[10].Y01 = BCD_BIN_WGT.Output10
+Y[10].Y02 = BCD_BIN_WGT.Output20
+Y[10].Y03 = BCD_BIN_WGT.Output40
+Y[10].Y04 = BCD_BIN_WGT.Output80
+Y[10].Y05 = BCD_BIN_WGT.Output100
+Y[10].Y06 = BCD_BIN_WGT.Output200
+Y[10].Y07 = BCD_BIN_WGT.Output400
+Y[10].Y08 = BCD_BIN_WGT.Output800
+ENDIF
+
+
+;Step 7 - Run Belt until linen detected for 1 second and Station has emptied
+TON_10ms(((STEP = 7) AND I_PhotoTop),100,LinenDetected,LinenDetectedET)
+IF STEP = 7 THEN
+	O_RunBelt = TRUE
+	
+	IF I_PhotocellAtEnd  THEN
+		D[910] = 8
+	ENDIF
+	;Alarm[2].Name = almPhotocellNotMade
+ENDIF
+
+;Step 8 - Run Belt until photocells clear for 5 seconds
+
+IF STEP = 8 THEN
+	O_BagReady = TRUE
+	IF I_OpenBag THEN
+		D[910] = 9
+	ENDIF
+;	IF NOT Std.EStopLoading THEN
+;		IF I_PhotoBottom OR I_PhotoTop THEN
+;			Alarm[10].Name = almPhotocellBlocked
+;		ELSE IF (D[901] <> 0) THEN
+;			Alarm[10].Name = almStationNotClosed
+;		ELSE IF NOT MinBeltRun THEN
+;			Alarm[10].Name = almClearingBeltPleaseWait
+;		ENDIF
+;	ENDIF
+ENDIF
+
+
+;Step 9 - Check Stations Are Closed
+IF STEP = 9 THEN
+	O_RunBelt = TRUE
+	IF I_LoadDropped THEN
+		
+		Bag[160] = Bag[0]
+		D[910] = 1
+	ENDIF
+	Alarm[10].Name = almLoadNotDropped
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[10].Name > 0)
+TimerAlarm.PT = Alarm[10].Time
+TimerAlarm FUB TON_10ms()
+Alarm[10 ].On = TimerAlarm.Q
+Alarm[2].ET = TimerAlarm.ET
+
+;Outputs
+
+Y[7].Y09 = O_BagReady
+
+Y[7].Y06 = O_RunBelt
+END_PROGRAM
+

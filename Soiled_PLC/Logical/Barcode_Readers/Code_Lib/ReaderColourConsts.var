@@ -1,0 +1,15 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: ee
+ * File: ReaderColourConsts.var
+ * Author: treamsbottom
+ * Created: March 31, 2015
+ ********************************************************************
+ * Variables of package ee
+ ********************************************************************)
+VAR CONSTANT
+	READER_COLOUR_BLUE : ReaderColourCodes_typ := (value:=0,string:='B',ascii:=66);
+	READER_COLOUR_GREEN : ReaderColourCodes_typ := (value:=1,string:='G',ascii:=71);
+	READER_COLOUR_RED : ReaderColourCodes_typ := (value:=2,string:='R',ascii:=82);
+END_VAR

@@ -1,0 +1,111 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Library: DataBackUp
+ * File: DataSave.ab
+ * Author: treamsbottom
+ * Created: March 20, 2014
+ ********************************************************************
+ * Implementation of library DataBackUp
+ ********************************************************************) 
+
+(* *Save Memory to Dat file *)
+FUNCTION_BLOCK DataBackUp
+	IF Enable THEN 
+		IF (Status <> ERR_FUB_BUSY) THEN
+		   IF DataAction = eRead THEN
+				CurrentDatFile.State = eRead
+				eDataBackup = eData_Info			
+			ELSE IF DataAction = eWrite THEN
+				eDataBackup = eData_Create
+				CurrentDatFile.State = eWrite
+			ENDIF	
+		ENDIF	
+		Status = ERR_FUB_BUSY	
+	ENDIF	
+	
+	CASE eDataBackup OF
+		ACTION eData_DoNothing:
+;			CurrentDatFile.ident = 0					
+;			CurrentDatFile.pDatObjMem = 0
+;			CurrentDatFile.len = 0
+;			CurrentDatFile.MemType = 0
+;			CurrentDatFile.Option = 0
+;			CurrentDatFile.ChangeDate = 0	
+			Status = ERR_OK	
+		ENDACTION	
+	
+		ACTION eData_Create:
+			CreateDataFile.enable = TRUE	 
+			CreateDataFile.grp = 0
+			CreateDataFile.pName = pFileName	
+			CreateDataFile.len = DataLength
+			CreateDataFile.MemType = MemType;doSYSROM
+			CreateDataFile.Option = 0; Use CheckSum	
+			CreateDataFile.pCpyData	= pData
+			CreateDataFile	FUB DatObjCreate()  
+			IF CreateDataFile.status = ERR_OK THEN	
+				eDataBackup = eData_DoNothing
+			ELSE IF CreateDataFile.status = doERR_DUPOBJECT THEN
+				eDataBackup = eData_Info
+			ELSE IF CreateDataFile.status <> ERR_FUB_BUSY THEN			
+				Status = CreateDataFile.status
+			ENDIF				
+		ENDACTION
+  
+		ACTION eData_Info:	
+			GetFileInfo.enable = TRUE	
+			GetFileInfo.pName = pFileName
+			GetFileInfo FUB DatObjInfo()
+			IF GetFileInfo.status = ERR_OK THEN	
+				CurrentDatFile.ident = GetFileInfo.ident					
+				CurrentDatFile.pDatObjMem = GetFileInfo.pDatObjMem
+				CurrentDatFile.len = GetFileInfo.len
+				CurrentDatFile.MemType = GetFileInfo.MemType
+				CurrentDatFile.Option = GetFileInfo.Option
+				CurrentDatFile.ChangeDate = GetFileInfo.ChangeDate
+				IF CurrentDatFile.State = eRead THEN
+					eDataBackup = eData_Read
+				ELSE IF	CurrentDatFile.State = eWrite THEN	
+					eDataBackup = eData_Write
+				ENDIF
+			ELSE IF GetFileInfo.status <> ERR_FUB_BUSY THEN		
+				Status = GetFileInfo.status
+			ENDIF		
+		ENDACTION	
+	
+		ACTION eData_Write:	
+			WriteData.enable = TRUE
+			WriteData.ident = CurrentDatFile.ident	
+			WriteData.len = DataLength	
+			WriteData.Offset = 0	
+			WriteData.pSource = pData
+			WriteData FUB DatObjWrite()			  
+			IF WriteData.status = ERR_OK THEN 
+				Status = ERR_OK	
+			ELSE IF WriteData.status <> ERR_FUB_BUSY THEN		
+				Status = WriteData.status
+			ENDIF		
+		ENDACTION	
+	
+		ACTION eData_Delete:		
+		
+		ENDACTION	
+	
+		ACTION eData_Read:	
+			ReadData.enable = TRUE
+			ReadData.ident = CurrentDatFile.ident
+			ReadData.len = DataLength		
+			ReadData.Offset = 0	
+			ReadData.pDestination = pData
+			ReadData FUB DatObjRead()
+			IF ReadData.status = ERR_OK THEN	
+				Status = ERR_OK		
+			ELSE IF ReadData.status <> ERR_FUB_BUSY THEN
+				Status = ReadData.status	
+			ENDIF		
+		ENDACTION		
+	ENDCASE
+
+
+END_FUNCTION_BLOCK

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package Version="1.00.0" xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Package" Description="Global Variables">GlobalVariables</Object>
+    <Object Type="Package" Description="Documents">Documents</Object>
+    <Object Type="Package" Description="*">Sequences</Object>
+    <Object Type="Package">Libraries</Object>
+    <Object Type="DataObject" Language="Simple">ioimgcfg</Object>
+    <Object Type="DataObject" Language="Simple">a_flx_io</Object>
+    <Object Type="Package" Description="Keeps current timestamp">Timestamp</Object>
+    <Object Type="Package" Description="*Handles all data back up">Data_BackUp</Object>
+    <Object Type="Package" Description="Supertrack Robo Drive Control Package">Robo_Drive_Control</Object>
+    <Object Type="Package">KanLink_A19</Object>
+    <Object Type="Package">Displays</Object>
+    <Object Type="Package">SQL</Object>
+    <Object Type="Package">BaseStandards</Object>
+    <Object Type="Package">OPCuA</Object>
+    <Object Type="Package">BlockPSU</Object>
+    <Object Type="Package">CustomLogs</Object>
+    <Object Type="Package">Barcode_Readers</Object>
+    <Object Type="Package">MaintenancePackage</Object>
+    <Object Type="Package">http_Lib</Object>
+    <Object Type="Package">CustomLib</Object>
+    <Object Type="Package">File_System</Object>
+    <Object Type="Package">ExportsFromOriginal</Object>
+    <Object Type="Package">Safety</Object>
+    <Object Type="Package">HoistLibrary</Object>
+    <Object Type="Package">mappView</Object>
+    <Object Type="Package">ABB_EPL</Object>
+  </Objects>
+</Package>

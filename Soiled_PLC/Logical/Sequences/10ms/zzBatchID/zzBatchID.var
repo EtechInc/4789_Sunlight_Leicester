@@ -1,0 +1,36 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzSLQid
+ * File: zzSLQid.var
+ * Author: Dave
+ * Created: July 08, 2011
+ ********************************************************************
+ * Local variables of program zzSLQid
+ ********************************************************************)
+VAR
+	MachID : UDINT;
+	LocationNumber : UDINT;
+	ElementIndex : UDINT;
+	IDRecieved : BOOL;
+	STEP : UINT;
+	StnBag : UINT;
+	n : UINT;
+	Bank : UINT;
+	FoundIndex : UINT;
+	FoundBag : UINT;
+	BatchNumber : UDINT;
+	ReplyID : UDINT;
+	RequestID : BOOL;
+	WaitReply : BOOL;
+	MaxBags : UINT;
+	PLCiD : UDINT;
+	ServerStatus : UDINT;
+	TON_MISstatus : TON_10ms;
+	StateOffline : BOOL;
+	StateRunWithout : BOOL;
+	StateNotUsed : BOOL;
+	StatusNotUse : BOOL;
+	StateOnline : BOOL;
+	TON_MISonline : TON_10ms;
+END_VAR

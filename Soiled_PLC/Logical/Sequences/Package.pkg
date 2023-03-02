@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio FileVersion="4.9"?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Package" Description="10ms Tasks">10ms</Object>
+    <Object Type="Package" Description="200ms Tasks">200ms</Object>
+    <Object Type="Program" Language="IEC" Description="Weight ">zzAI2744</Object>
+    <Object Type="Program" Language="IEC">zzUld_4</Object>
+    <Object Type="Program" Language="IEC">zzGetNames</Object>
+  </Objects>
+</Package>

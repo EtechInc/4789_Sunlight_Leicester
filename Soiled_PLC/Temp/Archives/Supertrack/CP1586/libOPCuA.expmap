@@ -1,0 +1,9 @@
+{
+  global:
+    OPCuA_DisplayEncode_Bin;
+    OPCuA_DisplayEncode_String;
+    OPCuA_BagEncode_Bin;
+    OPCuA_DisplayDecode;
+  local:
+    *;
+ };

@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BindingDefinition xmlns="http://www.br-automation.com/iat2014/binding/runtime/v1">
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:dialogApplication" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbUnlockApp" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding><Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:dialogApplication" attribute="editable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbUnlockApp" attribute="editable::value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strMXCHG_Led" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_tpMXCHG_Led" attribute="selectedValue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strFWACKN_Led" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_tpFWACKNLed" attribute="selectedValue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strStatusID" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_tpStatus" attribute="selectedValue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strFAIL_Led" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_tpFAILLed" attribute="selectedValue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_Dialog">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strMessageTest" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_Dialog_tpRemoteStatus" attribute="selectedValue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_Dialog">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:dialogButtonRight" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_Dialog_mpbNo" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding><Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:dialogButtonRight" attribute="editable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_Dialog_mpbNo" attribute="editable::value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_Dialog">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:dialogButtonLeft" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_Dialog_mpbYes" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding><Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:dialogButtonLeft" attribute="editable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_Dialog_mpbYes" attribute="editable::value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:bVisAppButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbUnlockApp" attribute="visible" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strSKXCHGtStyle" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbSKExchange" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strScanStyle" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbScan" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strAck1Style" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx1" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strAck2Style" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx2" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strAck3Style" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx3" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strAck4Style" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx4" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strAckNStyle" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModExN" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strFWACKNStyle" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbFWAck" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strTestStyle" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbTest" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strClearStyle" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbClearData" attribute="style" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:executeapp1" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbDownloadApp" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding><Binding mode="oneWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:executeapp1" attribute="editable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbDownloadApp" attribute="editable::value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:appcmd1.ApplicationID" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_noSafeLogicID" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuApplicationCRC" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_toAppCurrentCRC" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:strRE_Led" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_tpRELed" attribute="selectedValue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbTest" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbScan" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbSKExchange" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModExN" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbFWAck" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbDownloadApp" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbClearData" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbSKFormat" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx4" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx1" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx3" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+		<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbModEx2" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+  <Content id="content_RemoteControl">
+    <Binding mode="twoWay">
+			<Source xsi:type="opcUa" refId="::SafetyUI:visuEnableButtons" attribute="value" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+		<Target xsi:type="brease" refId="content_RemoteControl_mpbReset" attribute="enable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />
+	</Binding>
+  </Content>
+</BindingDefinition>

@@ -1,0 +1,119 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;---------------------------------------
+;Sequence 12 - SP2 Single point 2 D[912]
+;---------------------------------------
+
+;Inputs
+
+I_BagAtBuffer[1]		= Request.DCEmptyRelease[3]
+I_BagAtBuffer[2]		= X[10].X04
+I_BagAtBuffer[3]		= X[10].X05
+
+MySeq                   = 41
+
+
+Alarm[MySeq].Name 			= 0
+Alarm[MySeq].Bag			= 10013
+Alarm[MySeq].Beacon		= TRUE
+Alarm[MySeq].Extra			= 0
+Alarm[MySeq].Time			= 3000
+
+Enable.DCEmptyRelease[3]    = FALSE
+
+O_SelectCDC3                = FALSE
+O_SelectCPI4                = FALSE
+O_SelectCP6                 = FALSE
+O_Reset                     = FALSE
+
+;Setup Sequence
+STEP = D[900 + MySeq]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence
+;Step 0 - Disabled
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;reset points
+TON_10ms((STEP = 1),200,Reset,ResetET)
+IF (STEP = 1) THEN
+	O_Reset = NOT Reset
+	IF (Line[42].Clear) AND Reset  THEN
+		D[900 + MySeq] = 2
+	ENDIF
+	ELSE
+	
+ENDIF
+
+;check which bag is ready
+TON_10ms(I_BagAtBuffer[1],200,SettledBuffer[1],BagSettledBufferET[1])
+TON_10ms(I_BagAtBuffer[2],200,SettledBuffer[2],BagSettledBufferET[2])
+TON_10ms(I_BagAtBuffer[3],200,SettledBuffer[3],BagSettledBufferET[3])
+IF (STEP = 2) THEN
+	IF (Line[42].Clear) AND NOT Y[4].Y15 AND NOT X[8].X08 THEN
+		;Alt = Alt + 1
+		;IF (Alt > 2) THEN
+		;	Alt = 0
+		;ENDIF
+		IF SettledBuffer[1]  THEN
+			C[42]          = 0
+		    D[900 + MySeq] = 3
+		ELSE IF SettledBuffer[2]  THEN
+			C[42]          = 0
+			D[900 + MySeq] = 4
+		ELSE IF SettledBuffer[3] AND (D[8]>0)  THEN
+			C[42]          = 0
+			D[900 + MySeq] = 5
+		ENDIF
+	ENDIF
+ENDIF	
+
+
+;Bag at line
+IF (STEP = 3) THEN
+	O_SelectCDC3 = TRUE
+	Enable.DCEmptyRelease[3] = TRUE
+	IF (Line[42].Trip = TRUE) THEN
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+;Bag at line
+IF (STEP = 4) THEN
+	O_SelectCP6 = TRUE
+	IF (Line[42].Trip = TRUE) THEN
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+
+;Bag at line
+IF (STEP = 5) THEN
+	O_SelectCPI4 = TRUE
+	IF (Line[42].Trip = TRUE) THEN
+		D[900 + MySeq] = 1
+	ENDIF
+	Alarm[MySeq].Name 	  = almBagNotArrived
+ENDIF
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[MySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[MySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[MySeq].On 	= TimerAlarm.Q
+Alarm[MySeq].ET 	= TimerAlarm.ET
+
+;Outputs
+Y[9].Y09 = O_SelectCDC3
+Y[8].Y03 = O_SelectCP6
+Y[8].Y04 = O_SelectCPI4
+Y[8].Y08 = O_Reset
+
+
+END_PROGRAM
+

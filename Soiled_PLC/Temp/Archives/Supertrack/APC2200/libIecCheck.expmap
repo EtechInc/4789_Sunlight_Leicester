@@ -1,0 +1,17 @@
+{
+  global:
+    CheckDivDWord;
+    CheckDivWord;
+    CheckDivByte;
+    CheckDivReal;
+    CheckDivLReal;
+    CheckBounds;
+    CheckRange;
+    CheckSignedSubrange;
+    CheckUnsignedSubrange;
+    CheckReadAccess;
+    CheckWriteAccess;
+    MakeEntry;
+  local:
+    *;
+ };

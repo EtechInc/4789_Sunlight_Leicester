@@ -1,0 +1,18 @@
+{
+  global:
+    KanLink_FB;
+    KLLib_ClientTimer;
+    KLLib_GetPVAdr;
+    KLLib_SendData;
+    KLLib_ReadServerPara;
+    KLLib_ReadClientPara;
+    KLLib_InitCltPV;
+    KLLib_Init;
+    KL_BuildKey;
+    KLLib_CfgClient;
+    KLLib_CfgServer;
+    KLLib_CreateStrucDef;
+    KLLib_WriteStrucDefLine;
+  local:
+    *;
+ };

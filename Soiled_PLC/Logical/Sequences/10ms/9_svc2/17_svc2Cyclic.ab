@@ -1,0 +1,261 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------------------
+;Sequence 7 - SVC1 Vertical conveyor 1 D[907]
+;--------------------------------------------
+
+mySeq                   = 9
+
+;Inputs
+I_CarrAtTop				= X[3].X09
+I_CarrAtBottom			= X[3].X10
+I_CarrAtEmptyBagIn      = X[3].X11
+I_CarriageAtEmptyBagOut = X[3].X12
+
+I_BagOnCarr				= X[3].X13
+I_BagAtEmptyBuffer		= X[3].X14 ;bag at buffer stop H\L
+I_BagAtFullBuffer       = X[3].X15 ;bag at full buffer low level
+
+I_EmptyBagAtBufferStop  = X[9].X06 ;bag at low level buffer stop low level
+I_FullBagAtBufferStop   = X[7].X16 ;bag at H\L buffer stop full bag
+
+O_EmptyBagAtBufferStop  = Y[9].Y06 ;empty buffer stop low level
+O_FullBagAtBufferStop   = Y[7].Y16 ;full bag buffer stop H\L
+
+
+O_OpenEmptyBufferStop	= FALSE ;Y314
+O_OpenFullBufferStop    = FALSE ;Y315
+
+O_MoveCarrUp			= FALSE 
+O_MoveCarrDown			= FALSE 
+O_MoveCarrDown1         = FALSE
+O_MoveCarrDown2         = FALSE
+O_OpenCarrStop			= FALSE 
+Alarm[mySeq].Name 		= 0
+Alarm[mySeq].Bag		= 225
+Alarm[mySeq].Beacon		= TRUE
+Alarm[mySeq].Extra		= 0
+Alarm[mySeq].Time		= 6000
+
+;Setup Sequence
+STEP = D[900 + mySeq]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Safety switch check
+IF ((STEP = 1) OR (STEP = 5) OR (STEP = 10)) THEN
+	IF I_Disable THEN
+		D[900 + mySeq] = 0
+	ENDIF
+ENDIF
+
+
+;Sequence
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+
+
+;Move carriage down to empty bag in
+TON_10ms((STEP = 1),100,StopClosed,StopClosedET)
+IF (STEP = 1) THEN
+	O_MoveCarrDown = (NOT I_CarrAtEmptyBagIn AND NOT I_CarrAtBottom)
+	IF (I_CarrAtEmptyBagIn  = TRUE) THEN
+		D[909] = 2
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[mySeq].Name = ALM_CARRIAGE_MOVE_FAULT
+	ENDIF
+ENDIF
+
+;empty bag at buffer stop
+TON_10ms(I_BagAtEmptyBuffer,200,BagSettledAtBuffer,BagSettledAtBufferET)
+IF (STEP = 2) THEN	
+	IF (NOT I_BagOnCarr AND (BagSettledAtBuffer = TRUE)) THEN 
+		D[909] = 3
+	;ELSE IF ((D[16] = 0) AND BagAtBuffer AND (E[1950] > 0)) THEN 
+	    ;D[909] = 15 ; TAKE OUT
+	ENDIF
+ENDIF
+
+
+;open buffer stop
+IF (STEP = 3) THEN
+	O_OpenEmptyBufferStop = I_CarrAtEmptyBagIn
+	IF I_BagOnCarr THEN
+		D[909] = 4
+	ENDIF
+ENDIF
+
+;bag settles on carriage
+TON_10ms(I_BagOnCarr,300,BagSettledOnCarr,BagSettledOnCarrET)
+IF (STEP = 4) THEN
+	IF BagSettledOnCarr THEN
+		D[909] = 5
+	ENDIF
+	Alarm[mySeq].Time		= 1600
+	Alarm[mySeq].Name = ALM_BAG_NOT_SETTLED
+ENDIF
+
+;move carriage down
+IF (STEP = 5) THEN
+	O_MoveCarrDown1 	= NOT I_CarriageAtEmptyBagOut ;down to empty bag out
+	IF I_CarriageAtEmptyBagOut THEN
+		D[909] = 6
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[mySeq].Time		= 1000
+		Alarm[mySeq].Name = ALM_CARRIAGE_MOVE_FAULT
+	ENDIF
+ENDIF
+
+
+;check buffer clear
+TON_10ms((NOT I_EmptyBagAtBufferStop AND NOT O_EmptyBagAtBufferStop),300,BufferClear,BufferClearET)
+             ;X906                             ;Y906
+IF (STEP = 6) THEN
+	
+	IF (Line[32].Clear AND (BufferClear = TRUE))THEN
+		C[32] = 0
+		D[909] = 7
+	ENDIF
+ENDIF
+
+
+
+
+;Open carr stop 
+IF (STEP = 7) THEN
+	O_OpenCarrStop = I_CarriageAtEmptyBagOut
+	D[48]          = 4
+	
+	IF ((C[32] >=1) AND (I_EmptyBagAtBufferStop = TRUE) AND NOT I_CarrAtBottom) THEN
+		D[909] = 8
+	ENDIF
+	Alarm[mySeq].Time		= 600
+	Alarm[mySeq].Name = ALM_BAG_NOT_RELEASED
+ENDIF
+
+;move carriage down to bottom
+IF (STEP = 8) THEN
+	O_MoveCarrDown2 = NOT I_CarrAtBottom
+	IF I_CarrAtBottom THEN
+		D[909] = 9
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[mySeq].Time		= 1000
+		Alarm[mySeq].Name = ALM_CARRIAGE_MOVE_FAULT
+	ENDIF
+ENDIF
+
+;Wait for full bag
+TON_10ms(I_BagAtFullBuffer,300,BagAtBuffer,BagAtBufferET)
+;TON_10ms(NoBag,2000,GetEmptyBag,GetEmptyBagET)
+IF (STEP = 9) THEN
+	IF BagAtBuffer AND (Bag[222].Cat > 0) AND NOT I_BagOnCarr THEN
+		D[909] = 10
+	ENDIF
+;	NoBag = (NOT BagAtBuffer AND (E[1950] = 0) AND (E[1930] = 0) AND Line[34].Clear)
+;	IF GetEmptyBag THEN
+		;D[909] = 15
+;	ENDIF
+ENDIF
+
+;Open carr stop
+IF (STEP = 10) THEN
+	O_OpenFullBufferStop = I_CarrAtBottom
+	IF I_BagOnCarr THEN
+		D[909] = 11
+	ENDIF
+ENDIF
+
+
+;Bag settles on carr
+IF (STEP = 11) THEN
+	IF (Bag[222].Cat>0) AND (Bag[225].Cat = 0) THEN
+		Bag[225] = Bag[222]
+		Bag[222] = Bag[0]
+	ENDIF
+	IF BagSettledOnCarr THEN
+		D[909] = 12
+	ENDIF
+	Alarm[mySeq].Time		= 1600
+	Alarm[mySeq].Name = almBagNotSettled
+ENDIF
+
+
+;Send carriage up
+IF (STEP = 12) THEN
+	O_MoveCarrUp = NOT I_CarrAtTop
+	IF I_CarrAtTop THEN
+		D[909] = 13
+	ENDIF
+	IF NOT Std.EStop THEN
+		Alarm[mySeq].Time		= 1000
+		Alarm[mySeq].Name = ALM_CARRIAGE_MOVE_FAULT
+	ENDIF
+ENDIF
+
+	
+;check buffer clear and stop not open,bag at stop input not made
+IF (STEP = 13) THEN
+	IF ((Line[20].Clear = TRUE) AND NOT O_FullBagAtBufferStop AND NOT I_FullBagAtBufferStop) THEN
+		C[20]  = 0
+		D[909] = 14
+	ENDIF
+ENDIF
+
+;Wait for bag out hoist
+
+IF (STEP = 14) THEN
+	IF PLS THEN
+		C[20] = 0
+	ENDIF	
+	O_OpenCarrStop = I_CarrAtTop
+	IF ((Line[20].Full = TRUE) AND (I_FullBagAtBufferStop = TRUE)AND NOT PLS) THEN
+		IF (Bag[225].Cat>0) AND (Bag[227].Cat = 0) THEN
+		Bag[227] = Bag[225]
+		Bag[225] = Bag[0]
+	ENDIF
+		D[909] = 1
+	ENDIF
+	Alarm[mySeq].Time		= 1000
+	Alarm[mySeq].Name = ALM_BAG_NOT_RELEASED
+ENDIF
+;Alarms
+TimerAlarm.IN 	= NOT PLS AND (Alarm[mySeq].Name > 0)
+TimerAlarm.PT 	= Alarm[mySeq].Time
+TimerAlarm FUB TON_10ms()
+Alarm[mySeq].On 	= TimerAlarm.Q
+Alarm[mySeq].ET 	= TimerAlarm.ET
+
+
+
+
+;PLC Outputs
+;-----------
+Y[3].Y14 = O_OpenEmptyBufferStop
+Y[3].Y15 = O_OpenFullBufferStop
+
+
+Y[13].Y06 = (O_MoveCarrUp 	AND NOT I_CarrAtTop)
+Y[13].Y07 =  O_MoveCarrDown 
+
+Y[13].Y08 = O_MoveCarrDown1 
+Y[13].Y09 = O_MoveCarrDown2
+
+
+
+
+Y[13].Y10 = O_OpenCarrStop 
+Y[3].Y15 = O_OpenFullBufferStop
+
+;Don't allow forcing of carriage movement and carriage stop
+YForceDisable[13].Y06 	= TRUE
+YForceDisable[13].Y07	= TRUE
+YForceDisable[13].Y08 	= TRUE
+END_PROGRAM
+

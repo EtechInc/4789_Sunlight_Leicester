@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.7.2.98?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">X20DM9324.png</Object>
+    <Object Type="File">X20DO8332.png</Object>
+    <Object Type="File">X67DM1321.L08.PNG</Object>
+    <Object Type="File">X67DM1321.PNG</Object>
+    <Object Type="File">MoveToArrow_64.png</Object>
+    <Object Type="File">MoveToArrow.png</Object>
+    <Object Type="File">MoveToArrow_Push_64.png</Object>
+    <Object Type="File">MoveToArrow_Push.png</Object>
+    <Object Type="File">Copy.png</Object>
+    <Object Type="File">Copy_16.png</Object>
+    <Object Type="File">Copy_64.png</Object>
+    <Object Type="File">Copy_Push.png</Object>
+    <Object Type="File">Copy_Push_16.png</Object>
+    <Object Type="File">Copy_Push_64.png</Object>
+    <Object Type="File">Refresh_Push.png</Object>
+    <Object Type="File">Refresh.png</Object>
+    <Object Type="File">Warning.png</Object>
+    <Object Type="File">branding.png</Object>
+  </Objects>
+</Package>

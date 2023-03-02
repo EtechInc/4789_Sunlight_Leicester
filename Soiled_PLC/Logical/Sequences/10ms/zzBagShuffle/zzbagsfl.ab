@@ -1,0 +1,89 @@
+PROGRAM _CYCLIC
+
+
+;----------------------------------------------------------------------
+;Version 1.00 19/12/2005 D.J. First Issue - Using BAG array
+;Version 2.00 24/06/2009 D.J. 32bit Cat and Cus .Cat replaced with .Prg
+;Version 3.00 09/11/2009 D.J. Added Destination Counts
+;----------------------------------------------------------------------
+;***************************************ZEROSPOT SPECIAL*****************
+Std.BagsWithDestinations 	= FALSE
+Std.CustomerFound	 		   = FALSE
+Std.BagsWithDestinations2  = FALSE
+
+;Clear Destination Counts
+memset(ADR(DestCountStorage),0,SIZEOF(DestCountStorage))
+memset(ADR(DestCountSystem),0,SIZEOF(DestCountSystem))
+
+LOOP CurrentLine = 1 to Std.MaxLinesBuffers DO
+
+	LineSp = 0
+
+	LOOP CurrentBag = Line[CurrentLine].FirstBag  TO Line[CurrentLine].LastBag DO
+
+		EXITIF Line[CurrentLine].FirstBag = 0
+
+		NextBag = (CurrentBag + 1)
+
+		IF ((CurrentBag < Line[CurrentLine].LastBag) AND ((Bag[CurrentBag].Cat = 0) AND (Bag[NextBag].Cat > 0))) THEN
+
+			;Copy Next Bag to Current
+			Bag[CurrentBag]	= Bag[NextBag]
+			Bag[NextBag] 	= Bag[0]
+
+		ENDIF
+				
+		;Speed up task buy using simple variables saved 0.5ms from this task 5% CPU Usage
+		CurrentDst		= Bag[CurrentBag].Dst
+		IF ((CurrentDst > 0) AND (CurrentDst <= MAX_DESTINATIONS)) THEN
+			IF (CurrentLine <= Std.MaxLines) THEN
+				Std.BagsWithDestinations = TRUE
+				DestCountStorage[CurrentDst] = DestCountStorage[CurrentDst] + 1
+			ENDIF
+;			DestCountSystem[CurrentDst] = DestCountSystem[CurrentDst] + 1
+		ELSE IF (CurrentDst > MAX_DESTINATIONS)THEN
+			Bag[CurrentBag].Dst := 0;	
+		ELSE IF ((CurrentDst >0) AND (CurrentDst  <= MAX_DESTINATIONS) AND (CurrentLine = 30))	THEN
+			;Std.BagsWithDestinations2 = TRUE
+			;DestCountStorage[CurrentDst] = DestCountStorage[CurrentDst] + 1
+		ENDIF
+			;FOUL LOOP bag with destination
+		IF ((CurrentDst >0) AND (CurrentDst  <= MAX_DESTINATIONS) AND (CurrentLine = 30))	THEN
+			Std.BagsWithDestinations2 = TRUE
+			DestCountStorage[CurrentDst] = DestCountStorage[CurrentDst] + 1
+		ENDIF
+		;Add the line spaces up
+		IF Bag[CurrentBag].Cat = 0 THEN
+			LineSp = (LineSp + 1)
+		ENDIF
+
+		;For Customer FIFO table
+		;-----------------------
+		;Customer at front of FIFO in Storage
+		;****************SPECIAL FOR ZEROSPOT*******************************	
+		IF ((Bag[CurrentBag].Cus = D32[401]) AND (D32[401] > 0) AND (CurrentLine <= Std.MaxLines)) THEN
+			Std.CustomerFound	 	= TRUE
+		ENDIF
+		//Special for pairing loop, do not delete custmoer from FIFO if its on the loop
+		IF ((Bag[CurrentBag].Cus = D32[401]) AND (D32[401] > 0) AND ((CurrentLine >= 30) OR (CurrentLine <= 32))) THEN
+			Std.CustomerFound	 	= TRUE
+		ENDIF
+		IF ((Bag[259].Cus = D32[401]) AND (D32[401] > 0)) THEN
+			Std.CustomerFound	 	= TRUE
+		ENDIF
+			
+	ENDLOOP
+	;Save the number of spaces on the current line
+	Line[CurrentLine].Space = LineSp
+
+ENDLOOP
+IF (Bag[151].Cat = 0) THEN
+	Line[19].Space = Line[19].Space + 1
+ENDIF
+
+IF (Bag[157].Cat = 0) THEN
+	Line[19].Space = Line[19].Space + 1
+ENDIF
+	
+END_PROGRAM
+

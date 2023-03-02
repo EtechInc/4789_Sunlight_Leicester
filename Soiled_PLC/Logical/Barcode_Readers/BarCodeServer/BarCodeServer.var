@@ -1,0 +1,39 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: CognexTCP
+ * File: CognexTCP.var
+ * Author: treamsbottom
+ * Created: February 19, 2015
+ ********************************************************************
+ * Local variables of program CognexTCP
+ ********************************************************************)
+VAR
+	TCP_Close : ARRAY[0..READER_MAX_DEVICES] OF TcpClose;
+	TCP_Connect : ARRAY[0..READER_MAX_DEVICES] OF TcpOpen;
+	TCP_Send : ARRAY[0..READER_MAX_DEVICES] OF TcpSend;
+	TCP_Read : ARRAY[0..READER_MAX_DEVICES] OF TcpRecv;
+	TCP_Client : ARRAY[0..READER_MAX_DEVICES] OF TcpClient;
+	DebugSentBytes : UDINT;
+	TCP_OpenPort_ident : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	CloseAllOpenPort : CloseAllOpenTCPIdents;
+	CommPls : BOOL;
+	CommPlsET : UDINT;
+	n : USINT;
+	tempString : STRING[12];
+	ascii : UINT;
+	TON_SendTimeOut : ARRAY[0..READER_MAX_DEVICES] OF TON_10ms;
+	TON_Connection_TimeOut : ARRAY[0..READER_MAX_DEVICES] OF TON_10ms;
+	b : USINT;
+	TestScanner : USINT;
+	CloseAllConnections : BOOL;
+	DebugCount : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	TON_ReaderNotConnected : ARRAY[0..READER_MAX_DEVICES] OF TON_10ms;
+	TON_Idle_TimeOut : ARRAY[0..READER_MAX_DEVICES] OF TON_10ms;
+	TestCount : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	GOTOCmd : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	ErrorCount : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	ConnectWithExistingIdent : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	debugStringLen : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+	DebugCount_ReadLength_Too_Large : ARRAY[0..READER_MAX_DEVICES] OF UDINT;
+END_VAR

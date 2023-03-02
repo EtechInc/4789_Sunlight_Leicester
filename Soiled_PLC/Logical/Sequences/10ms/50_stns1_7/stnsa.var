@@ -1,0 +1,59 @@
+VAR
+	ContinuousSort : BOOL;
+	TestStations : BOOL;
+	Update : BOOL;
+	LampTest : BOOL;
+	I_PartLoad : ARRAY[0..50] OF BOOL;
+	CloseFlap : ARRAY[0..50] OF BOOL;
+	AllowRelease : ARRAY[0..50] OF BOOL;
+END_VAR
+VAR RETAIN
+	BagOpened : ARRAY[0..50] OF BOOL;
+	BagClosed : ARRAY[0..50] OF BOOL;
+	OpenBag : ARRAY[0..50] OF BOOL;
+END_VAR
+VAR
+	PLS : ARRAY[0..99] OF BOOL;
+	AutoPurgeTrig : ARRAY[0..50] OF R_TRIG;
+END_VAR
+VAR RETAIN
+	BagClosedET : ARRAY[0..50] OF TIME;
+	BagOpenedET : ARRAY[0..50] OF TIME;
+END_VAR
+VAR
+	TimerPartLoad : ARRAY[0..50] OF TON_10ms;
+	TimerOpen : ARRAY[0..49] OF TON_10ms;
+	TimerFlapClose : ARRAY[0..49] OF TON_10ms;
+	TimerClosed : ARRAY[0..49] OF TON_10ms;
+	TimerAlarm : ARRAY[0..49] OF TON_10ms;
+	myBid : UDINT;
+	StnBag : UINT;
+	OpenTime : UINT;
+	myBag : UINT;
+	CloseTime : UINT;
+END_VAR
+VAR RETAIN
+	STEP : UINT;
+END_VAR
+VAR
+	mySeq : UINT;
+	Bank : UINT;
+END_VAR
+VAR RETAIN
+	n : UINT;
+END_VAR
+VAR
+	myDisplayBag : UINT;
+END_VAR
+VAR RETAIN
+	LASTSTEP : ARRAY[0..99] OF UINT;
+END_VAR
+VAR
+	CloseFlapDelay : BOOL;
+	CloseFlapDelayET : TIME;
+	newBag : ARRAY[0..50] OF BOOL;
+	myStnReg : UINT;
+	myStnBit : UINT;
+	testClose : BOOL;
+	x : UINT;
+END_VAR

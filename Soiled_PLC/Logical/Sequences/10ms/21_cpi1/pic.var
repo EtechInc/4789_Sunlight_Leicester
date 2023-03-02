@@ -1,0 +1,43 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: pr
+ * File: pr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program pr
+ ********************************************************************)
+VAR
+	mySeq : UINT;
+	myIO : UINT;
+	myZone : UINT;
+	myRelLine : UINT;
+	myBag : UINT;
+	i_bagAtBuffer : BOOL;
+	i_bagAtBufferOut : BOOL;
+	i_bufferOutOpen : BOOL;
+	o_openBuffer : BOOL;
+	step : UINT;
+	pls : BOOL;
+	timerAlarm : TON_10ms;
+END_VAR
+VAR RETAIN
+	lastStep : UINT;
+END_VAR
+VAR
+	bufferSettleTime : UDINT;
+	myOutBag : UINT;
+	myBuffBag : UINT;
+	myPI : UINT;
+	i_bagInIncline : BOOL;
+	i_cylinderAtBottom : BOOL;
+	i_cylinderAtTop : BOOL;
+	o_cylinderDown : BOOL;
+	useRequest : BOOL;
+	releaseValid : BOOL;
+	ton_10ms_SettledBuffer : TON_10ms;
+	ton_10ms_SettledInIncline : TON_10ms;
+	ton_10ms_CylinderDown : TON_10ms;
+	kev : BOOL;
+END_VAR

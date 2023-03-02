@@ -1,0 +1,4 @@
+VAR
+	ClearMem	:BOOL;	
+	Dave	:UDINT;	
+END_VAR

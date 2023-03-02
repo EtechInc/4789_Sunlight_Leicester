@@ -1,0 +1,122 @@
+PROGRAM _CYCLIC
+ 	(* cyclic program *)
+
+;Sorting Stations Into Q with provision for Pushbutton into Q
+;------------------------------------------------------------
+
+;Set "AutoMaticRelease" in "zzconst"
+;Nothing to change!
+
+;--------------------------------------------------------------------
+;Version 1.00 - 19/12/2005 D.J. First Issue
+;Version 2.00 - 10/12/2009 D.J. Changed Setpoint Registers to D4000's
+;Version 3.00 - 03/02/2011 D.J. Re-instated calibration stops release
+;--------------------------------------------------------------------
+
+StnsInQ 	= FALSE
+;StnsToPurge = FALSE
+Calibration = (D[998] > 0)
+
+LOOP z = 1 TO Std.MaxWeighstations DO
+;LOOP z = 8 TO 8 DO
+	n = z
+
+	;Force to Single station for testing / monitoring
+	IF TestStation > 0 THEN
+		n = TestStation
+	ENDIF
+
+	ManualRelease 	= (D[800 + n] = 1)
+	PurgeStation	= (D[800 + n] = 2)
+
+	;For testing force valid weight values
+	IF TestWeight > 0 THEN
+		Stn[n].Weight = TestWeight
+	ENDIF
+
+	;If Current weight is less than the Min Release Weight or SP2 is set below the Min Release Weight or SP3 is set below the Min Release Weight
+	ValidWeight = ((Stn[n].Weight > Std.MinReleaseWeight) AND (D[4800 + n] > Std.MinReleaseWeight) AND  (D[4900 + n] > Std.MinReleaseWeight))
+	
+	;Zurich Test - min release at 10kg
+	;ValidWeight = ((Stn[n].Weight > 100) AND (D[4800 + n] > 100) AND  (D[4900 + n] > 100))
+	
+	;SP1 Reached - Approaching Weight
+	SP1Reached = (Stn[n].Weight > D[4700 + n])
+
+	;SP2 Reached - At Release Weight
+	SP2Reached = (Stn[n].Weight >= D[4800 + n])
+	
+	;SP3 Reached - Over Weight
+	SP3Reached = (Stn[n].Weight > D[4900 + n])
+
+	;Manual Release from TrackView
+	IF ManualRelease THEN
+		IF (ValidWeight AND (NOT SP3Reached)) THEN
+			Stn[n].ManualRelease = TRUE
+		ELSE IF (ValidWeight AND Std.EnableOverUnderRelease) THEN ;Enable Release KeySwitch
+			Stn[n].ManualRelease = TRUE
+		ENDIF
+		D[800 + n] = 0 ;Cancel the Manual Release
+		Stn[n].Purge = FALSE
+	ENDIF
+
+	ValidPurgeWeight = (Stn[n].Weight > Std.MinPurgeWeight)	
+	IF PurgeStation THEN
+		Stn[n].Purge = ValidPurgeWeight AND NOT SP3Reached  
+		D[800 + n] = 0
+	ENDIF
+
+	;Enter Station into Q
+	StnIntoQ = FALSE
+	IF (Std.AutoMaticRelease AND SP2Reached AND ValidWeight AND (NOT SP3Reached)) THEN
+		StnIntoQ = TRUE
+	ELSE IF ((NOT Std.AutoMaticRelease) AND Stn[n].ReleaseButton AND SP2Reached AND ValidWeight AND (NOT SP3Reached)) THEN
+		StnIntoQ = TRUE
+	ELSE IF ((NOT Std.AutoMaticRelease) AND Stn[n].ReleaseButton AND Std.EnableOverUnderRelease AND ValidWeight) THEN
+		StnIntoQ = TRUE
+	ELSE IF (Stn[n].ManualRelease AND ValidWeight) THEN
+		StnIntoQ = TRUE
+	ELSE IF Stn[n].Purge THEN		
+		StnIntoQ = TRUE	
+	ELSE IF ((D[7900 + n] > 1) AND Stn[n].CloseFlap AND ValidWeight) THEN
+		StnIntoQ = TRUE ;Once loading flap has been closed then keep in Q 
+	ENDIF
+	
+	IF Stn[n].ManualRelease AND NOT ValidWeight THEN	
+		Stn[n].ManualRelease = FALSE	
+	ENDIF	
+	;Don't allow station release if calibrating
+	IF Calibration THEN
+		StnIntoQ = FALSE
+	ENDIF
+	
+	IF StnIntoQ THEN
+		StnsInQ = TRUE
+		IF (Stn[n].QTime < $7FFF) THEN ;Keep within Integer range for PC
+			Stn[n].QTime = (Stn[n].QTime + 1)
+		ENDIF
+	ELSE
+		Stn[n].QTime = 0
+	ENDIF
+
+	D[100 + n] = Stn[n].QTime ;Set the time in the Q for Use by PC
+
+	Stn[n].SP1	= FALSE
+	Stn[n].SP2	= FALSE
+	Stn[n].SP3	= FALSE
+	
+	IF SP3Reached THEN
+		Stn[n].SP3 = TRUE
+	ELSE IF SP2Reached OR StnIntoQ THEN
+		Stn[n].SP2 = TRUE
+	ELSE IF SP1Reached THEN
+		Stn[n].SP1 = TRUE
+	ENDIF
+
+ENDLOOP
+
+Std.StnsInQ 	= StnsInQ
+;Std.StnsToPurge = StnsToPurge
+
+END_PROGRAM
+

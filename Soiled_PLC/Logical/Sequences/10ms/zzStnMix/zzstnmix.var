@@ -1,0 +1,12 @@
+VAR
+	n	:UINT;	
+	CatChanged	:BOOL;	
+	CatValid	:BOOL;	
+	CusChanged	:BOOL;	
+	CusValid	:BOOL;	
+	WgtValue	:INT;	
+	WgtValid	:BOOL;	
+	StnBag	:UINT;	
+	CntValue	:INT;	
+	CntValid	:BOOL;	
+END_VAR

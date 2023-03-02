@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="File">Reports.typ</Object>
+    <Object Type="File">Reports.var</Object>
+    <Object Type="Program" Language="IEC" Description="* Reports to Master PC">zzReport</Object>
+  </Objects>
+</Package>

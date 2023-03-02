@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Parameters>
+  <Connection>
+    <DeviceParameters>/IF=tcpip /LOPO=11159 /SA=233</DeviceParameters>
+    <ConnectionParameters>/COMT=2500 /RT=1000 /AM=* /DAIP=10.8.4.20 /REPO=11159 /ANSL=1</ConnectionParameters>
+  </Connection>
+  <AsProject>
+    <ApjFullFileName>C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Soiled_PLC.apj</ApjFullFileName>
+    <ProjectName>Soiled_PLC</ProjectName>
+    <ActiveConfigurationName>Supertrack</ActiveConfigurationName>
+    <LicenseDataFolder>C:\JOB\S\Sunlight Leicester\Soiled_PLCxxx\Temp\Objects\Supertrack\CP1586</LicenseDataFolder>
+  </AsProject>
+  <General>
+    <DeleteParameterFile>false</DeleteParameterFile>
+  </General>
+</Parameters>

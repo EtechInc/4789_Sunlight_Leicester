@@ -1,0 +1,5 @@
+$(AS_PROJECT_PATH)/Logical/Robo_Drive_Control/FC302/FC302.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsCANopen/AsCANopen.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/DataObj/DataObj.fun
+$(AS_PROJECT_PATH)/Logical/Robo_Drive_Control/FC302/FC302.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun

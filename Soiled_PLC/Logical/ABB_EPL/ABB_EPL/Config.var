@@ -1,0 +1,6 @@
+VAR CONSTANT
+	MAX_DRIVES : USINT := 23; (*Set to number of drives*)
+	MAX_FREQUENCY_HZ : USINT := 70; (*Maximum Frequency Allowed in hz*)
+	ABB_MIN_VELOCITY : USINT := 20; (*Minimum allowable speed of the drive*)
+	PLK_INTERFACE : STRING[5] := 'IF3';
+END_VAR

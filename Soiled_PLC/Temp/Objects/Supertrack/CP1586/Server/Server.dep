@@ -1,0 +1,14 @@
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/standard/standard.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTCP/AsTCP.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsETH/AsETH.fun
+$(AS_PROJECT_PATH)/Logical/Libraries/AsIecCon/AsIecCon.fun
+$(AS_PROJECT_PATH)/Logical/Displays/Server/Server.var
+$(AS_PROJECT_PATH)/Logical/Displays/DisplaysGlobal.var
+$(AS_PROJECT_PATH)/Logical/GlobalVariables/Bag/Bag.typ
+$(AS_PROJECT_PATH)/Logical/SQL/zzSQL_Lib/zzSQL_Lib.typ
+$(AS_PROJECT_PATH)/Logical/Displays/DisplaysGlobal.typ
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTCP/AsTCP.var
+$(AS_PROJECT_PATH)/Logical/Libraries/runtime/runtime.var
+$(AS_PROJECT_PATH)/Logical/Libraries/AsTCP/AsTCP.typ
+$(AS_PROJECT_PATH)/Logical/Displays/Server/Server.typ

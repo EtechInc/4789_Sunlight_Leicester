@@ -1,0 +1,58 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: 12_x_Bsof
+ * File: 12_x_Bsof.var
+ * Author: zmclaren
+ * Created: June 24, 2015
+ ********************************************************************
+ * Local variables of program 12_x_Bsof
+ ********************************************************************)
+VAR
+	myIO : UINT;
+	mySeq : UINT;
+	myBS : UINT;
+	myOutBag : UINT;
+	myBag : UINT;
+	myUseBuff : BOOL;
+	myZone : UINT;
+	myRelLine : UINT;
+	myBuffIO : UINT;
+	i_bagAtEmptyBuffer : BOOL;
+	i_emptyBagBufferOpen : BOOL;
+	i_rockSepA : BOOL;
+	i_rockSepB : BOOL;
+	i_tiltA : BOOL;
+	i_tiltB : BOOL;
+	i_outLineA : BOOL;
+	i_outLineB : BOOL;
+	o_openRockSep : BOOL;
+	o_levelCylinder : BOOL;
+	o_openLineAStop : BOOL;
+	o_openLineBStop : BOOL;
+	o_selectLineA : BOOL;
+	o_selectLineB : BOOL;
+	o_select : BOOL;
+	step : UINT;
+	pls : BOOL;
+	lastStep : UINT;
+	ton_10ms_LevelClear : TON_10ms;
+	ton_10ms_SettledInSeps : TON_10ms;
+	ton_10ms_SettledLevel : TON_10ms;
+	ton_10ms_LevellerDown : TON_10ms;
+	ton_10ms_LevellerUp : TON_10ms;
+	timerAlarm : TON_10ms;
+	ton_10ms_PRLineClear : ARRAY[0..2] OF TON_10ms;
+	bsf_Enable : BOOL;
+	releaseValid : BOOL;
+	useRotary : BOOL;
+	i_bagAtRotary : BOOL;
+	o_openRotaryStop : BOOL;
+	settledOnRotary : BOOL;
+	ton_10ms_SettledAtRotary : TON_10ms;
+	ton_10ms_RotaryInPosition : TON_10ms;
+	alarm : REFERENCE TO Alm;
+	bag : REFERENCE TO Bag_typ;
+	bag_out : REFERENCE TO Bag_typ;
+	line_release : REFERENCE TO Line_Typ;
+END_VAR

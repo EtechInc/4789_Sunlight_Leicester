@@ -1,0 +1,17 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: TelNetCommands
+ * File: TelNetCommands.var
+ * Author: treamsbottom
+ * Created: February 20, 2015
+ ********************************************************************
+ * Variables of package TelNetCommands
+ ********************************************************************)
+VAR CONSTANT
+	cTelNet_cmd_NODATA : USINT := 0;
+	cTelNet_cmd_TRIGGER_ON : USINT := 1;
+	cTelNet_cmd_CLEAR_READ_BUFFER : USINT := 9;
+	cTelNet_MaxCommands : USINT := 9;
+	TelNet_Command : ARRAY[0..cTelNet_MaxCommands] OF STRING[READER_MAX_DATA] := ['<FUNCTION Modifier="AcceptData" Reply="SetSingleData" Check="Safe" />','||>TRIGGER ON$r$n','<FUNCTION Modifier="SetSingleData" Reply="On" Check="Safe"><SENSOR Type="OPx"><SETTINGS Version="1"><CONFIGURATION Id="Command" Version="1"><PARAMETER Id="TriggerStart" Value="1" /></CONFIGURATION></SETTINGS></SENSOR></FUNCTION>',7('')];
+END_VAR

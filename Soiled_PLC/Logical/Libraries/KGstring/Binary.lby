@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=3.0.81.18?>
+<Library Version="1.04.0" Description="String-Umwandlungen" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>KGstring.fun</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="runtime" FromVersion="1.09.0" />
+    <Dependency ObjectName="AsString" FromVersion="1.01.1" />
+    <Dependency ObjectName="standard" FromVersion="1.35.0" />
+    <Dependency ObjectName="AsTime" FromVersion="1.00.3" />
+    <Dependency ObjectName="SYS_LIB" FromVersion="1.40.1" />
+    <Dependency ObjectName="sys_lib" FromVersion="1.40.1" />
+    <Dependency ObjectName="astime" FromVersion="1.00.3" />
+    <Dependency ObjectName="asstring" FromVersion="1.01.1" />
+  </Dependencies>
+</Library>

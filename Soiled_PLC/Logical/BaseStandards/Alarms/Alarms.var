@@ -1,0 +1,49 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Package: Alarms
+ * File: Alarms.var
+ * Author: treamsbottom
+ * Created: March 19, 2015
+ ********************************************************************
+ * Variables of package Alarms
+ ********************************************************************)
+VAR CONSTANT
+	ALM_NOALARM : UINT := 0;
+	ALM_EMERGENCY_STOP : UINT := 1;
+	ALM_MOTOROVERLOAD : UINT := 2;
+	ALM_ULD_PROG_FINISHED : UINT := 3;
+	ALM_ULD_NO_BAG : UINT := 4;
+	ALM_SWITCH_FAULT : UINT := 5;
+	ALM_BAG_NOT_ARRIVED : UINT := 6;
+	ALM_BAG_NOT_SETTLED : UINT := 7;
+	ALM_BAG_NOT_RELEASED : UINT := 9;
+	ALM_LOAD_NOT_DROPPED : UINT := 10;
+	ALM_CARRIAGE_MOVE_FAULT : UINT := 11;
+	ALM_PHOTOCELL_BLOCKED : UINT := 12;
+	ALM_PHOTOCELL_NOT_MADE : UINT := 13;
+	ALM_STATION_NOT_CLOSED : UINT := 14;
+	ALM_GENERAL_SEQUENCE : UINT := 15;
+	ALM_BAG_NOT_AT_PROX : UINT := 16;
+	ALM_BAG_NOT_SHOWN_ON_SCREEN : UINT := 17;
+	ALM_INVERTOR_FAULT : UINT := 18;
+	ALM_DEST_NOT_VALID : UINT := 19;
+	ALM_BAG_DATA_ERROR : UINT := 20;
+	ALM_BAG_OVERWEIGHT : UINT := 21;
+	ALM_STATION_NOT_EMPTY : UINT := 22;
+	ALM_CLEARING_BELT : UINT := 23;
+	ALM_SYSTEM_STOPPED : UINT := 25;
+	ALM_SWITCH_FAULT_RELEASE : UINT := 26;
+	ALM_SWITCH_FAULT_RECIEVE : UINT := 27;
+	ALM_RAIL_NOT_ALIGNED : UINT := 28;
+	ALM_RB_LIFT_REF_NOT_FOUND : UINT := 29;
+	ALM_RB_LIFT_PARAMETER_ERROR : UINT := 30;
+	ALM_RB_LIFT_REF_SWITCH_FAULT : UINT := 31;
+	ALM_RB_ROTATE_REF_NOT_FOUND : UINT := 32;
+	ALM_RB_ROTATE_PARAMETER_ERROR : UINT := 33;
+	ALM_RB_ROTATE_REF_SWITCH_FAULT : UINT := 34;
+	ALM_BATCH_NO_ID_FROM_SERVER : UINT := 40;
+	ALM_AIR_PRESSURE_LOW : UINT := 41;
+	ALM_SEQ_DISABLED : UINT := 45;
+	ALM_BACKUP_NOT_RUNNING : UINT := 50;
+END_VAR

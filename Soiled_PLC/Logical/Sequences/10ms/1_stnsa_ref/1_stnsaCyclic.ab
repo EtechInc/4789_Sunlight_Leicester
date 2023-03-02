@@ -1,0 +1,142 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;Honeycombe Sorting Station Control
+;----------------------------------------------------
+;Revision 1.00 10/01/2002 D.J. First Issue
+;Revision 2.00 07/02/2005 D.J. Removed Stn Mix
+;Revision 3.00 22/08/2006 D.J. Changed to timer array
+;----------------------------------------------------
+
+Bank = 1
+
+;Timers
+OpenTime  = 700
+CloseTime = 300
+
+LOOP x = 1 TO Ldg[Bank].NoStations DO
+	n = Ldg[Bank].Stations[x]
+		
+	;Bag open timers
+	TimerOpen[n].IN 	= OpenBag[n]
+	TimerOpen[n].PT		= OpenTime
+	TimerOpen[n] FUB TON_10ms()
+
+	BagOpened[n] 		= TimerOpen[n].Q
+	BagOpenedET[n]		= TimerOpen[n].ET
+
+	;Bag closed timers
+	TimerClosed[n].IN 	= NOT OpenBag[n]
+	TimerClosed[n].PT	= CloseTime
+	TimerClosed[n] FUB TON_10ms()
+
+	BagClosed[n] 		= TimerClosed[n].Q
+	BagClosedET[n]		= TimerClosed[n].ET
+
+	;Update bag weight
+	//StnBag = n + (Std.StationBagsStart[Bank] - 1)
+	StnBag = LDG_GetBagFromStation(Std.StationBagsStart,n);
+	Bag[StnBag].Wgt = Stn[n].Weight
+	Bag[StnBag].Cnt = Stn[n].Count
+
+	Alarm[40 + n].Name 		= 0
+	Alarm[40 + n].Bag		= StnBag
+	Alarm[40 + n].Beacon	= TRUE
+	Alarm[40 + n].Extra		= 0
+	Alarm[40 + n].Time		= 2000
+
+	Stn[n].LampOn 		= FALSE
+
+	STEP = D[940 + n]
+	;Setup Pulse contact
+	PLS[n] = (STEP <> LASTSTEP[n])
+	LASTSTEP[n] = STEP
+
+	;Step 0 - Disabled
+	IF (STEP = 0) THEN
+		Stn[n].LampOn = TRUE
+		;Disabled
+	ENDIF
+
+	IF (STEP = 1) THEN
+		Stn[n].LampOn = TRUE
+		IF D[901] = n THEN
+			D[901] = 0
+		ENDIF
+		IF BagClosed[n] THEN
+			D[940 + n] = 2
+		ENDIF
+		Alarm[40 + n].Name = almStationNotClosed
+	ENDIF
+
+	IF (STEP = 2) THEN
+		Stn[n].LampOn = ((Stn[n].SP1 AND Std.Clock2s) OR Stn[n].SP2 OR (Stn[n].SP3 AND Std.Clock200ms))
+		IF ((D[901] = n) AND Ldg[Bank].EnableStnRelease) THEN
+			D[940 + n] = 3
+		ENDIF
+		IF ((Bag[StnBag].Cat > 0) AND Stn[n].SP3) THEN
+			Alarm[40 + n].Name = almBagOverWeight
+		ENDIF
+	ENDIF
+
+	IF (STEP = 3) THEN
+		Stn[n].LampOn = TRUE
+		IF (BagOpened[n] AND ((Stn[n].Weight < 30) OR Test.Stations) AND Ldg[Bank].BeltHasRun) THEN
+			Stn[n].QTime 	= 0
+			D[940 + n] 		= 1
+		ENDIF
+		IF (Stn[n].Weight >= 30) THEN
+			Alarm[40 + n].Name = almStationNotEmpty
+		ENDIF
+	ENDIF
+
+	OpenBag[n] = (STEP = 3)
+
+	;Alarm timer
+	TimerAlarm[n].IN 	= NOT PLS[n] AND (Alarm[40 + n].Name > 0)
+	TimerAlarm[n].PT	= Alarm[40 + n].Time
+	TimerAlarm[n] FUB TON_10ms()
+
+	Alarm[40 + n].ET	= TimerAlarm[n].ET
+	Alarm[40 + n].On 	= TimerAlarm[n].Q
+
+ENDLOOP
+
+;Outputs
+;-------
+
+Y[31].Y05 = OpenBag[1]
+Y[31].Y06 = OpenBag[2]
+Y[31].Y07 = OpenBag[3]
+Y[31].Y08 = OpenBag[4]
+Y[31].Y13 = OpenBag[5]
+Y[31].Y14 = OpenBag[6]
+Y[31].Y15 = OpenBag[7]
+Y[31].Y16 = OpenBag[8]
+Y[32].Y05 = OpenBag[9]
+Y[32].Y06 = OpenBag[10]
+Y[32].Y07 = OpenBag[11]
+Y[32].Y08 = OpenBag[12]
+Y[32].Y13 = OpenBag[13]
+Y[32].Y14 = OpenBag[14]
+Y[32].Y15 = OpenBag[15]
+Y[32].Y16 = OpenBag[16]
+
+Y[31].Y01 = Stn[1].LampOn
+Y[31].Y02 = Stn[2].LampOn
+Y[31].Y03 = Stn[3].LampOn
+Y[31].Y04 = Stn[4].LampOn
+Y[31].Y09 = Stn[5].LampOn
+Y[31].Y10 = Stn[6].LampOn
+Y[31].Y11 = Stn[7].LampOn
+Y[31].Y12 = Stn[8].LampOn
+Y[32].Y01 = Stn[9].LampOn
+Y[32].Y02 = Stn[10].LampOn
+Y[32].Y03 = Stn[11].LampOn
+Y[32].Y04 = Stn[12].LampOn
+Y[32].Y09 = Stn[13].LampOn
+Y[32].Y10 = Stn[14].LampOn
+Y[32].Y11 = Stn[15].LampOn
+Y[32].Y12 = Stn[16].LampOn
+END_PROGRAM
+

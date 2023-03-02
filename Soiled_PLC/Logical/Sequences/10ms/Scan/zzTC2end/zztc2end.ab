@@ -1,0 +1,15 @@
+PROGRAM _CYCLIC
+(* cyclic program *)
+
+TCScan[2].End = clock_ms()
+
+TCScan[2].Time = UINT(TCScan[2].End - TCScan[2].Start)
+
+IF (TCScan[2].Time < TCScan[2].Min) OR (TCScan[2].Min = 0) THEN
+	TCScan[2].Min = TCScan[2].Time
+ELSE IF TCScan[2].Time > TCScan[2].Max THEN
+	TCScan[2].Max = TCScan[2].Time
+	D[67] = TCScan[2].Max
+ENDIF
+END_PROGRAM
+

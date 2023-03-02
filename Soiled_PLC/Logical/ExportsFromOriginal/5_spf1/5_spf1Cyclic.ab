@@ -1,0 +1,293 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;----------------------------------------
+;Sequence 5 - SPF1 Offgoing Points D[905]
+;----------------------------------------
+;Inputs
+;------
+
+OffGoingEnable 		= ((D[15] > 0) AND NOT Std.HaltSys)
+
+I_BagPassedSVC2     = X[4].X15
+
+I_BagReleased 		= X[5].X01
+
+I_SDCBagAtBuffer[1] = X[6].X01 	;Use for single bag buffer
+I_SDCBagAtBuffer[2] = FALSE 	;X[6].X13 ;Use for single bag buffer
+
+O_SDCBufferOpen[1]  = Y[6].Y01 OR X[6].X01 	;Use for single bag buffer
+O_SDCBufferOpen[2]  = FALSE 	;Y[6].Y16 ;Use for single bag buffer
+
+I_ApproachBrush		= X[5].X16
+O_CloseBrush		= FALSE
+
+I_BagAtStop[1] 		= X[9].X01;(Bag[Line[1].FirstBag].Cat > 0);X[5].X01
+I_BagAtStop[2] 		= X[9].X02;(Bag[Line[2].FirstBag].Cat > 0);X[5].X02
+I_BagAtStop[3] 		= X[9].X03;(Bag[Line[3].FirstBag].Cat > 0);X[5].X03
+I_BagAtStop[4] 		= X[9].X04;(Bag[Line[4].FirstBag].Cat > 0);X[5].X04
+I_BagAtStop[5] 		= X[9].X05;(Bag[Line[5].FirstBag].Cat > 0);X[5].X05
+I_BagAtStop[6] 		= X[9].X06;(Bag[Line[6].FirstBag].Cat > 0);X[5].X06
+I_BagAtStop[7] 		= X[9].X07;(Bag[Line[7].FirstBag].Cat > 0);X[5].X07
+I_BagAtStop[8] 		= X[9].X08;(Bag[Line[8].FirstBag].Cat > 0);X[5].X08
+I_BagAtStop[9] 		= X[9].X09;(Bag[Line[9].FirstBag].Cat > 0);X[5].X09
+I_BagAtStop[10] 	= X[9].X10;(Bag[Line[10].FirstBag].Cat > 0);X[5].X10
+I_BagAtStop[11] 	= X[9].X11;(Bag[Line[11].FirstBag].Cat > 0);X[5].X11
+I_BagAtStop[12] 	= X[9].X12;(Bag[Line[12].FirstBag].Cat > 0);X[5].X12
+I_BagAtStop[13] 	= X[9].X13;(Bag[Line[13].FirstBag].Cat > 0);X[5].X13
+I_BagAtStop[14] 	= X[9].X14;(Bag[Line[14].FirstBag].Cat > 0);X[5].X14
+
+O_Reset 			= FALSE
+Enable.SVC[2]       = FALSE
+
+;Buffer line configuration
+;-------------------------
+MaxBuffers			= 2
+
+BufferBag[1]		= 284 ;Last buffer bag number
+BufferBag[2]		= 274 ;Last buffer bag number
+
+;Banbury Special - Empty bags from SDC2 travel on a rail close to Lines 6-14
+;---------------------------------------------------------------------------
+EmptyInTransit 		= (D[910] > 2)
+SVC2BufferClear     = (NOT Y[6].Y01 AND NOT X[6].X01 AND Line[20].Clear AND NOT EmptyInTransit AND (Bag[230].Cat = 0))
+BufferClear[1] 		= ((Line[21].Space > 0) AND NOT EmptyInTransit AND (D[21] > 0) AND (Bag[BufferBag[1]].Cat = 0))
+BufferClear[2]		= ((Line[22].Space > 0) AND NOT EmptyInTransit AND (D[22] > 0) AND (Bag[BufferBag[2]].Cat = 0))
+BufferClear[3]      =  (NOT X[6].X01 AND NOT Y[6].Y01  AND (Bag[230].Cat = 0) and (Bag[263].Cat = 0) and (Bag[252].Cat = 0) AND (D[916] = 2) AND NOT EmptyInTransit)
+
+EnableSDC2Empty 	= (D[905] = 2)
+
+;Alternating between SDC1 and SDC3
+EnableSDC1Search = FALSE
+EnableSDC3Search = FALSE
+IF (BufferClear[1] AND BufferClear[2]) THEN
+	Alternator = Alternator + 1
+	IF (Alternator > 2) THEN
+		Alternator = 1
+	ENDIF
+	IF Alternator = 1 THEN
+		EnableSDC1Search = TRUE
+	ELSE
+		EnableSDC3Search = TRUE
+	ENDIF
+ENDIF
+
+Uld[1].SDCReady 	= (BufferClear[1] AND SVC2BufferClear ) ;Passed to unloading search
+Uld[2].SDCReady 	= (BufferClear[2] AND SVC2BufferClear );Passed to unloading search
+Uld[3].SDCReady		= (BufferClear[3] AND SVC2BufferClear );Passed to unloading search
+Uld[4].SDCReady 	= FALSE
+
+Alarm[5].Name 		= 0
+Alarm[5].Bag		= 225
+Alarm[5].Beacon		= TRUE
+Alarm[5].Extra		= 0
+Alarm[5].Time		= 3000
+
+
+;Setup Sequence
+;--------------
+STEP = D[905]
+;Setup Pulse contact
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+;Sequence Steps
+;--------------
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+
+;Step 1 - Reset Points
+TON_10ms((STEP = 1),300,ResetPoints,ResetPointsET)
+IF (STEP = 1) THEN
+	O_Reset 	= TRUE
+	FoundLine 	= 0
+	Destination = 0
+	;IF (ResetPoints AND OffGoingEnable) THEN
+	IF (ResetPoints AND OffGoingEnable AND NOT I_BagReleased) THEN
+		D[905] = 2
+	ENDIF
+ENDIF
+
+;Bags on storage line timers
+R_TRIG(Std.Clock100ms,IncSettle)
+AlarmBagNotProx 	= FALSE
+AlarmBagNotProxLine = 0
+
+LOOP n = 1 TO Std.MaxLines DO
+
+	LineSettle[n]  = (I_BagAtStop[n] AND (Bag[Line[n].FirstBag].Cat > 0))
+	IF IncSettle AND LineSettle[n] AND (BagSettledTime[n] < $FFFF) THEN
+		BagSettledTime[n] = BagSettledTime[n] + 1
+	ELSE IF NOT LineSettle[n] THEN
+		BagSettledTime[n] = 0
+		;If Bag has destiantion and not at stop then alarm
+		IF (STEP = 2) AND (Bag[Line[n].FirstBag].Dst > 0) THEN
+			Alarm[5].Name	= almBagNotAtProx
+			Alarm[5].Bag	= Line[n].FirstBag
+			Alarm[5].Extra 	= n
+		ENDIF
+	ENDIF
+
+ENDLOOP
+
+;Buffer trip not correct alarms
+LOOP n = 1 TO MaxBuffers DO
+	IF (STEP = 2) AND BufferClear[n] AND NOT Uld[n].SDCReady THEN
+		Alarm[5].Name 	= almSwitchFault
+		Alarm[5].Bag	= BufferBag[n]
+	ENDIF
+ENDLOOP
+
+;Search for the bag with a valid destination that has been waiting the longest
+IF STEP = 2 THEN
+
+	FoundLine 	= 0
+	Destination = 0
+	BestTime 	= 0
+	SettleTime = 30 ;3 seconds
+
+	LOOP n = 1 TO Std.MaxLines DO
+
+		IF (BagSettledTime[n] > SettleTime) THEN
+			SearchDest = Bag[Line[n].FirstBag].Dst
+
+			SDC1_Valid  = ((SearchDest = 21) AND Uld[1].SDCReady AND (Line[21].SpaceBIT > 0))
+			SDC2_Valid 	= ((SearchDest = 22) AND Uld[2].SDCReady AND (Line[22].SpaceBIT > 0))
+			SDC3_Valid 	= ((SearchDest = 23) AND Uld[3].SDCReady )
+			SDC4_Valid 	= ((SearchDest = 24) AND Uld[4].SDCReady)
+
+			IF (SDC1_Valid OR SDC2_Valid OR SDC3_Valid OR SDC4_Valid) THEN
+				FoundLine 	= n
+				Destination = SearchDest
+				BestTime 	= BagSettledTime[n]
+			ENDIF
+		ENDIF
+
+	ENDLOOP
+
+	IF ((FoundLine > 0) AND OffGoingEnable AND (Bag[225].Cat = 0) AND SVC2BufferClear AND NOT EmptyInTransit ) THEN
+		D[905] = 3
+	ENDIF
+
+ENDIF
+
+
+;Step 3 - Select Line / Open Stop, Until Bag at correct destination
+;Clear Line Selections
+LOOP n = 1 TO Std.MaxLines DO
+	LineSelect[n] = FALSE
+	Indication[n] = FALSE
+ENDLOOP
+
+IF (STEP = 3) THEN
+
+	IF PLS THEN
+		C[20] = 0
+	ENDIF
+
+	IF PLS  AND (Bag[225].Cat = 0) AND (Bag[Line[FoundLine].FirstBag].Cat > 0)THEN
+		Bag[225] 						= Bag[Line[FoundLine].FirstBag]
+		Bag[Line[FoundLine].FirstBag] 	= Bag[0]
+	ENDIF
+
+	IF I_BagReleased THEN
+		CloseStop = TRUE
+	ENDIF
+
+	;Select Line - Wait for bag to arrive
+	LineSelect[FoundLine] = NOT CloseStop ;TRUE
+	Indication[FoundLine] = TRUE ;Use indication as single stop and display dosen't indicate to operator where the bag is comming from
+
+	;Select Route
+	IF (Destination = 21) THEN
+		Uld[1].DischargerStartLine = FoundLine ;Unloading Program
+
+		IF ((C[20] > 0) AND NOT PLS) THEN
+			IF ((Bag[225].Cat > 0) AND (Bag[230].Cat = 0))THEN
+
+				Bag[230] 	= Bag[225]
+				Bag[225] 	= Bag[0]
+				D[905] 		= 1
+			ENDIF
+		ENDIF
+		LastDest = 21
+	ELSE IF (Destination = 22) THEN
+		Uld[2].DischargerStartLine = FoundLine ;Unloading Program
+		;IF PLS THEN
+		;	C[22] = 0
+		;ENDIF
+		;IF Line[22].Trip THEN
+		IF ((C[20] > 0) AND NOT PLS) THEN
+			IF ((Bag[225].Cat > 0) AND (Bag[230].Cat = 0))THEN
+
+				Bag[230] 	= Bag[225]
+				Bag[225] 	= Bag[0]
+				D[905] 		= 1
+			ENDIF
+		ENDIF
+	ELSE IF (Destination = 23) THEN
+		Uld[3].DischargerStartLine = FoundLine ;Unloading Program
+
+		IF ((C[20] > 0) AND NOT PLS) THEN
+			IF ((Bag[225].Cat > 0) AND (Bag[230].Cat = 0))THEN
+
+				Bag[230] 	= Bag[225]
+				Bag[225] 	= Bag[0]
+				D[905] 		= 1
+			ENDIF
+		ENDIF
+		LastDest = 23
+	ENDIF
+
+	Alarm[5].Name	= almBagNotReleased
+
+ELSE
+	CloseStop = FALSE
+ENDIF
+
+;SSR2 Brush speed reducer
+IF ((Destination = 22) AND I_ApproachBrush) THEN
+	CloseBrush = TRUE
+ENDIF
+TON_10ms(CloseBrush,500,ResetBrush,ResetBrushET)
+IF ResetBrush THEN
+	CloseBrush = FALSE
+ENDIF
+O_CloseBrush = (CloseBrush OR EmptyInTransit) ;Brush needs closing to allow empty bags past
+
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[5].Name > 0)
+TimerAlarm.PT = Alarm[5].Time
+TimerAlarm FUB TON_10ms()
+Alarm[5].On = TimerAlarm.Q
+Alarm[5].ET = TimerAlarm.ET
+
+;Outputs
+;-------
+Y[5].Y15 = O_Reset
+
+Y[5].Y01 = LineSelect[1]
+Y[5].Y02 = LineSelect[2]
+Y[5].Y03 = LineSelect[3]
+Y[5].Y04 = LineSelect[4]
+Y[5].Y05 = LineSelect[5]
+Y[5].Y06 = LineSelect[6]
+Y[5].Y07 = LineSelect[7]
+Y[5].Y08 = LineSelect[8]
+Y[5].Y09 = LineSelect[9]
+Y[5].Y10 = LineSelect[10]
+Y[5].Y11 = LineSelect[11]
+Y[5].Y12 = LineSelect[12]
+Y[5].Y13 = LineSelect[13]
+Y[5].Y14 = LineSelect[14]
+
+;Buffer line selection
+Y[4].Y15 = (O_Reset OR (Destination = 21))
+;Y[4].Y16 = (Destination = 22)
+
+Y[5].Y16 = O_CloseBrush
+END_PROGRAM
+

@@ -1,0 +1,17 @@
+VAR RETAIN
+	TotalTransitBags : UINT;
+	n : UINT;
+	BITDest : ARRAY[0..199] OF UINT;
+	Destination : USINT;
+	SpaceBIT : ARRAY[0..199] OF UINT;
+	Spaces : INT;
+END_VAR
+VAR
+	BITBag : UINT;
+	ArraySize : UINT;
+	Error : UINT;
+	BoostSD4 : BOOL;
+	BoostSDC4 : BOOL;
+	BoostSDC5 : BOOL;
+	lineValid : BOOL;
+END_VAR

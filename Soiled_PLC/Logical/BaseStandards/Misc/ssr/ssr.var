@@ -1,0 +1,21 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: ssr
+ * File: ssr.var
+ * Author: treamsbottom
+ * Created: July 16, 2015
+ ********************************************************************
+ * Local variables of program ssr
+ ********************************************************************)
+VAR
+	myHaltSys : BOOL;
+	i_bagApproach : ARRAY[0..LOCAL_MAX_SPEED_REDUCERS] OF BOOL;
+	n : UINT;
+	ctu_tripCount : ARRAY[0..LOCAL_MAX_SPEED_REDUCERS] OF CTU;
+	ton_10ms_openBrush : ARRAY[0..LOCAL_MAX_SPEED_REDUCERS] OF TON_10ms;
+	o_closeBrush : ARRAY[0..LOCAL_MAX_SPEED_REDUCERS] OF BOOL;
+END_VAR
+VAR CONSTANT
+	LOCAL_MAX_SPEED_REDUCERS : UINT := 1;
+END_VAR

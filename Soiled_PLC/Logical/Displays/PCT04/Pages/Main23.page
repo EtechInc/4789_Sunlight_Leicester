@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?AutomationStudio Version="4.2.4.149"?>
+<Page xmlns="http://br-automation.co.at/AS/VC/Project" Name="Main23">
+  <Property Name="BackColor" Value="7"/>
+  <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].MainColour]"/>
+  <Property Name="Description" Value=""/>
+  <Property Name="Height" Value="240"/>
+  <Property Name="Index" Value="23"/>
+  <Property Name="MoveFocus" Value="Circular"/>
+  <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[default]"/>
+  <Property Name="Width" Value="320"/>
+  <Layers>
+    <Layer Name="Default">
+      <Property Name="BackColor" Value="9"/>
+      <Property Name="Description" Value=""/>
+      <Property Name="EditingMode" Value="Normal"/>
+      <Property Name="Height" Value="240"/>
+      <Property Name="Left" Value="0"/>
+      <Property Name="OutlineColor" Value="0"/>
+      <Property Name="OutlineDisplayControl" Value="False"/>
+      <Property Name="OutlineDisplayName" Value="True"/>
+      <Property Name="OutlineHatched" Value="False"/>
+      <Property Name="StatusDatapoint" Value="None"/>
+      <Property Name="Top" Value="0"/>
+      <Property Name="VisibilityMode" Value="Normal"/>
+      <Property Name="Width" Value="320"/>
+      <Property Name="Z-Order" Value="0"/>
+      <TextGroup>
+        <TextLayer LanguageId="en-GB"/>
+        <TextLayer LanguageId="de-DE"/>
+        <TextLayer LanguageId="fr-FR"/>
+        <IndexMap/>
+      </TextGroup>
+      <Controls>
+        <Control ClassId="0x0000100B" Name="String_1">
+          <Property Name="AlignmentHorizontal" Value="Center"/>
+          <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].TextColour1]"/>
+          <Property Name="ControlID" Value="0"/>
+          <Property Name="Description" Value=""/>
+          <Property Name="Font" Value="Source[local].Font[Verdana24]"/>
+          <Property Name="ForeColor" Value="1"/>
+          <Property Name="Height" Value="35"/>
+          <Property Name="Left" Value="4"/>
+          <Property Name="SimulationValue" Value="Text 1"/>
+          <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[pctTxtMiddle]"/>
+          <Property Name="Top" Value="1"/>
+          <Property Name="ValueDatapoint" Value="Source[global].Variable[Local.Displays.ClientText[0].CusLong]"/>
+          <Property Name="Width" Value="310"/>
+        </Control>
+        <Control ClassId="0x0000100B" Name="String_2">
+          <Property Name="AlignmentHorizontal" Value="Center"/>
+          <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].TextColour2]"/>
+          <Property Name="ControlID" Value="0"/>
+          <Property Name="Description" Value=""/>
+          <Property Name="Font" Value="Source[local].Font[Arial9px]"/>
+          <Property Name="ForeColor" Value="1"/>
+          <Property Name="Height" Value="35"/>
+          <Property Name="Left" Value="4"/>
+          <Property Name="SimulationValue" Value="Text2"/>
+          <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[pctTxtMiddle]"/>
+          <Property Name="Top" Value="45"/>
+          <Property Name="ValueDatapoint" Value="Source[global].Variable[Local.Displays.ClientText[0].CusName]"/>
+          <Property Name="Width" Value="310"/>
+        </Control>
+        <Control ClassId="0x0000100B" Name="String_3">
+          <Property Name="AlignmentHorizontal" Value="Center"/>
+          <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].TextColour3]"/>
+          <Property Name="ControlID" Value="0"/>
+          <Property Name="Description" Value=""/>
+          <Property Name="Font" Value="Source[local].Font[pctFontSmale]"/>
+          <Property Name="ForeColor" Value="1"/>
+          <Property Name="Height" Value="35"/>
+          <Property Name="Left" Value="4"/>
+          <Property Name="SimulationValue" Value="Text3"/>
+          <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[pctTxtMiddle]"/>
+          <Property Name="Top" Value="84"/>
+          <Property Name="ValueDatapoint" Value="Source[global].Variable[Local.Displays.ClientText[0].CatLong]"/>
+          <Property Name="Width" Value="310"/>
+        </Control>
+        <Control ClassId="0x0000100B" Name="String_4">
+          <Property Name="AlignmentHorizontal" Value="Center"/>
+          <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].TextColour4]"/>
+          <Property Name="ControlID" Value="0"/>
+          <Property Name="Description" Value=""/>
+          <Property Name="Font" Value="Source[local].Font[Verdana14]"/>
+          <Property Name="ForeColor" Value="1"/>
+          <Property Name="Height" Value="35"/>
+          <Property Name="Left" Value="4"/>
+          <Property Name="SimulationValue" Value="Text4"/>
+          <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[pctTxtMiddle]"/>
+          <Property Name="Top" Value="126"/>
+          <Property Name="ValueDatapoint" Value="Source[global].Variable[Local.Displays.ClientText[0].CatName]"/>
+          <Property Name="Width" Value="310"/>
+        </Control>
+        <Control ClassId="0x0000100B" Name="String_5">
+          <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].TextColour5]"/>
+          <Property Name="ControlID" Value="0"/>
+          <Property Name="Description" Value=""/>
+          <Property Name="Font" Value="Source[local].Font[Verdana32]"/>
+          <Property Name="ForeColor" Value="1"/>
+          <Property Name="Height" Value="55"/>
+          <Property Name="Left" Value="5"/>
+          <Property Name="SimulationValue" Value="Text5"/>
+          <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[pctTxtMiddle]"/>
+          <Property Name="Top" Value="180"/>
+          <Property Name="ValueDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].StnName]"/>
+          <Property Name="Width" Value="150"/>
+        </Control>
+        <Control ClassId="0x00001007" Name="Numeric_5">
+          <Property Name="AlignmentHorizontal" Value="Right"/>
+          <Property Name="BackColor" Value="15"/>
+          <Property Name="ColorDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].TextColour6]"/>
+          <Property Name="ControlID" Value="0"/>
+          <Property Name="Description" Value=""/>
+          <Property Name="Font" Value="Source[local].Font[Verdana32]"/>
+          <Property Name="ForeColor" Value="1"/>
+          <Property Name="Height" Value="55"/>
+          <Property Name="Input" Value="False"/>
+          <Property Name="Left" Value="165"/>
+          <Property Name="MaxDatapoint" Value="None"/>
+          <Property Name="MaxValue" Value="None"/>
+          <Property Name="MinDatapoint" Value="None"/>
+          <Property Name="MinValue" Value="None"/>
+          <Property Name="SimulationValue" Value="500"/>
+          <Property Name="StyleClass" Value="Source[relative:StyleGroup].StyleClass[pctInputSmale]"/>
+          <Property Name="TeachDatapoint" Value="None"/>
+          <Property Name="Top" Value="180"/>
+          <Property Name="UnitText" Value="Abbreviation"/>
+          <Property Name="UnitTextAlignment" Value="Left"/>
+          <Property Name="UnitTextPosition" Value="Right"/>
+          <Property Name="UnitTextWidth" Value="0"/>
+          <Property Name="ValueDatapoint" Value="Source[global].Variable[Local.Displays.ClientReceive[0].DisplayBag.Wgt]"/>
+          <Property Name="ValueMode" Value="Standard"/>
+          <Property Name="Width" Value="150"/>
+        </Control>
+      </Controls>
+      <KeyMapping/>
+    </Layer>
+  </Layers>
+  <MovementOrder/>
+  <TabSequence>
+    <TabSeqItem Index="0" Value="Source[embedded].Layer[Default].Control[String_1]"/>
+    <TabSeqItem Index="1" Value="Source[embedded].Layer[Default].Control[String_2]"/>
+    <TabSeqItem Index="2" Value="Source[embedded].Layer[Default].Control[String_3]"/>
+    <TabSeqItem Index="3" Value="Source[embedded].Layer[Default].Control[String_4]"/>
+    <TabSeqItem Index="4" Value="Source[embedded].Layer[Default].Control[String_5]"/>
+    <TabSeqItem Index="5" Value="Source[embedded].Layer[Default].Control[Numeric_5]"/>
+  </TabSequence>
+</Page>

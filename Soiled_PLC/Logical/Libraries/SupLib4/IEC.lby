@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=3.0.90.20 SP02?>
+<Library Version="1.00.0" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>SupLib4.fun</File>
+    <File>BCD_BIN_OUTPUT.ab</File>
+    <File>BIN_TO_BCD.ab</File>
+    <File>BIT_ENCODE.ab</File>
+    <File>DIS4.ab</File>
+    <File>stASC_UINT.ab</File>
+    <File>stUINT_ASC.ab</File>
+    <File>stUNI4.ab</File>
+    <File>stUNI5.ab</File>
+  </Files>
+</Library>

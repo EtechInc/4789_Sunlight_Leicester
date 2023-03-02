@@ -1,0 +1,34 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	LevellerDownET	:TIME;	
+	O_LevelCylinder	:BOOL;	
+	O_SelectLineB	:BOOL;	
+	O_SelectLineA	:BOOL;	
+	I_OutLineB	:BOOL;	
+	LevellerDown	:BOOL;	
+	LevellerUp	:BOOL;	
+	LevellerUpET	:TIME;	
+	I_TiltB	:BOOL;	(* SPR1 Trolley past stop *)
+	I_OutLineA	:BOOL;	
+	O_OpenRockSep	:BOOL;	
+	O_OpenLineAStop	:BOOL;	
+	O_OpenLineBStop	:BOOL;	
+	I_RockSepA	:BOOL;	
+	I_RockSepB	:BOOL;	
+	I_TiltA	:BOOL;	(* SBS1 ON Bag on stacker *)
+	O_LevelCylinderUP	:BOOL;	
+END_VAR
+
+
+VAR
+	PRLineClearET	:ARRAY [0..4] OF TIME;	
+	SettledLevel	:BOOL;	
+	SettledLevelET	:TIME;	
+	SettledInSepsET	:TIME;	
+	SettledInSeps	:BOOL;	
+	LevelClearET	:TIME;	
+	LevelClear	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+END_VAR

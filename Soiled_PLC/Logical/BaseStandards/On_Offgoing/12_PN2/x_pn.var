@@ -1,0 +1,71 @@
+VAR
+	AlarmOld : UINT;
+	Area : UINT;
+	AreaChoice : ARRAY[0..4] OF UINT;
+	AreaEndLine : UINT;
+	AreaStartLine : UINT;
+	AreaValid : BOOL;
+END_VAR
+VAR RETAIN
+	Buff : UINT;
+END_VAR
+VAR
+	Buffer : UINT;
+	BufferBag : UINT;
+	BufferBagNum : ARRAY[0..4] OF UINT;
+	BufferCat : UDINT;
+	BufferCus : UDINT;
+	BufferDst : UINT;
+	BufferPrg : UINT;
+	BufferSettled : BOOL;
+END_VAR
+VAR RETAIN
+	Dest : UINT;
+END_VAR
+VAR
+	FoundDepth : UINT;
+	I_BagatBuffer : ARRAY[0..4] OF BOOL;
+END_VAR
+VAR RETAIN
+	LASTSTEP : UINT;
+	LineSelect : ARRAY[0..19] OF BOOL;
+END_VAR
+VAR
+	MaxBuffers : UINT;
+	MaxDepth : UINT;
+	MaxLine : UINT;
+	MinLine : UINT;
+	myDepth : UINT;
+	myFound : UINT;
+	myLine : UINT;
+	myLineUsed : BOOL;
+	myLineValid : BOOL;
+	mySpace : UINT;
+	n : UINT;
+	O_OpenSelect : ARRAY[0..4] OF BOOL;
+	O_Reset : BOOL;
+	OnGoingEnable : BOOL;
+END_VAR
+VAR RETAIN
+	PLS : BOOL;
+END_VAR
+VAR
+	ResetPoints : BOOL;
+	ResetPointsET : TIME;
+	SearchBag : UINT;
+	SettledBuffer : ARRAY[0..4] OF BOOL;
+	SettledBufferET : ARRAY[0..4] OF TIME;
+END_VAR
+VAR RETAIN
+	STEP : UINT;
+END_VAR
+VAR
+	TestBuffer : UINT;
+	TimerAlarm : TON_10ms;
+	I_BagBagReleased : BOOL;
+	mySeq : UINT;
+	myZone : UINT;
+	myTransitBag : UINT;
+	myStartStop : UINT;
+	O_OpenBuffer : ARRAY[0..9] OF BOOL;
+END_VAR

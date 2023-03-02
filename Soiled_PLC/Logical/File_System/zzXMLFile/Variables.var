@@ -1,0 +1,35 @@
+(*State Constants*)
+VAR CONSTANT
+	XML_READER_IDLE : UINT := 0;
+	XML_READER_COPY_FILE_TO_MEMCARD : UINT := 1;
+	XML_READER_DECODE_FILE : UINT := 2;
+	XML_READER_DECODE_ERROR : UINT := 99;
+END_VAR
+(**Local Vars*)
+VAR
+	state : UINT;
+	error : UINT;
+	pTempMem : UDINT;
+	sizeTempMem : UDINT;
+	pFileName : UDINT;
+	pFileDevice : UDINT;
+	pDevLinkParameter : UDINT;
+	pMemCard : UDINT;
+	fileCopyFromDev : FileCopyFromDev;
+	pUSB : UDINT;
+	n : UINT;
+	xmlReader : UINT;
+	lineCount : UINT;
+	xmlName : STRING[100];
+	xmlValue : STRING[100];
+	xmlIndex : UDINT;
+	xmlProperty : STRING[100];
+	xmlPropertyIndex : DINT;
+	fiToMem : fileToMem;
+	xmlReadCreate : xmlCreateMemoryReader;
+	xmlReadNode : xmlReadNextNode;
+	xmlReadAttNum : xmlReadAttributeNr;
+	xmlCloseReader : xmlCloseMemoryReader;
+	testString : STRING[100];
+	fileWrite : fileReadWrite;
+END_VAR

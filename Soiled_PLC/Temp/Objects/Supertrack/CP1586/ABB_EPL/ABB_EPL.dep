@@ -1,0 +1,6 @@
+$(AS_PROJECT_PATH)/Logical/ABB_EPL/ABB_EPL/ABB_EPL.fun
+$(AS_PROJECT_PATH)/Logical/ABB_EPL/ABB_EPL/ABB_EPL.typ
+$(AS_PROJECT_PATH)/Logical/ABB_EPL/AsEPL/AsEPL.typ
+$(AS_PROJECT_PATH)/Logical/ABB_EPL/AsEPL/AsEPL.fun
+$(AS_PROJECT_PATH)/Logical/ABB_EPL/ABB_EPL/Constants.var
+$(AS_PROJECT_PATH)/Logical/Libraries/IecCheck/IecCheck.fun

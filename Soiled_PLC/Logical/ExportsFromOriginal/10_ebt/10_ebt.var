@@ -1,0 +1,18 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+END_VAR
+
+
+VAR
+	O_OpenBufferStop	:BOOL;	
+	SettledAtBufferET	:TIME;	
+	I_BagAtBuffer	:BOOL;	
+	SettledAtBuffer	:BOOL;	
+	O_SPI1BufferStopOpen	:BOOL;	
+	I_BagAtSPI1BufferStop	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+	O_SelectPoint	:BOOL;	
+	RequestSDC	:Undef;	(*  Datatype changed to Undef because there was no datatype set in the Automation Studio 2.x declaration *)
+END_VAR

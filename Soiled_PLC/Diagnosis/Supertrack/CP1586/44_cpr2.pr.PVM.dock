@@ -1,0 +1,9 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=44_cpr2 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=250 Type=0 Scope=0 Force=0 Index=4 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       X                       CardInputs[0..399]    0 "                                                               *"    0   24  400    0    0    1         
+                                    X[9]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X08                                     BOOL    2 "                                                            TRUE"    2    1    1    2    0    0         
+                                   X[10]                               CardInputs    0 "                                                               *"    1   24    1    0    0    1         
+                                     X16                                     BOOL    2 "                                                           FALSE"    2    1    1    2    0    0         
+                                   X[11]                               CardInputs    0 "                                                               *"    1   24    1    0    0    0         

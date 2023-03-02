@@ -1,0 +1,3 @@
+VAR
+	BarcodeReader : ARRAY[0..READER_MAX_DEVICES] OF Reader_typ;
+END_VAR

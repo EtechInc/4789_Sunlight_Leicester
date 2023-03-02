@@ -1,0 +1,197 @@
+(********************************************************************
+ * COPYRIGHT --  
+ ********************************************************************
+ * Program: zzGetNames
+ * File: zzGetNames.ab
+ * Author: Dave
+ * Created: November 19, 2010
+ ********************************************************************
+ * Implementation of program zzGetNames
+ ********************************************************************)
+
+;Get names from TrackView - Program, Category and Customer
+
+;Version 1.00 19/11/2010 D.J. First Issue
+;Version 2.00 12/12/2010 D.J. Added default values
+;Version 3.00 19/10/2011 D.J. Clear Name when number has changed - if no TrackView then name will remain clear.
+
+;Enter the required bag numbers for collection of names. Use the resulting names in transmisions to displays.
+
+PROGRAM _INIT
+	mySql = 96
+	MaxDisplays = 1 
+	LOOP n = 1 TO MaxDisplays DO
+		zzGetNamesData[n].BagNumber = 100 + n
+	ENDLOOP
+	;zzGetNamesData[20].BagNumber = 194	; Static Bag
+	;zzGetNamesData[21].BagNumber = 411	; Customer Change 1
+	;zzGetNamesData[22].BagNumber = 412	; Customer Change 2
+	;zzGetNamesData[23].BagNumber = 401	; Customer Change Current Cust 1
+	;zzGetNamesData[24].BagNumber = 402	; Customer Change Current Cust 2
+	
+	
+	IF (MaxDisplays > SIZEOF(zzGetNamesData)) THEN
+		MaxDisplays = SIZEOF(zzGetNamesData)
+	ENDIF
+	
+	WaitReply = FALSE
+	
+	zzGetNamesData[0].BagNumber = 1
+	zzGetNamesData[0].Prg		= 1
+	strcpy(ADR(zzGetNamesData[0].PrgLong),"PRG")
+	strcpy(ADR(zzGetNamesData[0].PrgName),"ProgramName")
+	zzGetNamesData[0].Cat		= 1
+	strcpy(ADR(zzGetNamesData[0].CatLong),"CAT")
+	strcpy(ADR(zzGetNamesData[0].CatName),"CategoryName")
+	zzGetNamesData[0].Cus		= 1
+	strcpy(ADR(zzGetNamesData[0].CusLong),"CUS")
+	strcpy(ADR(zzGetNamesData[0].CusName),"CustomerName")
+	
+END_PROGRAM
+
+
+PROGRAM _CYCLIC
+	IF RefreshDataTest THEN
+		LOOP n = 1 TO MaxDisplays DO
+			zzGetNamesData[n].Cat = 0
+		ENDLOOP	
+		RefreshDataTest = FALSE
+	ENDIF	
+	;Clear all display strings while waiting for replies,
+				
+	LOOP n = 1 TO MaxDisplays DO
+		myBag = zzGetNamesData[n].BagNumber
+		
+		IF ((zzGetNamesData[n].Prg <> Bag[myBag].Prg) AND (Bag[myBag].Prg > 0)) THEN
+			memcpy(ADR(zzGetNamesData[n].PrgLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[n].PrgName),ADR(""),32)
+		ENDIF
+			
+		IF ((zzGetNamesData[n].Cat <> Bag[myBag].Cat) AND (Bag[myBag].Cat > 0)) THEN
+			memcpy(ADR(zzGetNamesData[n].CatLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[n].CatName),ADR(""),32)
+		ENDIF
+			
+		IF ((zzGetNamesData[n].Cus <> Bag[myBag].Cus) AND (Bag[myBag].Cus > 0)) THEN
+			memcpy(ADR(zzGetNamesData[n].CusLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[n].CusName),ADR(""),32)
+		ENDIF
+	ENDLOOP	
+	
+	
+	;Search for display data that needs updating
+	IF NOT WaitReply THEN
+		
+		OwnerID = OwnerID + 1
+		IF (OwnerID > MaxDisplays) THEN
+			OwnerID = 1
+		ENDIF	
+		
+		myBag = zzGetNamesData[OwnerID].BagNumber
+		
+		IF ((zzGetNamesData[OwnerID].Prg <> Bag[myBag].Prg) AND (Bag[myBag].Prg > 0)) THEN
+			memcpy(ADR(zzGetNamesData[OwnerID].PrgLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[OwnerID].PrgName),ADR(""),32)
+			WaitReply = TRUE
+		ENDIF
+		
+		IF ((zzGetNamesData[OwnerID].Cat <> Bag[myBag].Cat) AND (Bag[myBag].Cat > 0)) THEN
+			;Special for Brolli Get Prg code back for Data entry
+			IF ((OwnerID = 25) OR (OwnerID = 26)) THEN 
+				Bag[myBag].Prg = 0
+				zzGetNamesData[OwnerID].Prg = 0
+				memcpy(ADR(zzGetNamesData[OwnerID].PrgLong),ADR(""),8)
+				memcpy(ADR(zzGetNamesData[OwnerID].PrgName),ADR(""),32)
+			ENDIF	
+			memcpy(ADR(zzGetNamesData[OwnerID].CatLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[OwnerID].CatName),ADR(""),32)
+			WaitReply = TRUE
+		ELSE IF Bag[myBag].Cat = 0 THEN
+			zzGetNamesData[OwnerID].Cat = 0
+			strcpy(ADR(zzGetNamesData[OwnerID].CatLong),"")
+			strcpy(ADR(zzGetNamesData[OwnerID].CatName),"")
+			strcpy(ADR(zzGetNamesData[OwnerID].CusName),"")
+			strcpy(ADR(zzGetNamesData[OwnerID].PrgName),"")
+			strcpy(ADR(zzGetNamesData[OwnerID].ImagePath),"")
+		ENDIF
+		
+		IF ((zzGetNamesData[OwnerID].Cus <> Bag[myBag].Cus) AND (Bag[myBag].Cus > 0)) THEN
+			memcpy(ADR(zzGetNamesData[OwnerID].CusLong),ADR(""),8)
+			memcpy(ADR(zzGetNamesData[OwnerID].CusName),ADR(""),32)
+			WaitReply = TRUE
+		ENDIF
+		
+		;Set TrackView Registers
+		IF WaitReply THEN
+			itoa(Bag[myBag].Prg,ADR(myPrgString))	
+			itoa(Bag[myBag].Cat,ADR(myCatString))
+			itoa(Bag[myBag].Cus,ADR(myCusString))
+			SqlRequest[mySql].Request = TRUE
+		ENDIF
+		
+	ENDIF	
+		
+	;Set request to TrackView until reply
+	IF (WaitReply AND SqlRequest[mySql].Complete) THEN
+		
+		myBag = zzGetNamesData[OwnerID].BagNumber
+		
+		strcpy(ADR(zzGetNamesData[OwnerID].PrgLong),ADR(SqlRequest[mySql].OutputData[1]))
+		strcpy(ADR(zzGetNamesData[OwnerID].PrgName),ADR(SqlRequest[mySql].OutputData[2]))
+		result = strcmp(ADR(zzGetNamesData[OwnerID].PrgName),"ProgCodeReturned")
+		IF (result = 0) THEN
+			Bag[myBag].Prg = USINT(atoi(ADR(zzGetNamesData[OwnerID].PrgLong)))
+		ENDIF	
+		zzGetNamesData[OwnerID].Prg = Bag[myBag].Prg
+		
+		zzGetNamesData[OwnerID].Cat = Bag[myBag].Cat
+		strcpy(ADR(zzGetNamesData[OwnerID].CatLong),ADR(SqlRequest[mySql].OutputData[3]))
+		strcpy(ADR(zzGetNamesData[OwnerID].CatName),ADR(SqlRequest[mySql].OutputData[4]))
+		
+		zzGetNamesData[OwnerID].Cus = Bag[myBag].Cus
+		strcpy(ADR(zzGetNamesData[OwnerID].CusLong),ADR(SqlRequest[mySql].OutputData[5]))
+		strcpy(ADR(zzGetNamesData[OwnerID].CusName),ADR(SqlRequest[mySql].OutputData[6]))
+		
+		strcpy(ADR(zzGetNamesData[OwnerID].ImagePath),ADR(SqlRequest[mySql].OutputData[7]))
+		
+		
+		
+		WaitReply 	= FALSE
+							
+	ENDIF
+	
+	
+	
+IF SqlRequest[mySql].Request AND NOT SqlWriteActive THEN ; Write Count to SQL 	
+	SqlWriteActive = TRUE				
+	SqlRequest[mySql].SQLType = cSQLType_ReadWrite
+	SqlRequest[mySql].SQL_usp = cSQLReq_zzGetNames
+	SqlRequest[mySql].NoOfParams = 3
+	
+	SqlRequest[mySql].Parameters[0].Type = cSQLParam_Input ;PLC Stn
+	strcpy(ADR(SqlRequest[mySql].Parameters[0].Param_String),ADR(myPrgString))
+	SqlRequest[mySql].Parameters[1].Type = cSQLParam_Input ;BatchID;
+	strcpy(ADR(SqlRequest[mySql].Parameters[1].Param_String),ADR(myCatString))
+	SqlRequest[mySql].Parameters[2].Type = cSQLParam_Input ; Prg
+	strcpy(ADR(SqlRequest[mySql].Parameters[2].Param_String),ADR(myCusString))	
+ENDIF	
+
+IF SqlRequest[mySql].Complete THEN ; ClearRequest
+	;Copy Out Reply Done in step.!
+	SqlRequest[mySql] = cEmptySQlReq	
+	SqlWriteActive = FALSE	
+ELSE IF SqlRequest[mySql].Fail THEN
+	WaitReply = FALSE ; Move to next and try and again
+	SqlWriteActive = FALSE ; Reload Parameters	
+	SqlRequest[mySql].Fail = FALSE	
+;ELSE IF WaitReply AND NOT SqlWriteActive THEN
+;	WaitReply = FALSE	
+ENDIF	
+	
+	
+	
+	
+	
+END_PROGRAM
+
+

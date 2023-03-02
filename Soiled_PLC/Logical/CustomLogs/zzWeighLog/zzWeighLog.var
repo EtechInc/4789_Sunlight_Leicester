@@ -1,0 +1,37 @@
+(********************************************************************
+ * COPYRIGHT -- HP
+ ********************************************************************
+ * Program: zzLogger
+ * File: zzLogger.var
+ * Author: treamsbottom
+ * Created: November 06, 2014
+ ********************************************************************
+ * Local variables of program zzLogger
+ ********************************************************************)
+VAR
+	LoggerModule : LoggerModule_typ := (0);
+END_VAR
+VAR CONSTANT
+	MAX_WEIGH_LOGS : UINT := 100;
+END_VAR
+VAR
+	WriteLog : AsArLogWrite;
+	LocalLog : Log_typ;
+END_VAR
+VAR CONSTANT
+	EmptyLog : Log_typ := (0);
+END_VAR
+VAR
+	CustomLogger : Logger_enum;
+	GetLogInfo : AsArLogGetInfo;
+	pLoggerName : UDINT;
+	CreateLog : AsArLogCreate;
+	n : UINT;
+	ftrig_OK : ARRAY[0..dec_C_MaxCustomLogs] OF F_TRIG;
+	modNumString : STRING[10];
+	errorString : ARRAY[0..400] OF STRING[50];
+	shuffle : BOOL;
+	ton_debounce : ARRAY[0..400] OF TON_10ms;
+	testTim : BOOL;
+	weighLog : ARRAY[0..MAX_WEIGH_LOGS] OF Log_typ;
+END_VAR

@@ -1,0 +1,11 @@
+VAR
+	n : INT;
+	bagString : STRING[150];
+	myValue : STRING[30];
+	bagEncode : OPCuA_BagEncode_Bin;
+	test : UDINT;
+	testData : ARRAY[0..33] OF USINT;
+	pOPCuA_Data : ARRAY[0..MAX_BAGS] OF UDINT;
+	dataSize : UDINT;
+	pBagData : ARRAY[0..MAX_BAGS] OF UDINT;
+END_VAR

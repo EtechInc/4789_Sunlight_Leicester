@@ -1,0 +1,28 @@
+VAR RETAIN
+	STEP	:UINT;	
+	PLS	:BOOL;	
+	LASTSTEP	:UINT;	
+	O_OpenBufferStop	:BOOL;	
+	I_BagAtBuffer	:BOOL;	
+	O_RunMotor	:BOOL;	
+	BagSettled	:BOOL;	
+	BagSettledET	:TIME;	
+	BagAtBuffer	:BOOL;	
+	RunOnET	:TIME;	
+	RunOn	:BOOL;	
+	BagNearTopET	:TIME;	
+	BagNearTop	:BOOL;	
+	BagAtBufferET	:UDINT;	
+	I_BagInIncline	:BOOL;	
+END_VAR
+
+
+VAR
+	I_BagAtOutgoingBuffer	:BOOL;	
+	I_PaddleInPosition	:BOOL;	
+	O_SelectSDC1	:BOOL;	
+	O_SelectSDC2	:BOOL;	
+	Dest	:UINT;	
+	O_OutgoingBufferOpen	:BOOL;	
+	TimerAlarm	:TON_10ms;	
+END_VAR

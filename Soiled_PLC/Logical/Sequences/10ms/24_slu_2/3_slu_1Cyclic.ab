@@ -1,0 +1,228 @@
+PROGRAM _CYCLIC
+	(* cyclic program *)
+
+;--------------------------------
+;Sequence 3 - Loading Unit D[903]
+;--------------------------------
+
+;Inputs / Ouputs
+
+I_BagAtBuffer			= X[11].X11
+I_BagFrontPast			= X[8].X12
+I_BagInLoadingUnit		= X[8].X11
+
+I_ChuteBlocked			= X[8].X16
+HaltDownStairs          = NOT X[6].X12
+
+;O_MoveCompressorUp		= FALSE
+Request.LU[2]  		= FALSE
+
+I_BagAtSIC1Buffer		= X[11].X15 ;X[12].X11
+O_SIC1BufferOpen		= Y[11].Y15 ;Y[12].Y11
+
+O_OpenBufferStop		= FALSE 
+O_SteadyCylinders		= FALSE 
+O_OpenStop	 			= FALSE 
+
+Enable.SDP[1]			= FALSE
+
+Alarm[24].Name 			= 0
+Alarm[24].Bag			= 287
+Alarm[24].Beacon		= TRUE
+Alarm[24].Extra			= 0
+Alarm[24].Time			= 3000
+
+;Setup Sequence
+;--------------
+STEP = D[924]
+;Setup Pulse contact 
+PLS = (STEP <> LASTSTEP)
+LASTSTEP = STEP
+
+IF (STEP = 0) THEN
+	;Disabled
+ENDIF
+
+;Wait for Empty bag at buffer
+SwitchFault = (I_BagFrontPast OR I_BagInLoadingUnit)
+TON_10ms(NOT SwitchFault,200,LoadingUnitClear,LoadingUnitClearET)
+TON_10ms(I_BagAtBuffer,300,BagSettledBuffer,BagSettledBufferET)
+IF (STEP = 1) THEN
+	IF BagSettledBuffer AND LoadingUnitClear AND NOT HaltDownStairs THEN
+	;IF LoadingUnitClear AND NOT Std.HaltSys THEN
+		D[924] = 2
+	ENDIF
+	IF SwitchFault THEN
+		Alarm[24].Name = almSwitchFault
+	ENDIF
+ENDIF
+
+;Open stops let bag in Loading Unit
+IF (STEP = 2) THEN
+	O_OpenStop 			= TRUE
+	O_OpenBufferStop 	= TRUE
+	;Enable.SLU[1]		= NOT I_BagFrontPast 
+	IF I_BagFrontPast THEN 
+		D[924] = 3
+	ENDIF
+	Alarm[24].Name = almBagNotArrived
+ENDIF
+
+;Wait for bag to settle
+TON_10ms(I_BagInLoadingUnit,700,EBagSettled,EBagSettledET)
+IF (STEP = 3) THEN
+	IF EBagSettled THEN
+		D[924] = 4
+	ENDIF
+	Alarm[23].Name = almBagNotSettled
+ENDIF
+
+;Steady cylinders on from steps 4 - 5
+O_SteadyCylinders = ((STEP >= 4) AND (STEP <= 8))
+
+;Move Steady Cylinders down
+TON_10ms((STEP = 4),300,SteadysDown,SteadysDownET)
+IF (STEP = 4) THEN
+	IF (SteadysDown AND (Bag[287].Cat = 0)) THEN
+		D[924] = 5
+	ENDIF
+	IF (Bag[287].Cat <> 0) THEN
+		Alarm[4].Name = almBagDataError
+	ELSE
+		Alarm[4].Name = almNoAlarm
+	ENDIF	
+ENDIF
+
+
+IF ((NOT STEP = 6) AND (NOT STEP = 8)) THEN
+	BagDropped = FALSE
+ENDIF
+
+;Wait for request from spd 1
+IF (STEP = 5) THEN
+	
+	
+	IF Request.SDP[1] THEN
+		D[924] = 6
+	ENDIF
+ENDIF
+
+IF (NOT (STEP = 6) AND NOT (STEP = 8)) THEN
+	BagDropped = FALSE
+ENDIF
+
+
+
+;Wait for linen to pass photo cell 
+TON_10ms(NOT I_ChuteBlocked,300,ChuteClear,ChuteClearET)
+IF (STEP = 6) THEN
+	Enable.SDP[1] = TRUE
+	Request.LU[2] = TRUE
+	
+	IF I_ChuteBlocked THEN
+		BagDropped = TRUE
+	ENDIF
+	IF BagDropped AND ChuteClear and (Bag[287].Cat > 0)and (Bag[287].Wgt < 649)THEN
+		D[924] = 9
+	ELSE IF BagDropped AND ChuteClear and (Bag[287].Cat > 0)and (Bag[287].Wgt > 649)THEN
+		D[924] = 9
+	ENDIF
+	
+ENDIF
+
+;Wait for request from SDP1
+IF (STEP = 7) THEN
+	IF (Request.SDP[1] AND (Bag[285].Cat = Bag[287].Cat) AND (Bag[287].Wgt < 650)) THEN
+		IF Request.SDP[1] THEN
+			D[924] = 8
+		ENDIF
+	ELSE IF (Request.SDP[1] AND (Bag[285].Cat <> Bag[287].Cat)) THEN
+		D[924] = 9
+	ELSE IF (Bag[287].Wgt > 650)THEN
+		D[924] = 9
+	ENDIF
+ENDIF
+
+
+;Wait for linen to pass photo cell
+TON_10ms((STEP = 6),300,SteadysUp,SteadysUpET)
+IF (STEP = 8) THEN
+	Enable.SDP[1] = TRUE
+	Request.LU[2] = TRUE
+	IF I_ChuteBlocked THEN
+		BagDropped = TRUE
+	ENDIF
+	IF BagDropped AND ChuteClear THEN
+		D[924] = 9
+	ENDIF
+ENDIF
+
+;Allow Steady Cylinders to move up
+TON_10ms((STEP = 9),300,SteadysUp,SteadysUpET)
+IF (STEP = 9) THEN
+	IF SteadysUp THEN
+		D[924] = 10
+	ENDIF
+ENDIF
+
+
+;Move compressor down
+IF (STEP = 10) THEN
+	D[924] = 11
+ENDIF
+
+;Move compressor up
+IF (STEP = 11) THEN
+	D[924] = 12
+ENDIF
+
+
+;Check for space at Buffer
+IF (STEP = 12) THEN
+	IF NOT HaltDownStairs THEN
+		IF (Bag[284].Cat = 0) AND NOT I_BagAtSIC1Buffer AND NOT O_SIC1BufferOpen THEN
+			IF Line[33].Clear THEN 
+				C[33]   = 0
+				D[924] 	= 13
+			ELSE
+				;Alarm[3].Name = almSwitchFault	
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+;Open stop - Unitl bag out
+IF (STEP = 13) THEN	
+	O_OpenStop = TRUE
+	;IF PLS THEN
+	;	C[16] = 0
+	;ENDIF
+	;IF Line[16].Trip THEN
+	IF (C[33]>=1) THEN
+		IF ((Bag[287].Cat > 0) AND (Bag[284].Cat = 0)) THEN
+			Bag[284] = Bag[287]
+			Bag[287] = Bag[0]
+		ENDIF
+		IF (C[33] >= 1) THEN
+			D[924] = 1
+		ENDIF
+	ENDIF
+	Alarm[24].Name = almBagNotReleased
+ENDIF
+
+;Alarms
+TimerAlarm.IN = NOT PLS AND (Alarm[24].Name > 0)
+TimerAlarm.PT = Alarm[24].Time
+TimerAlarm FUB TON_10ms()
+Alarm[24].On = TimerAlarm.Q
+Alarm[24].ET = TimerAlarm.ET
+
+;Outputs
+;-------
+
+Y[11].Y11 = O_OpenBufferStop
+Y[8].Y12 = O_SteadyCylinders
+Y[8].Y11 = O_OpenStop
+
+END_PROGRAM
+

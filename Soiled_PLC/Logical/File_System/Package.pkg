@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.2.4.149?>
+<Package xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Library" Language="IEC">FileMgr</Object>
+    <Object Type="File">Variables.var</Object>
+    <Object Type="Program" Language="IEC">zzFileTransfer</Object>
+    <Object Type="Program" Language="IEC">zzXMLFile</Object>
+    <Object Type="Program" Language="IEC">zzXMLFileViaHttp</Object>
+    <Object Type="Program" Language="IEC">sendXML</Object>
+  </Objects>
+</Package>

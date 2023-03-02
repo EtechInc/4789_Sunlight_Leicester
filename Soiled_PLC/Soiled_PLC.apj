@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version="4.10.2.37" WorkingVersion="4.10"?>
+<Project Version="1.00.0" Edition="Standard" EditionComment="Standard" xmlns="http://br-automation.co.at/AS/Project">
+  <Communication>
+    <OnlineConfiguration Name="Serial" DeviceType="Serial" DeviceParameters="/IF=COM1 /BD=57600 /PA=2 /IT=1" ConnectionParameters="/AM=*" Description="" />
+  </Communication>
+  <ANSIC Declarations="true" DefaultIncludes="true" />
+  <IEC ExtendedConstants="true" IecExtendedComments="true" KeywordsAsStructureMembers="false" NamingConventions="false" Pointers="true" Preprocessor="true" />
+  <Motion RestartAcoposParameter="true" RestartInitParameter="true" />
+  <Project StoreRuntimeInProject="true" />
+  <Variables DefaultInitValue="0" DefaultRetain="false" DefaultVolatile="true" />
+  <TechnologyPackages>
+    <mapp Version="5.15.0" />
+    <mappView Version="5.15.1" />
+  </TechnologyPackages>
+</Project>

@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=3.0.90.22 SP04?>
+<Library Version="3.06.2" xmlns="http://br-automation.co.at/AS/Library">
+  <Files>
+    <File>WETCAN2.typ</File>
+    <File>WETCAN2.var</File>
+    <File>_GetNumberOfCan1Tels.ab</File>
+    <File>_SetCAN2COBTypeToCAN2Type.ab</File>
+    <File>CAN2RW.ab</File>
+    <File>CAN2Init.ab</File>
+    <File>_SetCAN2TypeToCAN1Type.ab</File>
+    <File>_SetCAN1TypeToByteArray.ab</File>
+    <File>_GetCANIDFromObjNr.ab</File>
+    <File>_GetPVSize.ab</File>
+    <File>_ConvertDataToi386.ab</File>
+    <File>_version.ab</File>
+    <File>_Seti386CAN2TypeToCAN1Type.ab</File>
+    <File>_swapUINT.ab</File>
+    <File>WETCAN2.fun</File>
+  </Files>
+  <Dependencies>
+    <Dependency ObjectName="AsString" FromVersion="1.01.1" />
+    <Dependency ObjectName="AsTime" FromVersion="1.00.2" />
+    <Dependency ObjectName="CAN_LIB" FromVersion="2.04.3" />
+    <Dependency ObjectName="DataObj" FromVersion="1.02.0" />
+    <Dependency ObjectName="brsystem" FromVersion="1.11.0" />
+    <Dependency ObjectName="runtime" FromVersion="1.09.0" />
+  </Dependencies>
+</Library>

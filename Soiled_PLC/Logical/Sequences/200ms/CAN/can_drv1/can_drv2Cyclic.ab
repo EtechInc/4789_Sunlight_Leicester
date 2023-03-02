@@ -1,0 +1,118 @@
+PROGRAM _CYCLIC
+;----------------------------------------
+;Version 1.00 08/02/2005 D.J. First Issue
+;----------------------------------------
+
+IF CANOK THEN
+
+	;----------------
+	;Set Write values
+	;----------------
+
+	;Powertrans 1
+	IF CAN[1].BagReady THEN
+		WriteFrame1.ControlSignals = BIT_SET(WriteFrame1.ControlSignals, 1)
+	ELSE
+		WriteFrame1.ControlSignals = BIT_CLR(WriteFrame1.ControlSignals, 1)
+	ENDIF
+   IF CAN[1].LoadFinished = TRUE THEN
+			WriteFrame1.ControlSignals = BIT_SET(WriteFrame1.ControlSignals, 2)
+	ELSE
+			WriteFrame1.ControlSignals = BIT_CLR(WriteFrame1.ControlSignals, 2)
+	ENDIF	
+	//WriteFrame1.Destination = 0
+	WriteFrame1.Category 	= UINT(CAN[1].Category)
+	WriteFrame1.Customer    = UINT(CAN[1].Customer)
+	WriteFrame1.Weight      = CAN[1].Weight
+
+	;Write to Machine1
+	EventWrite1 = TRUE
+
+	;Powertrans 2
+	IF CAN[2].BagReady THEN
+		WriteFrame2.ControlSignals = BIT_SET(WriteFrame2.ControlSignals, 1)
+	ELSE
+		WriteFrame2.ControlSignals = BIT_CLR(WriteFrame2.ControlSignals, 1)
+	ENDIF
+	;IF CAN[2].DoubleLoad THEN
+	;	WriteFrame2.ControlSignals = BIT_SET(WriteFrame2.ControlSignals, 2)
+	;ELSE
+	;	WriteFrame2.ControlSignals = BIT_CLR(WriteFrame2.ControlSignals, 2)
+	;ENDIF
+	//WriteFrame2.Destination = 0
+	WriteFrame2.Category 	= UINT(CAN[2].Category)
+	WriteFrame2.Customer    = UINT(CAN[2].Customer)
+	WriteFrame2.Weight      = CAN[2].Weight
+
+	;Write to Machine2
+	EventWrite2 = TRUE
+
+	;-----------------
+	;Service CAN table
+	;-----------------
+
+	IF CANdftab_01.status=0 THEN						(*check error level*)
+		CANrwtab_01.enable		= 1
+		CANrwtab_01.tab_ident	= CANdftab_01.tab_ident (*define tab_id*)
+		CANrwtab_01 FUB CANrwtab()						(*initiate CANrwtab*)
+		LastError = CANrwtab_01.status
+	ENDIF
+
+	;----------------------------------
+	;Check for incomming data from CBW1
+	;----------------------------------
+
+
+	;Powertrans 1
+	IF EventRead1 THEN
+
+		EventRead1 = FALSE
+
+		CAN[1].Live 		  = BIT_TST(ReadFrame1.ControlSignals,0)
+		CAN[1].ReadyToLoad 	  = BIT_TST(ReadFrame1.ControlSignals,1)
+        CAN[1].DropLoad           =  BIT_TST(ReadFrame1.ControlSignals,2)
+		CAN[1].LoadDropped    = BIT_TST(ReadFrame1.ControlSignals,3)
+
+		IF CAN[1].Live THEN
+			CAN[1].LiveTime = 50	;5 seconds
+		ENDIF
+
+	ENDIF
+
+	;----------------------------------
+	;Check for incomming data from CBW2
+	;----------------------------------
+
+
+	;Powertrans 2
+	IF EventRead2 THEN
+
+		EventRead2 = FALSE
+
+		CAN[2].Live 		  = BIT_TST(ReadFrame2.ControlSignals,0)
+		CAN[2].DropLoad 	  = BIT_TST(ReadFrame2.ControlSignals,1)
+		CAN[2].LoadDropped    = BIT_TST(ReadFrame2.ControlSignals,2)
+
+		IF CAN[2].Live THEN
+			CAN[2].LiveTime = 50	;5 seconds
+		ENDIF
+
+	ENDIF
+
+	;-------------------
+	;CAN Live / Presence
+	;-------------------
+
+	LOOP n = 1 TO 2 DO
+
+		IF (CAN[n].LiveTime > 0) THEN
+			CAN[n].LiveTime = (CAN[n].LiveTime - 1)
+		ENDIF
+
+		CAN[n].Live = (CAN[n].LiveTime <> 0)
+
+	ENDLOOP
+
+ENDIF
+END_PROGRAM
+

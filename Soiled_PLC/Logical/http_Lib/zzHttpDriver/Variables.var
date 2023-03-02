@@ -1,0 +1,28 @@
+VAR
+	n : UINT;
+	r : UINT;
+	httpComm : REFERENCE TO http_comm_typ;
+	ringBuffer : ARRAY[0..HTTP_MAX_COMM] OF UINT;
+	sizeRingArray : UDINT;
+	sizeRingData : UDINT;
+	moveSize : UDINT;
+	pUrl : UDINT;
+	URL : STRING[280];
+	pHost : UDINT;
+	pResponseHeader : UDINT;
+	pTempMem : UDINT;
+	sizeTempMem : UDINT;
+	pStatistics : UDINT;
+	responseHeader : httpResponseHeader_t;
+	http_Client : httpClient;
+	Statistics : httpStatistics_t;
+	emptyResponseHeader : httpResponseHeader_t;
+	abort : BOOL;
+	DebugErrCount : UDINT;
+	pRequestHeader : UDINT;
+	requestHeader : httpRequestHeader_t;
+	debugToUSB : BOOL;
+	fileRW : fileReadWrite;
+	errorData : STRING[1000];
+	remainingStringLen : DINT;
+END_VAR

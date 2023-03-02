@@ -1,0 +1,11 @@
+WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=20_cp1 
+Position X=0 Y=0 Width=0 Height=0 TabWidth Name=201 Type=45 Scope=56 Force=73 Index=1 ASCIIString=0
+                                    name                                     type force                                                            value level type len format place expand specs
+                                       D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
+                                  D[920]                                     UINT    0 "                                                               2"    1    6    1   10    0    0         
+                                   MySeq                                    USINT    0 "                                                              20"    0    5    1   10    1    0         
+                            O_SelectCLU1                                     BOOL    0 "                                                           FALSE"    0    1    1    2    1    0         
+                                    STEP                                     UINT    0 "                                                               2"    0    6    1   10    1    0         
+                                 Request                              Enable_Vars    0 "                                                               *"    0   24    1    0    0    1         
+                                      LU                               BOOL[0..9]    0 "                                                               *"    1    1   10    0    0    1         
+                                   LU[1]                                     BOOL    0 "                                                           FALSE"    2    1    1    2    0    0         
