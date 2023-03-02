@@ -1,0 +1,8 @@
+(****************************************************)
+VAR
+	MTBasicsPWM_0 : MTBasicsPWM;
+	i : USINT;
+	pHmiOpcUa : REFERENCE TO OpcUa_VC_type;
+	selectedVC : UINT;
+	pulse : MTBasicsPWM;
+END_VAR

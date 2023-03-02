@@ -1,0 +1,11 @@
+VAR CONSTANT
+	EB_STATE_NC : USINT := 0; (*Not connected*)
+	EB_STATE_OFF : USINT := 1; (*Switched Off*)
+	EB_STATE_ON : USINT := 2; (*Switch On*)
+	EB_STATE_TRIP : USINT := 3; (*Tripped*)
+	EB_STATE_I_90 : USINT := 6; (*Current Exceeds 90%*)
+	EB_STATE_I_100 : USINT := 14; (*Current Exceeds 100%*)
+	EB_STATE_TRIP_HARDWARE : USINT := 18; (*Tripped - Hardware Error*)
+	EB_STATE_TRIP_THERMAL : USINT := 20; (*Tripped - Thermal Release*)
+	EB_STATE_TRIP_SW_OFF : USINT := 50; (*Switched Off*)
+END_VAR

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?AutomationStudio Version=4.6.3.55 SP?>
+<Package Version="0.14.0" xmlns="http://br-automation.co.at/AS/Package">
+  <Objects>
+    <Object Type="Package" Description="Kannegiesser Standards">Pkg_KGStandard</Object>
+    <Object Type="Package" Description="Systemtask für Versionierung">Pkg_mnSystem</Object>
+    <Object Type="Package" Description="Ethernet Manager">Pkg_mnEth</Object>
+    <Object Type="Package" Description="Management-Ebene für Zähler">Pkg_mnCnt</Object>
+    <Object Type="Package" Description="Meldungs-Manager">Pkg_mnMsg</Object>
+    <Object Type="Package" Description="Parameter-Manager">Pkg_mnParam</Object>
+    <Object Type="Package" Description="Text-Manager">Pkg_mnTxt</Object>
+    <Object Type="Package" Description="DATAFOCUS II">Pkg_hlDFII</Object>
+    <Object Type="Package" Description="Testadapter für automatische Tests">Pkg_mnTest</Object>
+    <Object Type="Package" Description="Category-Program-Verwaltung">Pkg_svCPCache</Object>
+    <Object Type="Package">Pkg_hlKanLink</Object>
+    <Object Type="File">KGFramework.ReleaseNotes.txt</Object>
+    <Object Type="Library" Language="binary" Description="OBSOLETE - The AsArLog library is replaced by ArEventLog and exists only for compatibility reasons.">AsArLog</Object>
+    <Object Type="Library" Language="binary" Description="The AsIODiag library provides functions for creating and evaluating I/O module information.">AsIODiag</Object>
+    <Object Type="Library" Language="binary" Description="The Ethernet library establishes an efficient connection between the 2005 and 2010 systems and specific ethernet networks using TCP/IP and UDP. (obsolete)">ETHERNET</Object>
+    <Object Type="Library" Language="binary" Description="The AsMem library makes it possible to manage memory blocks located in large memory areas (memory partitions).">AsMem</Object>
+    <Object Type="Library" Language="binary" Description="The AsBrWStr library allows 8-bit character strings to be implemented for 16-bit WC (AsBrWStr) strings.">AsBrWStr</Object>
+  </Objects>
+  <Dependencies>
+    <Dependency ObjectName="asbrstr" />
+    <Dependency ObjectName="asbrwstr" />
+  </Dependencies>
+</Package>

@@ -1,0 +1,1376 @@
+(********************************************************************
+ * COPYRIGHT --
+ ********************************************************************
+ * File: IoMap.iom
+ * Author: Dave
+ * Created: November 19, 2010
+ ********************************************************************
+ * IO mapping file
+ ********************************************************************)
+VAR_CONFIG
+	Cyclic#1.RB[1].Lift.CAN.ControlEffort AT %IW."CVC_Lift1".ControlEffort_MAV_6044;
+	Cyclic#1.RB[1].Lift.CAN.ControlWord AT %QW."CVC_Lift1".CTW_6040_Out;
+	Cyclic#1.RB[1].Lift.CAN.ModuleOk AT %IX."CVC_Lift1".ModuleOk;
+	Cyclic#1.RB[1].Lift.CAN.NodeStatus AT %IW."CVC_Lift1".NodeStatus;
+	Cyclic#1.RB[1].Lift.CAN.StatusWord AT %IW."CVC_Lift1".STW_6041;
+	Cyclic#1.RB[1].Lift.CAN.TargetVelocity AT %QW."CVC_Lift1".TargetVelocity_6042_Out;
+	Cyclic#1.RB[2].Lift.CAN.ControlEffort AT %IW."CVC_Lift2".ControlEffort_MAV_6044;
+	Cyclic#1.RB[2].Lift.CAN.ControlWord AT %QW."CVC_Lift2".CTW_6040_Out;
+	Cyclic#1.RB[2].Lift.CAN.ModuleOk AT %IX."CVC_Lift2".ModuleOk;
+	Cyclic#1.RB[2].Lift.CAN.NodeStatus AT %IW."CVC_Lift2".NodeStatus;
+	Cyclic#1.RB[2].Lift.CAN.StatusWord AT %IW."CVC_Lift2".STW_6041;
+	Cyclic#1.RB[2].Lift.CAN.TargetVelocity AT %QW."CVC_Lift2".TargetVelocity_6042_Out;
+	RB[5].Lift.CAN.ControlEffort AT %IW."CVC_Lift5".ControlEffort_MAV_6044;
+	RB[5].Lift.CAN.ControlWord AT %QW."CVC_Lift5".CTW_6040_Out;
+	RB[5].Lift.CAN.ModuleOk AT %IX."CVC_Lift5".ModuleOk;
+	RB[5].Lift.CAN.NodeStatus AT %IW."CVC_Lift5".NodeStatus;
+	RB[5].Lift.CAN.StatusWord AT %IW."CVC_Lift5".STW_6041;
+	RB[5].Lift.CAN.TargetVelocity AT %QW."CVC_Lift5".TargetVelocity_6042_Out;
+	Hoist_Safety[1].OutOfPosition AT %IX."X20SI8110_400_1".SafeDigitalInput03; (*SSL1 - Out of Position*)
+	Hoist_Safety[2].OutOfPosition AT %IX."X20SI8110_400_1".SafeDigitalInput04; (*SSL2 - Out of Position*)
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[0] AT %IX."X20SI8110_400_1".SafeTwoChannelInput0102;
+	Cyclic#2.OK[1003] AT %IX."X20DM9324_400_3".ModuleOk;
+	Cyclic#2.X[1003].X01 AT %IX."X20DM9324_400_3".DigitalInput01; (*SWITCH S25 CABINET TEMPERATURE*)
+	Cyclic#2.X[1003].X02 AT %IX."X20DM9324_400_3".DigitalInput02; (*AIR PRESSURE SWITCH*)
+	Cyclic#2.X[1003].X05 AT %IX."X20DM9324_400_3".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1003].X06 AT %IX."X20DM9324_400_3".DigitalInput06; (*B101 READER OUTPUTS Bad*)
+	Cyclic#2.X[1003].X07 AT %IX."X20DM9324_400_3".DigitalInput07; (*B101 READER OUTPUTS Good*)
+	Cyclic#2.X[1003].X08 AT %IX."X20DM9324_400_3".DigitalInput08; (*Reserved*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Green AT %QX."X20DM9324_400_3".DigitalOutput01; (*Alarm beacon*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Yellow AT %QX."X20DM9324_400_3".DigitalOutput02; (*SPARE*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Red AT %QX."X20DM9324_400_3".DigitalOutput03; (*SPARE*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Sounder AT %QX."X20DM9324_400_3".DigitalOutput04; (*SPARE*)
+	Cyclic#2.SafetyZone[0].Main_Reset AT %IX."X20DM9324_400_3".DigitalInput03; (*Main Cabinet Reset button*)
+	Cyclic#2.X[1003].X04 AT %IX."X20DM9324_400_3".DigitalInput04; (*CIRCUIT BREAKER RESET S1*)
+	Cyclic#2.OK[1004] AT %IX."X20DM9324_400_4".ModuleOk;
+	Cyclic#2.SafetyZone[1].EDM AT %IX."X20DM9324_400_4".DigitalInput01; (*SAFETY RELAY D1.1 MONITORING*)
+	Cyclic#2.SafetyZone[2].EDM AT %IX."X20DM9324_400_4".DigitalInput02; (*SAFETY RELAY D2.1 MONITORING*)
+	Cyclic#2.Y[1004].Y02 AT %QX."X20DM9324_400_4".DigitalOutput02; (*SPARE*)
+	Cyclic#2.X[1004].X03 AT %IX."X20DM9324_400_4".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1004].X04 AT %IX."X20DM9324_400_4".DigitalInput04; (*SPARE*)
+	Cyclic#2.X[1004].X05 AT %IX."X20DM9324_400_4".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1004].X06 AT %IX."X20DM9324_400_4".DigitalInput06; (*B102 READER OUTPUTS Bad*)
+	Cyclic#2.X[1004].X07 AT %IX."X20DM9324_400_4".DigitalInput07; (*B102 READER OUTPUTS Good*)
+	Cyclic#2.SafetyZone[0].EDM AT %IX."X20DM9324_400_4".DigitalInput08; (*SAFETY RELAY D11.1 MONITORING*)
+	Cyclic#2.SafetyZone[0].Main_Lamp AT %QX."X20DM9324_400_4".DigitalOutput01; (*24V Fuse Trip*)
+	Cyclic#2.Y[1004].Y03 AT %QX."X20DM9324_400_4".DigitalOutput03; (*SPARE*)
+	Cyclic#2.Y[1004].Y04 AT %QX."X20DM9324_400_4".DigitalOutput04; (*SPARE*)
+	Cyclic#2.OK[1005] AT %IX."X20DO8332_400_5".ModuleOk;
+	Cyclic#2.Y[1005].Y01 AT %QX."X20DO8332_400_5".DigitalOutput01; (*B101 READER INPUT Trigger ON*)
+	Cyclic#2.Y[1005].Y02 AT %QX."X20DO8332_400_5".DigitalOutput02; (*B101 READER INPUT 24V ON*)
+	Cyclic#2.Y[1005].Y03 AT %QX."X20DO8332_400_5".DigitalOutput03; (*B102 READER INPUT Trigger ON*)
+	Cyclic#2.Y[1005].Y04 AT %QX."X20DO8332_400_5".DigitalOutput04; (*B102 READER INPUT 24V ON*)
+	Cyclic#2.Y[1005].Y05 AT %QX."X20DO8332_400_5".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1005].Y06 AT %QX."X20DO8332_400_5".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1005].Y07 AT %QX."X20DO8332_400_5".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1005].Y08 AT %QX."X20DO8332_400_5".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1006] AT %IX."X20DS438A_400_6".ModuleOk;
+	Cyclic#2.IO_Link.Contactron[1].Comms.Read.Data AT %IO."X20DS438A_400_7".InputData01;
+	Cyclic#2.IO_Link.Contactron[1].Comms.Write.Control AT %QB."X20DS438A_400_7".OutputData01_2;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Write.Control AT %QB."X20DS438A_400_7".OutputData02_2;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Write.NominalCurrent AT %QB."X20DS438A_400_7".OutputData02_1;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Read.Data AT %IO."X20DS438A_400_7".InputData02;
+	Cyclic#2.OK[1007] AT %IX."X20DS438A_400_7".ModuleOk;
+	Cyclic#2.IO_Link.Contactron[1].Comms.Write.NominalCurrent AT %QB."X20DS438A_400_7".OutputData01_1;
+	Cyclic#2.IO_Link.Contactron[3].Comms.Read.Data AT %IO."X20DS438A_400_7".InputData03;
+	Cyclic#2.IO_Link.Contactron[4].Comms.Read.Data AT %IO."X20DS438A_400_7".InputData04;
+	Cyclic#2.IO_Link.Contactron[3].Comms.Write.NominalCurrent AT %QB."X20DS438A_400_7".OutputData03_1;
+	Cyclic#2.IO_Link.Contactron[4].Comms.Write.NominalCurrent AT %QB."X20DS438A_400_7".OutputData04_1;
+	Cyclic#2.IO_Link.Contactron[3].Comms.Write.Control AT %QB."X20DS438A_400_7".OutputData03_2;
+	Cyclic#2.IO_Link.Contactron[4].Comms.Write.Control AT %QB."X20DS438A_400_7".OutputData04_2;
+	Cyclic#1.ABB_EPL.Drives[1].Comm.ModuleOk AT %IX."FEPL-02_and_ACS380_SB1".ModuleOk;
+	Cyclic#2.ABB_EPL.Drives[1].Parameters.Write.Motor_NominalCurrent_9906 AT %QD."FEPL-02_and_ACS380_SB1"._9906_Motor_nominal_current_I4063_S06Out;
+	Cyclic#2.ABB_EPL.Drives[1].Parameters.Write.Motor_NominalPower_9910 AT %QD."FEPL-02_and_ACS380_SB1"._9910_Motor_nominal_power_I4063_S0AOut;
+	Cyclic#2.ABB_EPL.Drives[1].Parameters.Write.Motor_NominalSpeed_9909 AT %QD."FEPL-02_and_ACS380_SB1"._9909_Motor_nominal_speed_I4063_S09Out;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.ControlWord AT %QW."FEPL-02_and_ACS380_SB1".ControlWord_I6040Out;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.StatusWord AT %IW."FEPL-02_and_ACS380_SB1".StatusWord_I6041;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.ActVelocity AT %IW."FEPL-02_and_ACS380_SB1".VlVelocityActualValue_I6044;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.ActCurrent AT %ID."FEPL-02_and_ACS380_SB1"._0107_Motor_current_I4001_S07;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.ActTorque AT %ID."FEPL-02_and_ACS380_SB1"._0110_Motor_torque_I4001_S0A;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.ErrorCode AT %IW."FEPL-02_and_ACS380_SB1".VendorSpecificAlarmCodes_I2203;
+	Cyclic#2.ABB_EPL.Drives[1].Parameters.Write.Ramp_AccTime1_2872 AT %QD."FEPL-02_and_ACS380_SB1"._2872_Freq_acceleration_time_1_I401C_S48Out;
+	Cyclic#2.ABB_EPL.Drives[1].Parameters.Write.Ramp_DecTime1_2873 AT %QD."FEPL-02_and_ACS380_SB1"._2873_Freq_deceleration_time_1_I401C_S49Out;
+	Cyclic#2.ABB_EPL.Drives[1].Comm.TargetVelocity AT %QW."FEPL-02_and_ACS380_SB1".VlTargetVelocity_I6042Out;
+	Cyclic#1.ABB_EPL.Drives[2].Comm.ModuleOk AT %IX."FEPL-02_and_ACS380_SB2".ModuleOk;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.ErrorCode AT %IW."FEPL-02_and_ACS380_SB2".VendorSpecificAlarmCodes_I2203;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.ControlWord AT %QW."FEPL-02_and_ACS380_SB2".ControlWord_I6040Out;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.StatusWord AT %IW."FEPL-02_and_ACS380_SB2".StatusWord_I6041;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.TargetVelocity AT %QW."FEPL-02_and_ACS380_SB2".VlTargetVelocity_I6042Out;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.ActVelocity AT %IW."FEPL-02_and_ACS380_SB2".VlVelocityActualValue_I6044;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.ActCurrent AT %ID."FEPL-02_and_ACS380_SB2"._0107_Motor_current_I4001_S07;
+	Cyclic#2.ABB_EPL.Drives[2].Comm.ActTorque AT %ID."FEPL-02_and_ACS380_SB2"._0110_Motor_torque_I4001_S0A;
+	Cyclic#2.ABB_EPL.Drives[2].Parameters.Write.Ramp_AccTime1_2872 AT %QD."FEPL-02_and_ACS380_SB2"._2872_Freq_acceleration_time_1_I401C_S48Out;
+	Cyclic#2.ABB_EPL.Drives[2].Parameters.Write.Ramp_DecTime1_2873 AT %QD."FEPL-02_and_ACS380_SB2"._2873_Freq_deceleration_time_1_I401C_S49Out;
+	Cyclic#2.ABB_EPL.Drives[2].Parameters.Write.Motor_NominalCurrent_9906 AT %QD."FEPL-02_and_ACS380_SB2"._9906_Motor_nominal_current_I4063_S06Out;
+	Cyclic#2.ABB_EPL.Drives[2].Parameters.Write.Motor_NominalSpeed_9909 AT %QD."FEPL-02_and_ACS380_SB2"._9909_Motor_nominal_speed_I4063_S09Out;
+	Cyclic#2.ABB_EPL.Drives[2].Parameters.Write.Motor_NominalPower_9910 AT %QD."FEPL-02_and_ACS380_SB2"._9910_Motor_nominal_power_I4063_S0AOut;
+	Cyclic#1.ABB_EPL.Drives[3].Comm.ModuleOk AT %IX."FEPL-02_and_ACS380_SB3".ModuleOk;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.ErrorCode AT %IW."FEPL-02_and_ACS380_SB3".VendorSpecificAlarmCodes_I2203;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.ControlWord AT %QW."FEPL-02_and_ACS380_SB3".ControlWord_I6040Out;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.StatusWord AT %IW."FEPL-02_and_ACS380_SB3".StatusWord_I6041;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.TargetVelocity AT %QW."FEPL-02_and_ACS380_SB3".VlTargetVelocity_I6042Out;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.ActVelocity AT %IW."FEPL-02_and_ACS380_SB3".VlVelocityActualValue_I6044;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.ActCurrent AT %ID."FEPL-02_and_ACS380_SB3"._0107_Motor_current_I4001_S07;
+	Cyclic#2.ABB_EPL.Drives[3].Comm.ActTorque AT %ID."FEPL-02_and_ACS380_SB3"._0110_Motor_torque_I4001_S0A;
+	Cyclic#2.ABB_EPL.Drives[3].Parameters.Write.Ramp_AccTime1_2872 AT %QD."FEPL-02_and_ACS380_SB3"._2872_Freq_acceleration_time_1_I401C_S48Out;
+	Cyclic#2.ABB_EPL.Drives[3].Parameters.Write.Ramp_DecTime1_2873 AT %QD."FEPL-02_and_ACS380_SB3"._2873_Freq_deceleration_time_1_I401C_S49Out;
+	Cyclic#2.ABB_EPL.Drives[3].Parameters.Write.Motor_NominalCurrent_9906 AT %QD."FEPL-02_and_ACS380_SB3"._9906_Motor_nominal_current_I4063_S06Out;
+	Cyclic#2.ABB_EPL.Drives[3].Parameters.Write.Motor_NominalSpeed_9909 AT %QD."FEPL-02_and_ACS380_SB3"._9909_Motor_nominal_speed_I4063_S09Out;
+	Cyclic#2.ABB_EPL.Drives[3].Parameters.Write.Motor_NominalPower_9910 AT %QD."FEPL-02_and_ACS380_SB3"._9910_Motor_nominal_power_I4063_S0AOut;
+	Cyclic#1.ABB_EPL.Drives[21].Comm.ModuleOk AT %IX."FEPL-02_and_ACS380_STB1".ModuleOk;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.ErrorCode AT %IW."FEPL-02_and_ACS380_STB1".VendorSpecificAlarmCodes_I2203;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.ControlWord AT %QW."FEPL-02_and_ACS380_STB1".ControlWord_I6040Out;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.StatusWord AT %IW."FEPL-02_and_ACS380_STB1".StatusWord_I6041;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.TargetVelocity AT %QW."FEPL-02_and_ACS380_STB1".VlTargetVelocity_I6042Out;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.ActVelocity AT %IW."FEPL-02_and_ACS380_STB1".VlVelocityActualValue_I6044;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.ActCurrent AT %ID."FEPL-02_and_ACS380_STB1"._0107_Motor_current_I4001_S07;
+	Cyclic#2.ABB_EPL.Drives[21].Comm.ActTorque AT %ID."FEPL-02_and_ACS380_STB1"._0110_Motor_torque_I4001_S0A;
+	Cyclic#2.ABB_EPL.Drives[21].Parameters.Write.Ramp_AccTime1_2872 AT %QD."FEPL-02_and_ACS380_STB1"._2872_Freq_acceleration_time_1_I401C_S48Out;
+	Cyclic#2.ABB_EPL.Drives[21].Parameters.Write.Ramp_DecTime1_2873 AT %QD."FEPL-02_and_ACS380_STB1"._2873_Freq_deceleration_time_1_I401C_S49Out;
+	Cyclic#2.ABB_EPL.Drives[21].Parameters.Write.Motor_NominalCurrent_9906 AT %QD."FEPL-02_and_ACS380_STB1"._9906_Motor_nominal_current_I4063_S06Out;
+	Cyclic#2.ABB_EPL.Drives[21].Parameters.Write.Motor_NominalSpeed_9909 AT %QD."FEPL-02_and_ACS380_STB1"._9909_Motor_nominal_speed_I4063_S09Out;
+	Cyclic#2.ABB_EPL.Drives[21].Parameters.Write.Motor_NominalPower_9910 AT %QD."FEPL-02_and_ACS380_STB1"._9910_Motor_nominal_power_I4063_S0AOut;
+	Cyclic#1.ABB_EPL.Drives[22].Comm.ModuleOk AT %IX."FEPL-02_and_ACS380_STB2".ModuleOk;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.ErrorCode AT %IW."FEPL-02_and_ACS380_STB2".VendorSpecificAlarmCodes_I2203;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.ControlWord AT %QW."FEPL-02_and_ACS380_STB2".ControlWord_I6040Out;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.StatusWord AT %IW."FEPL-02_and_ACS380_STB2".StatusWord_I6041;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.TargetVelocity AT %QW."FEPL-02_and_ACS380_STB2".VlTargetVelocity_I6042Out;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.ActVelocity AT %IW."FEPL-02_and_ACS380_STB2".VlVelocityActualValue_I6044;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.ActCurrent AT %ID."FEPL-02_and_ACS380_STB2"._0107_Motor_current_I4001_S07;
+	Cyclic#2.ABB_EPL.Drives[22].Comm.ActTorque AT %ID."FEPL-02_and_ACS380_STB2"._0110_Motor_torque_I4001_S0A;
+	Cyclic#2.ABB_EPL.Drives[22].Parameters.Write.Ramp_AccTime1_2872 AT %QD."FEPL-02_and_ACS380_STB2"._2872_Freq_acceleration_time_1_I401C_S48Out;
+	Cyclic#2.ABB_EPL.Drives[22].Parameters.Write.Ramp_DecTime1_2873 AT %QD."FEPL-02_and_ACS380_STB2"._2873_Freq_deceleration_time_1_I401C_S49Out;
+	Cyclic#2.ABB_EPL.Drives[22].Parameters.Write.Motor_NominalCurrent_9906 AT %QD."FEPL-02_and_ACS380_STB2"._9906_Motor_nominal_current_I4063_S06Out;
+	Cyclic#2.ABB_EPL.Drives[22].Parameters.Write.Motor_NominalSpeed_9909 AT %QD."FEPL-02_and_ACS380_STB2"._9909_Motor_nominal_speed_I4063_S09Out;
+	Cyclic#2.ABB_EPL.Drives[22].Parameters.Write.Motor_NominalPower_9910 AT %QD."FEPL-02_and_ACS380_STB2"._9910_Motor_nominal_power_I4063_S0AOut;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[1] AT %IX."X20SI8110_700_1".SafeTwoChannelInput0102;
+	Hoist_Safety[3].OutOfPosition AT %IX."X20SI8110_700_1".SafeDigitalInput03; (*CSL1 - Out of Position*)
+	Hoist_Safety[4].OutOfPosition AT %IX."X20SI8110_700_1".SafeDigitalInput04; (*CSL2 - Out of Position*)
+	Hoist_Safety[5].OutOfPosition AT %IX."X20SI8110_700_1".SafeDigitalInput05; (*CSL3 - Out of Position*)
+	Cyclic#2.OK[2003] AT %IX."X20DM9324_700_3".ModuleOk;
+	Cyclic#2.X[2003].X01 AT %IX."X20DM9324_700_3".DigitalInput01; (*SWITCH S25 CABINET TEMPERATURE*)
+	Cyclic#2.X[2003].X02 AT %IX."X20DM9324_700_3".DigitalInput02; (*AIR PRESSURE SWITCH*)
+	Cyclic#2.X[2003].X04 AT %IX."X20DM9324_700_3".DigitalInput04; (*CIRCUIT BREAKER RESET S1*)
+	Cyclic#2.X[2003].X05 AT %IX."X20DM9324_700_3".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2003].X06 AT %IX."X20DM9324_700_3".DigitalInput06; (*B101 READER OUTPUTS Bad*)
+	Cyclic#2.X[2003].X07 AT %IX."X20DM9324_700_3".DigitalInput07; (*B101 READER OUTPUTS Good*)
+	Cyclic#2.X[2003].X08 AT %IX."X20DM9324_700_3".DigitalInput08; (*SPARE*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Green AT %QX."X20DM9324_700_3".DigitalOutput01; (*Alarm beacon*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Yellow AT %QX."X20DM9324_700_3".DigitalOutput02; (*SPARE*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Red AT %QX."X20DM9324_700_3".DigitalOutput03; (*SPARE*)
+	Cyclic#2.SafetyZone[0].TowerLight.TL_DO_Sounder AT %QX."X20DM9324_700_3".DigitalOutput04; (*SPARE*)
+	Cyclic#2.SafetyZone[8].Main_Reset AT %IX."X20DM9324_700_3".DigitalInput03; (*Main Cabinet Reset button*)
+	Cyclic#2.SafetyZone[3].EDM AT %IX."X20DM9324_700_4".DigitalInput01; (*SAFETY RELAY D3.1 MONITORING*)
+	Cyclic#2.SafetyZone[4].EDM AT %IX."X20DM9324_700_4".DigitalInput02; (*SAFETY RELAY D4.1 MONITORING*)
+	Cyclic#2.SafetyZone[0].Main_Lamp AT %QX."X20DM9324_700_4".DigitalOutput01; (*24V Fuse Trip*)
+	Cyclic#2.OK[2004] AT %IX."X20DM9324_700_4".ModuleOk;
+	Cyclic#2.X[2004].X03 AT %IX."X20DM9324_700_4".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2004].X04 AT %IX."X20DM9324_700_4".DigitalInput04; (*SPARE*)
+	Cyclic#2.X[2004].X05 AT %IX."X20DM9324_700_4".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2004].X06 AT %IX."X20DM9324_700_4".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2004].X07 AT %IX."X20DM9324_700_4".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2004].X08 AT %IX."X20DM9324_700_4".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2004].Y02 AT %QX."X20DM9324_700_4".DigitalOutput02; (*SPARE*)
+	Cyclic#2.Y[2004].Y03 AT %QX."X20DM9324_700_4".DigitalOutput03; (*SPARE*)
+	Cyclic#2.Y[2004].Y04 AT %QX."X20DM9324_700_4".DigitalOutput04; (*SPARE*)
+	Cyclic#2.OK[2005] AT %IX."X20DO8332_700_5".ModuleOk;
+	Cyclic#2.Y[2005].Y01 AT %QX."X20DO8332_700_5".DigitalOutput01; (*READER INPUT Trigger ON*)
+	Cyclic#2.Y[2005].Y02 AT %QX."X20DO8332_700_5".DigitalOutput02; (*READER INPUT 24V ON*)
+	Cyclic#2.Y[2005].Y03 AT %QX."X20DO8332_700_5".DigitalOutput03; (*SPARE*)
+	Cyclic#2.Y[2005].Y04 AT %QX."X20DO8332_700_5".DigitalOutput04; (*SPARE*)
+	Cyclic#2.Y[2005].Y05 AT %QX."X20DO8332_700_5".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2005].Y06 AT %QX."X20DO8332_700_5".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2005].Y07 AT %QX."X20DO8332_700_5".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2005].Y08 AT %QX."X20DO8332_700_5".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2006] AT %IX."X20DS438A_700_6".ModuleOk;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Read.Data AT %IO."X20DS438A_700_7".InputData01;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Write.Control AT %QB."X20DS438A_700_7".OutputData01_2;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Write.Control AT %QB."X20DS438A_700_7".OutputData02_2;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Write.NominalCurrent AT %QB."X20DS438A_700_7".OutputData02_1;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Read.Data AT %IO."X20DS438A_700_7".InputData02;
+	Cyclic#2.OK[2007] AT %IX."X20DS438A_700_7".ModuleOk;
+	Cyclic#2.IO_Link.Contactron[2].Comms.Write.NominalCurrent AT %QB."X20DS438A_700_7".OutputData01_1;
+	Cyclic#2.IO_Link.Contactron[3].Comms.Read.Data AT %IO."X20DS438A_700_7".InputData03;
+	Cyclic#2.IO_Link.Contactron[4].Comms.Read.Data AT %IO."X20DS438A_700_7".InputData04;
+	Cyclic#2.IO_Link.Contactron[3].Comms.Write.NominalCurrent AT %QB."X20DS438A_700_7".OutputData03_1;
+	Cyclic#2.IO_Link.Contactron[4].Comms.Write.NominalCurrent AT %QB."X20DS438A_700_7".OutputData04_1;
+	Cyclic#2.IO_Link.Contactron[3].Comms.Write.Control AT %QB."X20DS438A_700_7".OutputData03_2;
+	Cyclic#2.IO_Link.Contactron[4].Comms.Write.Control AT %QB."X20DS438A_700_7".OutputData04_2;
+	OK[1401] AT %IX."X67SI8103_400_401".ModuleOk;
+	SafetyZone[1].Interlock.GS_Two_Channel_Input AT %IX."X67SI8103_400_401".SafeTwoChannelInput0102;
+	SafetyZone[1].Interlock.GS_DI_01_Access_Reset AT %IX."X67SI8103_400_401".DigitalInput01;
+	SafetyZone[1].Interlock.GS_DI_02_Monitor_Solenoid AT %IX."X67SI8103_400_401".DigitalInput02;
+	SafetyZone[1].Interlock.GS_DO_01_Lock_Solenoid AT %QX."X67SI8103_400_401".DigitalOutput01;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[2] AT %IX."X67SI8103_400_401".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - SSL ZONE*)
+	Cyclic#2.SafetyZone[2].TowerLight.TL_DO_Green AT %QX."X67DM1321_400_501".DigitalOutput01; (*Zone 1 Tower Light - Green*)
+	Cyclic#2.SafetyZone[2].TowerLight.TL_DO_Yellow AT %QX."X67DM1321_400_501".DigitalOutput02; (*Zone 1 Tower Light - Yellow*)
+	Cyclic#2.SafetyZone[2].TowerLight.TL_DO_Red AT %QX."X67DM1321_400_501".DigitalOutput03; (*Zone 1 Tower Light - Red*)
+	Cyclic#2.SafetyZone[2].TowerLight.TL_DO_Sounder AT %QX."X67DM1321_400_501".DigitalOutput04; (*Zone 1 Tower Light - Sounder*)
+	Cyclic#2.OK[1105] AT %IX."X67DM1321_400_105_SP05".ModuleOk;
+	Cyclic#2.X[1105].X01 AT %IX."X67DM1321_400_105_SP05".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1105].X02 AT %IX."X67DM1321_400_105_SP05".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1105].X03 AT %IX."X67DM1321_400_105_SP05".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1105].X04 AT %IX."X67DM1321_400_105_SP05".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1105].Y05 AT %QX."X67DM1321_400_105_SP05".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1105].Y06 AT %QX."X67DM1321_400_105_SP05".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1105].Y07 AT %QX."X67DM1321_400_105_SP05".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1105].Y08 AT %QX."X67DM1321_400_105_SP05".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1106] AT %IX."X67DM1321_400_106_SP06".ModuleOk;
+	Cyclic#2.X[1106].X01 AT %IX."X67DM1321_400_106_SP06".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1106].X02 AT %IX."X67DM1321_400_106_SP06".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1106].X03 AT %IX."X67DM1321_400_106_SP06".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1106].X04 AT %IX."X67DM1321_400_106_SP06".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1106].Y05 AT %QX."X67DM1321_400_106_SP06".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1106].Y06 AT %QX."X67DM1321_400_106_SP06".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1106].Y07 AT %QX."X67DM1321_400_106_SP06".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1106].Y08 AT %QX."X67DM1321_400_106_SP06".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1107] AT %IX."X67DM1321_400_107_SP07".ModuleOk;
+	Cyclic#2.X[1107].X01 AT %IX."X67DM1321_400_107_SP07".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1107].X02 AT %IX."X67DM1321_400_107_SP07".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1107].X03 AT %IX."X67DM1321_400_107_SP07".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1107].X04 AT %IX."X67DM1321_400_107_SP07".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1107].Y05 AT %QX."X67DM1321_400_107_SP07".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1107].Y06 AT %QX."X67DM1321_400_107_SP07".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1107].Y07 AT %QX."X67DM1321_400_107_SP07".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1107].Y08 AT %QX."X67DM1321_400_107_SP07".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1103] AT %IX."X67DM1321_400_103_SP03".ModuleOk;
+	Cyclic#2.X[1103].X01 AT %IX."X67DM1321_400_103_SP03".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1103].X02 AT %IX."X67DM1321_400_103_SP03".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1103].X03 AT %IX."X67DM1321_400_103_SP03".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1103].X04 AT %IX."X67DM1321_400_103_SP03".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1103].Y05 AT %QX."X67DM1321_400_103_SP03".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1103].Y06 AT %QX."X67DM1321_400_103_SP03".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1103].Y07 AT %QX."X67DM1321_400_103_SP03".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1103].Y08 AT %QX."X67DM1321_400_103_SP03".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1102] AT %IX."X67DM1321_400_102_SP02".ModuleOk;
+	Cyclic#2.X[1102].X01 AT %IX."X67DM1321_400_102_SP02".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1102].X02 AT %IX."X67DM1321_400_102_SP02".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1102].X03 AT %IX."X67DM1321_400_102_SP02".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1102].X04 AT %IX."X67DM1321_400_102_SP02".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1102].Y05 AT %QX."X67DM1321_400_102_SP02".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1102].Y06 AT %QX."X67DM1321_400_102_SP02".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1102].Y07 AT %QX."X67DM1321_400_102_SP02".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1102].Y08 AT %QX."X67DM1321_400_102_SP02".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1101] AT %IX."X67DM1321_400_101_SP01".ModuleOk;
+	Cyclic#2.X[1101].X01 AT %IX."X67DM1321_400_101_SP01".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1101].X02 AT %IX."X67DM1321_400_101_SP01".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1101].X03 AT %IX."X67DM1321_400_101_SP01".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1101].X04 AT %IX."X67DM1321_400_101_SP01".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1101].Y05 AT %QX."X67DM1321_400_101_SP01".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1101].Y06 AT %QX."X67DM1321_400_101_SP01".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1101].Y07 AT %QX."X67DM1321_400_101_SP01".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1101].Y08 AT %QX."X67DM1321_400_101_SP01".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1023] AT %IX."X67DM1321_400_23_SLU2".ModuleOk;
+	Cyclic#2.X[1023].X01 AT %IX."X67DM1321_400_23_SLU2".DigitalInput01; (*PROX EMPTY BAG AT BUFFER*)
+	Cyclic#2.X[1023].X02 AT %IX."X67DM1321_400_23_SLU2".DigitalInput02; (*BAG IN LOADING UNIT TRIP*)
+	Cyclic#2.X[1023].X03 AT %IX."X67DM1321_400_23_SLU2".DigitalInput03; (*PROX AT BAG AT LOADING UNIT STOP*)
+	Cyclic#2.X[1023].X04 AT %IX."X67DM1321_400_23_SLU2".DigitalInput04; (*FULL BAG AT TRIP*)
+	Cyclic#2.Y[1023].Y05 AT %QX."X67DM1321_400_23_SLU2".DigitalOutput05; (*ROLLER STOP EMPTY BAG*)
+	Cyclic#2.Y[1023].Y06 AT %QX."X67DM1321_400_23_SLU2".DigitalOutput06; (*LOADING UNIT ROLLER STOP*)
+	Cyclic#2.Y[1023].Y07 AT %QX."X67DM1321_400_23_SLU2".DigitalOutput07; (*BAG STEADY*)
+	Cyclic#2.Y[1023].Y08 AT %QX."X67DM1321_400_23_SLU2".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1024] AT %IX."X67DM1321_400_24_SLU2".ModuleOk;
+	Cyclic#2.X[1024].X01 AT %IX."X67DM1321_400_24_SLU2".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1024].X02 AT %IX."X67DM1321_400_24_SLU2".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1024].X03 AT %IX."X67DM1321_400_24_SLU2".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1024].X04 AT %IX."X67DM1321_400_24_SLU2".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1024].Y05 AT %QX."X67DM1321_400_24_SLU2".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1024].Y06 AT %QX."X67DM1321_400_24_SLU2".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1024].Y07 AT %QX."X67DM1321_400_24_SLU2".DigitalOutput07; (*LOAD SUPPORT UNIT*)
+	Cyclic#2.Y[1024].Y08 AT %QX."X67DM1321_400_24_SLU2".DigitalOutput08; (*ROLLER STOP FULL BAG*)
+	Cyclic#2.OK[1021] AT %IX."X67DM1321_400_21_SLU1".ModuleOk;
+	Cyclic#2.X[1021].X01 AT %IX."X67DM1321_400_21_SLU1".DigitalInput01; (*PROX EMPTY BAG AT BUFFER*)
+	Cyclic#2.X[1021].X02 AT %IX."X67DM1321_400_21_SLU1".DigitalInput02; (*BAG IN LOADING UNIT TRIP*)
+	Cyclic#2.X[1021].X03 AT %IX."X67DM1321_400_21_SLU1".DigitalInput03; (*PROX AT BAG AT LOADING UNIT STOP*)
+	Cyclic#2.X[1021].X04 AT %IX."X67DM1321_400_21_SLU1".DigitalInput04; (*FULL BAG AT TRIP*)
+	Cyclic#2.Y[1021].Y05 AT %QX."X67DM1321_400_21_SLU1".DigitalOutput05; (*ROLLER STOP EMPTY BAG*)
+	Cyclic#2.Y[1021].Y06 AT %QX."X67DM1321_400_21_SLU1".DigitalOutput06; (*LOADING UNIT ROLLER STOP*)
+	Cyclic#2.Y[1021].Y07 AT %QX."X67DM1321_400_21_SLU1".DigitalOutput07; (*BAG STEADY*)
+	Cyclic#2.Y[1021].Y08 AT %QX."X67DM1321_400_21_SLU1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1022] AT %IX."X67DM1321_400_22_SLU1".ModuleOk;
+	Cyclic#2.X[1022].X01 AT %IX."X67DM1321_400_22_SLU1".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1022].X02 AT %IX."X67DM1321_400_22_SLU1".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1022].X03 AT %IX."X67DM1321_400_22_SLU1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1022].X04 AT %IX."X67DM1321_400_22_SLU1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1022].Y05 AT %QX."X67DM1321_400_22_SLU1".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1022].Y06 AT %QX."X67DM1321_400_22_SLU1".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1022].Y07 AT %QX."X67DM1321_400_22_SLU1".DigitalOutput07; (*LOAD SUPPORT UNIT*)
+	Cyclic#2.Y[1022].Y08 AT %QX."X67DM1321_400_22_SLU1".DigitalOutput08; (*ROLLER STOP FULL BAG*)
+	Cyclic#2.OK[1351] AT %IX."X67DM1321_400_351".ModuleOk;
+	Cyclic#2.X[1351].X01 AT %IX."X67DM1321_400_351".DigitalInput01; (*STB01 PHOTOELECTRIC SENSOR 1*)
+	Cyclic#2.X[1351].X02 AT %IX."X67DM1321_400_351".DigitalInput02; (*STB01 PHOTOELECTRIC SENSOR 2*)
+	Cyclic#2.X[1351].X03 AT %IX."X67DM1321_400_351".DigitalInput03; (*STB02 PHOTOELECTRIC SENSOR*)
+	Cyclic#2.Y[1351].X04 AT %IX."X67DM1321_400_351".DigitalInput04; (*SPARE*)
+	Cyclic#2.X[1351].X05 AT %IX."X67DM1321_400_351".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1351].X06 AT %IX."X67DM1321_400_351".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[1351].X07 AT %IX."X67DM1321_400_351".DigitalInput07; (*SPARE*)
+	Cyclic#2.Y[1351].X08 AT %IX."X67DM1321_400_351".DigitalInput08; (*SPARE*)
+	Cyclic#2.OK[1315] AT %IX."X67DM1321_400_315".ModuleOk;
+	Cyclic#2.X[1315].X01 AT %IX."X67DM1321_400_315".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1315].X02 AT %IX."X67DM1321_400_315".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1315].X03 AT %IX."X67DM1321_400_315".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1315].Y04 AT %QX."X67DM1321_400_315".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1315].Y05 AT %QX."X67DM1321_400_315".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1315].Y06 AT %QX."X67DM1321_400_315".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1315].Y07 AT %QX."X67DM1321_400_315".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1315].Y08 AT %QX."X67DM1321_400_315".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1317] AT %IX."X67DM1321_400_317".ModuleOk;
+	Cyclic#2.X[1317].X01 AT %IX."X67DM1321_400_317".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1317].X02 AT %IX."X67DM1321_400_317".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1317].X03 AT %IX."X67DM1321_400_317".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1317].Y04 AT %QX."X67DM1321_400_317".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1317].Y05 AT %QX."X67DM1321_400_317".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1317].Y06 AT %QX."X67DM1321_400_317".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1317].Y07 AT %QX."X67DM1321_400_317".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1317].Y08 AT %QX."X67DM1321_400_317".DigitalOutput08; (*SPARE*)
+	Cyclic#5.WeightRaw[13].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_364_SS13_15".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[15].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_364_SS13_15".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[13].Config_Channel_1 AT %QB."X67AI2744_LC_400_364_SS13_15".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[15].Config_Channel_1 AT %QB."X67AI2744_LC_400_364_SS13_15".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1364] AT %IX."X67AI2744_LC_400_364_SS13_15".ModuleOk;
+	Cyclic#2.OK[1319] AT %IX."X67DM1321_400_319".ModuleOk;
+	Cyclic#2.X[1319].X01 AT %IX."X67DM1321_400_319".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1319].X02 AT %IX."X67DM1321_400_319".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1319].X03 AT %IX."X67DM1321_400_319".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1319].Y04 AT %QX."X67DM1321_400_319".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1319].Y05 AT %QX."X67DM1321_400_319".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1319].Y06 AT %QX."X67DM1321_400_319".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1319].Y07 AT %QX."X67DM1321_400_319".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1319].Y08 AT %QX."X67DM1321_400_319".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1365] AT %IX."X67AI2744_LC_400_365_SS17_19".ModuleOk;
+	WeightRaw[17].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_365_SS17_19".AnalogInput01;
+	Cyclic#2.OK[1320] AT %IX."X67DM1321_400_320".ModuleOk;
+	Cyclic#2.X[1320].X01 AT %IX."X67DM1321_400_320".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1320].X02 AT %IX."X67DM1321_400_320".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1320].X03 AT %IX."X67DM1321_400_320".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1320].Y04 AT %QX."X67DM1321_400_320".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1320].Y05 AT %QX."X67DM1321_400_320".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1320].Y06 AT %QX."X67DM1321_400_320".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1320].Y07 AT %QX."X67DM1321_400_320".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1320].Y08 AT %QX."X67DM1321_400_320".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1366] AT %IX."X67AI2744_LC_400_366_SS20_18".ModuleOk;
+	WeightRaw[18].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_366_SS20_18".AnalogInput02;
+	Cyclic#2.OK[1318] AT %IX."X67DM1321_400_318".ModuleOk;
+	Cyclic#2.X[1318].X01 AT %IX."X67DM1321_400_318".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1318].X02 AT %IX."X67DM1321_400_318".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1318].X03 AT %IX."X67DM1321_400_318".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1318].Y04 AT %QX."X67DM1321_400_318".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1318].Y05 AT %QX."X67DM1321_400_318".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1318].Y06 AT %QX."X67DM1321_400_318".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1318].Y07 AT %QX."X67DM1321_400_318".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1318].Y08 AT %QX."X67DM1321_400_318".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1316] AT %IX."X67DM1321_400_316".ModuleOk;
+	Cyclic#2.X[1316].X01 AT %IX."X67DM1321_400_316".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1316].X02 AT %IX."X67DM1321_400_316".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1316].X03 AT %IX."X67DM1321_400_316".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1316].Y04 AT %QX."X67DM1321_400_316".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1316].Y05 AT %QX."X67DM1321_400_316".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1316].Y06 AT %QX."X67DM1321_400_316".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1316].Y07 AT %QX."X67DM1321_400_316".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1316].Y08 AT %QX."X67DM1321_400_316".DigitalOutput08; (*SPARE*)
+	Cyclic#5.WeightRaw[16].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_367_SS16_14".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[14].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_367_SS16_14".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[16].Config_Channel_1 AT %QB."X67AI2744_LC_400_367_SS16_14".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[14].Config_Channel_1 AT %QB."X67AI2744_LC_400_367_SS16_14".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1367] AT %IX."X67AI2744_LC_400_367_SS16_14".ModuleOk;
+	SafetyZone[0].Main_Reset AT %QX."X20SL8100".BOOL101;
+	SafetyZone[0].Zone_Status AT %IX."X20SL8100".BOOL001;
+	SafetyZone[1].Zone_Status AT %IX."X20SL8100".BOOL002;
+	SafetyZone[2].Zone_Status AT %IX."X20SL8100".BOOL003;
+	SafetyZone[3].Zone_Status AT %IX."X20SL8100".BOOL004;
+	SafetyZone[4].Zone_Status AT %IX."X20SL8100".BOOL005;
+	SafetyZone[5].Zone_Status AT %IX."X20SL8100".BOOL006;
+	SafetyZone[0].ResetReady AT %IX."X20SL8100".BOOL009;
+	SafetyZone[1].ResetReady AT %IX."X20SL8100".BOOL010;
+	SafetyZone[2].ResetReady AT %IX."X20SL8100".BOOL011;
+	SafetyZone[3].ResetReady AT %IX."X20SL8100".BOOL012;
+	SafetyZone[4].ResetReady AT %IX."X20SL8100".BOOL013;
+	SafetyZone[5].ResetReady AT %IX."X20SL8100".BOOL014;
+	SafetyZone[0].EDM AT %QX."X20SL8100".BOOL102;
+	SafetyZone[1].EDM AT %QX."X20SL8100".BOOL103;
+	SafetyZone[2].EDM AT %QX."X20SL8100".BOOL104;
+	SafetyZone[3].EDM AT %QX."X20SL8100".BOOL105;
+	SafetyZone[4].EDM AT %QX."X20SL8100".BOOL106;
+	SafetyZone[5].EDM AT %QX."X20SL8100".BOOL107;
+	Safety_Module_Fault AT %QX."X20SL8100".BOOL115;
+	Safety_Master_Reset AT %QX."X20SL8100".BOOL116;
+	Cyclic#2.OK[1181] AT %IX."X67DM1321.L08_400_181_SPC1".ModuleOk;
+	Cyclic#2.X[1181].X01 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput01; (*LIFT CYLINDER REACHED TOP POSITION*)
+	Cyclic#2.X[1181].X02 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput02; (*LIFT CYLINDER REACHED BOTTOM POSITION*)
+	Cyclic#2.X[1181].X03 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput03; (*BAG ON CARRIAGE PROXIMITY SWITCH*)
+	Cyclic#2.X[1181].X04 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput04; (*CARRIAGE SECOND TROLLEY PROXIMITY SWITCH*)
+	Cyclic#2.X[1181].X05 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput05; (*BAG IN (LOADING) ALLIGNMENT PROXIMITY SWITCH*)
+	Cyclic#2.X[1181].X06 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput06; (*BAG OUT (UNLOADING) ALLIGNMENT PROXIMITY SWITCH*)
+	Cyclic#2.X[1181].X07 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput07; (*AIR PRESSURE SWITCH*)
+	Cyclic#2.X[1181].X08 AT %IX."X67DM1321.L08_400_181_SPC1".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[1181].Y01 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput09; (*ACTUATE LIFT CYLINDER - TRAVELING DOWNWARDS*)
+	Cyclic#2.Y[1181].Y02 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput10; (*ACTUATE LIFT CYLINDER - TRAVELING UPWARDS*)
+	Cyclic#2.Y[1181].Y03 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput11; (*CLAMPING UNIT*)
+	Cyclic#2.Y[1181].Y04 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput12; (*CARRIAGE ROLLER STOP*)
+	Cyclic#2.Y[1181].Y05 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput13; (*BAG STOP BEFORE PNEUMATIC CONVEYOR (BAG IN)*)
+	Cyclic#2.Y[1181].Y06 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput14; (*DOUBLE STOP (FRONT & REAR CYLINDERS)*)
+	Cyclic#2.Y[1181].Y07 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[1181].Y08 AT %QX."X67DM1321.L08_400_181_SPC1".DigitalOutput16; (*SPARE*)
+	Cyclic#5.WeightRaw[21].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_371".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[21].Wgt_Channel_2 AT %ID."X67AI2744_LC_400_371".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[21].Config_Channel_1 AT %QB."X67AI2744_LC_400_371".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[21].Config_Channel_2 AT %QB."X67AI2744_LC_400_371".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1371] AT %IX."X67AI2744_LC_400_371".ModuleOk;
+	Cyclic#5.WeightRaw[22].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_372".AnalogInput01; (*WEIGHING CELL 3A, 3B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[22].Config_Channel_1 AT %QB."X67AI2744_LC_400_372".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#2.OK[1372] AT %IX."X67AI2744_LC_400_372".ModuleOk;
+	Cyclic#2.OK[1301] AT %IX."X67DM1321_400_301".ModuleOk;
+	Cyclic#2.X[1301].X01 AT %IX."X67DM1321_400_301".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1301].X02 AT %IX."X67DM1321_400_301".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1301].X03 AT %IX."X67DM1321_400_301".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1301].Y04 AT %QX."X67DM1321_400_301".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1301].Y05 AT %QX."X67DM1321_400_301".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1301].Y06 AT %QX."X67DM1321_400_301".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1301].Y07 AT %QX."X67DM1321_400_301".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1301].Y08 AT %QX."X67DM1321_400_301".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1303] AT %IX."X67DM1321_400_303".ModuleOk;
+	Cyclic#2.X[1303].X01 AT %IX."X67DM1321_400_303".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1303].X02 AT %IX."X67DM1321_400_303".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1303].X03 AT %IX."X67DM1321_400_303".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1303].Y04 AT %QX."X67DM1321_400_303".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1303].Y05 AT %QX."X67DM1321_400_303".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1303].Y06 AT %QX."X67DM1321_400_303".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1303].Y07 AT %QX."X67DM1321_400_303".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1303].Y08 AT %QX."X67DM1321_400_303".DigitalOutput08; (*SPARE*)
+	Cyclic#5.WeightRaw[1].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_361_SS01_03".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[3].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_361_SS01_03".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[1].Config_Channel_1 AT %QB."X67AI2744_LC_400_361_SS01_03".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[3].Config_Channel_1 AT %QB."X67AI2744_LC_400_361_SS01_03".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1361] AT %IX."X67AI2744_LC_400_361_SS01_03".ModuleOk;
+	Cyclic#2.OK[1305] AT %IX."X67DM1321_400_305".ModuleOk;
+	Cyclic#2.X[1305].X01 AT %IX."X67DM1321_400_305".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1305].X02 AT %IX."X67DM1321_400_305".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1305].X03 AT %IX."X67DM1321_400_305".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1305].Y04 AT %QX."X67DM1321_400_305".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1305].Y05 AT %QX."X67DM1321_400_305".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1305].Y06 AT %QX."X67DM1321_400_305".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1305].Y07 AT %QX."X67DM1321_400_305".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1305].Y08 AT %QX."X67DM1321_400_305".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1362] AT %IX."X67AI2744_LC_400_362_SS05_07".ModuleOk;
+	WeightRaw[7].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_362_SS05_07".AnalogInput02;
+	WeightRaw[7].Config_Channel_1 AT %QB."X67AI2744_LC_400_362_SS05_07".ConfigOutput02;
+	Cyclic#2.OK[1307] AT %IX."X67DM1321_400_307".ModuleOk;
+	Cyclic#2.X[1307].X01 AT %IX."X67DM1321_400_307".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1307].X02 AT %IX."X67DM1321_400_307".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1307].X03 AT %IX."X67DM1321_400_307".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1307].Y04 AT %QX."X67DM1321_400_307".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1307].Y05 AT %QX."X67DM1321_400_307".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1307].Y06 AT %QX."X67DM1321_400_307".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1307].Y07 AT %QX."X67DM1321_400_307".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1307].Y08 AT %QX."X67DM1321_400_307".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[309] AT %IX."X67DM1321_400_309".ModuleOk;
+	Cyclic#2.X[1309].X01 AT %IX."X67DM1321_400_309".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1309].X02 AT %IX."X67DM1321_400_309".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1309].X03 AT %IX."X67DM1321_400_309".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1309].Y04 AT %QX."X67DM1321_400_309".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1309].Y05 AT %QX."X67DM1321_400_309".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1309].Y06 AT %QX."X67DM1321_400_309".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1309].Y07 AT %QX."X67DM1321_400_309".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1309].Y08 AT %QX."X67DM1321_400_309".DigitalOutput08; (*SPARE*)
+	Cyclic#5.WeightRaw[9].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_363_SS09_11".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[11].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_363_SS09_11".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[9].Config_Channel_1 AT %QB."X67AI2744_LC_400_363_SS09_11".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[11].Config_Channel_1 AT %QB."X67AI2744_LC_400_363_SS09_11".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1363] AT %IX."X67AI2744_LC_400_363_SS09_11".ModuleOk;
+	Cyclic#2.OK[1311] AT %IX."X67DM1321_400_311".ModuleOk;
+	Cyclic#2.X[1311].X01 AT %IX."X67DM1321_400_311".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1311].X02 AT %IX."X67DM1321_400_311".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1311].X03 AT %IX."X67DM1321_400_311".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1311].Y04 AT %QX."X67DM1321_400_311".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1311].Y05 AT %QX."X67DM1321_400_311".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1311].Y06 AT %QX."X67DM1321_400_311".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1311].Y07 AT %QX."X67DM1321_400_311".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1311].Y08 AT %QX."X67DM1321_400_311".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1313] AT %IX."X67DM1321_400_313".ModuleOk;
+	Cyclic#2.X[1313].X01 AT %IX."X67DM1321_400_313".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1313].X02 AT %IX."X67DM1321_400_313".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1313].X03 AT %IX."X67DM1321_400_313".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1313].Y04 AT %QX."X67DM1321_400_313".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1313].Y05 AT %QX."X67DM1321_400_313".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1313].Y06 AT %QX."X67DM1321_400_313".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1313].Y07 AT %QX."X67DM1321_400_313".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1313].Y08 AT %QX."X67DM1321_400_313".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1314] AT %IX."X67DM1321_400_314".ModuleOk;
+	Cyclic#2.X[1314].X01 AT %IX."X67DM1321_400_314".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1314].X02 AT %IX."X67DM1321_400_314".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1314].X03 AT %IX."X67DM1321_400_314".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1314].Y04 AT %QX."X67DM1321_400_314".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1314].Y05 AT %QX."X67DM1321_400_314".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1314].Y06 AT %QX."X67DM1321_400_314".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1314].Y07 AT %QX."X67DM1321_400_314".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1314].Y08 AT %QX."X67DM1321_400_314".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1312] AT %IX."X67DM1321_400_312".ModuleOk;
+	Cyclic#2.X[1312].X01 AT %IX."X67DM1321_400_312".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1312].X02 AT %IX."X67DM1321_400_312".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1312].X03 AT %IX."X67DM1321_400_312".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1312].Y04 AT %QX."X67DM1321_400_312".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1312].Y05 AT %QX."X67DM1321_400_312".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1312].Y06 AT %QX."X67DM1321_400_312".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1312].Y07 AT %QX."X67DM1321_400_312".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1312].Y08 AT %QX."X67DM1321_400_312".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1368] AT %IX."X67AI2744_LC_400_368_SS12_10".ModuleOk;
+	Cyclic#5.WeightRaw[12].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_368_SS12_10".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[10].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_368_SS12_10".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[12].Config_Channel_1 AT %QB."X67AI2744_LC_400_368_SS12_10".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[10].Config_Channel_1 AT %QB."X67AI2744_LC_400_368_SS12_10".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1310] AT %IX."X67DM1321_400_310".ModuleOk;
+	Cyclic#2.X[1310].X01 AT %IX."X67DM1321_400_310".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1310].X02 AT %IX."X67DM1321_400_310".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1310].X03 AT %IX."X67DM1321_400_310".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1310].Y04 AT %QX."X67DM1321_400_310".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1310].Y05 AT %QX."X67DM1321_400_310".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1310].Y06 AT %QX."X67DM1321_400_310".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1310].Y07 AT %QX."X67DM1321_400_310".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1310].Y08 AT %QX."X67DM1321_400_310".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1308] AT %IX."X67DM1321_400_308".ModuleOk;
+	Cyclic#2.X[1308].X01 AT %IX."X67DM1321_400_308".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1308].X02 AT %IX."X67DM1321_400_308".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1308].X03 AT %IX."X67DM1321_400_308".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1308].Y04 AT %QX."X67DM1321_400_308".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1308].Y05 AT %QX."X67DM1321_400_308".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1308].Y06 AT %QX."X67DM1321_400_308".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1308].Y07 AT %QX."X67DM1321_400_308".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1308].Y08 AT %QX."X67DM1321_400_308".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1369] AT %IX."X67AI2744_LC_400_369_SS08_06".ModuleOk;
+	Cyclic#5.WeightRaw[6].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_369_SS08_06".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[6].Config_Channel_1 AT %QB."X67AI2744_LC_400_369_SS08_06".ConfigOutput02; (*ADC configuration channel 1*)
+	WeightRaw[8].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_369_SS08_06".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	WeightRaw[8].Config_Channel_1 AT %QB."X67AI2744_LC_400_369_SS08_06".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#2.OK[1306] AT %IX."X67DM1321_400_306".ModuleOk;
+	Cyclic#2.X[1306].X01 AT %IX."X67DM1321_400_306".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1306].X02 AT %IX."X67DM1321_400_306".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1306].X03 AT %IX."X67DM1321_400_306".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1306].Y04 AT %QX."X67DM1321_400_306".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1306].Y05 AT %QX."X67DM1321_400_306".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1306].Y06 AT %QX."X67DM1321_400_306".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1306].Y07 AT %QX."X67DM1321_400_306".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1306].Y08 AT %QX."X67DM1321_400_306".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1304] AT %IX."X67DM1321_400_304".ModuleOk;
+	Cyclic#2.X[1304].X01 AT %IX."X67DM1321_400_304".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1304].X02 AT %IX."X67DM1321_400_304".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1304].X03 AT %IX."X67DM1321_400_304".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1304].Y04 AT %QX."X67DM1321_400_304".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1304].Y05 AT %QX."X67DM1321_400_304".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1304].Y06 AT %QX."X67DM1321_400_304".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1304].Y07 AT %QX."X67DM1321_400_304".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1304].Y08 AT %QX."X67DM1321_400_304".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1302] AT %IX."X67DM1321_400_302".ModuleOk;
+	Cyclic#2.X[1302].X01 AT %IX."X67DM1321_400_302".DigitalInput01; (*PART LOAD RELEASE BUTTON*)
+	Cyclic#2.X[1302].X02 AT %IX."X67DM1321_400_302".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1302].X03 AT %IX."X67DM1321_400_302".DigitalInput03; (*SPARE*)
+	Cyclic#2.Y[1302].Y04 AT %QX."X67DM1321_400_302".DigitalOutput04; (*OPEN BAG*)
+	Cyclic#2.Y[1302].Y05 AT %QX."X67DM1321_400_302".DigitalOutput05; (*CONTINUOUS SORTING*)
+	Cyclic#2.Y[1302].Y06 AT %QX."X67DM1321_400_302".DigitalOutput06; (*BAG READY TO LOAD (GREEN LAMP)*)
+	Cyclic#2.Y[1302].Y07 AT %QX."X67DM1321_400_302".DigitalOutput07; (*BAG AT WEIGHT (RED LAMP)*)
+	Cyclic#2.Y[1302].Y08 AT %QX."X67DM1321_400_302".DigitalOutput08; (*SPARE*)
+	Cyclic#5.WeightRaw[4].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_370_SS04_02".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[2].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_370_SS04_02".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[4].Config_Channel_1 AT %QB."X67AI2744_LC_400_370_SS04_02".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[2].Config_Channel_1 AT %QB."X67AI2744_LC_400_370_SS04_02".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1370] AT %IX."X67AI2744_LC_400_370_SS04_02".ModuleOk;
+	Cyclic#2.X[1071].X01 AT %IX."X67DM1321_400_71_SPF1".DigitalInput01; (*BAG AT BUFFER LINE 1*)
+	Cyclic#2.X[1071].X02 AT %IX."X67DM1321_400_71_SPF1".DigitalInput02; (*BAG AT BUFFER LINE 2*)
+	Cyclic#2.Y[1071].Y03 AT %QX."X67DM1321_400_71_SPF1".DigitalOutput03; (*ROLLER STOP LINE 1*)
+	Cyclic#2.Y[1071].Y04 AT %QX."X67DM1321_400_71_SPF1".DigitalOutput04; (*SPARE*)
+	Cyclic#2.Y[1071].Y05 AT %QX."X67DM1321_400_71_SPF1".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1071].Y06 AT %QX."X67DM1321_400_71_SPF1".DigitalOutput06; (*ROLLER STOP AND POINT LINE 2*)
+	Cyclic#2.Y[1071].Y07 AT %QX."X67DM1321_400_71_SPF1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1071].Y08 AT %QX."X67DM1321_400_71_SPF1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1071] AT %IX."X67DM1321_400_71_SPF1".ModuleOk; (*Module status (3 = module present)*)
+	Cyclic#2.X[1072].X01 AT %IX."X67DM1321_400_72_SPF1".DigitalInput01; (*BAG AT BUFFER LINE 3*)
+	Cyclic#2.X[1072].X02 AT %IX."X67DM1321_400_72_SPF1".DigitalInput02; (*BAG AT BUFFER LINE 4*)
+	Cyclic#2.Y[1072].Y03 AT %QX."X67DM1321_400_72_SPF1".DigitalOutput03; (*SPARE*)
+	Cyclic#2.Y[1072].Y04 AT %QX."X67DM1321_400_72_SPF1".DigitalOutput04; (*SPARE*)
+	Cyclic#2.Y[1072].Y05 AT %QX."X67DM1321_400_72_SPF1".DigitalOutput05; (*ROLLER STOP AND POINT LINE 3*)
+	Cyclic#2.Y[1072].Y06 AT %QX."X67DM1321_400_72_SPF1".DigitalOutput06; (*ROLLER STOP AND POINT LINE 4*)
+	Cyclic#2.Y[1072].Y07 AT %QX."X67DM1321_400_72_SPF1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1072].Y08 AT %QX."X67DM1321_400_72_SPF1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1072] AT %IX."X67DM1321_400_72_SPF1".ModuleOk; (*Module status (4 = module present)*)
+	Cyclic#2.X[1073].X01 AT %IX."X67DM1321_400_73_SPF1".DigitalInput01; (*BAG AT BUFFER LINE 5*)
+	Cyclic#2.X[1073].X02 AT %IX."X67DM1321_400_73_SPF1".DigitalInput02; (*BAG AT BUFFER LINE 6*)
+	Cyclic#2.Y[1073].Y03 AT %QX."X67DM1321_400_73_SPF1".DigitalOutput03; (*BAG AT BRUSH SPEED REDUCER*)
+	Cyclic#2.Y[1073].Y04 AT %QX."X67DM1321_400_73_SPF1".DigitalOutput04; (*BRUSH SPEED REDUCER*)
+	Cyclic#2.Y[1073].Y05 AT %QX."X67DM1321_400_73_SPF1".DigitalOutput05; (*ROLLER STOP AND POINT LINE 5*)
+	Cyclic#2.Y[1073].Y06 AT %QX."X67DM1321_400_73_SPF1".DigitalOutput06; (*ROLLER STOP AND POINT LINE 6*)
+	Cyclic#2.Y[1073].Y07 AT %QX."X67DM1321_400_73_SPF1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1073].Y08 AT %QX."X67DM1321_400_73_SPF1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1073] AT %IX."X67DM1321_400_73_SPF1".ModuleOk; (*Module status (3 = module present)*)
+	Cyclic#2.X[1074].X01 AT %IX."X67DM1321_400_74_SPF1".DigitalInput01; (*BAG AT BUFFER LINE 7*)
+	Cyclic#2.X[1074].X02 AT %IX."X67DM1321_400_74_SPF1".DigitalInput02; (*BAG AT BUFFER LINE 8*)
+	Cyclic#2.Y[1074].Y03 AT %QX."X67DM1321_400_74_SPF1".DigitalOutput03; (*SPARE*)
+	Cyclic#2.Y[1074].Y04 AT %QX."X67DM1321_400_74_SPF1".DigitalOutput04; (*SPARE*)
+	Cyclic#2.Y[1074].Y05 AT %QX."X67DM1321_400_74_SPF1".DigitalOutput05; (*ROLLER STOP AND POINT LINE 7*)
+	Cyclic#2.Y[1074].Y06 AT %QX."X67DM1321_400_74_SPF1".DigitalOutput06; (*ROLLER STOP AND POINT LINE 8*)
+	Cyclic#2.Y[1074].Y07 AT %QX."X67DM1321_400_74_SPF1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1074].Y08 AT %QX."X67DM1321_400_74_SPF1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1074] AT %IX."X67DM1321_400_74_SPF1".ModuleOk; (*Module status (3 = module present)*)
+	Cyclic#2.X[1055].X01 AT %IX."X67DM1321_400_55_SPN1".DigitalInput01; (*BAG AT POINT LINE 9*)
+	Cyclic#2.X[1055].X02 AT %IX."X67DM1321_400_55_SPN1".DigitalInput02; (*BAG AT POINT LINE 10*)
+	Cyclic#2.X[1055].X03 AT %IX."X67DM1321_400_55_SPN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1055].X04 AT %IX."X67DM1321_400_55_SPN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1055].Y05 AT %QX."X67DM1321_400_55_SPN1".DigitalOutput05; (*POINT LINE 9*)
+	Cyclic#2.Y[1055].Y06 AT %QX."X67DM1321_400_55_SPN1".DigitalOutput06; (*POINT LINE 10*)
+	Cyclic#2.Y[1055].Y07 AT %QX."X67DM1321_400_55_SPN1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1055].Y08 AT %QX."X67DM1321_400_55_SPN1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1055] AT %IX."X67DM1321_400_55_SPN1".ModuleOk;
+	Cyclic#2.X[1054].X01 AT %IX."X67DM1321_400_54_SPN1".DigitalInput01; (*BAG AT POINT LINE 7*)
+	Cyclic#2.X[1054].X02 AT %IX."X67DM1321_400_54_SPN1".DigitalInput02; (*BAG AT POINT LINE 8*)
+	Cyclic#2.X[1054].X03 AT %IX."X67DM1321_400_54_SPN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1054].X04 AT %IX."X67DM1321_400_54_SPN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1054].Y05 AT %QX."X67DM1321_400_54_SPN1".DigitalOutput05; (*POINT LINE 7*)
+	Cyclic#2.Y[1054].Y06 AT %QX."X67DM1321_400_54_SPN1".DigitalOutput06; (*POINT LINE 8*)
+	Cyclic#2.Y[1054].Y07 AT %QX."X67DM1321_400_54_SPN1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1054].Y08 AT %QX."X67DM1321_400_54_SPN1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1054] AT %IX."X67DM1321_400_54_SPN1".ModuleOk;
+	Cyclic#2.X[1053].X01 AT %IX."X67DM1321_400_53_SPN1".DigitalInput01; (*BAG AT POINT LINE 5*)
+	Cyclic#2.X[1053].X02 AT %IX."X67DM1321_400_53_SPN1".DigitalInput02; (*BAG AT POINT LINE 6*)
+	Cyclic#2.X[1053].X03 AT %IX."X67DM1321_400_53_SPN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1053].X04 AT %IX."X67DM1321_400_53_SPN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1053].Y05 AT %QX."X67DM1321_400_53_SPN1".DigitalOutput05; (*POINT LINE 5*)
+	Cyclic#2.Y[1053].Y06 AT %QX."X67DM1321_400_53_SPN1".DigitalOutput06; (*POINT LINE 6*)
+	Cyclic#2.Y[1053].Y07 AT %QX."X67DM1321_400_53_SPN1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1053].Y08 AT %QX."X67DM1321_400_53_SPN1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1053] AT %IX."X67DM1321_400_53_SPN1".ModuleOk;
+	Cyclic#2.X[1052].X01 AT %IX."X67DM1321_400_52_SPN1".DigitalInput01; (*BAG AT POINT LINE 3*)
+	Cyclic#2.X[1052].X02 AT %IX."X67DM1321_400_52_SPN1".DigitalInput02; (*BAG AT POINT LINE 4*)
+	Cyclic#2.X[1052].X03 AT %IX."X67DM1321_400_52_SPN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1052].X04 AT %IX."X67DM1321_400_52_SPN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1052].Y05 AT %QX."X67DM1321_400_52_SPN1".DigitalOutput05; (*POINT LINE 3*)
+	Cyclic#2.Y[1052].Y06 AT %QX."X67DM1321_400_52_SPN1".DigitalOutput06; (*POINT LINE 4*)
+	Cyclic#2.Y[1052].Y07 AT %QX."X67DM1321_400_52_SPN1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1052].Y08 AT %QX."X67DM1321_400_52_SPN1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1052] AT %IX."X67DM1321_400_52_SPN1".ModuleOk;
+	Cyclic#2.X[1051].X01 AT %IX."X67DM1321_400_51_SPN1".DigitalInput01; (*BAG AT POINT LINE 1*)
+	Cyclic#2.X[1051].X02 AT %IX."X67DM1321_400_51_SPN1".DigitalInput02; (*BAG AT POINT LINE 2*)
+	Cyclic#2.X[1051].X03 AT %IX."X67DM1321_400_51_SPN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1051].X04 AT %IX."X67DM1321_400_51_SPN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1051].Y05 AT %QX."X67DM1321_400_51_SPN1".DigitalOutput05; (*POINT LINE 1*)
+	Cyclic#2.Y[1051].Y06 AT %QX."X67DM1321_400_51_SPN1".DigitalOutput06; (*POINT LINE 2*)
+	Cyclic#2.Y[1051].Y07 AT %QX."X67DM1321_400_51_SPN1".DigitalOutput07; (*RESET/STRAIGHT*)
+	Cyclic#2.Y[1051].Y08 AT %QX."X67DM1321_400_51_SPN1".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1051] AT %IX."X67DM1321_400_51_SPN1".ModuleOk;
+	Cyclic#2.X[1171].X01 AT %IX."X67DM1321_400_171_SICU1".DigitalInput01; (*PADDLE IN POSITION*)
+	Cyclic#2.X[1171].X02 AT %IX."X67DM1321_400_171_SICU1".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1171].X03 AT %IX."X67DM1321_400_171_SICU1".DigitalInput03; (*BAG AT BUFFER*)
+	Cyclic#2.X[1171].X04 AT %IX."X67DM1321_400_171_SICU1".DigitalInput04; (*BAG IN INCLINE*)
+	Cyclic#2.X[1171].X05 AT %IX."X67DM1321_400_171_SICU1".DigitalInput05; (*BAG RELEASED*)
+	Cyclic#2.Y[1171].Y06 AT %QX."X67DM1321_400_171_SICU1".DigitalOutput06; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[1171].Y07 AT %QX."X67DM1321_400_171_SICU1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1171].Y08 AT %QX."X67DM1321_400_171_SICU1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1171] AT %IX."X67DM1321_400_171_SICU1".ModuleOk;
+	Cyclic#2.X[1075].X01 AT %IX."X67DM1321_400_75_SPF1".DigitalInput01; (*BAG AT BUFFER LINE 9*)
+	Cyclic#2.X[1075].X02 AT %IX."X67DM1321_400_75_SPF1".DigitalInput02; (*BAG AT BUFFER LINE 10*)
+	Cyclic#2.Y[1075].Y03 AT %QX."X67DM1321_400_75_SPF1".DigitalOutput03; (*ROLLER STOP LINE 9*)
+	Cyclic#2.Y[1075].Y04 AT %QX."X67DM1321_400_75_SPF1".DigitalOutput04; (*SPARE*)
+	Cyclic#2.Y[1075].Y05 AT %QX."X67DM1321_400_75_SPF1".DigitalOutput05; (*POINT LINE 9*)
+	Cyclic#2.Y[1075].Y06 AT %QX."X67DM1321_400_75_SPF1".DigitalOutput06; (*ROLLER STOP AND POINT LINE 10*)
+	Cyclic#2.Y[1075].Y07 AT %QX."X67DM1321_400_75_SPF1".DigitalOutput07; (*RESET*)
+	Cyclic#2.Y[1075].Y08 AT %QX."X67DM1321_400_75_SPF1".DigitalOutput08; (*RESET*)
+	Cyclic#2.OK[1075] AT %IX."X67DM1321_400_75_SPF1".ModuleOk; (*Module status (3 = module present)*)
+	Cyclic#2.X[1118].X01 AT %IX."X67DM1321_400_118_SP18".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1118].X02 AT %IX."X67DM1321_400_118_SP18".DigitalInput02; (*BAG AT STRAIGHT*)
+	Cyclic#2.X[1118].X03 AT %IX."X67DM1321_400_118_SP18".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1118].X04 AT %IX."X67DM1321_400_118_SP18".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1118].Y05 AT %QX."X67DM1321_400_118_SP18".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1118].Y06 AT %QX."X67DM1321_400_118_SP18".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[1118].Y07 AT %QX."X67DM1321_400_118_SP18".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1118].Y08 AT %QX."X67DM1321_400_118_SP18".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1118] AT %IX."X67DM1321_400_118_SP18".ModuleOk;
+	Cyclic#2.X[1117].X01 AT %IX."X67DM1321_400_117_SP17".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1117].X02 AT %IX."X67DM1321_400_117_SP17".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1117].X03 AT %IX."X67DM1321_400_117_SP17".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1117].X04 AT %IX."X67DM1321_400_117_SP17".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1117].Y05 AT %QX."X67DM1321_400_117_SP17".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1117].Y06 AT %QX."X67DM1321_400_117_SP17".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1117].Y07 AT %QX."X67DM1321_400_117_SP17".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1117].Y08 AT %QX."X67DM1321_400_117_SP17".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1117] AT %IX."X67DM1321_400_117_SP17".ModuleOk;
+	Cyclic#2.X[1116].X01 AT %IX."X67DM1321_400_116_SP16".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1116].X02 AT %IX."X67DM1321_400_116_SP16".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1116].X03 AT %IX."X67DM1321_400_116_SP16".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1116].X04 AT %IX."X67DM1321_400_116_SP16".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1116].Y05 AT %QX."X67DM1321_400_116_SP16".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1116].Y06 AT %QX."X67DM1321_400_116_SP16".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1116].Y07 AT %QX."X67DM1321_400_116_SP16".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1116].Y08 AT %QX."X67DM1321_400_116_SP16".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1116] AT %IX."X67DM1321_400_116_SP16".ModuleOk;
+	Cyclic#2.X[1115].X01 AT %IX."X67DM1321_400_115_SP15".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1115].X02 AT %IX."X67DM1321_400_115_SP15".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1115].X03 AT %IX."X67DM1321_400_115_SP15".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1115].X04 AT %IX."X67DM1321_400_115_SP15".DigitalInput04; (*BAG AT STRAIGHT*)
+	Cyclic#2.Y[1115].Y05 AT %QX."X67DM1321_400_115_SP15".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1115].Y06 AT %QX."X67DM1321_400_115_SP15".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1115].Y07 AT %QX."X67DM1321_400_115_SP15".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1115].Y08 AT %QX."X67DM1321_400_115_SP15".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1115] AT %IX."X67DM1321_400_115_SP15".ModuleOk;
+	Cyclic#2.X[1113].X01 AT %IX."X67DM1321_400_113_SP13".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1113].X02 AT %IX."X67DM1321_400_113_SP13".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1113].X03 AT %IX."X67DM1321_400_113_SP13".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[1113].X04 AT %IX."X67DM1321_400_113_SP13".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1113].Y05 AT %QX."X67DM1321_400_113_SP13".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1113].Y06 AT %QX."X67DM1321_400_113_SP13".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1113].Y07 AT %QX."X67DM1321_400_113_SP13".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1113].Y08 AT %QX."X67DM1321_400_113_SP13".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1113] AT %IX."X67DM1321_400_113_SP13".ModuleOk;
+	Cyclic#2.X[1153].X01 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1153].X02 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[1153].X03 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput03; (*EMPTY BAG OUT*)
+	Cyclic#2.X[1153].X04 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[1153].X05 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1153].X06 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[1153].X07 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[1153].X08 AT %IX."X67DM1321.L08_400_153_SDC3".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[1153].Y01 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[1153].Y02 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[1153].Y03 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[1153].Y04 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[1153].Y05 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[1153].Y06 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[1153].Y07 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[1153].Y08 AT %QX."X67DM1321.L08_400_153_SDC3".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[1153] AT %IX."X67DM1321.L08_400_153_SDC3".ModuleOk;
+	Cyclic#2.X[1114].X01 AT %IX."X67DM1321_400_114_SP14".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1114].X02 AT %IX."X67DM1321_400_114_SP14".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1114].X03 AT %IX."X67DM1321_400_114_SP14".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[1114].X04 AT %IX."X67DM1321_400_114_SP14".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1114].Y05 AT %QX."X67DM1321_400_114_SP14".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1114].Y06 AT %QX."X67DM1321_400_114_SP14".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1114].Y07 AT %QX."X67DM1321_400_114_SP14".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1114].Y08 AT %QX."X67DM1321_400_114_SP14".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1114] AT %IX."X67DM1321_400_114_SP14".ModuleOk;
+	Cyclic#2.X[1110].X01 AT %IX."X67DM1321_400_110_SP10".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1110].X02 AT %IX."X67DM1321_400_110_SP10".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1110].X03 AT %IX."X67DM1321_400_110_SP10".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1110].X04 AT %IX."X67DM1321_400_110_SP10".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1110].Y05 AT %QX."X67DM1321_400_110_SP10".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1110].Y06 AT %QX."X67DM1321_400_110_SP10".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1110].Y07 AT %QX."X67DM1321_400_110_SP10".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1110].Y08 AT %QX."X67DM1321_400_110_SP10".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1110] AT %IX."X67DM1321_400_110_SP10".ModuleOk;
+	Cyclic#2.X[1111].X01 AT %IX."X67DM1321_400_111_SP11".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1111].X02 AT %IX."X67DM1321_400_111_SP11".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1111].X03 AT %IX."X67DM1321_400_111_SP11".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1111].X04 AT %IX."X67DM1321_400_111_SP11".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1111].Y05 AT %QX."X67DM1321_400_111_SP11".DigitalOutput05; (*ROLLER STOP*)
+	Cyclic#2.Y[1111].Y06 AT %QX."X67DM1321_400_111_SP11".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1111].Y07 AT %QX."X67DM1321_400_111_SP11".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1111].Y08 AT %QX."X67DM1321_400_111_SP11".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1111] AT %IX."X67DM1321_400_111_SP11".ModuleOk;
+	Cyclic#2.X[1112].X01 AT %IX."X67DM1321_400_112_SP12".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1112].X02 AT %IX."X67DM1321_400_112_SP12".DigitalInput02; (*BAG AT BUFFER*)
+	Cyclic#2.X[1112].X03 AT %IX."X67DM1321_400_112_SP12".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1112].X04 AT %IX."X67DM1321_400_112_SP12".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1112].Y05 AT %QX."X67DM1321_400_112_SP12".DigitalOutput05; (*ROLLER STOP*)
+	Cyclic#2.Y[1112].Y06 AT %QX."X67DM1321_400_112_SP12".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[1112].Y07 AT %QX."X67DM1321_400_112_SP12".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1112].Y08 AT %QX."X67DM1321_400_112_SP12".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1112] AT %IX."X67DM1321_400_112_SP12".ModuleOk;
+	Cyclic#2.X[1152].X01 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1152].X02 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[1152].X03 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput03; (*EMPTY BAG OUT*)
+	Cyclic#2.X[1152].X04 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[1152].X05 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1152].X06 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[1152].X07 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[1152].X08 AT %IX."X67DM1321.L08_400_152_SDC2".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[1152].Y01 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[1152].Y02 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[1152].Y03 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[1152].Y04 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[1152].Y05 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[1152].Y06 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[1152].Y07 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[1152].Y08 AT %QX."X67DM1321.L08_400_152_SDC2".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[1152] AT %IX."X67DM1321.L08_400_152_SDC2".ModuleOk;
+	OK[1411] AT %IX."X67SI8103_400_411".ModuleOk;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[5] AT %IX."X67SI8103_400_411".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - SICU1*)
+	Cyclic#2.X[1213].X01 AT %IX."X67DM1321_400_213_SPR3".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1213].X02 AT %IX."X67DM1321_400_213_SPR3".DigitalInput02; (*BAG REACHED BUFFER*)
+	Cyclic#2.X[1213].X03 AT %IX."X67DM1321_400_213_SPR3".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1213].X04 AT %IX."X67DM1321_400_213_SPR3".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1213].Y05 AT %QX."X67DM1321_400_213_SPR3".DigitalOutput05; (*PRESSURE RELIEF ROLLER STOP*)
+	Cyclic#2.Y[1213].Y06 AT %QX."X67DM1321_400_213_SPR3".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1213].Y07 AT %QX."X67DM1321_400_213_SPR3".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1213].Y08 AT %QX."X67DM1321_400_213_SPR3".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1213] AT %IX."X67DM1321_400_213_SPR3".ModuleOk;
+	Cyclic#2.X[1151].X01 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1151].X02 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[1151].X03 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput03; (*EMPTY BAG OUT*)
+	Cyclic#2.X[1151].X04 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[1151].X05 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1151].X06 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[1151].X07 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[1151].X08 AT %IX."X67DM1321.L08_400_151_SDC1".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[1151].Y01 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[1151].Y02 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[1151].Y03 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[1151].Y04 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[1151].Y05 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[1151].Y06 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[1151].Y07 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[1151].Y08 AT %QX."X67DM1321.L08_400_151_SDC1".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[1151] AT %IX."X67DM1321.L08_400_151_SDC1".ModuleOk;
+	OK[1402] AT %IX."X67SI8103_400_402".ModuleOk;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[6] AT %IX."X67SI8103_400_402".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - SDC1*)
+	Cyclic#2.SafetyZone[1].TowerLight.TL_DO_Green AT %QX."X67DM1321_400_502".DigitalOutput01; (*Zone 1 Tower Light - Green*)
+	Cyclic#2.SafetyZone[1].TowerLight.TL_DO_Yellow AT %QX."X67DM1321_400_502".DigitalOutput02; (*Zone 1 Tower Light - Yellow*)
+	Cyclic#2.SafetyZone[1].TowerLight.TL_DO_Red AT %QX."X67DM1321_400_502".DigitalOutput03; (*Zone 1 Tower Light - Red*)
+	Cyclic#2.SafetyZone[1].TowerLight.TL_DO_Sounder AT %QX."X67DM1321_400_502".DigitalOutput04; (*Zone 1 Tower Light - Sounder*)
+	Cyclic#2.X[1182].X01 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput01; (*LIFT CYLINDER REACHED TOP POSITION*)
+	Cyclic#2.X[1182].X02 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput02; (*LIFT CYLINDER REACHED BOTTOM POSITION*)
+	Cyclic#2.X[1182].X03 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput03; (*BAG ON CARRIAGE PROXIMITY SWITCH*)
+	Cyclic#2.X[1182].X04 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput04; (*CARRIAGE SECOND TROLLEY PROXIMITY SWITCH*)
+	Cyclic#2.X[1182].X05 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput05; (*BAG IN (LOADING) ALLIGNMENT PROXIMITY SWITCH*)
+	Cyclic#2.X[1182].X06 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput06; (*BAG OUT (UNLOADING) ALLIGNMENT PROXIMITY SWITCH*)
+	Cyclic#2.X[1182].X07 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput07; (*AIR PRESSURE SWITCH*)
+	Cyclic#2.X[1182].X08 AT %IX."X67DM1321.L08_400_182_SPC2".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[1182].Y01 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput09; (*ACTUATE LIFT CYLINDER - TRAVELING DOWNWARDS*)
+	Cyclic#2.Y[1182].Y02 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput10; (*ACTUATE LIFT CYLINDER - TRAVELING UPWARDS*)
+	Cyclic#2.Y[1182].Y03 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput11; (*CLAMPING UNIT*)
+	Cyclic#2.Y[1182].Y04 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput12; (*CARRIAGE ROLLER STOP*)
+	Cyclic#2.Y[1182].Y05 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput13; (*BAG STOP BEFORE PNEUMATIC CONVEYOR (BAG IN)*)
+	Cyclic#2.Y[1182].Y06 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput14; (*DOUBLE STOP (FRONT & REAR CYLINDERS)*)
+	Cyclic#2.Y[1182].Y07 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[1182].Y08 AT %QX."X67DM1321.L08_400_182_SPC2".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[1182] AT %IX."X67DM1321.L08_400_182_SPC2".ModuleOk;
+	Cyclic#2.X[1231].X01 AT %IX."X67DM1321_400_231_SBSN1".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1231].X02 AT %IX."X67DM1321_400_231_SBSN1".DigitalInput02; (*BAG PAST POINT LINE A*)
+	Cyclic#2.X[1231].X03 AT %IX."X67DM1321_400_231_SBSN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1231].X04 AT %IX."X67DM1321_400_231_SBSN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1231].Y05 AT %QX."X67DM1321_400_231_SBSN1".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1231].Y06 AT %QX."X67DM1321_400_231_SBSN1".DigitalOutput06; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.Y[1231].Y07 AT %QX."X67DM1321_400_231_SBSN1".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[1231].Y08 AT %QX."X67DM1321_400_231_SBSN1".DigitalOutput08; (*LEVEL*)
+	Cyclic#2.OK[1231] AT %IX."X67DM1321_400_231_SBSN1".ModuleOk;
+	Cyclic#2.X[1232].X01 AT %IX."X67DM1321_400_232_SBSN1".DigitalInput01; (*BAG AT STOP LINE A*)
+	Cyclic#2.X[1232].X02 AT %IX."X67DM1321_400_232_SBSN1".DigitalInput02; (*BAG AT STOP LINE B*)
+	Cyclic#2.X[1232].X03 AT %IX."X67DM1321_400_232_SBSN1".DigitalInput03; (*BAG LINE A*)
+	Cyclic#2.X[1232].X04 AT %IX."X67DM1321_400_232_SBSN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1232].Y05 AT %QX."X67DM1321_400_232_SBSN1".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[1232].Y06 AT %QX."X67DM1321_400_232_SBSN1".DigitalOutput06; (*ROLLER STOP LINE B*)
+	Cyclic#2.Y[1232].Y07 AT %QX."X67DM1321_400_232_SBSN1".DigitalOutput07; (*PUSHER LINE B*)
+	Cyclic#2.Y[1232].Y08 AT %QX."X67DM1321_400_232_SBSN1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1232] AT %IX."X67DM1321_400_232_SBSN1".ModuleOk;
+	Cyclic#2.X[1211].X01 AT %IX."X67DM1321_400_211_SPR1".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1211].X02 AT %IX."X67DM1321_400_211_SPR1".DigitalInput02; (*BAG REACHED BUFFER*)
+	Cyclic#2.X[1211].X03 AT %IX."X67DM1321_400_211_SPR1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1211].X04 AT %IX."X67DM1321_400_211_SPR1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1211].Y05 AT %QX."X67DM1321_400_211_SPR1".DigitalOutput05; (*PRESSURE RELIEF ROLLER STOP*)
+	Cyclic#2.Y[1211].Y06 AT %QX."X67DM1321_400_211_SPR1".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1211].Y07 AT %QX."X67DM1321_400_211_SPR1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1211].Y08 AT %QX."X67DM1321_400_211_SPR1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1211] AT %IX."X67DM1321_400_211_SPR1".ModuleOk;
+	Cyclic#2.X[1212].X01 AT %IX."X67DM1321_400_212_SPR2".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1212].X02 AT %IX."X67DM1321_400_212_SPR2".DigitalInput02; (*BAG REACHED BUFFER*)
+	Cyclic#2.X[1212].X03 AT %IX."X67DM1321_400_212_SPR2".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1212].X04 AT %IX."X67DM1321_400_212_SPR2".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1212].Y05 AT %QX."X67DM1321_400_212_SPR2".DigitalOutput05; (*PRESSURE RELIEF ROLLER STOP*)
+	Cyclic#2.Y[1212].Y06 AT %QX."X67DM1321_400_212_SPR2".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1212].Y07 AT %QX."X67DM1321_400_212_SPR2".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1212].Y08 AT %QX."X67DM1321_400_212_SPR2".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1212] AT %IX."X67DM1321_400_212_SPR2".ModuleOk;
+	Cyclic#2.X[1233].X01 AT %IX."X67DM1321_400_233_SBSF1".DigitalInput01; (*PROX AT ROLLER ROCKER LINE A*)
+	Cyclic#2.X[1233].X02 AT %IX."X67DM1321_400_233_SBSF1".DigitalInput02; (*PROX AT ROLLER ROCKER LINE B*)
+	Cyclic#2.X[1233].X03 AT %IX."X67DM1321_400_233_SBSF1".DigitalInput03; (*PROX AT PRESS RELIEF LINE A*)
+	Cyclic#2.X[1233].X04 AT %IX."X67DM1321_400_233_SBSF1".DigitalInput04; (*PROX AT PRESS RELIEF LINE A*)
+	Cyclic#2.Y[1233].Y05 AT %QX."X67DM1321_400_233_SBSF1".DigitalOutput05; (*ROLLER ROCKER LINE A*)
+	Cyclic#2.Y[1233].Y06 AT %QX."X67DM1321_400_233_SBSF1".DigitalOutput06; (*ROLLER ROCKER LINE B*)
+	Cyclic#2.Y[1233].Y07 AT %QX."X67DM1321_400_233_SBSF1".DigitalOutput07; (*HALF BODY SEP LINE A*)
+	Cyclic#2.Y[1233].Y08 AT %QX."X67DM1321_400_233_SBSF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1233] AT %IX."X67DM1321_400_233_SBSF1".ModuleOk;
+	Cyclic#2.X[1234].X01 AT %IX."X67DM1321_400_234_SBSF1".DigitalInput01; (*PROX AT ROLLER STOP LINE A*)
+	Cyclic#2.X[1234].X02 AT %IX."X67DM1321_400_234_SBSF1".DigitalInput02; (*PROX AT ROLLER STOP LINE B*)
+	Cyclic#2.X[1234].X03 AT %IX."X67DM1321_400_234_SBSF1".DigitalInput03; (*PROX LINE A*)
+	Cyclic#2.X[1234].X04 AT %IX."X67DM1321_400_234_SBSF1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1234].Y05 AT %QX."X67DM1321_400_234_SBSF1".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[1234].Y06 AT %QX."X67DM1321_400_234_SBSF1".DigitalOutput06; (*ROLLER STOP LINE B*)
+	Cyclic#2.Y[1234].Y07 AT %QX."X67DM1321_400_234_SBSF1".DigitalOutput07; (*LEVEL*)
+	Cyclic#2.Y[1234].Y08 AT %QX."X67DM1321_400_234_SBSF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1234] AT %IX."X67DM1321_400_234_SBSF1".ModuleOk;
+	Cyclic#2.X[1235].X01 AT %IX."X67DM1321_400_235_SBSF1".DigitalInput01; (*PROX LINE B*)
+	Cyclic#2.X[1235].X02 AT %IX."X67DM1321_400_235_SBSF1".DigitalInput02; (*BAG RELEASED*)
+	Cyclic#2.X[1235].X03 AT %IX."X67DM1321_400_235_SBSF1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1235].X04 AT %IX."X67DM1321_400_235_SBSF1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1235].Y05 AT %QX."X67DM1321_400_235_SBSF1".DigitalOutput05; (*OFFGOING RESET*)
+	Cyclic#2.Y[1235].Y06 AT %QX."X67DM1321_400_235_SBSF1".DigitalOutput06; (*OFFGOING POINT*)
+	Cyclic#2.Y[1235].Y07 AT %QX."X67DM1321_400_235_SBSF1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[1235].Y08 AT %QX."X67DM1321_400_235_SBSF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[1235] AT %IX."X67DM1321_400_235_SBSF1".ModuleOk;
+	Cyclic#2.X[1109].X01 AT %IX."X67DM1321_400_109_SP09".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[1109].X02 AT %IX."X67DM1321_400_109_SP09".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1109].X03 AT %IX."X67DM1321_400_109_SP09".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[1109].X04 AT %IX."X67DM1321_400_109_SP09".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[1109].Y05 AT %QX."X67DM1321_400_109_SP09".DigitalOutput05; (*ROLLER STOP*)
+	Cyclic#2.Y[1109].Y06 AT %QX."X67DM1321_400_109_SP09".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1109].Y07 AT %QX."X67DM1321_400_109_SP09".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1109].Y08 AT %QX."X67DM1321_400_109_SP09".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1109] AT %IX."X67DM1321_400_109_SP09".ModuleOk;
+	Cyclic#2.X[1108].X01 AT %IX."X67DM1321_400_108_SP08".DigitalInput01; (*BAG AT BUFFER SSL2*)
+	Cyclic#2.X[1108].X02 AT %IX."X67DM1321_400_108_SP08".DigitalInput02; (*BAG AT BUFFER SSL1*)
+	Cyclic#2.X[1108].X03 AT %IX."X67DM1321_400_108_SP08".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[1108].X04 AT %IX."X67DM1321_400_108_SP08".DigitalInput04; (*BAG AT STRAIGHT*)
+	Cyclic#2.Y[1108].Y05 AT %QX."X67DM1321_400_108_SP08".DigitalOutput05; (*ROLLER STOP*)
+	Cyclic#2.Y[1108].Y06 AT %QX."X67DM1321_400_108_SP08".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[1108].Y07 AT %QX."X67DM1321_400_108_SP08".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1108].Y08 AT %QX."X67DM1321_400_108_SP08".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1108] AT %IX."X67DM1321_400_108_SP08".ModuleOk;
+	Cyclic#2.X[1104].X01 AT %IX."X67DM1321_400_104_SP04".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[1104].X02 AT %IX."X67DM1321_400_104_SP04".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[1104].X03 AT %IX."X67DM1321_400_104_SP04".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[1104].X04 AT %IX."X67DM1321_400_104_SP04".DigitalInput04; (*BAG AT STRAIGHT*)
+	Cyclic#2.Y[1104].Y05 AT %QX."X67DM1321_400_104_SP04".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[1104].Y06 AT %QX."X67DM1321_400_104_SP04".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[1104].Y07 AT %QX."X67DM1321_400_104_SP04".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[1104].Y08 AT %QX."X67DM1321_400_104_SP04".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[1104] AT %IX."X67DM1321_400_104_SP04".ModuleOk;
+	Cyclic#2.X[2231].X01 AT %IX."X67DM1321_700_231_CBSN1".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2231].X02 AT %IX."X67DM1321_700_231_CBSN1".DigitalInput02; (*BAG PAST POINT LINE A*)
+	Cyclic#2.X[2231].X03 AT %IX."X67DM1321_700_231_CBSN1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2231].X04 AT %IX."X67DM1321_700_231_CBSN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2231].Y05 AT %QX."X67DM1321_700_231_CBSN1".DigitalOutput05; (*ROLLER STOP*)
+	Cyclic#2.Y[2231].Y06 AT %QX."X67DM1321_700_231_CBSN1".DigitalOutput06; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.Y[2231].Y07 AT %QX."X67DM1321_700_231_CBSN1".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[2231].Y08 AT %QX."X67DM1321_700_231_CBSN1".DigitalOutput08; (*LEVEL*)
+	Cyclic#2.OK[2231] AT %IX."X67DM1321_700_231_CBSN1".ModuleOk;
+	Cyclic#2.X[2232].X01 AT %IX."X67DM1321_700_232_CBSN1".DigitalInput01; (*BAG AT STOP LINE A*)
+	Cyclic#2.X[2232].X02 AT %IX."X67DM1321_700_232_CBSN1".DigitalInput02; (*BAG AT STOP LINE B*)
+	Cyclic#2.X[2232].X03 AT %IX."X67DM1321_700_232_CBSN1".DigitalInput03; (*BAG LINE A*)
+	Cyclic#2.X[2232].X04 AT %IX."X67DM1321_700_232_CBSN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2232].Y05 AT %QX."X67DM1321_700_232_CBSN1".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[2232].Y06 AT %QX."X67DM1321_700_232_CBSN1".DigitalOutput06; (*ROLLER STOP LINE B*)
+	Cyclic#2.Y[2232].Y07 AT %QX."X67DM1321_700_232_CBSN1".DigitalOutput07; (*PUSHER LINE B*)
+	Cyclic#2.Y[2232].Y08 AT %QX."X67DM1321_700_232_CBSN1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2232] AT %IX."X67DM1321_700_232_CBSN1".ModuleOk;
+	Cyclic#2.X[2233].X01 AT %IX."X67DM1321_700_233_CBSF1".DigitalInput01; (*PROX AT ROLLER ROCKER LINE A*)
+	Cyclic#2.X[2233].X02 AT %IX."X67DM1321_700_233_CBSF1".DigitalInput02; (*PROX AT ROLLER ROCKER LINE B*)
+	Cyclic#2.X[2233].X03 AT %IX."X67DM1321_700_233_CBSF1".DigitalInput03; (*PROX AT PRESS RELIEF LINE A*)
+	Cyclic#2.X[2233].X04 AT %IX."X67DM1321_700_233_CBSF1".DigitalInput04; (*BAG RELEASED*)
+	Cyclic#2.Y[2233].Y05 AT %QX."X67DM1321_700_233_CBSF1".DigitalOutput05; (*ROLLER ROCKER LINE A*)
+	Cyclic#2.Y[2233].Y06 AT %QX."X67DM1321_700_233_CBSF1".DigitalOutput06; (*ROLLER ROCKER LINE B*)
+	Cyclic#2.Y[2233].Y07 AT %QX."X67DM1321_700_233_CBSF1".DigitalOutput07; (*PRESSURE RELIEF ROLLER STOP*)
+	Cyclic#2.Y[2233].Y08 AT %QX."X67DM1321_700_233_CBSF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2233] AT %IX."X67DM1321_700_233_CBSF1".ModuleOk;
+	Cyclic#2.X[2234].X01 AT %IX."X67DM1321_700_234_CBSF1".DigitalInput01; (*PROX AT ROLLER STOP LINE A*)
+	Cyclic#2.X[2234].X02 AT %IX."X67DM1321_700_234_CBSF1".DigitalInput02; (*PROX AT ROLLER STOP LINE B*)
+	Cyclic#2.X[2234].X03 AT %IX."X67DM1321_700_234_CBSF1".DigitalInput03; (*PROX LINE A*)
+	Cyclic#2.X[2234].X04 AT %IX."X67DM1321_700_234_CBSF1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2234].Y05 AT %QX."X67DM1321_700_234_CBSF1".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[2234].Y06 AT %QX."X67DM1321_700_234_CBSF1".DigitalOutput06; (*ROLLER STOP LINE B*)
+	Cyclic#2.Y[2234].Y07 AT %QX."X67DM1321_700_234_CBSF1".DigitalOutput07; (*LEVEL*)
+	Cyclic#2.Y[2234].Y08 AT %QX."X67DM1321_700_234_CBSF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2234] AT %IX."X67DM1321_700_234_CBSF1".ModuleOk;
+	Cyclic#2.X[2235].X01 AT %IX."X67DM1321_700_235_CBSF1".DigitalInput01; (*PROX LINE B*)
+	Cyclic#2.X[2235].X02 AT %IX."X67DM1321_700_235_CBSF1".DigitalInput02; (*BAG RELEASED*)
+	Cyclic#2.X[2235].X03 AT %IX."X67DM1321_700_235_CBSF1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2235].X04 AT %IX."X67DM1321_700_235_CBSF1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2235].Y05 AT %QX."X67DM1321_700_235_CBSF1".DigitalOutput05; (*OFFGOING RESET*)
+	Cyclic#2.Y[2235].Y06 AT %QX."X67DM1321_700_235_CBSF1".DigitalOutput06; (*OFFGOING POINT*)
+	Cyclic#2.Y[2235].Y07 AT %QX."X67DM1321_700_235_CBSF1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2235].Y08 AT %QX."X67DM1321_700_235_CBSF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2235] AT %IX."X67DM1321_700_235_CBSF1".ModuleOk;
+	Cyclic#2.OK[2402] AT %IX."X67SI8103_700_402".ModuleOk;
+	SafetyZone[4].Interlock.GS_Two_Channel_Input AT %IX."X67SI8103_700_402".SafeTwoChannelInput0102; (*2-channel evaluation channel 1/2 - CSL2*)
+	SafetyZone[4].Interlock.GS_DI_01_Access_Reset AT %IX."X67SI8103_700_402".DigitalInput01;
+	SafetyZone[4].Interlock.GS_DO_01_Lock_Solenoid AT %QX."X67SI8103_700_402".DigitalOutput01;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[9] AT %IX."X67SI8103_700_402".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - CSL2*)
+	SafetyZone[4].Interlock.GS_DI_02_Monitor_Solenoid AT %IX."X67SI8103_700_402".DigitalInput02;
+	Cyclic#2.SafetyZone[4].TowerLight.TL_DO_Green AT %QX."X67DM1321_700_502".DigitalOutput01; (*SAFETY AREA 2 - P502_1_4 - GREEN ALARM ON*)
+	Cyclic#2.SafetyZone[4].TowerLight.TL_DO_Yellow AT %QX."X67DM1321_700_502".DigitalOutput02; (*SAFETY AREA 2 - P502_1_4 - YELLOW ALARM ON*)
+	Cyclic#2.SafetyZone[4].TowerLight.TL_DO_Red AT %QX."X67DM1321_700_502".DigitalOutput03; (*SAFETY AREA 2 - P502_1_4 - RED ALARM ON*)
+	Cyclic#2.SafetyZone[4].TowerLight.TL_DO_Sounder AT %QX."X67DM1321_700_502".DigitalOutput04; (*SAFETY AREA 2 - P502_1_4 - SOUND SIGNAL ON*)
+	Cyclic#2.X[2151].X01 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2151].X02 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2151].X03 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2151].X04 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2151].X05 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2151].X06 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2151].X07 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2151].X08 AT %IX."X67DM1321.L08_700_151_CDC1".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2151].Y09 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2151].Y10 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2151].Y11 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2151].Y12 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2151].Y13 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2151].Y14 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[2151].Y15 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[2151].Y16 AT %QX."X67DM1321.L08_700_151_CDC1".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[2151] AT %IX."X67DM1321.L08_700_151_CDC1".ModuleOk;
+	Cyclic#2.X[2103].X01 AT %IX."X67DM1321_700_103_CP03".DigitalInput01; (*BAG APPROACH SPEED REDUCER CSR2*)
+	Cyclic#2.X[2103].X02 AT %IX."X67DM1321_700_103_CP03".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2103].X03 AT %IX."X67DM1321_700_103_CP03".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2103].X04 AT %IX."X67DM1321_700_103_CP03".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2103].Y05 AT %QX."X67DM1321_700_103_CP03".DigitalOutput05; (*CLOSE SPEED REDUCER CSR2*)
+	Cyclic#2.Y[2103].Y06 AT %QX."X67DM1321_700_103_CP03".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2103].Y07 AT %QX."X67DM1321_700_103_CP03".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2103].Y08 AT %QX."X67DM1321_700_103_CP03".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2103] AT %IX."X67DM1321_700_103_CP03".ModuleOk;
+	Cyclic#2.X[2105].X01 AT %IX."X67DM1321_700_105_CP05".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[2105].X02 AT %IX."X67DM1321_700_105_CP05".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2105].X03 AT %IX."X67DM1321_700_105_CP05".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2105].X04 AT %IX."X67DM1321_700_105_CP05".DigitalInput04; (*BAG AT STRAIGHT*)
+	Cyclic#2.X[2105].X05 AT %IX."X67DM1321_700_105_CP05".DigitalInput05; (*SPARE*)
+	Cyclic#2.Y[2105].Y06 AT %QX."X67DM1321_700_105_CP05".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2105].Y07 AT %QX."X67DM1321_700_105_CP05".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2105].Y08 AT %QX."X67DM1321_700_105_CP05".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2105] AT %IX."X67DM1321_700_105_CP05".ModuleOk;
+	Cyclic#2.X[2107].X01 AT %IX."X67DM1321_700_107_CP07".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[2107].X02 AT %IX."X67DM1321_700_107_CP07".DigitalInput02; (*BAG AT BUFFER*)
+	Cyclic#2.X[2107].X03 AT %IX."X67DM1321_700_107_CP07".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2107].X04 AT %IX."X67DM1321_700_107_CP07".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2107].Y05 AT %QX."X67DM1321_700_107_CP07".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2107].Y06 AT %QX."X67DM1321_700_107_CP07".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[2107].Y07 AT %QX."X67DM1321_700_107_CP07".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2107].Y08 AT %QX."X67DM1321_700_107_CP07".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2107] AT %IX."X67DM1321_700_107_CP07".ModuleOk;
+	Cyclic#2.X[2212].X01 AT %IX."X67DM1321_700_212_CPR2".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2212].X02 AT %IX."X67DM1321_700_212_CPR2".DigitalInput02; (*BAG REACHED BUFFER*)
+	Cyclic#2.X[2212].X03 AT %IX."X67DM1321_700_212_CPR2".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2212].X04 AT %IX."X67DM1321_700_212_CPR2".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2212].Y05 AT %QX."X67DM1321_700_212_CPR2".DigitalOutput05; (*PRESSURE RELIEF ROLLER STOP*)
+	Cyclic#2.Y[2212].Y06 AT %QX."X67DM1321_700_212_CPR2".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2212].Y07 AT %QX."X67DM1321_700_212_CPR2".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2212].Y08 AT %QX."X67DM1321_700_212_CPR2".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2212] AT %IX."X67DM1321_700_212_CPR2".ModuleOk;
+	Cyclic#2.X[2109].X01 AT %IX."X67DM1321_700_109_CP09".DigitalInput01; (*BAG RELEASED*)
+	Cyclic#2.X[2109].X02 AT %IX."X67DM1321_700_109_CP09".DigitalInput02; (*BAG AT BUFFER*)
+	Cyclic#2.X[2109].X03 AT %IX."X67DM1321_700_109_CP09".DigitalInput03; (*BAG RELEASED*)
+	Cyclic#2.X[2109].X04 AT %IX."X67DM1321_700_109_CP09".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2109].Y05 AT %QX."X67DM1321_700_109_CP09".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2109].Y06 AT %QX."X67DM1321_700_109_CP09".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[2109].Y07 AT %QX."X67DM1321_700_109_CP09".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2109].Y08 AT %QX."X67DM1321_700_109_CP09".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2109] AT %IX."X67DM1321_700_109_CP09".ModuleOk;
+	Cyclic#2.X[2155].X01 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2155].X02 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2155].X03 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput03; (*BAG RELEASED FROM CDC5*)
+	Cyclic#2.X[2155].X04 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2155].X05 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput05; (*PUSHBUTTON*)
+	Cyclic#2.X[2155].X06 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2155].X07 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2155].X08 AT %IX."X67DM1321.L08_700_155_CDC5".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2155].Y09 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2155].Y10 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2155].Y11 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2155].Y12 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2155].Y13 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2155].Y14 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput14; (*OPEN STATIC BAG SOLENOID*)
+	Cyclic#2.Y[2155].Y15 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput15; (*CLOSE STATIC BAG SOLENOID*)
+	Cyclic#2.Y[2155].Y16 AT %QX."X67DM1321.L08_700_155_CDC5".DigitalOutput16; (*PUSHBUTTON LAMP*)
+	Cyclic#2.OK[2155] AT %IX."X67DM1321.L08_700_155_CDC5".ModuleOk;
+	Cyclic#2.X[2110].X01 AT %IX."X67DM1321_700_110_CP10".DigitalInput01; (*BAG AT BUFFER POINT*)
+	Cyclic#2.X[2110].X02 AT %IX."X67DM1321_700_110_CP10".DigitalInput02; (*BAG AT BUFFER STRAIGHT*)
+	Cyclic#2.X[2110].X03 AT %IX."X67DM1321_700_110_CP10".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2110].X04 AT %IX."X67DM1321_700_110_CP10".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2110].Y05 AT %QX."X67DM1321_700_110_CP10".DigitalOutput05; (*ROLLER STOP POINT*)
+	Cyclic#2.Y[2110].Y06 AT %QX."X67DM1321_700_110_CP10".DigitalOutput06; (*ROLLER STOP STRAIGHT*)
+	Cyclic#2.Y[2110].Y07 AT %QX."X67DM1321_700_110_CP10".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2110].Y08 AT %QX."X67DM1321_700_110_CP10".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2110] AT %IX."X67DM1321_700_110_CP10".ModuleOk;
+	Cyclic#2.X[2157].X01 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2157].X02 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2157].X03 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput03; (*BAG RELEASED FROM CDC7*)
+	Cyclic#2.X[2157].X04 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2157].X05 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2157].X06 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2157].X07 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2157].X08 AT %IX."X67DM1321.L08_700_157_CDC7".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2157].Y09 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2157].Y10 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2157].Y11 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2157].Y12 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2157].Y13 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2157].Y14 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[2157].Y15 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[2157].Y16 AT %QX."X67DM1321.L08_700_157_CDC7".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[2157] AT %IX."X67DM1321.L08_700_157_CDC7".ModuleOk;
+	Cyclic#2.X[2108].X01 AT %IX."X67DM1321_700_108_CP08".DigitalInput01; (*BAG RELEASED*)
+	Cyclic#2.X[2108].X02 AT %IX."X67DM1321_700_108_CP08".DigitalInput02; (*BAG AT BUFFER*)
+	Cyclic#2.X[2108].X03 AT %IX."X67DM1321_700_108_CP08".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2108].X04 AT %IX."X67DM1321_700_108_CP08".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2108].Y05 AT %QX."X67DM1321_700_108_CP08".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2108].Y06 AT %QX."X67DM1321_700_108_CP08".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[2108].Y07 AT %QX."X67DM1321_700_108_CP08".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2108].Y08 AT %QX."X67DM1321_700_108_CP08".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2108] AT %IX."X67DM1321_700_108_CP08".ModuleOk;
+	Cyclic#2.X[2106].X01 AT %IX."X67DM1321_700_106_CP06".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[2106].X02 AT %IX."X67DM1321_700_106_CP06".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2106].X03 AT %IX."X67DM1321_700_106_CP06".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2106].X04 AT %IX."X67DM1321_700_106_CP06".DigitalInput04; (*BAG AT STRAIGHT*)
+	Cyclic#2.Y[2106].Y05 AT %QX."X67DM1321_700_106_CP06".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2106].Y06 AT %QX."X67DM1321_700_106_CP06".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2106].Y07 AT %QX."X67DM1321_700_106_CP06".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2106].Y08 AT %QX."X67DM1321_700_106_CP06".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2106] AT %IX."X67DM1321_700_106_CP06".ModuleOk;
+	Cyclic#2.X[2154].X01 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2154].X02 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2154].X03 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput03; (*BAG RELEASED FROM CDC4*)
+	Cyclic#2.X[2154].X04 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2154].X05 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2154].X06 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2154].X07 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2154].X08 AT %IX."X67DM1321.L08_700_154_CDC4".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2154].Y09 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2154].Y10 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2154].Y11 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2154].Y12 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2154].Y13 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2154].Y14 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[2154].Y15 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[2154].Y16 AT %QX."X67DM1321.L08_700_154_CDC4".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[2154] AT %IX."X67DM1321.L08_700_154_CDC4".ModuleOk;
+	Cyclic#2.X[2153].X01 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2153].X02 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2153].X03 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2153].X04 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2153].X05 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2153].X06 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2153].X07 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2153].X08 AT %IX."X67DM1321.L08_700_153_CDC3".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2153].Y09 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2153].Y10 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2153].Y11 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2153].Y12 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2153].Y13 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2153].Y14 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[2153].Y15 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[2153].Y16 AT %QX."X67DM1321.L08_700_153_CDC3".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[2153] AT %IX."X67DM1321.L08_700_153_CDC3".ModuleOk;
+	Cyclic#2.X[2223].X01 AT %IX."X67DM1321_700_223_CSR3".DigitalInput01; (*BAG APPROACH SPEED REDUCER CSR3*)
+	Cyclic#2.X[2223].X02 AT %IX."X67DM1321_700_223_CSR3".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2223].X03 AT %IX."X67DM1321_700_223_CSR3".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2223].X04 AT %IX."X67DM1321_700_223_CSR3".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2223].Y05 AT %QX."X67DM1321_700_223_CSR3".DigitalOutput05; (*CLOSE SPEED REDUCER CSR3*)
+	Cyclic#2.Y[2223].Y06 AT %QX."X67DM1321_700_223_CSR3".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2223].Y07 AT %QX."X67DM1321_700_223_CSR3".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2223].Y08 AT %QX."X67DM1321_700_223_CSR3".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2223] AT %IX."X67DM1321_700_223_CSR3".ModuleOk;
+	Cyclic#2.X[2104].X01 AT %IX."X67DM1321_700_104_CP04".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[2104].X02 AT %IX."X67DM1321_700_104_CP04".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2104].X03 AT %IX."X67DM1321_700_104_CP04".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2104].X04 AT %IX."X67DM1321_700_104_CP04".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2104].Y05 AT %QX."X67DM1321_700_104_CP04".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2104].Y06 AT %QX."X67DM1321_700_104_CP04".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2104].Y07 AT %QX."X67DM1321_700_104_CP04".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2104].Y08 AT %QX."X67DM1321_700_104_CP04".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2104] AT %IX."X67DM1321_700_104_CP04".ModuleOk;
+	Cyclic#2.X[2171].X01 AT %IX."X67DM1321_700_171_CICU1".DigitalInput01; (*PADDLE IN POSITION*)
+	Cyclic#2.X[2171].X02 AT %IX."X67DM1321_700_171_CICU1".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2171].X03 AT %IX."X67DM1321_700_171_CICU1".DigitalInput03; (*BAG AT BUFFER*)
+	Cyclic#2.X[2171].X04 AT %IX."X67DM1321_700_171_CICU1".DigitalInput04; (*BAG IN INCLINE*)
+	Cyclic#2.X[2171].X05 AT %IX."X67DM1321_700_171_CICU1".DigitalInput05; (*BAG RELEASED*)
+	Cyclic#2.Y[2171].Y06 AT %QX."X67DM1321_700_171_CICU1".DigitalOutput06; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2171].Y07 AT %QX."X67DM1321_700_171_CICU1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2171].Y08 AT %QX."X67DM1321_700_171_CICU1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2171] AT %IX."X67DM1321_700_171_CICU1".ModuleOk;
+	Cyclic#2.OK[2411] AT %IX."X67SI8103_700_411".ModuleOk;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[7] AT %IX."X67SI8103_700_411".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - CICU1*)
+	Cyclic#2.X[2152].X01 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2152].X02 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2152].X03 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2152].X04 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2152].X05 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2152].X06 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2152].X07 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2152].X08 AT %IX."X67DM1321.L08_700_152_CDC2".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2152].Y09 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2152].Y10 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2152].Y11 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2152].Y12 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2152].Y13 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2152].Y14 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[2152].Y15 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[2152].Y16 AT %QX."X67DM1321.L08_700_152_CDC2".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[2152] AT %IX."X67DM1321.L08_700_152_CDC2".ModuleOk;
+	Cyclic#2.X[2112].X01 AT %IX."X67DM1321_700_112_CP12".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2112].X02 AT %IX."X67DM1321_700_112_CP12".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2112].X03 AT %IX."X67DM1321_700_112_CP12".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2112].X04 AT %IX."X67DM1321_700_112_CP12".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2112].Y05 AT %QX."X67DM1321_700_112_CP12".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2112].Y06 AT %QX."X67DM1321_700_112_CP12".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[2112].Y07 AT %QX."X67DM1321_700_112_CP12".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2112].Y08 AT %QX."X67DM1321_700_112_CP12".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2112] AT %IX."X67DM1321_700_112_CP12".ModuleOk;
+	Cyclic#2.X[2113].X01 AT %IX."X67DM1321_700_113_CP13".DigitalInput01; (*BAG AT BUFFER POINT*)
+	Cyclic#2.X[2113].X02 AT %IX."X67DM1321_700_113_CP13".DigitalInput02; (*BAG AT BUFFER STRAIGHT*)
+	Cyclic#2.X[2113].X03 AT %IX."X67DM1321_700_113_CP13".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2113].X04 AT %IX."X67DM1321_700_113_CP13".DigitalInput04; (*BAG AT STRAIGHT*)
+	Cyclic#2.Y[2113].Y05 AT %QX."X67DM1321_700_113_CP13".DigitalOutput05; (*ROLLER STOP POINT*)
+	Cyclic#2.Y[2113].Y06 AT %QX."X67DM1321_700_113_CP13".DigitalOutput06; (*ROLLER STOP STRAIGHT*)
+	Cyclic#2.Y[2113].Y07 AT %QX."X67DM1321_700_113_CP13".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2113].Y08 AT %QX."X67DM1321_700_113_CP13".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2113] AT %IX."X67DM1321_700_113_CP13".ModuleOk;
+	Cyclic#2.X[2211].X01 AT %IX."X67DM1321_700_211_CPR1".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2211].X02 AT %IX."X67DM1321_700_211_CPR1".DigitalInput02; (*BAG REACHED BUFFER*)
+	Cyclic#2.X[2211].X03 AT %IX."X67DM1321_700_211_CPR1".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2211].X04 AT %IX."X67DM1321_700_211_CPR1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2211].Y05 AT %QX."X67DM1321_700_211_CPR1".DigitalOutput05; (*PRESSURE RELIEF ROLLER STOP*)
+	Cyclic#2.Y[2211].Y06 AT %QX."X67DM1321_700_211_CPR1".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2211].Y07 AT %QX."X67DM1321_700_211_CPR1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2211].Y08 AT %QX."X67DM1321_700_211_CPR1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2211] AT %IX."X67DM1321_700_211_CPR1".ModuleOk;
+	Cyclic#2.X[2067].X01 AT %IX."X67DM1321_700_67_CTRN1".DigitalInput01; (*BAG AT STOP LINE A*)
+	Cyclic#2.X[2067].X02 AT %IX."X67DM1321_700_67_CTRN1".DigitalInput02; (*BAG AT STOP LINE B*)
+	Cyclic#2.X[2067].X03 AT %IX."X67DM1321_700_67_CTRN1".DigitalInput03; (*BAG PAST POINT LINE A*)
+	Cyclic#2.X[2067].X04 AT %IX."X67DM1321_700_67_CTRN1".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2067].Y05 AT %QX."X67DM1321_700_67_CTRN1".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[2067].Y06 AT %QX."X67DM1321_700_67_CTRN1".DigitalOutput06; (*ROLLER STOP LINE B*)
+	Cyclic#2.Y[2067].Y07 AT %QX."X67DM1321_700_67_CTRN1".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[2067].Y08 AT %QX."X67DM1321_700_67_CTRN1".DigitalOutput08; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.OK[2067] AT %IX."X67DM1321_700_67_CTRN1".ModuleOk;
+	Cyclic#2.X[2068].X01 AT %IX."X67DM1321_700_68_CTRN2".DigitalInput01; (*BAG AT STOP LINE A*)
+	Cyclic#2.X[2068].X02 AT %IX."X67DM1321_700_68_CTRN2".DigitalInput02; (*BAG AT STOP LINE B*)
+	Cyclic#2.X[2068].X03 AT %IX."X67DM1321_700_68_CTRN2".DigitalInput03; (*BAG PAST POINT LINE A*)
+	Cyclic#2.X[2068].X04 AT %IX."X67DM1321_700_68_CTRN2".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2068].Y05 AT %QX."X67DM1321_700_68_CTRN2".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[2068].Y06 AT %QX."X67DM1321_700_68_CTRN2".DigitalOutput06; (*ROLLER STOP LINE B*)
+	Cyclic#2.Y[2068].Y07 AT %QX."X67DM1321_700_68_CTRN2".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[2068].Y08 AT %QX."X67DM1321_700_68_CTRN2".DigitalOutput08; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.OK[2068] AT %IX."X67DM1321_700_68_CTRN2".ModuleOk;
+	Cyclic#2.X[2069].X01 AT %IX."X67DM1321_700_69_CTRN3".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[2069].X02 AT %IX."X67DM1321_700_69_CTRN3".DigitalInput02; (*BAG AT BUFFER*)
+	Cyclic#2.Y[2069].Y03 AT %QX."X67DM1321_700_69_CTRN3".DigitalOutput03; (*BAG STOP LINE A*)
+	Cyclic#2.Y[2069].Y04 AT %QX."X67DM1321_700_69_CTRN3".DigitalOutput04; (*BAG STOP LINE B*)
+	Cyclic#2.Y[2069].Y05 AT %QX."X67DM1321_700_69_CTRN3".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2069].Y06 AT %QX."X67DM1321_700_69_CTRN3".DigitalOutput06; (*BUFFER ROLLER STOP*)
+	Cyclic#2.Y[2069].Y07 AT %QX."X67DM1321_700_69_CTRN3".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[2069].Y08 AT %QX."X67DM1321_700_69_CTRN3".DigitalOutput08; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.OK[2069] AT %IX."X67DM1321_700_69_CTRN3".ModuleOk;
+	Cyclic#2.X[2086].X01 AT %IX."X67DM1321_700_86_CTRF1".DigitalInput01; (*BAG AT STOP*)
+	Cyclic#2.X[2086].X02 AT %IX."X67DM1321_700_86_CTRF1".DigitalInput02; (*SPARE*)
+	Cyclic#2.Y[2086].Y03 AT %QX."X67DM1321_700_86_CTRF1".DigitalOutput03; (*BAG STOP LINE A*)
+	Cyclic#2.Y[2086].Y04 AT %QX."X67DM1321_700_86_CTRF1".DigitalOutput04; (*BAG STOP LINE B*)
+	Cyclic#2.Y[2086].Y05 AT %QX."X67DM1321_700_86_CTRF1".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2086].Y06 AT %QX."X67DM1321_700_86_CTRF1".DigitalOutput06; (*BAG BUFFER ROLLER STOP*)
+	Cyclic#2.Y[2086].Y07 AT %QX."X67DM1321_700_86_CTRF1".DigitalOutput07; (*SPARE*)
+	Cyclic#2.Y[2086].Y08 AT %QX."X67DM1321_700_86_CTRF1".DigitalOutput08; (*SPARE*)
+	Cyclic#2.OK[2086] AT %IX."X67DM1321_700_86_CTRF1".ModuleOk;
+	Cyclic#2.X[2111].X01 AT %IX."X67DM1321_700_111_CP11".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2111].X02 AT %IX."X67DM1321_700_111_CP11".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2111].X03 AT %IX."X67DM1321_700_111_CP11".DigitalInput03; (*SPARE*)
+	Cyclic#2.X[2111].X04 AT %IX."X67DM1321_700_111_CP11".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2111].Y05 AT %QX."X67DM1321_700_111_CP11".DigitalOutput05; (*ROLLER STOP*)
+	Cyclic#2.Y[2111].Y06 AT %QX."X67DM1321_700_111_CP11".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2111].Y07 AT %QX."X67DM1321_700_111_CP11".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2111].Y08 AT %QX."X67DM1321_700_111_CP11".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2111] AT %IX."X67DM1321_700_111_CP11".ModuleOk;
+	Cyclic#2.X[2114].X01 AT %IX."X67DM1321_700_114_CP14".DigitalInput01; (*BAG AT BUFFER POINT*)
+	Cyclic#2.X[2114].X02 AT %IX."X67DM1321_700_114_CP14".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2114].X03 AT %IX."X67DM1321_700_114_CP14".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2114].X04 AT %IX."X67DM1321_700_114_CP14".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2114].Y05 AT %QX."X67DM1321_700_114_CP14".DigitalOutput05; (*ROLLER STOP POINT*)
+	Cyclic#2.Y[2114].Y06 AT %QX."X67DM1321_700_114_CP14".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2114].Y07 AT %QX."X67DM1321_700_114_CP14".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2114].Y08 AT %QX."X67DM1321_700_114_CP14".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2114] AT %IX."X67DM1321_700_114_CP14".ModuleOk;
+	Cyclic#2.X[2101].X01 AT %IX."X67DM1321_700_101_CP01".DigitalInput01; (*SPARE*)
+	Cyclic#2.X[2101].X02 AT %IX."X67DM1321_700_101_CP01".DigitalInput02; (*BAG AT BUFFER*)
+	Cyclic#2.X[2101].X03 AT %IX."X67DM1321_700_101_CP01".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2101].X04 AT %IX."X67DM1321_700_101_CP01".DigitalInput04; (*BAG RELEASED FROM CTRF2*)
+	Cyclic#2.Y[2101].Y05 AT %QX."X67DM1321_700_101_CP01".DigitalOutput05; (*SPARE*)
+	Cyclic#2.Y[2101].Y06 AT %QX."X67DM1321_700_101_CP01".DigitalOutput06; (*ROLLER STOP*)
+	Cyclic#2.Y[2101].Y07 AT %QX."X67DM1321_700_101_CP01".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2101].Y08 AT %QX."X67DM1321_700_101_CP01".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2101] AT %IX."X67DM1321_700_101_CP01".ModuleOk;
+	Cyclic#2.X[2102].X01 AT %IX."X67DM1321_700_102_CP02".DigitalInput01; (*BAG APPROACH SPEED REDUCER CSR1*)
+	Cyclic#2.X[2102].X02 AT %IX."X67DM1321_700_102_CP02".DigitalInput02; (*SPARE*)
+	Cyclic#2.X[2102].X03 AT %IX."X67DM1321_700_102_CP02".DigitalInput03; (*BAG AT POINT*)
+	Cyclic#2.X[2102].X04 AT %IX."X67DM1321_700_102_CP02".DigitalInput04; (*SPARE*)
+	Cyclic#2.Y[2102].Y05 AT %QX."X67DM1321_700_102_CP02".DigitalOutput05; (*CLOSE SPEED REDUCER CSR1*)
+	Cyclic#2.Y[2102].Y06 AT %QX."X67DM1321_700_102_CP02".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2102].Y07 AT %QX."X67DM1321_700_102_CP02".DigitalOutput07; (*POINT*)
+	Cyclic#2.Y[2102].Y08 AT %QX."X67DM1321_700_102_CP02".DigitalOutput08; (*RESET/STRAIGHT*)
+	Cyclic#2.OK[2102] AT %IX."X67DM1321_700_102_CP02".ModuleOk;
+	Cyclic#2.X[2088].X01 AT %IX."X67DM1321_700_88_CTRF3".DigitalInput01; (*BAG AT STOP LINE A*)
+	Cyclic#2.X[2088].X02 AT %IX."X67DM1321_700_88_CTRF3".DigitalInput02; (*BAG AT STOP LINE B*)
+	Cyclic#2.X[2088].X03 AT %IX."X67DM1321_700_88_CTRF3".DigitalInput03; (*BAG PAST POINT*)
+	Cyclic#2.Y[2088].Y04 AT %QX."X67DM1321_700_88_CTRF3".DigitalOutput04; (*ONGOING POINT*)
+	Cyclic#2.Y[2088].Y05 AT %QX."X67DM1321_700_88_CTRF3".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[2088].Y06 AT %QX."X67DM1321_700_88_CTRF3".DigitalOutput06; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.Y[2088].Y07 AT %QX."X67DM1321_700_88_CTRF3".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[2088].Y08 AT %QX."X67DM1321_700_88_CTRF3".DigitalOutput08; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.OK[2088] AT %IX."X67DM1321_700_88_CTRF3".ModuleOk;
+	Cyclic#2.X[2087].X01 AT %IX."X67DM1321_700_87_CTRF2".DigitalInput01; (*BAG AT STOP LINE A*)
+	Cyclic#2.X[2087].X02 AT %IX."X67DM1321_700_87_CTRF2".DigitalInput02; (*BAG AT STOP LINE B*)
+	Cyclic#2.X[2087].X03 AT %IX."X67DM1321_700_87_CTRF2".DigitalInput03; (*PROX AT BAG PAST POINT*)
+	Cyclic#2.X[2087].X04 AT %IX."X67DM1321_700_87_CTRF2".DigitalInput04; (*PROX AT BAG PAST POINT*)
+	Cyclic#2.Y[2087].Y05 AT %QX."X67DM1321_700_87_CTRF2".DigitalOutput05; (*ROLLER STOP LINE A*)
+	Cyclic#2.Y[2087].Y06 AT %QX."X67DM1321_700_87_CTRF2".DigitalOutput06; (*SPARE*)
+	Cyclic#2.Y[2087].Y07 AT %QX."X67DM1321_700_87_CTRF2".DigitalOutput07; (*ONGOING POINT*)
+	Cyclic#2.Y[2087].Y08 AT %QX."X67DM1321_700_87_CTRF2".DigitalOutput08; (*ONGOING RESET/STRAIGHT*)
+	Cyclic#2.OK[2087] AT %IX."X67DM1321_700_87_CTRF2".ModuleOk;
+	Cyclic#2.X[2156].X01 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput01; (*BAG AT BUFFER*)
+	Cyclic#2.X[2156].X02 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput02; (*BAG AT DISCHARGER*)
+	Cyclic#2.X[2156].X03 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput03; (*BAG RELEASED FROM CDC6*)
+	Cyclic#2.X[2156].X04 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput04; (*DISTANCE MEASUREMENT SENSOR*)
+	Cyclic#2.X[2156].X05 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[2156].X06 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[2156].X07 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[2156].X08 AT %IX."X67DM1321.L08_700_156_CDC6".DigitalInput08; (*SPARE*)
+	Cyclic#2.Y[2156].Y09 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput09; (*BUFFER STOP SOLENOID*)
+	Cyclic#2.Y[2156].Y10 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput10; (*BAG STEADYS SOLENOID*)
+	Cyclic#2.Y[2156].Y11 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput11; (*OPEN BAG SOLENOID*)
+	Cyclic#2.Y[2156].Y12 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput12; (*STOPPER SOLENOID*)
+	Cyclic#2.Y[2156].Y13 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput13; (*CLOSE BAG SOLENOID*)
+	Cyclic#2.Y[2156].Y14 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput14; (*SPARE*)
+	Cyclic#2.Y[2156].Y15 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput15; (*SPARE*)
+	Cyclic#2.Y[2156].Y16 AT %QX."X67DM1321.L08_700_156_CDC6".DigitalOutput16; (*SPARE*)
+	Cyclic#2.OK[2156] AT %IX."X67DM1321.L08_700_156_CDC6".ModuleOk;
+	Cyclic#2.OK[2403] AT %IX."X67SI8103_700_403".ModuleOk;
+	SafetyZone[5].Interlock.GS_Two_Channel_Input AT %IX."X67SI8103_700_403".SafeTwoChannelInput0102; (*2-channel evaluation channel 1/2 - CSL3*)
+	SafetyZone[5].Interlock.GS_DI_01_Access_Reset AT %IX."X67SI8103_700_403".DigitalInput01;
+	SafetyZone[5].Interlock.GS_DO_01_Lock_Solenoid AT %QX."X67SI8103_700_403".DigitalOutput01;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[10] AT %IX."X67SI8103_700_403".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - CSL3*)
+	SafetyZone[5].Interlock.GS_DI_02_Monitor_Solenoid AT %IX."X67SI8103_700_403".DigitalInput02;
+	Cyclic#2.SafetyZone[5].TowerLight.TL_DO_Green AT %QX."X67DM1321_700_503".DigitalOutput01; (*SAFETY AREA 3 - P503_1_4 - GREEN ALARM ON*)
+	Cyclic#2.SafetyZone[5].TowerLight.TL_DO_Yellow AT %QX."X67DM1321_700_503".DigitalOutput02; (*SAFETY AREA 3 - P503_1_4 - YELLOW ALARM ON*)
+	Cyclic#2.SafetyZone[5].TowerLight.TL_DO_Red AT %QX."X67DM1321_700_503".DigitalOutput03; (*SAFETY AREA 3 - P503_1_4 - RED ALARM ON*)
+	Cyclic#2.SafetyZone[5].TowerLight.TL_DO_Sounder AT %QX."X67DM1321_700_503".DigitalOutput04; (*SAFETY AREA 3 - P503_1_4 - SOUND SIGNAL ON*)
+	Cyclic#2.OK[2401] AT %IX."X67SI8103_700_401".ModuleOk;
+	SafetyZone[3].Interlock.GS_Two_Channel_Input AT %IX."X67SI8103_700_401".SafeTwoChannelInput0102; (*2-channel evaluation channel 1/2 - CSL1*)
+	SafetyZone[3].Interlock.GS_DI_01_Access_Reset AT %IX."X67SI8103_700_401".DigitalInput01;
+	SafetyZone[3].Interlock.GS_DO_01_Lock_Solenoid AT %QX."X67SI8103_700_401".DigitalOutput01;
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[8] AT %IX."X67SI8103_700_401".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - CSL1*)
+	SafetyZone[3].Interlock.GS_DI_02_Monitor_Solenoid AT %IX."X67SI8103_700_401".DigitalInput02;
+	Cyclic#2.SafetyZone[3].TowerLight.TL_DO_Green AT %QX."X67DM1321_700_501".DigitalOutput01; (*SAFETY AREA 1 - P501_1_4 - GREEN ALARM ON*)
+	Cyclic#2.SafetyZone[3].TowerLight.TL_DO_Yellow AT %QX."X67DM1321_700_501".DigitalOutput02; (*SAFETY AREA 1 - P501_1_4 - YELLOW ALARM ON*)
+	Cyclic#2.SafetyZone[3].TowerLight.TL_DO_Red AT %QX."X67DM1321_700_501".DigitalOutput03; (*SAFETY AREA 1 - P501_1_4 - RED ALARM ON*)
+	Cyclic#2.SafetyZone[3].TowerLight.TL_DO_Sounder AT %QX."X67DM1321_700_501".DigitalOutput04; (*SAFETY AREA 1 - P501_1_4 - SOUND SIGNAL ON*)
+	OK[1001] AT %IX."X20SI8110_400_1".ModuleOk;
+	OK[1002] AT %IX."X20SO4120_400_2".ModuleOk;
+	OK[2001] AT %IX."X20SI8110_700_1".ModuleOk;
+	OK[2002] AT %IX."X20SO4120_700_2".ModuleOk;
+	WeightRaw[5].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_362_SS05_07".AnalogInput01;
+	WeightRaw[5].Config_Channel_1 AT %QB."X67AI2744_LC_400_362_SS05_07".ConfigOutput01;
+	WeightRaw[19].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_365_SS17_19".AnalogInput02;
+	WeightRaw[17].Config_Channel_1 AT %QB."X67AI2744_LC_400_365_SS17_19".ConfigOutput01;
+	WeightRaw[19].Config_Channel_1 AT %QB."X67AI2744_LC_400_365_SS17_19".ConfigOutput02;
+	WeightRaw[20].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_366_SS20_18".AnalogInput01;
+	WeightRaw[20].Config_Channel_1 AT %QB."X67AI2744_LC_400_366_SS20_18".ConfigOutput01;
+	WeightRaw[18].Config_Channel_1 AT %QB."X67AI2744_LC_400_366_SS20_18".ConfigOutput02;
+	OK[1421] AT %IX."X67SI8103_400_421".ModuleOk;
+	Cyclic#2.OK[1501] AT %IX."X67DM1321_400_501".ModuleOk;
+	Cyclic#2.OK[1352] AT %IX."X67DM1321_400_352".ModuleOk;
+	Cyclic#2.X[1352].X01 AT %IX."X67DM1321_400_352".DigitalInput01; (*SB01 PHOTOELECTRIC SENSOR*)
+	Cyclic#2.X[1352].X02 AT %IX."X67DM1321_400_352".DigitalInput02; (*SB02 PHOTOELECTRIC SENSOR*)
+	Cyclic#2.X[1352].X03 AT %IX."X67DM1321_400_352".DigitalInput03; (*SB03 PHOTOELECTRIC SENSOR*)
+	Cyclic#2.X[1352].X04 AT %IX."X67DM1321_400_352".DigitalInput04; (*SPARE*)
+	Cyclic#2.X[1352].X05 AT %IX."X67DM1321_400_352".DigitalInput05; (*SPARE*)
+	Cyclic#2.X[1352].X06 AT %IX."X67DM1321_400_352".DigitalInput06; (*SPARE*)
+	Cyclic#2.X[1352].X07 AT %IX."X67DM1321_400_352".DigitalInput07; (*SPARE*)
+	Cyclic#2.X[1352].X08 AT %IX."X67DM1321_400_352".DigitalInput08; (*SPARE*)
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[3] AT %IX."X67SI8103_400_421".SafeTwoChannelInput0506; (*2-channel evaluation channel 5/6 - SB1*)
+	SafetyZone[0].E_Stop.ES_SI_Two_Channel[4] AT %IX."X67SI8103_400_421".SafeTwoChannelInput0708; (*2-channel evaluation channel 7/8 - Sorting Platform Pullcord*)
+	SafetyZone[2].Interlock.GS_Two_Channel_Input AT %IX."X67SI8103_400_402".SafeTwoChannelInput0102; (*2-channel evaluation channel 1/2 - SDC1*)
+	SafetyZone[2].Interlock.GS_DI_01_Access_Reset AT %IX."X67SI8103_400_402".DigitalInput01;
+	SafetyZone[2].Interlock.GS_DI_02_Monitor_Solenoid AT %IX."X67SI8103_400_402".DigitalInput02;
+	SafetyZone[2].Interlock.GS_DO_01_Lock_Solenoid AT %QX."X67SI8103_400_402".DigitalOutput01;
+	OK[2501]  AT %IX."X67DM1321_700_501".ModuleOk;
+	OK[2502]   AT %IX."X67DM1321_700_502".ModuleOk;
+	OK[2503]   AT %IX."X67DM1321_700_503".ModuleOk;
+	OK[1502] AT %IX."X67DM1321_400_502".ModuleOk;
+END_VAR

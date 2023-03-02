@@ -1,0 +1,539 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EventBindingSet id="eventbinding_Safety" xmlns="http://www.br-automation.com/iat2014/eventbinding/v2" xmlns:types="http://www.br-automation.com/iat2015/widgetTypes/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Bindings>
+    
+    <!-- SRC_VK_ClearData -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbClearData" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="32768" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding> 
+    
+    <!-- SRC_VK_FirmwareAchnowledge -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbFWAck" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_ModuleExchange1 -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbModEx1" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="96" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_ModuleExchange2 -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbModEx2" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="80" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_ModuleExchange3 -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbModEx3" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="64" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_ModuleExchange4 -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbModEx4" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="48" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_ModuleExchangeN -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbModExN" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="32" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_ReadStatus -->
+    <!--<EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbReadStatus" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="512" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="0" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:executeRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>--> 
+    
+    <!-- SRC_VK_Reset -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbReset" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="28672" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding> 
+    
+    <!-- SRC_VK_SafetyKeyCopy -->
+    <!--<EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbSKCopy" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="12288" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>--> 
+    
+    <!-- SRC_VK_SafetyKeyExchange -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbSKExchange" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="512" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>       
+     
+    <!-- SRC_VK_SafetyKeyFormat -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbSKFormat" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="24576" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:dialogRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_Scan -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbScan" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="8192" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:executeRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_SetPassword -->
+    <!--<EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbSetPassword" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="20480" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:executeRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>-->
+    
+    <!-- SRC_VK_Test -->
+    <EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbTest" event="Click" />
+      <EventHandler>
+        <Sequence>
+          <Step order="0">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Command" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="256" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="1">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:remotecmd.Data" >
+                <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="4096" />
+              </Target>
+            </Action>
+          </Step>
+          <Step order="2">
+            <Action>
+              <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:executeRemoteCmd" >
+                <Method xsi:type="opcUa.NodeAction.SetValueBool" value="true" />
+              </Target>
+            </Action>
+          </Step>
+        </Sequence>
+      </EventHandler>
+    </EventBinding>
+    
+    <!-- SRC_VK_CancelApplication -->
+    <!--<EventBinding>
+      <Source xsi:type="widgets.brease.MomentaryPushButton.Event" contentRefId="content_RemoteControl" widgetRefId="mpbCancel" event="Click" />
+      <EventHandler>
+        <Action>
+          <Target xsi:type="opcUa.NodeAction" refId="::SafetyUI:appcmd1.Unlock" >
+            <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="2" />
+          </Target>
+         </Action>
+      </EventHandler>
+    </EventBinding>
+-->    
+    <!-- Dialog control -->
+    <EventBinding>
+      <Source xsi:type="opcUa.Event" refId="::SafetyUI:statusDialog" event="ValueChanged" />
+      <EventHandler condition="newValue=0">
+        <Action>
+          <Target xsi:type="clientSystem.Action">
+            <Method xsi:type="clientSystem.Action.OpenDialog" dialogId="dialog_AsSafetySolution" mode="modal" headerText="Remote Control" />
+          </Target>
+        </Action>
+      </EventHandler>
+      <EventHandler condition="newValue=1">
+        <Action>
+          <Target xsi:type="clientSystem.Action">
+            <Method xsi:type="clientSystem.Action.CloseDialog" dialogId="dialog_AsSafetySolution"/>
+          </Target>
+        </Action>        
+      </EventHandler>     
+    </EventBinding>
+      
+    
+    
+    
+ 
+   
+     
+    
+    <!-- **********************************************************
+    * source templates => copy them to your EventBinding Source
+    * change elements to your requirements
+    * for further possible Events refer to help system
+    ********************************************************** -->
+    <!--<Source xsi:type="opcUa.Event" refId="::Program:boolVariableEvent" event="ValueChanged" />-->
+
+    <!--<Source xsi:type="session.Event" refId="sessionVariable" event="ValueChanged" />-->
+
+    <!--<Source xsi:type="widgets.brease.Button.Event" contentRefId="Content1" widgetRefId="Button1" event="Click" />-->
+
+    <!-- **********************************************************
+    * target templates => copy them to your EventBinding Action
+    * change elements to your requirements 
+    * for further possible Actions refer to help system
+    ********************************************************** -->
+    <!--<Target xsi:type="opcUa.NodeAction" refId="::Program:Variable1" >
+    <Method xsi:type="opcUa.NodeAction.SetValueNumber" value="37.1" />
+    </Target>-->
+
+    <!--<Target xsi:type="session.VariableAction" refId="Variable1" >
+    <Method xsi:type="session.VariableAction.SetValueNumber" value="4.8" />
+    </Target>-->
+
+    <!--<Target xsi:type="clientSystem.Action">
+		    <Method xsi:type="clientSystem.Action.OpenDialog" dialogId="dialog1" mode="modal" />
+		</Target>-->
+
+    <!--<Target xsi:type="clientSystem.Action">
+			<Method xsi:type="clientSystem.Action.Navigate" pageId="Page1" />
+		</Target>-->
+
+    <!--<Target xsi:type="widgets.brease.Button.Action" contentRefId="Content1" widgetRefId="Button1" >
+			<Method xsi:type="widgets.brease.Button.Action.SetEnable" value="true" />
+		</Target>-->
+
+    <!--<Target xsi:type="clientSystem.Action">
+			<Method xsi:type="clientSystem.Action.ShowMessageBox" type="OKCancel" message="Messagetext" header="Warning!" icon="Warning"  />
+		</Target>
+		<Result>
+			<ResultHandler condition="result = 4">
+				
+			</ResultHandler>
+		</Result>-->
+
+  </Bindings>
+</EventBindingSet>

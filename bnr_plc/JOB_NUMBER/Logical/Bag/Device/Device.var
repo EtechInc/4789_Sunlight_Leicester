@@ -1,0 +1,8 @@
+VAR
+	Device : ARRAY[0..MAX_DEVICES] OF Device_typ := [(RequestRelease:=0,ReadyToRecieve:=0,Recieved:=0),221(0)];
+END_VAR
+VAR CONSTANT
+	DEVICE_RELEASE_ID : UINT := 999; (**Value that is set in RequestRelease, when the destination is not required*)
+	DEVICE_RELEASE_EMPTY : UINT := 998; (**Value that is set in RequestRelease, when the empty bag is required*)
+	DEVICE_RECIEVE_WAIT : UINT := 997; (**Special ID to show a device is able to recieve but will not explicitly enable any sequence*)
+END_VAR

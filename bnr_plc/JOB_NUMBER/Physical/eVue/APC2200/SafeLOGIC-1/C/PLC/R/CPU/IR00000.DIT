@@ -1,0 +1,502 @@
+(*
+T: RESOURCE CPU
+FW: NO
+CI#: 0
+QSL: 82
+QVE: 82
+QVPC: 82
+QPar: 0
+QFBI: 0
+*)
+@V 1 2 0
+SM_400_1_OK	1	VAR_GLOBAL	@TYP:43
+%SIX 17.0		     
+
+;
+
+@V 1 3 0
+SM_400_2_OK	2	VAR_GLOBAL	@TYP:43
+%SIX 17.1		     
+
+;
+
+@V 1 4 0
+SM_400_401_OK	3	VAR_GLOBAL	@TYP:43
+%SIX 17.4		     
+
+;
+
+@V 1 5 0
+SM_400_421_OK	4	VAR_GLOBAL	@TYP:43
+%SIX 17.5		     
+
+;
+
+@V 1 6 0
+SM400_411_OK	5	VAR_GLOBAL	@TYP:43
+%SIX 17.6		     
+
+;
+
+@V 1 7 0
+SM_400_402_OK	6	VAR_GLOBAL	@TYP:43
+%SIX 17.7		     
+
+;
+
+@V 1 8 0
+Safety_Module_Fault	7	VAR_GLOBAL	@TYP:1
+%NSQX 3.7		     
+
+;
+
+@V 1 9 0
+SM_700_1_OK	8	VAR_GLOBAL	@TYP:43
+%SIX 17.2		     
+
+;
+
+@V 1 10 0
+SM_700_2_OK	9	VAR_GLOBAL	@TYP:43
+%SIX 17.3		     
+
+;
+
+@V 1 11 0
+SM_700_411_OK	10	VAR_GLOBAL	@TYP:43
+%SIX 18.0		     
+
+;
+
+@V 1 12 0
+SM_700_401_OK	11	VAR_GLOBAL	@TYP:43
+%SIX 18.1		     
+
+;
+
+@V 1 13 0
+SM_700_402_OK	12	VAR_GLOBAL	@TYP:43
+%SIX 18.2		     
+
+;
+
+@V 1 14 0
+SM_700_403_OK	13	VAR_GLOBAL	@TYP:43
+%SIX 18.3		     
+
+;
+
+@V 1 15 0
+SM400_1_ESTOP_0102	14	VAR_GLOBAL	@TYP:43
+%SIX 55.0		     
+
+;
+
+@V 1 16 0
+SM_401_ESTOP_P3	15	VAR_GLOBAL	@TYP:43
+%SIX 65.2		     
+
+;
+
+@V 1 17 0
+SM_421_ESTOP_P3	16	VAR_GLOBAL	@TYP:43
+%SIX 69.2		     
+
+;
+
+@V 1 18 0
+SM_421_PULLCORD_P4	17	VAR_GLOBAL	@TYP:43
+%SIX 69.3		     
+
+;
+
+@V 1 19 0
+SM_411_ESTOP_P3	18	VAR_GLOBAL	@TYP:43
+%SIX 73.2		     
+
+;
+
+@V 1 20 0
+SM_402_ESTOP_P3	19	VAR_GLOBAL	@TYP:43
+%SIX 77.2		     
+
+;
+
+@V 1 21 0
+SafetyZone_1_Main_Reset	20	VAR_GLOBAL	@TYP:1
+%NSIX 0.0		     
+
+;
+
+@V 1 22 0
+Safety_Master_Reset	21	VAR_GLOBAL	@TYP:1
+%NSIX 3.7		     
+
+;
+
+@V 1 23 0
+SafetyZone_1_Zone_Status	22	VAR_GLOBAL	@TYP:1
+%NSQX 0.0		     
+
+;
+
+@V 1 24 0
+SafetyZone_1_ResetReady	23	VAR_GLOBAL	@TYP:1
+%NSQX 1.7		     
+
+;
+
+@V 1 25 0
+SM_400_2_OUTPUT_1	24	VAR_GLOBAL	@TYP:43
+%SQX 13.0		     
+
+;
+
+@V 1 26 0
+SM_400_2_RELEASE_1	25	VAR_GLOBAL	@TYP:1
+%NSQX 132.0		     
+
+;
+
+@V 1 27 0
+SM_400_K51_OK	26	VAR_GLOBAL	@TYP:43
+%SIX 18.4		     
+
+;
+
+@V 1 28 0
+SM_400_K51_OUTPUT_1	27	VAR_GLOBAL	@TYP:43
+%SQX 15.0		     
+
+;
+
+@V 1 29 0
+SM400_K51_RELEASE_1	28	VAR_GLOBAL	@TYP:1
+%NSQX 150.0		     
+
+;
+
+@V 1 30 0
+SafetyZone_2_Zone_Status	29	VAR_GLOBAL	@TYP:1
+%NSQX 0.1		     
+
+;
+
+@V 1 31 0
+SafetyZone_2_ResetReady	30	VAR_GLOBAL	@TYP:1
+%NSQX 2.0		     
+
+;
+
+@V 1 32 0
+SM_400_2_OUTPUT_2	31	VAR_GLOBAL	@TYP:43
+%SQX 13.1		     
+
+;
+
+@V 1 33 0
+SM_400_2_RELEASE_2	32	VAR_GLOBAL	@TYP:1
+%NSQX 132.1		     
+
+;
+
+@V 1 34 0
+SafetyZone_2_EDM	33	VAR_GLOBAL	@TYP:1
+%NSIX 0.2		     
+
+;
+
+@V 1 35 0
+SM_400_401_DI_1	34	VAR_GLOBAL	@TYP:1
+%NSIX 134.0		     
+
+;
+
+@V 1 36 0
+SM_400_401_GS_P1	35	VAR_GLOBAL	@TYP:43
+%SIX 65.0		     
+
+;
+
+@V 1 37 0
+SM_400_K51_OUTPUT_2	36	VAR_GLOBAL	@TYP:43
+%SQX 15.1		     
+
+;
+
+@V 1 38 0
+SM_400_K51_OUTPUT_3	37	VAR_GLOBAL	@TYP:43
+%SQX 15.2		     
+
+;
+
+@V 1 39 0
+SM_400_K51_RELEASE_2	38	VAR_GLOBAL	@TYP:1
+%NSQX 150.1		     
+
+;
+
+@V 1 40 0
+SM_400_K51_RELEASE_3	39	VAR_GLOBAL	@TYP:1
+%NSQX 150.2		     
+
+;
+
+@V 1 41 0
+SafetyZone_3_Zone_Status	40	VAR_GLOBAL	@TYP:1
+%NSQX 0.2		     
+
+;
+
+@V 1 42 0
+SafetyZone_3_ResetReady	41	VAR_GLOBAL	@TYP:1
+%NSQX 2.1		     
+
+;
+
+@V 1 43 0
+SM700_1_ESTOP_0102	42	VAR_GLOBAL	@TYP:43
+%SIX 59.0		     
+
+;
+
+@V 1 44 0
+SM_700_411_ESTOP_P3	43	VAR_GLOBAL	@TYP:43
+%SIX 81.2		     
+
+;
+
+@V 1 45 0
+SM_700_401_ESTOP_P3	44	VAR_GLOBAL	@TYP:43
+%SIX 85.2		     
+
+;
+
+@V 1 46 0
+SM_700_402_ESTOP_P3	45	VAR_GLOBAL	@TYP:43
+%SIX 89.2		     
+
+;
+
+@V 1 47 0
+SM_700_403_ESTOP_P3	46	VAR_GLOBAL	@TYP:43
+%SIX 93.2		     
+
+;
+
+@V 1 48 0
+SafetyZone_11_Main_Reset	47	VAR_GLOBAL	@TYP:1
+%NSIX 1.2		     
+
+;
+
+@V 1 49 0
+Safety_Master_Reset_700	48	VAR_GLOBAL	@TYP:1
+%NSIX 3.6		     
+
+;
+
+@V 1 50 0
+SafetyZone_11_Zone_Status	49	VAR_GLOBAL	@TYP:1
+%NSQX 1.2		     
+
+;
+
+@V 1 51 0
+Zone_11_Healthy	50	VAR_GLOBAL	@TYP:43
+		     
+
+;
+
+@V 1 52 0
+SM700_2_OUTPUT_1	51	VAR_GLOBAL	@TYP:43
+%SQX 14.0		     
+
+;
+
+@V 1 53 0
+SM700_2_RELEASE_1	52	VAR_GLOBAL	@TYP:1
+%NSQX 133.0		     
+
+;
+
+@V 1 54 0
+SM_700_401_GS_P1	53	VAR_GLOBAL	@TYP:43
+%SIX 85.0		     
+
+;
+
+@V 1 55 0
+SafetyZone_12_EDM	54	VAR_GLOBAL	@TYP:1
+%NSIX 1.4		     
+
+;
+
+@V 1 56 0
+SafetyZone_11_ResetReady	55	VAR_GLOBAL	@TYP:1
+%NSQX 3.1		     
+
+;
+
+@V 1 57 0
+SafetyZone_12_ResetReady	56	VAR_GLOBAL	@TYP:1
+%NSQX 3.2		     
+
+;
+
+@V 1 58 0
+SafetyZone_12_Zone_Status	57	VAR_GLOBAL	@TYP:1
+%NSQX 1.3		     
+
+;
+
+@V 1 59 0
+SM_700_401_DI_1	58	VAR_GLOBAL	@TYP:1
+%NSIX 144.0		     
+
+;
+
+@V 1 60 0
+SM_700_402_GS_P1	59	VAR_GLOBAL	@TYP:43
+%SIX 89.0		     
+
+;
+
+@V 1 61 0
+SM_700_403_DI_1	60	VAR_GLOBAL	@TYP:1
+%NSIX 148.0		     
+
+;
+
+@V 1 62 0
+SM_700_403_GS_P1	61	VAR_GLOBAL	@TYP:43
+%SIX 93.0		     
+
+;
+
+@V 1 63 0
+SafetyZone_14_EDM	62	VAR_GLOBAL	@TYP:1
+%NSIX 1.6		     
+
+;
+
+@V 1 64 0
+SafetyZone_13_EDM	63	VAR_GLOBAL	@TYP:1
+%NSIX 1.5		     
+
+;
+
+@V 1 65 0
+SafetyZone_13_Zone_Status	64	VAR_GLOBAL	@TYP:1
+%NSQX 1.4		     
+
+;
+
+@V 1 66 0
+SafetyZone_13_ResetReady	65	VAR_GLOBAL	@TYP:1
+%NSQX 3.3		     
+
+;
+
+@V 1 67 0
+SafetyZone_14_ResetReady	66	VAR_GLOBAL	@TYP:1
+%NSQX 3.4		     
+
+;
+
+@V 1 68 0
+SafetyZone_4_ResetReady	67	VAR_GLOBAL	@TYP:1
+%NSQX 2.2		     
+
+;
+
+@V 1 69 0
+SafetyZone_14_Zone_Status	68	VAR_GLOBAL	@TYP:1
+%NSQX 1.5		     
+
+;
+
+@V 1 70 0
+SM_700_2_OUTPUT_2	69	VAR_GLOBAL	@TYP:43
+%SQX 14.1		     
+
+;
+
+@V 1 71 0
+SM_700_2_OUTPUT_3	70	VAR_GLOBAL	@TYP:43
+%SQX 14.2		     
+
+;
+
+@V 1 72 0
+SM_700_2_OUTPUT_4	71	VAR_GLOBAL	@TYP:43
+%SQX 14.3		     
+
+;
+
+@V 1 73 0
+SM_700_2_RELEASE_4	72	VAR_GLOBAL	@TYP:1
+%NSQX 133.3		     
+
+;
+
+@V 1 74 0
+SM_700_2_RELEASE_3	73	VAR_GLOBAL	@TYP:1
+%NSQX 133.2		     
+
+;
+
+@V 1 75 0
+SM_700_2_RELEASE_2	74	VAR_GLOBAL	@TYP:1
+%NSQX 133.1		     
+
+;
+
+@V 1 76 0
+SM_700_402_DI_1	75	VAR_GLOBAL	@TYP:1
+%NSIX 146.0		     
+
+;
+
+@V 1 77 0
+SM_400_422_OK	76	VAR_GLOBAL	@TYP:43
+%SIX 18.5		     
+
+;
+
+@V 1 78 0
+SM_400_402_GS_P1	77	VAR_GLOBAL	@TYP:43
+%SIX 77.0		     
+
+;
+
+@V 1 79 0
+SM_400_402_DI_1	78	VAR_GLOBAL	@TYP:1
+%NSIX 140.0		     
+
+;
+
+@V 1 80 0
+SM400_422_PM_SI01	79	VAR_GLOBAL	@TYP:43
+%SIX 96.0		     
+
+;
+
+@V 1 81 0
+SM400_422_PM_SI02	80	VAR_GLOBAL	@TYP:43
+%SIX 96.1		     
+
+;
+
+@V 1 82 0
+SM400_422_PM_SI03	81	VAR_GLOBAL	@TYP:43
+%SIX 96.2		     
+
+;
+
+@V 1 83 0
+SM400_422_PM_SI04	82	VAR_GLOBAL	@TYP:43
+%SIX 96.3		     
+
+;
+

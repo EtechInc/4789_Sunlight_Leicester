@@ -1,0 +1,82 @@
+(********************************************************************
+ * COPYRIGHT --
+ ********************************************************************
+ * File: IoMap.iom
+ * Author: Dave
+ * Created: November 19, 2010
+ ********************************************************************
+ * IO mapping file
+ ********************************************************************)
+VAR_CONFIG
+	Cyclic#1.RB[1].Lift.CAN.ControlEffort AT %IW."CVC_Lift1".ControlEffort_MAV_6044;
+	Cyclic#1.RB[1].Lift.CAN.ControlWord AT %QW."CVC_Lift1".CTW_6040_Out;
+	Cyclic#1.RB[1].Lift.CAN.ModuleOk AT %IX."CVC_Lift1".ModuleOk;
+	Cyclic#1.RB[1].Lift.CAN.NodeStatus AT %IW."CVC_Lift1".NodeStatus;
+	Cyclic#1.RB[1].Lift.CAN.StatusWord AT %IW."CVC_Lift1".STW_6041;
+	Cyclic#1.RB[1].Lift.CAN.TargetVelocity AT %QW."CVC_Lift1".TargetVelocity_6042_Out;
+	Cyclic#1.RB[2].Lift.CAN.ControlEffort AT %IW."CVC_Lift2".ControlEffort_MAV_6044;
+	Cyclic#1.RB[2].Lift.CAN.ControlWord AT %QW."CVC_Lift2".CTW_6040_Out;
+	Cyclic#1.RB[2].Lift.CAN.ModuleOk AT %IX."CVC_Lift2".ModuleOk;
+	Cyclic#1.RB[2].Lift.CAN.NodeStatus AT %IW."CVC_Lift2".NodeStatus;
+	Cyclic#1.RB[2].Lift.CAN.StatusWord AT %IW."CVC_Lift2".STW_6041;
+	Cyclic#1.RB[2].Lift.CAN.TargetVelocity AT %QW."CVC_Lift2".TargetVelocity_6042_Out;
+	RB[5].Lift.CAN.ControlEffort AT %IW."CVC_Lift5".ControlEffort_MAV_6044;
+	RB[5].Lift.CAN.ControlWord AT %QW."CVC_Lift5".CTW_6040_Out;
+	RB[5].Lift.CAN.ModuleOk AT %IX."CVC_Lift5".ModuleOk;
+	RB[5].Lift.CAN.NodeStatus AT %IW."CVC_Lift5".NodeStatus;
+	RB[5].Lift.CAN.StatusWord AT %IW."CVC_Lift5".STW_6041;
+	RB[5].Lift.CAN.TargetVelocity AT %QW."CVC_Lift5".TargetVelocity_6042_Out;
+	Cyclic#5.WeightRaw[13].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_364_SS13_15".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[15].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_364_SS13_15".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[13].Config_Channel_1 AT %QB."X67AI2744_LC_400_364_SS13_15".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[15].Config_Channel_1 AT %QB."X67AI2744_LC_400_364_SS13_15".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1364] AT %IX."X67AI2744_LC_400_364_SS13_15".ModuleOk;
+	Cyclic#2.OK[1365] AT %IX."X67AI2744_LC_400_365_SS17_19".ModuleOk;
+	WeightRaw[17].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_365_SS17_19".AnalogInput01;
+	Cyclic#2.OK[1366] AT %IX."X67AI2744_LC_400_366_SS20_18".ModuleOk;
+	WeightRaw[18].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_366_SS20_18".AnalogInput02;
+	Cyclic#5.WeightRaw[16].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_367_SS16_14".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[14].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_367_SS16_14".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[16].Config_Channel_1 AT %QB."X67AI2744_LC_400_367_SS16_14".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[14].Config_Channel_1 AT %QB."X67AI2744_LC_400_367_SS16_14".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1367] AT %IX."X67AI2744_LC_400_367_SS16_14".ModuleOk;
+	Cyclic#5.WeightRaw[21].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_371".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[21].Wgt_Channel_2 AT %ID."X67AI2744_LC_400_371".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[21].Config_Channel_1 AT %QB."X67AI2744_LC_400_371".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[21].Config_Channel_2 AT %QB."X67AI2744_LC_400_371".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1371] AT %IX."X67AI2744_LC_400_371".ModuleOk;
+	Cyclic#5.WeightRaw[22].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_372".AnalogInput01; (*WEIGHING CELL 3A, 3B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[22].Config_Channel_1 AT %QB."X67AI2744_LC_400_372".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#2.OK[1372] AT %IX."X67AI2744_LC_400_372".ModuleOk;
+	Cyclic#2.OK[1362] AT %IX."X67AI2744_LC_400_362_SS05_07".ModuleOk;
+	WeightRaw[7].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_362_SS05_07".AnalogInput02;
+	WeightRaw[7].Config_Channel_1 AT %QB."X67AI2744_LC_400_362_SS05_07".ConfigOutput02;
+	Cyclic#5.WeightRaw[9].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_363_SS09_11".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[11].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_363_SS09_11".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[9].Config_Channel_1 AT %QB."X67AI2744_LC_400_363_SS09_11".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[11].Config_Channel_1 AT %QB."X67AI2744_LC_400_363_SS09_11".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1363] AT %IX."X67AI2744_LC_400_363_SS09_11".ModuleOk;
+	Cyclic#2.OK[1368] AT %IX."X67AI2744_LC_400_368_SS12_10".ModuleOk;
+	Cyclic#5.WeightRaw[12].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_368_SS12_10".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[10].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_368_SS12_10".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[12].Config_Channel_1 AT %QB."X67AI2744_LC_400_368_SS12_10".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[10].Config_Channel_1 AT %QB."X67AI2744_LC_400_368_SS12_10".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1369] AT %IX."X67AI2744_LC_400_369_SS08_06".ModuleOk;
+	Cyclic#5.WeightRaw[6].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_369_SS08_06".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[6].Config_Channel_1 AT %QB."X67AI2744_LC_400_369_SS08_06".ConfigOutput02; (*ADC configuration channel 1*)
+	WeightRaw[8].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_369_SS08_06".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	WeightRaw[8].Config_Channel_1 AT %QB."X67AI2744_LC_400_369_SS08_06".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[4].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_370_SS04_02".AnalogInput01; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 1*)
+	Cyclic#5.WeightRaw[2].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_370_SS04_02".AnalogInput02; (*WEIGHING CELL 1A, 1B - ANALOG INPUT 2*)
+	Cyclic#5.WeightRaw[4].Config_Channel_1 AT %QB."X67AI2744_LC_400_370_SS04_02".ConfigOutput01; (*ADC configuration channel 1*)
+	Cyclic#5.WeightRaw[2].Config_Channel_1 AT %QB."X67AI2744_LC_400_370_SS04_02".ConfigOutput02; (*ADC configuration channel 2*)
+	Cyclic#2.OK[1370] AT %IX."X67AI2744_LC_400_370_SS04_02".ModuleOk;
+	WeightRaw[5].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_362_SS05_07".AnalogInput01;
+	WeightRaw[5].Config_Channel_1 AT %QB."X67AI2744_LC_400_362_SS05_07".ConfigOutput01;
+	WeightRaw[19].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_365_SS17_19".AnalogInput02;
+	WeightRaw[17].Config_Channel_1 AT %QB."X67AI2744_LC_400_365_SS17_19".ConfigOutput01;
+	WeightRaw[19].Config_Channel_1 AT %QB."X67AI2744_LC_400_365_SS17_19".ConfigOutput02;
+	WeightRaw[20].Wgt_Channel_1 AT %ID."X67AI2744_LC_400_366_SS20_18".AnalogInput01;
+	WeightRaw[20].Config_Channel_1 AT %QB."X67AI2744_LC_400_366_SS20_18".ConfigOutput01;
+	WeightRaw[18].Config_Channel_1 AT %QB."X67AI2744_LC_400_366_SS20_18".ConfigOutput02;
+END_VAR

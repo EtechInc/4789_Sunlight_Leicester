@@ -1,0 +1,48 @@
+VAR
+	httpServer : httpService;
+	sendResponse : BOOL;
+	abortResponse : BOOL;
+	URI : STRING[500];
+	requestHeader : httpRequestHeader_t;
+	requestData : STRING[10000];
+	responseHeader : httpResponseHeader_t;
+	responseData : STRING[10000];
+	Statistics : httpStatistics_t;
+	serviceName : STRING[50];
+	getParameterName : httpGetParameter;
+END_VAR
+VAR CONSTANT
+	STRING_DOLLAR : STRING[1] := '&';
+END_VAR
+VAR
+	activeFunction : UINT;
+	mis : UDINT;
+	bagIndex : UDINT;
+	dst : USINT;
+	error : INT;
+	api : UINT;
+	errorResponse : BOOL;
+	overRideData : overRide_typ;
+	ton_httpTimeOut : TON_10ms;
+	recv : R_TRIG;
+	wait : F_TRIG;
+	cat : UDINT;
+	cus : UDINT;
+	bag : REFERENCE TO Bag_typ;
+	prg : USINT;
+	found : USINT;
+	recieved : BOOL;
+END_VAR
+VAR CONSTANT
+	BLANK_RESPONSE_HEADER : httpResponseHeader_t := (0);
+END_VAR
+VAR
+	requestArriveTime : DATE_AND_TIME;
+	debugCount : UDINT;
+	index : UDINT;
+	belt : USINT;
+	velocity : INT;
+(*	PartLoad : ARRAY[0..MAX_DISPLAYS] OF BOOL;*)
+	direction : USINT;
+	command : USINT;
+END_VAR

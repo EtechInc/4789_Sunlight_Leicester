@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Content id="ContentControl_1" height="668" width="130" xmlns="http://www.br-automation.com/iat2015/contentDefinition/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Widgets>
+    <Widget xsi:type="widgets.brease.NavigationButton" id="NavigationStatus" top="512" left="11" width="107" height="36" zIndex="0" pageId="StatusPage_1" text="$Control.ButtonStatusPage" style="Kannegiesser1" />
+    <Widget xsi:type="widgets.brease.NavigationButton" id="NavigationIOStatus" top="564" left="11" width="107" height="36" zIndex="1" pageId="IOStatusPage_1" text="$Control.ButtonIOStatusPage" style="Kannegiesser1" />
+    <Widget xsi:type="widgets.brease.NavigationButton" id="NavigationAlarm" top="618" left="11" width="107" height="36" zIndex="2" pageId="AlarmPage_1" text="$Control.ButtonAlarmPage" style="Kannegiesser1" />
+    <Widget xsi:type="widgets.brease.LanguageSelector" id="LanguageSelector1" top="105" left="11" width="107" height="36" zIndex="3" fitHeight2Items="false" listPosition="left" maxVisibleEntries="12" borderColor="rgba(7, 124, 197, 1)" listBorderWidth="2px" fontSize="12px" style="Kannegiesser1" />
+    <Widget xsi:type="widgets.brease.NavigationButton" id="NavigationIOStatus1" top="564" left="11" width="107" height="36" zIndex="4" pageId="IOStatusPage_1" text="$Control.ButtonIOStatusPage" style="Kannegiesser1" />
+  </Widgets>
+</Content>

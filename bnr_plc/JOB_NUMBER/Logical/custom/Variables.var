@@ -1,0 +1,7 @@
+VAR
+	tmr_adr : UDINT;
+	tmr_int : REFERENCE TO UDINT;
+	tmr_len : UDINT;
+	tmr_status : UINT;
+	tripCurrent : USINT;
+END_VAR

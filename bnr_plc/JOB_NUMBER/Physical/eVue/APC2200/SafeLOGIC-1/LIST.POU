@@ -1,0 +1,4 @@
+PROGRAM	Main			PT=1	Main
+FUNCTION_BLOCK	SafeModules_OK			PT=1	SafeModules_OK
+FUNCTION_BLOCK	Zone			PT=1	Zone
+FUNCTION_BLOCK	Output			PT=1	Output
