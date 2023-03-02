@@ -1,3 +1,0 @@
-SafeModuleFault,POE\SafeModules_OK\SafeSystemOk.GB,2,OUT,1,64,Write,,BOOL,,,VAR_OUTPUT,LOCAL,,
-SafeStatusOk,POE\SafeModules_OK\SafeSystemOk.GB,2,OUT,0,85,Write,,SAFEBOOL,,,VAR_OUTPUT,LOCAL,,
-SafetyModuleState,POE\SafeModules_OK\SafeSystemOk.GB,1,IN,9,21,Read,,SAFEBOOL,,,VAR_INPUT,LOCAL,,

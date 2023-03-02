@@ -1,4 +1,0 @@
-                                                                      
-VAR CONSTANT
-	asiotrcERR_SIO	: UINT	:= 32071;		(*general read error of serialized I/O resource*)
-END_VAR
