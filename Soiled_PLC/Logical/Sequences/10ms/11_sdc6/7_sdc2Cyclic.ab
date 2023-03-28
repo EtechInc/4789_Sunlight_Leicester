@@ -202,7 +202,7 @@ ENDIF
 ;Allow steadys to go up
 TON_10ms((STEP = 8),400,SteadyUp,SteadyUpET)
 IF (STEP = 8) THEN
-	IF SteadyUp THEN
+	IF SteadyUp AND NOT Enable.DCEmptyRelease[6] THEN
 		D[911] = 9
 	ENDIF
 ENDIF

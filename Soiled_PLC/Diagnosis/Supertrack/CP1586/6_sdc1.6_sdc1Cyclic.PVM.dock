@@ -83,5 +83,5 @@ Position X=0 Y=0 Width=0 Height=0 TabWidth Name=250 Type=0 Scope=0 Force=0 Index
                         Batchpart_wgt[8]                                     UINT    0 "                                                               *"    3    6    1   10    0    0         
                         Batchpart_wgt[9]                                     UINT    0 "                                                               *"    3    6    1   10    0    0         
                                        D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
-                                  D[906]                                     UINT    0 "                                                               9"    1    6    1   10    0    0         
-                                  D[981]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
+                                  D[906]                                     UINT    0 "                                                              12"    1    6    1   10    0    0         
+                                  D[981]                                     UINT    0 "                                                               1"    1    6    1   10    0    0         

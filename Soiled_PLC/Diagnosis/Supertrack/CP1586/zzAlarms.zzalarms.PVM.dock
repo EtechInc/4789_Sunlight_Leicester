@@ -2,7 +2,7 @@ WATCH Ver=2.00 PLCName=PLC1 CPUName=CPU TaskName=zzAlarms
 Position X=0 Y=0 Width=0 Height=0 TabWidth Name=250 Type=0 Scope=0 Force=0 Index=23 ASCIIString=0
                                     name                                     type force                                                            value level type len format place expand specs
                                        D                            UINT[0..7999]    0 "                                                               *"    0    6 8000    0    0    1         
-                                  D[201]                                     UINT    0 "                                                              21"    1    6    1   10    0    0         
+                                  D[201]                                     UINT    0 "                                                               9"    1    6    1   10    0    0         
                                   D[202]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
                                   D[203]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
                                   D[204]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
@@ -12,7 +12,7 @@ Position X=0 Y=0 Width=0 Height=0 TabWidth Name=250 Type=0 Scope=0 Force=0 Index
                                   D[208]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
                                   D[209]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
                                   D[210]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
-                                  D[211]                                     UINT    0 "                                                               9"    1    6    1   10    0    0         
+                                  D[211]                                     UINT    0 "                                                               7"    1    6    1   10    0    0         
                                   D[212]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
                                   D[213]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         
                                   D[214]                                     UINT    0 "                                                               0"    1    6    1   10    0    0         

@@ -96,7 +96,7 @@ Alarm[MySeq].On 	= TimerAlarm.Q
 Alarm[MySeq].ET 	= TimerAlarm.ET
 
 ;Outputs
-Y[1].Y15 = O_SelectCDC7
+;Y[1].Y15 = O_SelectCDC7
 Y[10].Y15 = O_SelectStraight
 END_PROGRAM
 
