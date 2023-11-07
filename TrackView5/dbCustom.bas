@@ -12,7 +12,7 @@ Public Const dbUseMachineNames = False       'Machine Names Database
 Public Const MaxProg = 1        'Max Programmes
 
 'Public Const MaxStations = 1   'Max WeighStations
-Public Const MaxDestinations = 41       'Max Destination that can be edited
+Public Const MaxDestinations = 19       'Max Destination that can be edited
 Public Const MaxGrp = 99        'Max Category Programs - 99 Should be the MAX!!
 Public Const MaxGrpdb = 99      'Max Category Programs - 99 Should be the MAX!!
 Public Const MaxCus = 999    'Max Customers
